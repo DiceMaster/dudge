@@ -1,0 +1,5 @@
+LIBRARY	"dtest"
+EXPORTS
+	dtest_init
+	check_solution
+	

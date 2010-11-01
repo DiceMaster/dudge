@@ -1,0 +1,1 @@
+C:\WINDOWS\Microsoft.NET\Framework\v2.0.50727\csc.exe /out:Solution.exe /main:DudgeProgram /nologo /optimize solution.cs launcher.cs

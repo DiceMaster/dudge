@@ -1,0 +1,173 @@
+// Microsoft Visual C++ generated resource script.
+//
+#include "resource.h"
+
+#define APSTUDIO_READONLY_SYMBOLS
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 2 resource.
+//
+#include "afxres.h"
+
+/////////////////////////////////////////////////////////////////////////////
+#undef APSTUDIO_READONLY_SYMBOLS
+
+/////////////////////////////////////////////////////////////////////////////
+// Russian resources
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_RUS)
+#ifdef _WIN32
+LANGUAGE LANG_RUSSIAN, SUBLANG_DEFAULT
+#pragma code_page(1251)
+#endif //_WIN32
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Dialog
+//
+
+IDD_MAIN DIALOGEX 0, 0, 522, 283
+STYLE DS_SETFONT | DS_FIXEDSYS | DS_CENTER | WS_MINIMIZEBOX | WS_MAXIMIZEBOX | WS_POPUP | WS_CAPTION | WS_SYSMENU | WS_THICKFRAME
+CAPTION "Соревнование (нет участника)"
+FONT 8, "MS Shell Dlg", 400, 0, 0x1
+BEGIN
+    CONTROL         "",IDC_TAB,"SysTabControl32",0x0,7,156,197,120
+    PUSHBUTTON      "Открыть файл с программой",IDC_OPEN,7,43,104,14
+    PUSHBUTTON      "Сдать задачу",IDC_SEND,7,60,104,14,WS_DISABLED
+    COMBOBOX        IDC_TASK,7,105,104,123,CBS_DROPDOWNLIST | WS_DISABLED | WS_VSCROLL | WS_TABSTOP
+    COMBOBOX        IDC_LANG,7,132,104,127,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
+    PUSHBUTTON      "Подключиться",IDC_CONNECT,7,24,104,14
+    PUSHBUTTON      "Выход",IDC_EXIT,7,77,104,14
+    EDITTEXT        IDC_SRC,127,28,100,55,ES_MULTILINE | ES_AUTOVSCROLL | ES_AUTOHSCROLL | ES_WANTRETURN | WS_VSCROLL
+    CONTROL         "",IDC_LIST,"SysListView32",LVS_ALIGNLEFT | WS_BORDER | WS_TABSTOP,349,6,166,97
+    LTEXT           "Язык:",IDC_LLANG,7,121,50,8,0,WS_EX_TRANSPARENT
+    LTEXT           "Задача:",IDC_LTASK,7,95,50,8,0,WS_EX_TRANSPARENT
+    CONTROL         "Текст программы:",IDC_LSRC,"Static",SS_LEFTNOWORDWRAP | WS_GROUP,129,10,62,8,WS_EX_TRANSPARENT
+END
+
+IDD_ENTER DIALOGEX 0, 0, 186, 82
+STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | DS_CENTER | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Ввод пароля"
+FONT 8, "MS Shell Dlg", 400, 0, 0x1
+BEGIN
+    EDITTEXT        IDC_ENTNAME,7,16,172,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_ENTPAS,7,42,172,14,ES_PASSWORD | ES_AUTOHSCROLL
+    DEFPUSHBUTTON   "OK",IDC_ENTER,95,61,37,14
+    PUSHBUTTON      "Регистрация",IDC_ENTREG,7,61,61,14
+    PUSHBUTTON      "Отмена",IDC_ENTCANSEL,139,61,40,14
+    LTEXT           "Имя:",IDC_STATIC,7,7,16,8
+    LTEXT           "Пароль:",IDC_STATIC,7,32,28,8
+END
+
+IDD_REG DIALOGEX 0, 0, 186, 108
+STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | DS_CENTER | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Регистрация"
+FONT 8, "MS Shell Dlg", 400, 0, 0x1
+BEGIN
+    EDITTEXT        IDC_NAME,7,16,172,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_PAS,7,42,172,14,ES_PASSWORD | ES_AUTOHSCROLL
+    EDITTEXT        IDC_PAS2,7,68,172,14,ES_PASSWORD | ES_AUTOHSCROLL
+    DEFPUSHBUTTON   "Зарегистрироваться",IDC_PASREG,44,87,79,14
+    PUSHBUTTON      "Отмена",IDC_PASCANSEL,129,87,50,14
+    LTEXT           "Имя:",IDC_STATIC,7,7,16,8
+    LTEXT           "Пароль:",IDC_STATIC,7,32,28,8
+    LTEXT           "Подтверждение пароля:",IDC_STATIC,7,58,85,8
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// DESIGNINFO
+//
+
+#ifdef APSTUDIO_INVOKED
+GUIDELINES DESIGNINFO 
+BEGIN
+    IDD_MAIN, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 515
+        TOPMARGIN, 6
+        BOTTOMMARGIN, 276
+    END
+
+    IDD_ENTER, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 179
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 75
+    END
+
+    IDD_REG, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 179
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 101
+    END
+END
+#endif    // APSTUDIO_INVOKED
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Icon
+//
+
+// Icon with lowest ID value placed first to ensure application icon
+// remains consistent on all systems.
+IDI_TRAY                ICON                    "icon1.ico"
+#endif    // Russian resources
+/////////////////////////////////////////////////////////////////////////////
+
+
+/////////////////////////////////////////////////////////////////////////////
+// English (U.S.) resources
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)
+#ifdef _WIN32
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+#pragma code_page(1252)
+#endif //_WIN32
+
+#ifdef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// TEXTINCLUDE
+//
+
+1 TEXTINCLUDE 
+BEGIN
+    "resource.h\0"
+END
+
+2 TEXTINCLUDE 
+BEGIN
+    "#include ""afxres.h""\r\n"
+    "\0"
+END
+
+3 TEXTINCLUDE 
+BEGIN
+    "\r\n"
+    "\0"
+END
+
+#endif    // APSTUDIO_INVOKED
+
+#endif    // English (U.S.) resources
+/////////////////////////////////////////////////////////////////////////////
+
+
+
+#ifndef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 3 resource.
+//
+
+
+/////////////////////////////////////////////////////////////////////////////
+#endif    // not APSTUDIO_INVOKED
+

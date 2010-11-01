@@ -1,0 +1,252 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configurationDescriptor version="62">
+  <logicalFolder name="root" displayName="root" projectFiles="true">
+    <logicalFolder name="HeaderFiles"
+                   displayName="Header Files"
+                   projectFiles="true">
+      <itemPath>src/dtest.h</itemPath>
+      <itemPath>src/sysconf.h</itemPath>
+    </logicalFolder>
+    <logicalFolder name="jni" displayName="jni" projectFiles="true">
+      <itemPath>src/jni/dudge_slave_dtest_SolutionLauncher.h</itemPath>
+      <itemPath>src/jni/methods_impl.cpp</itemPath>
+      <itemPath>src/jni/utilf.cpp</itemPath>
+      <itemPath>src/jni/utilf.h</itemPath>
+    </logicalFolder>
+    <logicalFolder name="ResourceFiles"
+                   displayName="Resource Files"
+                   projectFiles="true">
+    </logicalFolder>
+    <logicalFolder name="SourceFiles"
+                   displayName="Source Files"
+                   projectFiles="true">
+    </logicalFolder>
+    <logicalFolder name="f2" displayName="unix" projectFiles="true">
+      <itemPath>src/unix/dtest_unix.cpp</itemPath>
+      <itemPath>src/unix/unix_ops.cpp</itemPath>
+      <itemPath>src/unix/unix_ops.h</itemPath>
+    </logicalFolder>
+    <logicalFolder name="f1" displayName="win" projectFiles="true">
+      <itemPath>src/win/dtest_win.cpp</itemPath>
+      <itemPath>src/win/stdafx.cpp</itemPath>
+      <itemPath>src/win/stdafx.h</itemPath>
+      <itemPath>src/win/threads.cpp</itemPath>
+      <itemPath>src/win/threads.h</itemPath>
+      <itemPath>src/win/winapi_ops.cpp</itemPath>
+      <itemPath>src/win/winapi_ops.h</itemPath>
+    </logicalFolder>
+    <logicalFolder name="ExternalFiles"
+                   displayName="Important Files"
+                   projectFiles="false">
+      <itemPath>Makefile</itemPath>
+    </logicalFolder>
+  </logicalFolder>
+  <projectmakefile>Makefile</projectmakefile>
+  <confs>
+    <conf name="linux-Debug" type="2">
+      <toolsSet>
+        <developmentServer>localhost</developmentServer>
+        <compilerSet>Cygwin|Cygwin</compilerSet>
+        <platform>3</platform>
+      </toolsSet>
+      <compileType>
+        <ccTool>
+          <commandLine>-I${JDK_HOME}/include -I${JDK_HOME}/include/linux</commandLine>
+        </ccTool>
+        <linkerTool>
+          <linkerLibItems>
+          </linkerLibItems>
+        </linkerTool>
+      </compileType>
+    </conf>
+    <conf name="linux-Release" type="2">
+      <toolsSet>
+        <developmentServer>localhost</developmentServer>
+        <compilerSet>Cygwin|Cygwin</compilerSet>
+        <platform>3</platform>
+      </toolsSet>
+      <compileType>
+        <cTool>
+          <developmentMode>5</developmentMode>
+        </cTool>
+        <ccTool>
+          <developmentMode>5</developmentMode>
+          <commandLine>-I${JDK_HOME}/include -I${JDK_HOME}/include/linux</commandLine>
+        </ccTool>
+        <fortranCompilerTool>
+          <developmentMode>5</developmentMode>
+        </fortranCompilerTool>
+        <linkerTool>
+          <linkerLibItems>
+          </linkerLibItems>
+        </linkerTool>
+      </compileType>
+    </conf>
+    <conf name="winnt-Debug" type="2">
+      <toolsSet>
+        <developmentServer>localhost</developmentServer>
+        <compilerSet>Cygwin|Cygwin</compilerSet>
+        <platform>3</platform>
+      </toolsSet>
+      <compileType>
+        <cTool>
+          <commandLine>-mno-cygwin</commandLine>
+        </cTool>
+        <ccTool>
+          <incDir>
+            <pElem>"${JDK_HOME}\include"</pElem>
+            <pElem>"${JDK_HOME}\include\win32"</pElem>
+          </incDir>
+          <commandLine>-mno-cygwin -Wl,--kill-at -I"${JDK_HOME}\include" -I"${JDK_HOME}\include\win32"</commandLine>
+          <preprocessorList>
+            <Elem>_WIN32_WINNT=0x0501</Elem>
+          </preprocessorList>
+        </ccTool>
+        <linkerTool>
+          <output>${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/dtest.dll</output>
+          <linkerLibItems>
+          </linkerLibItems>
+        </linkerTool>
+      </compileType>
+    </conf>
+    <conf name="winnt-Release" type="2">
+      <toolsSet>
+        <developmentServer>localhost</developmentServer>
+        <compilerSet>MinGW|MinGW</compilerSet>
+        <platform>3</platform>
+      </toolsSet>
+      <compileType>
+        <cTool>
+          <developmentMode>5</developmentMode>
+          <commandLine>-mno-cygwin</commandLine>
+        </cTool>
+        <ccTool>
+          <developmentMode>5</developmentMode>
+          <incDir>
+            <pElem>"${JDK_HOME}\include"</pElem>
+            <pElem>"${JDK_HOME}\include\win32"</pElem>
+          </incDir>
+          <commandLine>-mno-cygwin -Wl,--kill-at</commandLine>
+          <preprocessorList>
+            <Elem>_WIN32_WINNT=0x0501</Elem>
+          </preprocessorList>
+        </ccTool>
+        <fortranCompilerTool>
+          <developmentMode>5</developmentMode>
+        </fortranCompilerTool>
+        <linkerTool>
+          <output>${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/dtest.dll</output>
+          <linkerLibItems>
+          </linkerLibItems>
+        </linkerTool>
+      </compileType>
+    </conf>
+    <conf name="win9x-Debug" type="2">
+      <toolsSet>
+        <developmentServer>localhost</developmentServer>
+        <compilerSet>Cygwin|Cygwin</compilerSet>
+        <platform>3</platform>
+      </toolsSet>
+      <compileType>
+        <cTool>
+          <incDir>
+            <pElem>"${JDK_HOME}\include\win32"</pElem>
+          </incDir>
+          <commandLine>-mno-cygwin</commandLine>
+        </cTool>
+        <ccTool>
+          <incDir>
+            <pElem>"${JDK_HOME}\include\win32"</pElem>
+          </incDir>
+          <commandLine>-mno-cygwin -Wl,--kill-at -I"${JDK_HOME}\include" -I"${JDK_HOME}\include\win32"</commandLine>
+          <preprocessorList>
+            <Elem>_WIN32_WINDOWS=0x0410</Elem>
+          </preprocessorList>
+        </ccTool>
+        <linkerTool>
+          <linkerLibItems>
+          </linkerLibItems>
+        </linkerTool>
+      </compileType>
+    </conf>
+    <conf name="win9x-Release" type="2">
+      <toolsSet>
+        <developmentServer>localhost</developmentServer>
+        <compilerSet>Cygwin|Cygwin</compilerSet>
+        <platform>3</platform>
+      </toolsSet>
+      <compileType>
+        <cTool>
+          <developmentMode>5</developmentMode>
+          <incDir>
+            <pElem>"${JDK_HOME}\include\win32"</pElem>
+          </incDir>
+          <commandLine>-mno-cygwin</commandLine>
+        </cTool>
+        <ccTool>
+          <developmentMode>5</developmentMode>
+          <commandLine>-mno-cygwin -Wl,--kill-at -I"${JDK_HOME}\include" -I"${JDK_HOME}\include\win32"</commandLine>
+          <preprocessorList>
+            <Elem>_WIN32_WINDOWS=0x0410</Elem>
+          </preprocessorList>
+        </ccTool>
+        <fortranCompilerTool>
+          <developmentMode>5</developmentMode>
+        </fortranCompilerTool>
+        <linkerTool>
+          <linkerLibItems>
+          </linkerLibItems>
+        </linkerTool>
+      </compileType>
+    </conf>
+    <conf name="darwin-Debug" type="2">
+      <toolsSet>
+        <developmentServer>localhost</developmentServer>
+        <compilerSet>Cygwin|Cygwin</compilerSet>
+        <platform>3</platform>
+      </toolsSet>
+      <compileType>
+        <ccTool>
+          <incDir>
+            <pElem>/System/Library/Frameworks/JavaVM.framework/Home/include</pElem>
+          </incDir>
+          <preprocessorList>
+            <Elem>macosx</Elem>
+          </preprocessorList>
+        </ccTool>
+        <linkerTool>
+          <linkerLibItems>
+          </linkerLibItems>
+        </linkerTool>
+      </compileType>
+    </conf>
+    <conf name="darwin-Release" type="2">
+      <toolsSet>
+        <developmentServer>localhost</developmentServer>
+        <compilerSet>Cygwin|Cygwin</compilerSet>
+        <platform>3</platform>
+      </toolsSet>
+      <compileType>
+        <cTool>
+          <developmentMode>5</developmentMode>
+        </cTool>
+        <ccTool>
+          <developmentMode>5</developmentMode>
+          <incDir>
+            <pElem>/System/Library/Frameworks/JavaVM.framework/Home/include</pElem>
+          </incDir>
+          <preprocessorList>
+            <Elem>macosx</Elem>
+          </preprocessorList>
+        </ccTool>
+        <fortranCompilerTool>
+          <developmentMode>5</developmentMode>
+        </fortranCompilerTool>
+        <linkerTool>
+          <linkerLibItems>
+          </linkerLibItems>
+        </linkerTool>
+      </compileType>
+    </conf>
+  </confs>
+</configurationDescriptor>

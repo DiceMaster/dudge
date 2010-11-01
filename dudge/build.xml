@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="FullDistribution" default="default" basedir=".">
+	<description>Собирает весь проект и подготавливает его к распространению.</description>
+
+	<property name="dist"  location="${basedir}/dist"/>
+	<property name="dudge"  location="${basedir}/dudge"/>
+	<property name="dudge-lib"  location="${basedir}/dudge-lib"/>
+	<property name="dudge-slave"  location="${basedir}/dudge-slave"/>
+	<property name="dtest"  location="${basedir}/dtest"/>
+	<property name="dudgedb" location="${basedir}/dudgedb"/>
+
+	<property name="dudge-lib_jar" value="dudge-lib.jar"/>
+	<property name="dudge_jar" value="dudge.ear"/>
+	<property name="dudge-slave_jar" value="dudge-slave.jar"/>
+	<property name="dtest_file" value="libdtest.so"/>
+	
+	<property name="dist_zip" location="${basedir}/dudge.zip"/>
+
+	<property name="dist_target" value="jar"/>
+	<property name="clean_target" value="clean"/>
+	<property name="test_target" value="test"/>
+	<property name="doc_target" value="javadoc"/>
+
+	<!-- Инициализация -->
+	<target name="init">
+		<mkdir dir="${dist}"/>
+	</target>
+
+	<!-- Очистка системы -->
+	<target name="clean-dudge-lib">
+	<ant antfile="build.xml" dir="${dudge-lib}" target="${clean_target}"/>
+	</target>
+
+	<target name="clean-dudge">
+	<ant antfile="build.xml" dir="${dudge}" target="${clean_target}"/>
+	</target>
+
+	<target name="clean-dudge-slave">
+	<ant antfile="build.xml" dir="${dudge-slave}" target="${clean_target}"/>
+	</target>
+
+	<target name="clean-dtest">
+	<ant antfile="build.xml" dir="${dtest}" target="${clean_target}"/>
+	</target>
+
+	<target name="clean-zip">
+	<delete file="${dist_zip}"/>
+	</target>
+
+	<target name="clean" depends="clean-dudge-lib, clean-dudge, clean-dudge-slave, clean-dtest, clean-zip">
+	<delete dir="${dist}"/>
+	</target>
+
+	<!-- Компилирование модулей системы -->
+	<target name="build-dudge-lib" depends="init">
+	<ant antfile="build.xml" dir="${dudge-lib}" target="${dist_target}"/>
+	</target>
+
+	<target name="build-dudge" depends="init">
+	<ant antfile="build.xml" dir="${dudge}" target="${dist_target}"/>
+	</target>
+
+	<target name="build-dudge-slave" depends="init">
+	<ant antfile="build.xml" dir="${dudge-slave}" target="${dist_target}"/>
+	</target>
+
+	<target name="build-dtest" depends="init">
+	<ant antfile="build.xml" dir="${dtest}" target="${dist_target}"/>
+	</target>
+
+	<target name="build" depends="build-dudge-lib, build-dudge, build-dudge-slave, build-dtest"/>
+
+	<!-- Копирование откомпилированных модулей и служебных файлов-->
+	<target name="copy-dudge-lib" depends="build-dudge-lib">
+	<copy file="${dudge-lib}/dist/${dudge-lib_jar}" tofile="${dist}/${dudge-lib_jar}"/>
+	</target>
+
+	<target name="copy-dudge" depends="build-dudge">
+	<copy file="${dudge}/dist/${dudge_jar}" tofile="${dist}/${dudge_jar}"/>
+	</target>
+
+	<target name="copy-dudge-slave" depends="build-dudge-slave">
+	<copy file="${dudge-slave}/dist/${dudge-slave_jar}" tofile="${dist}/${dudge-slave_jar}"/>
+	<copy file="${dudge-slave}/slave.properties.sample" tofile="${dist}/dudge-slave.properties"/>
+	<copy file="${dudge-slave}/slave.policy" tofile="${dist}/slave.policy"/>
+	</target>
+
+	<target name="copy-dtest" depends="build-dtest">
+	<copy file="${dtest}/dist/${dtest_file}" tofile="${dist}/${dtest_file}"/>
+	</target>
+
+	<target name="copy-dudgedb" depends="init">
+	<copy file="${dudgedb}/dudgedb.sql" todir="${dist}"/>
+	</target>
+	
+	<target name="copy" depends="copy-dudge-lib, copy-dudge, copy-dudge-slave, copy-dtest, copy-dudgedb"/>
+	
+	<!-- Тестирование проекта -->
+	<target name="test-dudge-lib" depends="build-dudge-lib">
+	<ant antfile="build.xml" dir="${dudge-lib}" target="${test_target}"/>
+	</target>
+
+	<target name="test-dudge" depends="build-dudge">
+	<ant antfile="build.xml" dir="${dudge}" target="${test_target}"/>
+	</target>
+
+	<target name="test-dudge-slave" depends="build-dudge-slave">
+	<ant antfile="build.xml" dir="${dudge-slave}" target="${test_target}"/>
+	</target>
+
+	<target name="test" depends="test-dudge-lib, test-dudge, test-dudge-slave"/>
+	
+	<!-- Архивация системы для удобного растпространения-->
+	<target name="dist" depends="build, copy">
+	<zip basedir="${dist}" destfile="${dist_zip}"/>
+	</target>
+
+	<!-- Цель по умолчанию -->
+	<target name="default" depends="clean, build, test, copy"/>
+	
+	<!-- Без тестирования исходников-->
+	<target name="without-tests" depends="clean, build, copy"/>
+</project>

@@ -1,0 +1,50 @@
+#north-div {
+    border: 0px;
+    padding:0px 0px;
+}
+#nav {
+}
+#nav, #inner1, #inner2 {
+    padding:10px;
+}
+#content p {
+    margin:5px;
+}
+#nav li {
+    padding:2px;
+    padding-left:10px;
+    background-image:url(images/bullet.gif);
+    background-position: -3px 6px;
+    background-repeat: no-repeat;
+    display: block;
+}
+
+#workspace-toolbar {
+   margin-bottom: 20px;
+   margin-left: 0px;
+   margin-right: 0px;
+   margin-top: 0px;
+   padding-bottom: 0px;
+   padding-left: 0px;
+   padding-right: 0px;
+   padding-top: 0px
+}
+
+#buttons {
+    margin-top: 10px;
+}
+
+.x-layout-panel-south, #content .x-layout-panel-center{
+    border:0px none;
+}
+#content .x-layout-panel-south{
+    border-top:1px solid #aca899;
+}
+#content .x-layout-panel-center{
+    border-bottom:1px solid #aca899;
+}
+
+.x-layout-panel-north, .ytheme-gray .x-layout-panel-north{
+    border:0px none;
+}
+

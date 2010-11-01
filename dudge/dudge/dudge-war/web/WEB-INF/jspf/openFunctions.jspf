@@ -1,0 +1,179 @@
+<script type="text/javascript">
+function getTabRegion()
+{
+	if(parent == null)
+		return this;
+	
+	return parent.tabPanel;
+}
+
+function openContent(id, url, title) {
+	var panel = getTabRegion();
+	
+	var frameId = id + 'Frame';
+	var tab = panel.getComponent(id);
+	if(tab == null) {
+		tab = panel.add({
+			id: id,
+			title: title,
+			closable: true,
+			layout: 'fit',
+			html: '<iframe id="'+frameId+'" name="'+frameId+'" src="'+url+'" frameborder="0" style="width:100%;height:100%;" />'
+		});
+	}
+	
+	panel.activate(tab);
+}
+
+function closeContent() {
+}
+
+function openNews() {
+	openContent(
+		'news',
+		'content/news.jsp',
+		'<bean:message key="news.news"/>'
+	);
+}
+
+function openContests() {
+	openContent(
+		'contests',
+		'contests.do?reqCode=list',
+		'<bean:message key="contests.contests"/>'
+	);
+}
+
+function openProblems() {
+	openContent(
+		'problems',
+		'problems.do?reqCode=list',
+		'<bean:message key="problems.problems"/>'
+	);
+}
+
+function openUsers() {
+	openContent(
+		'users',
+		'users.do?reqCode=list',
+		'<bean:message key="users.users"/>'
+	);
+}
+
+function openLanguages() {
+	openContent(
+		'languages',
+		'languages.do?reqCode=list',
+		'<bean:message key="languages.languages"/>'
+	);
+}
+
+
+function openAuthors() {
+	openContent(
+		'authors',
+		'content/authors.jsp',
+		'<bean:message key="authors.authors"/>'
+	);
+}
+
+function openRegistration() {
+	openContent(
+		'registration',
+		'users.do?reqCode=register',
+		'<bean:message key="registration.registration"/>'
+	);
+}
+
+function openMonitor(contestId) {
+	openContent(
+		'monitor' + (contestId ? contestId : ''),
+		'monitor.do?reqCode=view' + (contestId ? ('&contestId=' + contestId) : ''),
+		'<bean:message key="monitor.monitor"/>' + (contestId ? contestId : '')
+	);
+}
+
+function openContestProblems() {
+	openContent(
+	'contestProblems',
+	 'contests.do?reqCode=listOfProblems',
+	 '<bean:message key="menu.contestProblems"/>' 
+  );
+
+ }
+
+function openStatus() {
+	openContent(
+		'status',
+		'monitor.do?reqCode=showStatus',
+		'<bean:message key="status.status"/>'
+	);
+}
+
+function openSubmit(problemId, contestId) {
+	openContent(
+		'submit',
+		'solutions.do?reqCode=submit'
+			+ (contestId ? ('&contestId=' + contestId) : '')
+			+ (problemId ? ('&problemId=' + problemId) : ''),
+		'<bean:message key="submit.submitSolution"/>'
+	);
+}
+
+function openContest(contestId, action) {
+	if(action == null)
+		 action = 'view';
+	
+	openContent(
+		'contest' + (contestId ? contestId : 'New'),
+		'contests.do?reqCode=' + action + (contestId ? ('&contestId=' + contestId) : ''),
+		'<bean:message key="contest.contest"/> ' + (contestId ? contestId : '')
+	);
+}
+
+function openLanguage(languageId, action) {
+	if(action == null)
+		 action = 'view';
+	
+	openContent(
+		'language' + (languageId ? languageId : 'New'),
+		'languages.do?reqCode=' + action + (languageId ? ('&languageId=' + languageId) : ''),
+		'<bean:message key="language.language"/> ' + (languageId ? languageId : '')
+	);
+}
+
+
+function openProblem(problemId, action) {
+	if(action == null)
+		 action = 'view';
+	
+	openContent(
+		'problem' + (problemId ? problemId : 'New'),
+		'problems.do?reqCode=' + action + (problemId ? ('&problemId=' + problemId) : ''),
+		'<bean:message key="problem.problem"/> ' + (problemId ? problemId : '')
+	);
+}
+
+function openUser(login, action) {
+	if(action == null)
+		 action = 'view';
+	
+	openContent(
+		'user' + (login ? login : 'New'),
+		'users.do?reqCode=' + action + (login ? ('&login=' + login) : ''),
+		'<bean:message key="user.user"/> ' + (login ? login : '')
+	);
+}
+
+function openSolution(solutionId, action) {
+	if(action == null)
+		 action = 'view';
+	
+	openContent(
+		'problem' + (solutionId ? solutionId : 'New'),
+		'solutions.do?reqCode=' + action + (solutionId ? ('&solutionId=' + solutionId) : ''),
+		'<bean:message key="solution.solution"/> ' + (solutionId ? solutionId : '')
+	);
+}
+
+</script>

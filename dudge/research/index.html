@@ -1,0 +1,214 @@
+<html>
+<head>
+  <title>Dudge</title>
+    <link rel="stylesheet" type="text/css" href="ext/resources/css/ext-all.css" />
+    
+    <style type="text/css">
+    html, body {
+        font:normal 12px verdana;
+        margin:0;
+        padding:0;
+        border:0 none;
+        overflow:hidden;
+        height:100%;
+    }
+    p {
+        margin:10px;
+    }
+	
+	h1 {
+		font-size: 200%
+	}
+    </style>
+
+    <!-- LIBS -->
+
+    <script type="text/javascript" src="ext/adapter/ext/ext-base.js"></script>
+    <!-- ENDLIBS -->
+
+    <script type="text/javascript" src="ext/ext-all-debug.js"></script>
+	
+<script type="text/javascript">
+Ext.onReady(function(){
+
+//Ext.state.Manager.setProvider(new Ext.state.CookieProvider());
+
+// ComboBox creation
+var languageComboBox = new Ext.form.ComboBox({
+	store: new Ext.data.ArrayStore({
+		autoDestroy: true,
+		fields: ['langId', 'langName'],
+		data : [
+			['en', 'English'],
+			['ru', 'Russian']
+		]
+	}),
+	displayField: 'langName',
+	typeAhead: true,
+	mode: 'local',
+	forceSelection: true,
+	triggerAction: 'all',
+	emptyText: 'Language...',
+	selectOnFocus: true,
+	width: 90,
+	getListParent: function() {
+		return this.el.up('.x-menu');
+	},
+	iconCls: 'no-icon' //use iconCls if placing within menu to shift to right side of menu
+});
+
+var mainMenuToolbar = new Ext.Toolbar({
+	height: 32,
+	items: [
+		{
+			xtype: 'tbtext',
+			html: '<a href="register.do">Регистрация</a>'
+		},
+		{
+			xtype: 'tbtext',
+			html: '<a href="contests.do">Соревнования</a>'
+		},
+		{
+			xtype: 'tbtext',
+			html: '<a href="about.do">Об авторах</a>'
+		},
+		'->',
+		languageComboBox,
+		'-',
+		{
+			xtype: 'textfield',
+			name: 'login',
+			emptyText: 'Пользователь',
+			width: 80
+		},
+		{
+			xtype: 'textfield',
+			name: 'password',
+			emptyText: 'Пароль',
+			width: 80
+		},
+		{
+			xtype: 'button',
+			text: 'Войти'
+		}
+	]
+});
+
+var sentSolutionsGrid = new Ext.grid.GridPanel({
+	store: new Ext.data.ArrayStore({
+		autoDestroy: true,
+		fields: ['solId', 'time', 'problemName'],
+		data : [
+			['2', '10:23', 'A. Ежики'],
+			['1', '10:28', 'C. Демоны из варпа']
+		]
+	}),
+/*    store: new Ext.data.Store({
+        autoDestroy: true,
+		reader: reader,
+        data: xg.dummyData
+    }),*/
+    colModel: new Ext.grid.ColumnModel({
+        defaults: {
+            width: 60,
+            sortable: true
+        },
+        columns: [
+			{id: 'solId', dataIndex: 'solId', hidden: true},
+            {id: 'time', header: 'Время', dataIndex: 'time', width: 45, resizable: false},
+            {header: 'Задача', dataIndex: 'problemName', width: 150}
+        ],
+    }),
+    viewConfig: {
+        //forceFit: true
+    },
+    sm: new Ext.grid.RowSelectionModel({singleSelect:true}),
+	border: false
+});
+
+var viewport = new Ext.Viewport({
+	layout: 'border',
+	items: [
+	{
+		region: 'north',
+		title: 'Dudge: <a href="contests.do">Областная олимпиада по программированию</a>',
+		height: 53,
+		tbar: mainMenuToolbar
+	}, {
+		region: 'west',
+		id: 'west-panel', // see Ext.getCmp() below
+		title: 'Соревнование (<a href="monitor.do">монитор</a>)',
+		split: true,
+		width: 200,
+		minSize: 175,
+		maxSize: 400,
+		collapsible: true,
+		margins: '0 0 0 5',
+		layout: {
+			type: 'accordion',
+			animate: true
+		},
+		items: [{
+			title: 'Задачи (<a href="submitProblem.do">сдать</a>)',
+			border: false,
+			contentEl: 'problemsList'
+		}, {
+			contentEl: 'problemRequirements',
+			title: 'Требования к решениям',
+			border: false
+		}, {
+			title: 'Отправленные решения',
+			border: false,
+			items: sentSolutionsGrid
+		}, {
+			title: 'Прочее',
+			border: false,
+			contentEl: 'miscMenu'
+		}]
+	},
+	{
+		region: 'center',
+		contentEl: 'content',
+		autoScroll: true
+	}]
+});
+
+}); // Ext.OnReady()
+</script>
+
+</head>
+<body>
+    <!-- use class="x-hide-display" to prevent a brief flicker of the content -->
+    <div id="problemsList" class="x-hide-display">
+	<p>
+        <p><b>A.</b> <a href="foo">Ежики</a>
+		<p><b>B.</b> <a href="foo">Гномы</a>
+		<p><b>C.</b> <a href="foo">Демоны из варпа</a>
+    </div>
+	
+	<div id="problemRequirements" class="x-hide-display">
+		<p>Описание требований к решениям задач.
+	</div>
+	
+	<div id="miscMenu" class="x-hide-display">
+		<p><a href="status.do">Статус системы</a>
+		<p><a href="users.do">Пользователи системы</a>
+		<p><a href="problems.do">Архив задач</a>
+	</div>
+	
+	<div id="content" class="x-hide-display">	
+	<p><h1 align="center">Задача A: Ежики</h1>
+	<p align="center">Автор: Пупкин В.В.
+	<p align="center"><a href="submitProblem.do">Сдать задачу...</a>
+	<p>Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Sed metus nibh, sodales a, porta at, vulputate eget, dui. Pellentesque ut nisl. Maecenas tortor turpis, interdum non, sodales non, iaculis ac, lacus. Vestibulum auctor, tortor quis iaculis malesuada, libero lectus bibendum purus, sit amet tincidunt quam turpis vel lacus. In pellentesque nisl non sem. Suspendisse nunc sem, pretium eget, cursus a, fringilla vel, urna. Aliquam commodo ullamcorper erat. Nullam vel justo in neque porttitor laoreet. Aenean lacus dui, consequat eu, adipiscing eget, nonummy non, nisi. Morbi nunc est, dignissim non, ornare sed, luctus eu, massa. Vivamus eget quam. Vivamus tincidunt diam nec urna. Curabitur velit. Quisque dolor magna, ornare sed, elementum porta, luctus in, leo.</p>
+	<p>Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Sed metus nibh, sodales a, porta at, vulputate eget, dui. Pellentesque ut nisl. Maecenas tortor turpis, interdum non, sodales non, iaculis ac, lacus. Vestibulum auctor, tortor quis iaculis malesuada, libero lectus bibendum purus, sit amet tincidunt quam turpis vel lacus. In pellentesque nisl non sem. Suspendisse nunc sem, pretium eget, cursus a, fringilla vel, urna. Aliquam commodo ullamcorper erat. Nullam vel justo in neque porttitor laoreet. Aenean lacus dui, consequat eu, adipiscing eget, nonummy non, nisi. Morbi nunc est, dignissim non, ornare sed, luctus eu, massa. Vivamus eget quam. Vivamus tincidunt diam nec urna. Curabitur velit. Quisque dolor magna, ornare sed, elementum porta, luctus in, leo.</p>
+	<p>Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Sed metus nibh, sodales a, porta at, vulputate eget, dui. Pellentesque ut nisl. Maecenas tortor turpis, interdum non, sodales non, iaculis ac, lacus. Vestibulum auctor, tortor quis iaculis malesuada, libero lectus bibendum purus, sit amet tincidunt quam turpis vel lacus. In pellentesque nisl non sem. Suspendisse nunc sem, pretium eget, cursus a, fringilla vel, urna. Aliquam commodo ullamcorper erat. Nullam vel justo in neque porttitor laoreet. Aenean lacus dui, consequat eu, adipiscing eget, nonummy non, nisi. Morbi nunc est, dignissim non, ornare sed, luctus eu, massa. Vivamus eget quam. Vivamus tincidunt diam nec urna. Curabitur velit. Quisque dolor magna, ornare sed, elementum porta, luctus in, leo.</p>
+	<p>Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Sed metus nibh, sodales a, porta at, vulputate eget, dui. Pellentesque ut nisl. Maecenas tortor turpis, interdum non, sodales non, iaculis ac, lacus. Vestibulum auctor, tortor quis iaculis malesuada, libero lectus bibendum purus, sit amet tincidunt quam turpis vel lacus. In pellentesque nisl non sem. Suspendisse nunc sem, pretium eget, cursus a, fringilla vel, urna. Aliquam commodo ullamcorper erat. Nullam vel justo in neque porttitor laoreet. Aenean lacus dui, consequat eu, adipiscing eget, nonummy non, nisi. Morbi nunc est, dignissim non, ornare sed, luctus eu, massa. Vivamus eget quam. Vivamus tincidunt diam nec urna. Curabitur velit. Quisque dolor magna, ornare sed, elementum porta, luctus in, leo.</p>
+	<p>Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Sed metus nibh, sodales a, porta at, vulputate eget, dui. Pellentesque ut nisl. Maecenas tortor turpis, interdum non, sodales non, iaculis ac, lacus. Vestibulum auctor, tortor quis iaculis malesuada, libero lectus bibendum purus, sit amet tincidunt quam turpis vel lacus. In pellentesque nisl non sem. Suspendisse nunc sem, pretium eget, cursus a, fringilla vel, urna. Aliquam commodo ullamcorper erat. Nullam vel justo in neque porttitor laoreet. Aenean lacus dui, consequat eu, adipiscing eget, nonummy non, nisi. Morbi nunc est, dignissim non, ornare sed, luctus eu, massa. Vivamus eget quam. Vivamus tincidunt diam nec urna. Curabitur velit. Quisque dolor magna, ornare sed, elementum porta, luctus in, leo.</p>
+	<p>Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Sed metus nibh, sodales a, porta at, vulputate eget, dui. Pellentesque ut nisl. Maecenas tortor turpis, interdum non, sodales non, iaculis ac, lacus. Vestibulum auctor, tortor quis iaculis malesuada, libero lectus bibendum purus, sit amet tincidunt quam turpis vel lacus. In pellentesque nisl non sem. Suspendisse nunc sem, pretium eget, cursus a, fringilla vel, urna. Aliquam commodo ullamcorper erat. Nullam vel justo in neque porttitor laoreet. Aenean lacus dui, consequat eu, adipiscing eget, nonummy non, nisi. Morbi nunc est, dignissim non, ornare sed, luctus eu, massa. Vivamus eget quam. Vivamus tincidunt diam nec urna. Curabitur velit. Quisque dolor magna, ornare sed, elementum porta, luctus in, leo.</p>
+	<p>Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Sed metus nibh, sodales a, porta at, vulputate eget, dui. Pellentesque ut nisl. Maecenas tortor turpis, interdum non, sodales non, iaculis ac, lacus. Vestibulum auctor, tortor quis iaculis malesuada, libero lectus bibendum purus, sit amet tincidunt quam turpis vel lacus. In pellentesque nisl non sem. Suspendisse nunc sem, pretium eget, cursus a, fringilla vel, urna. Aliquam commodo ullamcorper erat. Nullam vel justo in neque porttitor laoreet. Aenean lacus dui, consequat eu, adipiscing eget, nonummy non, nisi. Morbi nunc est, dignissim non, ornare sed, luctus eu, massa. Vivamus eget quam. Vivamus tincidunt diam nec urna. Curabitur velit. Quisque dolor magna, ornare sed, elementum porta, luctus in, leo.</p>
+	<p>Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Sed metus nibh, sodales a, porta at, vulputate eget, dui. Pellentesque ut nisl. Maecenas tortor turpis, interdum non, sodales non, iaculis ac, lacus. Vestibulum auctor, tortor quis iaculis malesuada, libero lectus bibendum purus, sit amet tincidunt quam turpis vel lacus. In pellentesque nisl non sem. Suspendisse nunc sem, pretium eget, cursus a, fringilla vel, urna. Aliquam commodo ullamcorper erat. Nullam vel justo in neque porttitor laoreet. Aenean lacus dui, consequat eu, adipiscing eget, nonummy non, nisi. Morbi nunc est, dignissim non, ornare sed, luctus eu, massa. Vivamus eget quam. Vivamus tincidunt diam nec urna. Curabitur velit. Quisque dolor magna, ornare sed, elementum porta, luctus in, leo.</p>
+	</div>
+	
+</body>
+</html>

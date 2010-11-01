@@ -1,0 +1,199 @@
+// Microsoft Visual C++ generated resource script.
+//
+#include "resource.h"
+
+#define APSTUDIO_READONLY_SYMBOLS
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 2 resource.
+//
+#include "afxres.h"
+
+/////////////////////////////////////////////////////////////////////////////
+#undef APSTUDIO_READONLY_SYMBOLS
+
+/////////////////////////////////////////////////////////////////////////////
+// Russian resources
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_RUS)
+#ifdef _WIN32
+LANGUAGE LANG_RUSSIAN, SUBLANG_DEFAULT
+#pragma code_page(1251)
+#endif //_WIN32
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Dialog
+//
+
+IDD_MAIN DIALOGEX 0, 0, 458, 307
+STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | DS_CENTER | WS_MINIMIZEBOX | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Сервер проверки задач"
+FONT 8, "MS Shell Dlg", 400, 0, 0x1
+BEGIN
+    PUSHBUTTON      "Закрыть",IDC_EXIT,412,7,39,14
+    EDITTEXT        IDC_LOG,7,30,444,124,ES_MULTILINE | ES_AUTOVSCROLL | ES_AUTOHSCROLL | ES_READONLY | ES_WANTRETURN | WS_VSCROLL
+    LTEXT           "История:",IDC_STATIC,7,21,32,8
+    PUSHBUTTON      "Старт соревнования",IDC_START,7,7,82,14
+    PUSHBUTTON      "Администратор",IDC_ADMIN,224,7,61,14
+    LTEXT           "Прошло времени:",IDC_TIME,93,10,129,8
+    LISTBOX         IDC_TASKS,7,168,128,132,LBS_NOINTEGRALHEIGHT | WS_VSCROLL | WS_TABSTOP
+    CONTROL         "",IDC_USERS,"SysListView32",LVS_SINGLESEL | LVS_ALIGNLEFT | WS_BORDER | WS_TABSTOP,143,168,308,113
+    LTEXT           "Задачи:",IDC_STATIC,7,157,28,8
+    LTEXT           "Участники:",IDC_STATIC,144,157,40,8
+    PUSHBUTTON      "Удалить",IDC_DEL,401,286,50,14
+    PUSHBUTTON      "Настроить",IDC_EDIT,333,286,58,14
+    PUSHBUTTON      "Восстановление соревнования",IDC_RESTORE,290,7,118,14
+END
+
+IDD_ADMPAS DIALOGEX 0, 0, 138, 62
+STYLE DS_SETFONT | DS_FIXEDSYS | DS_CENTER | WS_POPUP | WS_VISIBLE | WS_BORDER
+FONT 8, "MS Shell Dlg", 400, 0, 0x1
+BEGIN
+    EDITTEXT        IDC_ADMPAS,9,19,122,14,ES_PASSWORD | ES_AUTOHSCROLL
+    DEFPUSHBUTTON   "OK",IDC_YES,32,41,42,14
+    PUSHBUTTON      "Отмена",IDC_NOT,81,41,50,14
+    LTEXT           "Введите пароль:",IDC_STATIC,9,9,58,8
+END
+
+IDD_ENTPAS DIALOGEX 0, 0, 189, 86
+STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | DS_CENTER | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Ввод пароля для сеанса"
+FONT 8, "MS Shell Dlg", 400, 0, 0x1
+BEGIN
+    EDITTEXT        IDC_P1,7,18,175,14,ES_PASSWORD | ES_AUTOHSCROLL
+    EDITTEXT        IDC_P2,7,45,175,14,ES_PASSWORD | ES_AUTOHSCROLL
+    DEFPUSHBUTTON   "OK",1014,72,65,50,14
+    PUSHBUTTON      "Отмена",IDC_CANCEL,132,65,50,14
+    LTEXT           "Пароль:",IDC_STATIC,7,7,28,8
+    LTEXT           "Повтор пароля:",IDC_STATIC,7,34,54,8
+END
+
+IDD_USEREDIT DIALOGEX 0, 0, 168, 75
+STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Участник"
+FONT 8, "MS Shell Dlg", 400, 0, 0x1
+BEGIN
+    DEFPUSHBUTTON   "OK",IDC_OK,111,54,50,14
+    EDITTEXT        IDC_SHTRAF,35,20,48,14,ES_AUTOHSCROLL | ES_NUMBER
+    LTEXT           "Участник:",IDC_STATIC,7,7,36,8
+    LTEXT           "Х. У. Йовович",IDC_NAME,47,7,48,8
+    LTEXT           "Штраф:",IDC_STATIC,7,23,28,8
+    CONTROL         "",IDC_SSHTRAF,"msctls_updown32",UDS_SETBUDDYINT | UDS_ARROWKEYS | UDS_NOTHOUSANDS,83,20,10,14
+    EDITTEXT        IDC_TASK,48,37,20,14,ES_AUTOHSCROLL | ES_NUMBER
+    LTEXT           "Задача:",IDC_STATIC,7,39,28,8
+    EDITTEXT        IDC_TRY,126,36,24,14,ES_AUTOHSCROLL | ES_NUMBER
+    CONTROL         "",IDC_STRY,"msctls_updown32",UDS_SETBUDDYINT | UDS_ARROWKEYS | UDS_NOTHOUSANDS,150,36,11,14
+    LTEXT           "Попыток:",IDC_STATIC,92,39,34,8
+    CONTROL         "Решена",IDC_SOLV,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,7,54,41,10
+    PUSHBUTTON      "<",IDC_TASKLEFT,36,37,12,14
+    PUSHBUTTON      ">",IDC_TASKRIGHT,68,37,12,14
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// DESIGNINFO
+//
+
+#ifdef APSTUDIO_INVOKED
+GUIDELINES DESIGNINFO 
+BEGIN
+    IDD_MAIN, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 451
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 300
+    END
+
+    IDD_ADMPAS, DIALOG
+    BEGIN
+        LEFTMARGIN, 9
+        RIGHTMARGIN, 131
+        TOPMARGIN, 9
+        BOTTOMMARGIN, 55
+    END
+
+    IDD_ENTPAS, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 182
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 79
+    END
+
+    IDD_USEREDIT, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 161
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 68
+    END
+END
+#endif    // APSTUDIO_INVOKED
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Icon
+//
+
+// Icon with lowest ID value placed first to ensure application icon
+// remains consistent on all systems.
+IDI_APP                 ICON                    "icon2.ico"
+IDI_TRAY                ICON                    "icon1.ico"
+IDI_ICON1               ICON                    "ico00001.ico"
+#endif    // Russian resources
+/////////////////////////////////////////////////////////////////////////////
+
+
+/////////////////////////////////////////////////////////////////////////////
+// English (U.S.) resources
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)
+#ifdef _WIN32
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+#pragma code_page(1252)
+#endif //_WIN32
+
+#ifdef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// TEXTINCLUDE
+//
+
+1 TEXTINCLUDE 
+BEGIN
+    "resource.h\0"
+END
+
+2 TEXTINCLUDE 
+BEGIN
+    "#include ""afxres.h""\r\n"
+    "\0"
+END
+
+3 TEXTINCLUDE 
+BEGIN
+    "\r\n"
+    "\0"
+END
+
+#endif    // APSTUDIO_INVOKED
+
+#endif    // English (U.S.) resources
+/////////////////////////////////////////////////////////////////////////////
+
+
+
+#ifndef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 3 resource.
+//
+
+
+/////////////////////////////////////////////////////////////////////////////
+#endif    // not APSTUDIO_INVOKED
+

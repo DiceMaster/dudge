@@ -1,0 +1,83 @@
+<html>
+<head>
+  <title>Dudge</title>
+    <link rel="stylesheet" type="text/css" href="ext/resources/css/ext-all.css" />
+    
+    <style type="text/css">
+    html, body {
+        font:normal 12px verdana;
+        margin:0;
+        padding:0;
+        border:0 none;
+        overflow:hidden;
+        height:100%;
+    }
+    p {
+        margin:10px;
+    }
+	
+	h1 {
+		font-size: 200%
+	}
+    </style>
+
+    <!-- LIBS -->
+
+    <script type="text/javascript" src="ext/adapter/ext/ext-base.js"></script>
+    <!-- ENDLIBS -->
+
+    <script type="text/javascript" src="ext/ext-all-debug.js"></script>
+	
+<script type="text/javascript">
+Ext.onReady(function(){
+
+//Ext.state.Manager.setProvider(new Ext.state.CookieProvider());
+
+var form = {
+    xtype: 'form', // since we are not using the default 'panel' xtype, we must specify it
+    id: 'form-panel',
+    labelWidth: 75,
+    title: 'Form Layout',
+    bodyStyle: 'padding:15px',
+    width: 350,
+    labelPad: 20,
+    layoutConfig: {
+        labelSeparator: ''
+    },
+    defaults: {
+        width: 230,
+        msgTarget: 'side'
+    },
+    defaultType: 'textfield',
+    items: [{
+            fieldLabel: 'First Name',
+            name: 'first',
+            allowBlank:false
+        },{
+            fieldLabel: 'Last Name',
+            name: 'last'
+        },{
+            fieldLabel: 'Company',
+            name: 'company'
+        },{
+            fieldLabel: 'Email',
+            name: 'email',
+            vtype:'email'
+        }
+    ],
+    buttons: [{text: 'Save'},{text: 'Cancel'}]
+};
+
+new Ext.Viewport({
+	layout: 'fit',
+	items: [form]
+	});
+
+}); // Ext.OnReady()
+</script>
+
+</head>
+<body>
+<form name="form-panel" />
+</body>
+</html>

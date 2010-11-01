@@ -1,0 +1,168 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!DOCTYPE struts-config PUBLIC
+"-//Apache Software Foundation//DTD Struts Configuration 1.2//EN"
+"http://jakarta.apache.org/struts/dtds/struts-config_1_2.dtd">
+
+
+<struts-config>
+	<form-beans>
+		<form-bean name="usersForm" type="dudge.web.forms.UsersForm"/>
+		<form-bean name="loginForm" type="dudge.web.forms.LoginForm"/>
+		<form-bean name="contestsForm" type="dudge.web.forms.ContestsForm"/>	
+		<form-bean name="problemsForm" type="dudge.web.forms.ProblemsForm"/>
+		<form-bean name="solutionsForm" type="dudge.web.forms.SolutionsForm"/>
+		<form-bean name="languagesForm" type="dudge.web.forms.LanguagesForm"/>
+	</form-beans>
+	
+	<global-exceptions>
+		
+	</global-exceptions>
+	
+	<global-forwards>
+		
+		<forward name="news" path="/news.jsp"/>
+		
+		<forward name="register" path="/user/editUser.jsp"/>
+		<forward name="users" path="/user/users.jsp"/>
+		<forward name="editUser" path="/user/editUser.jsp"/>
+		<forward name="viewUser" path="/user/viewUser.jsp"/>
+		
+		
+		<forward name="contests" path="/contest/contests.jsp"/>
+		<forward name="createContest" path="/contest/editContest.jsp"/>
+		<forward name="editContest" path="/contest/editContest.jsp"/>
+		<forward name="viewContest" path="/contest/viewContest.jsp"/>
+		<forward name="contestProblems" path="/contest/contestProblems.jsp"/>
+		<forward name="contestRules" path="/contest/rules.jsp"/>
+		
+		<forward name="submitSolution" path="/solution/submitSolution.jsp"/>
+		<forward name="viewSolution" path="/solution/viewSolution.jsp"/>
+				
+		<forward name="editProblem" path="/problem/editProblem.jsp"/>
+		<forward name="problems" path="/problem/problems.jsp"/>
+		<forward name="viewProblem" path="/problem/viewProblem.jsp"/>
+		
+		<forward name="languages" path="/language/languages.jsp"/>
+		<forward name="viewLanguage" path="/language/viewLanguage.jsp"/>
+		<forward name="editLanguage" path="/language/editLanguage.jsp"/>
+		
+		<forward name="status" path="/monitor/status.jsp"/>
+		<forward name="monitorGLOBAL" path="/monitor/monitorGLOBAL.jsp"/>
+		<forward name="monitorACM" path="/monitor/monitorACM.jsp"/>
+		<forward name="monitorLAB" path="/monitor/monitorLAB.jsp"/>
+		
+		<forward name="loginRequired" path="/loginRequired.jsp"/>
+		<forward name="accessDenied" path="/accessDenied.jsp"/>
+	</global-forwards>
+	
+	<action-mappings>
+		<action path="/login"
+			 type="dudge.web.actions.LoginAction"
+			 name="loginForm"
+			 parameter="reqCode">
+			<forward name="fail" path="/loginFailed.jsp" redirect="true"/>
+		</action>
+		
+		<action path="/solutions"
+			 type="dudge.web.actions.SolutionsAction"
+			 name="solutionsForm"
+			 parameter="reqCode">
+		</action>
+		
+		<action path="/contests"
+			 type="dudge.web.actions.ContestsAction"
+			 name="contestsForm"
+			 scope="session"
+			 parameter="reqCode">
+		</action>
+		
+		<action path="/problems"
+			 type="dudge.web.actions.ProblemsAction"
+			 name="problemsForm"
+			 scope="session"
+			 parameter="reqCode">
+		</action>
+		
+		<action path="/solutions"
+			 type="dudge.web.actions.SolutionsAction"
+			 name="solutionsForm"
+			 parameter="reqCode">
+			<forward name="submitSuccess" path="/solution/submitSuccess.jsp"/>
+		</action>
+		
+		<action path="/monitor"
+			 type="dudge.web.actions.MonitorAction"
+			 parameter="reqCode">
+		</action>
+		
+		<action path="/users"
+			 type="dudge.web.actions.UsersAction"
+			 name="usersForm"
+			 parameter="reqCode">
+			<forward name="registrationSuccess" path="/registrationSuccess.jsp" redirect="true"/>
+		</action>
+		
+		<action path="/languages" 
+			parameter="reqCode" 
+			name="languagesForm"
+			scope="session"
+			type="dudge.web.actions.LanguagesAction">
+		</action>
+		
+		<action path="/locale" 
+			parameter="reqCode"
+			type="dudge.web.actions.LocalesAction">
+		</action>
+
+		<action path="/search"
+			parameter="reqCode"
+			type="dudge.web.actions.SearchAction">
+		</action>
+		
+	</action-mappings>
+	
+	<controller processorClass="org.apache.struts.tiles.TilesRequestProcessor"/>
+	
+	<message-resources parameter="dudge/web/struts/ApplicationResource"/>    
+	
+	<!-- ========================= Tiles plugin ===============================-->
+	<!--
+    This plugin initialize Tiles definition factory. This later can takes some
+    parameters explained here after. The plugin first read parameters from
+    web.xml, thenoverload them with parameters defined here. All parameters
+    are optional.
+    The plugin should be declared in each struts-config file.
+    - definitions-config: (optional)
+    Specify configuration file names. There can be several comma
+    separated file names (default: ?? )
+    - moduleAware: (optional - struts1.1)
+    Specify if the Tiles definition factory is module aware. If true
+    (default), there will be one factory for each Struts module.
+    If false, there will be one common factory for all module. In this
+    later case, it is still needed to declare one plugin per module.
+    The factory will be initialized with parameters found in the first
+    initialized plugin (generally the one associated with the default
+    module).
+    true : One factory per module. (default)
+    false : one single shared factory for all modules
+    - definitions-parser-validate: (optional)
+    Specify if xml parser should validate the Tiles configuration file.
+    true : validate. DTD should be specified in file header (default)
+    false : no validation
+
+    Paths found in Tiles definitions are relative to the main context.
+    -->
+	<plug-in className="org.apache.struts.tiles.TilesPlugin" >
+		<set-property property="definitions-config" value="/WEB-INF/tiles-defs.xml" />      
+		<set-property property="moduleAware" value="true" />
+	</plug-in>
+	
+	<!-- ========================= Validator plugin ================================= -->
+	<plug-in className="org.apache.struts.validator.ValidatorPlugIn">
+		<set-property
+			property="pathnames"
+			value="/WEB-INF/validator-rules.xml,/WEB-INF/validation.xml"/>
+	</plug-in>
+	
+</struts-config>

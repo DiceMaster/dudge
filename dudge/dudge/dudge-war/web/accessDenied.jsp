@@ -1,0 +1,1 @@
+<bean:message key="accessDenied"/>
