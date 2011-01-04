@@ -19,12 +19,13 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.FileInputStream;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.GregorianCalendar;
-import java.util.List;
 import java.util.TimeZone;
 import java.util.logging.Level;
 import javax.swing.JFileChooser;
 import javax.xml.datatype.DatatypeFactory;
+import org.jdesktop.observablecollections.ObservableList;
 
 /**
  * The application's main frame.
@@ -138,9 +139,9 @@ public class ProblemcView extends FrameView {
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, desciptionPanelLayout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(desciptionPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(jScrollPane1, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 506, Short.MAX_VALUE)
-                    .addComponent(problemTitle, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 506, Short.MAX_VALUE)
-                    .addComponent(problemAuthor, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 506, Short.MAX_VALUE))
+                    .addComponent(jScrollPane1, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 495, Short.MAX_VALUE)
+                    .addComponent(problemTitle, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 495, Short.MAX_VALUE)
+                    .addComponent(problemAuthor, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 495, Short.MAX_VALUE))
                 .addContainerGap())
         );
         desciptionPanelLayout.setVerticalGroup(
@@ -151,7 +152,7 @@ public class ProblemcView extends FrameView {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(problemAuthor, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 363, Short.MAX_VALUE)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 338, Short.MAX_VALUE)
                 .addContainerGap())
         );
 
@@ -175,6 +176,11 @@ public class ProblemcView extends FrameView {
         removeTestButton.setFont(resourceMap.getFont("removeTestButton.font")); // NOI18N
         removeTestButton.setText(resourceMap.getString("removeTestButton.text")); // NOI18N
         removeTestButton.setName("removeTestButton"); // NOI18N
+        removeTestButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                removeTestButtonActionPerformed(evt);
+            }
+        });
 
         jScrollPane4.setName("jScrollPane4"); // NOI18N
 
@@ -271,7 +277,7 @@ public class ProblemcView extends FrameView {
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jScrollPane4, javax.swing.GroupLayout.DEFAULT_SIZE, 271, Short.MAX_VALUE)
+                .addComponent(jScrollPane4, javax.swing.GroupLayout.DEFAULT_SIZE, 245, Short.MAX_VALUE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(addTestButton)
@@ -290,6 +296,7 @@ public class ProblemcView extends FrameView {
         jScrollPane2.setName("jScrollPane2"); // NOI18N
 
         testInput.setColumns(20);
+        testInput.setFont(resourceMap.getFont("testInput.font")); // NOI18N
         testInput.setRows(5);
         testInput.setName("testInput"); // NOI18N
 
@@ -309,6 +316,7 @@ public class ProblemcView extends FrameView {
         jScrollPane3.setName("jScrollPane3"); // NOI18N
 
         testOutput.setColumns(20);
+        testOutput.setFont(resourceMap.getFont("testOutput.font")); // NOI18N
         testOutput.setRows(5);
         testOutput.setName("testOutput"); // NOI18N
 
@@ -328,14 +336,14 @@ public class ProblemcView extends FrameView {
             .addGroup(testsPanelLayout.createSequentialGroup()
                 .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jPanel2, javax.swing.GroupLayout.DEFAULT_SIZE, 314, Short.MAX_VALUE))
+                .addComponent(jPanel2, javax.swing.GroupLayout.DEFAULT_SIZE, 303, Short.MAX_VALUE))
         );
         testsPanelLayout.setVerticalGroup(
             testsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(testsPanelLayout.createSequentialGroup()
                 .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addGap(11, 11, 11))
-            .addComponent(jPanel2, javax.swing.GroupLayout.DEFAULT_SIZE, 437, Short.MAX_VALUE)
+            .addComponent(jPanel2, javax.swing.GroupLayout.DEFAULT_SIZE, 412, Short.MAX_VALUE)
         );
 
         jTabbedPane1.addTab(resourceMap.getString("testsPanel.TabConstraints.tabTitle"), testsPanel); // NOI18N
@@ -353,17 +361,17 @@ public class ProblemcView extends FrameView {
         mainPanelLayout.setHorizontalGroup(
             mainPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, mainPanelLayout.createSequentialGroup()
-                .addContainerGap(357, Short.MAX_VALUE)
+                .addContainerGap(350, Short.MAX_VALUE)
                 .addComponent(openButton)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(saveButton)
                 .addContainerGap())
-            .addComponent(jTabbedPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 531, Short.MAX_VALUE)
+            .addComponent(jTabbedPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 520, Short.MAX_VALUE)
         );
         mainPanelLayout.setVerticalGroup(
             mainPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(mainPanelLayout.createSequentialGroup()
-                .addComponent(jTabbedPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 462, Short.MAX_VALUE)
+                .addComponent(jTabbedPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 440, Short.MAX_VALUE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(mainPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(saveButton)
@@ -420,7 +428,7 @@ public class ProblemcView extends FrameView {
     }// </editor-fold>//GEN-END:initComponents
 
 	private void addTestButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_addTestButtonActionPerformed
-		List<Problem.Tests.Test> tests = problem.getTests().getTest();
+		ObservableList<Problem.Tests.Test> tests = problem.getTests().getTest();
 		int maxNumber = 0;
 		for (Problem.Tests.Test test : tests) {
 			if (test.getNumber() > maxNumber) {
@@ -435,15 +443,21 @@ public class ProblemcView extends FrameView {
 		test.setOutput("");
 
 		tests.add(test);
-
-		for (PropertyChangeListener listener : this.getPropertyChangeListeners()) {
-			listener.propertyChange(new PropertyChangeEvent(
-					this,
-					"problem",
-					null,
-					problem));
-		}
 	}//GEN-LAST:event_addTestButtonActionPerformed
+
+	private void removeTestButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_removeTestButtonActionPerformed
+		ObservableList<Problem.Tests.Test> tests = problem.getTests().getTest();
+
+		ArrayList<Problem.Tests.Test> testsToDelete = new ArrayList<Problem.Tests.Test>();
+
+		for (int selectedIndex : testsList.getSelectedIndices()) {
+			testsToDelete.add(tests.get(selectedIndex));
+		}
+
+		for (Problem.Tests.Test test : testsToDelete) {
+			tests.remove(test);
+		}
+	}//GEN-LAST:event_removeTestButtonActionPerformed
 
 	@Action
 	public void newProblem() {
