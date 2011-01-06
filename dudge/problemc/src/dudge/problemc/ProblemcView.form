@@ -506,6 +506,11 @@
                 <Property name="name" type="java.lang.String" value="newMenuItem" noResource="true"/>
               </Properties>
             </MenuItem>
+            <MenuItem class="javax.swing.JSeparator" name="jSeparator2">
+              <Properties>
+                <Property name="name" type="java.lang.String" value="jSeparator2" noResource="true"/>
+              </Properties>
+            </MenuItem>
             <MenuItem class="javax.swing.JMenuItem" name="openMenuItem">
               <Properties>
                 <Property name="action" type="javax.swing.Action" editor="org.netbeans.modules.swingapp.ActionEditor">
@@ -513,6 +518,29 @@
                 </Property>
                 <Property name="text" type="java.lang.String" resourceKey="openMenuItem.text"/>
                 <Property name="name" type="java.lang.String" value="openMenuItem" noResource="true"/>
+              </Properties>
+            </MenuItem>
+            <MenuItem class="javax.swing.JSeparator" name="jSeparator3">
+              <Properties>
+                <Property name="name" type="java.lang.String" value="jSeparator3" noResource="true"/>
+              </Properties>
+            </MenuItem>
+            <MenuItem class="javax.swing.JMenuItem" name="saveMenuItem">
+              <Properties>
+                <Property name="action" type="javax.swing.Action" editor="org.netbeans.modules.swingapp.ActionEditor">
+                  <action class="dudge.problemc.ProblemcView" id="saveProblem" methodName="saveProblem"/>
+                </Property>
+                <Property name="text" type="java.lang.String" resourceKey="saveMenuItem.text"/>
+                <Property name="name" type="java.lang.String" value="saveMenuItem" noResource="true"/>
+              </Properties>
+            </MenuItem>
+            <MenuItem class="javax.swing.JMenuItem" name="saveAsMenuItem">
+              <Properties>
+                <Property name="action" type="javax.swing.Action" editor="org.netbeans.modules.swingapp.ActionEditor">
+                  <action class="dudge.problemc.ProblemcView" id="saveProblemAs" methodName="saveProblemAs"/>
+                </Property>
+                <Property name="text" type="java.lang.String" resourceKey="saveAsMenuItem.text"/>
+                <Property name="name" type="java.lang.String" value="saveAsMenuItem" noResource="true"/>
               </Properties>
             </MenuItem>
             <MenuItem class="javax.swing.JSeparator" name="jSeparator1">
@@ -525,6 +553,7 @@
                 <Property name="action" type="javax.swing.Action" editor="org.netbeans.modules.swingapp.ActionEditor">
                   <action class="org.jdesktop.application.Application" id="quit" methodName="quit"/>
                 </Property>
+                <Property name="text" type="java.lang.String" resourceKey="exitMenuItem.text"/>
                 <Property name="name" type="java.lang.String" value="exitMenuItem" noResource="true"/>
               </Properties>
               <AuxValues>

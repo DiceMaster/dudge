@@ -99,7 +99,11 @@ public class ProblemcView extends FrameView {
         menuBar = new javax.swing.JMenuBar();
         javax.swing.JMenu problemMenu = new javax.swing.JMenu();
         newMenuItem = new javax.swing.JMenuItem();
+        jSeparator2 = new javax.swing.JSeparator();
         openMenuItem = new javax.swing.JMenuItem();
+        jSeparator3 = new javax.swing.JSeparator();
+        saveMenuItem = new javax.swing.JMenuItem();
+        saveAsMenuItem = new javax.swing.JMenuItem();
         jSeparator1 = new javax.swing.JSeparator();
         javax.swing.JMenuItem exitMenuItem = new javax.swing.JMenuItem();
         javax.swing.JMenu helpMenu = new javax.swing.JMenu();
@@ -389,15 +393,32 @@ public class ProblemcView extends FrameView {
         newMenuItem.setName("newMenuItem"); // NOI18N
         problemMenu.add(newMenuItem);
 
+        jSeparator2.setName("jSeparator2"); // NOI18N
+        problemMenu.add(jSeparator2);
+
         openMenuItem.setAction(actionMap.get("openProblem")); // NOI18N
         openMenuItem.setText(resourceMap.getString("openMenuItem.text")); // NOI18N
         openMenuItem.setName("openMenuItem"); // NOI18N
         problemMenu.add(openMenuItem);
 
+        jSeparator3.setName("jSeparator3"); // NOI18N
+        problemMenu.add(jSeparator3);
+
+        saveMenuItem.setAction(actionMap.get("saveProblem")); // NOI18N
+        saveMenuItem.setText(resourceMap.getString("saveMenuItem.text")); // NOI18N
+        saveMenuItem.setName("saveMenuItem"); // NOI18N
+        problemMenu.add(saveMenuItem);
+
+        saveAsMenuItem.setAction(actionMap.get("saveProblemAs")); // NOI18N
+        saveAsMenuItem.setText(resourceMap.getString("saveAsMenuItem.text")); // NOI18N
+        saveAsMenuItem.setName("saveAsMenuItem"); // NOI18N
+        problemMenu.add(saveAsMenuItem);
+
         jSeparator1.setName("jSeparator1"); // NOI18N
         problemMenu.add(jSeparator1);
 
         exitMenuItem.setAction(actionMap.get("quit")); // NOI18N
+        exitMenuItem.setText(resourceMap.getString("exitMenuItem.text")); // NOI18N
         exitMenuItem.setName("exitMenuItem"); // NOI18N
         problemMenu.add(exitMenuItem);
 
@@ -488,21 +509,12 @@ public class ProblemcView extends FrameView {
 	
 	@Action
 	public void saveProblem() {
-
-		File file;
-
 		if(problemFile == null)
 		{
-			if(saveDialog.showSaveDialog(null) != JFileChooser.APPROVE_OPTION)
-			{
-				return;
-			}
+			saveProblemAs();
 
-			file = saveDialog.getSelectedFile();
-		}
-		else
-		{
-			file = problemFile;
+			if (problemFile == null)
+				return;
 		}
 
 		try {
@@ -515,7 +527,7 @@ public class ProblemcView extends FrameView {
 			limits.setOutput(Long.parseLong(limitOutput.getText()));
 			problem.setLimits(limits);
 
-			OutputStream outputStream = new FileOutputStream(file);
+			OutputStream outputStream = new FileOutputStream(problemFile);
 
 			javax.xml.bind.JAXBContext jaxbCtx = javax.xml.bind.JAXBContext.newInstance(problem.getClass().getPackage().getName());
 			javax.xml.bind.Marshaller marshaller = jaxbCtx.createMarshaller();
@@ -525,7 +537,6 @@ public class ProblemcView extends FrameView {
 
 			outputStream.close();
 
-			problemFile = file;
 			saveButton.setText("Save");
 		} catch (Exception ex) {
 			java.util.logging.Logger.getLogger(this.getClass().toString())
@@ -540,6 +551,14 @@ public class ProblemcView extends FrameView {
 		Validator validator = schema.newValidator();
 		 */
 
+	}
+
+	@Action
+	public void saveProblemAs() {
+		if(saveDialog.showSaveDialog(null) == JFileChooser.APPROVE_OPTION)
+		{
+			problemFile = saveDialog.getSelectedFile();
+		}
 	}
 
 	@Action
@@ -594,6 +613,8 @@ public class ProblemcView extends FrameView {
     private javax.swing.JScrollPane jScrollPane3;
     private javax.swing.JScrollPane jScrollPane4;
     private javax.swing.JSeparator jSeparator1;
+    private javax.swing.JSeparator jSeparator2;
+    private javax.swing.JSeparator jSeparator3;
     private javax.swing.JTabbedPane jTabbedPane1;
     private javax.swing.JTextField limitMemory;
     private javax.swing.JTextField limitOutput;
@@ -609,8 +630,10 @@ public class ProblemcView extends FrameView {
     private javax.swing.JTextArea problemDescription;
     private javax.swing.JTextField problemTitle;
     private javax.swing.JButton removeTestButton;
+    private javax.swing.JMenuItem saveAsMenuItem;
     private javax.swing.JButton saveButton;
     private javax.swing.JFileChooser saveDialog;
+    private javax.swing.JMenuItem saveMenuItem;
     private javax.swing.JTextArea testInput;
     private javax.swing.JTextArea testOutput;
     private javax.swing.JList testsList;
