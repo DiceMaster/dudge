@@ -21,11 +21,11 @@ import java.io.FileInputStream;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.GregorianCalendar;
+import java.util.List;
 import java.util.TimeZone;
 import java.util.logging.Level;
 import javax.swing.JFileChooser;
 import javax.xml.datatype.DatatypeFactory;
-import org.jdesktop.observablecollections.ObservableList;
 
 /**
  * The application's main frame.
@@ -428,7 +428,7 @@ public class ProblemcView extends FrameView {
     }// </editor-fold>//GEN-END:initComponents
 
 	private void addTestButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_addTestButtonActionPerformed
-		ObservableList<Problem.Tests.Test> tests = problem.getTests().getTest();
+		List<Problem.Tests.Test> tests = problem.getTests().getTest();
 		int maxNumber = 0;
 		for (Problem.Tests.Test test : tests) {
 			if (test.getNumber() > maxNumber) {
@@ -446,7 +446,7 @@ public class ProblemcView extends FrameView {
 	}//GEN-LAST:event_addTestButtonActionPerformed
 
 	private void removeTestButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_removeTestButtonActionPerformed
-		ObservableList<Problem.Tests.Test> tests = problem.getTests().getTest();
+		List<Problem.Tests.Test> tests = problem.getTests().getTest();
 
 		ArrayList<Problem.Tests.Test> testsToDelete = new ArrayList<Problem.Tests.Test>();
 

@@ -7,6 +7,7 @@
 			<schema-source location='xml-resources/jaxb/ProblemXML/problem.xsd' origLocation='../dudge-lib/src/problem.xsd'/>
 		</schema-sources>
 		<bindings>
+			<binding origLocation='xml-resources/jaxb/Dudge.xjb' location='xml-resources/jaxb/ProblemXML/Dudge.xjb.xml'/>
 		</bindings>
 		<catalog/>
 	</schema>

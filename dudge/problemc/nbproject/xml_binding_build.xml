@@ -21,6 +21,7 @@
             </classpath>
             <arg value="-xmlschema"/>
             <schema file="xml-resources/jaxb/ProblemXML/problem.xsd"/>
+            <binding file="xml-resources/jaxb/ProblemXML/Dudge.xjb.xml"/>
             <depends file="xml-resources/jaxb/ProblemXML/problem.xsd"/>
             <produces dir="build/generated/jaxbCache/ProblemXML"/>
         </xjc>
