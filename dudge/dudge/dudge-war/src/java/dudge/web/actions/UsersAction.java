@@ -9,8 +9,8 @@ import dudge.DudgeLocal;
 import dudge.db.Problem;
 import dudge.PermissionCheckerRemote;
 import dudge.db.User;
+import dudge.web.AuthenticationObject;
 import dudge.web.forms.UsersForm;
-import dudge.web.SessionObject;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Iterator;
@@ -76,14 +76,14 @@ public class UsersAction extends DispatchAction {
 		// Получаем логин просматриваемого пользователя.
 		String login = uf.getLogin();
 
-		SessionObject so = SessionObject.extract(request.getSession());
+		AuthenticationObject ao = AuthenticationObject.extract(request);
 		// Находим пользователя с указанным логином.
 		User user = lookupDudgeBean().getUser(login);
 
 		// Проверяем право пользователя.
-		PermissionCheckerRemote pcb = so.getPermissionChecker();
+		PermissionCheckerRemote pcb = ao.getPermissionChecker();
 		if (!pcb.canGetUser(
-				so.getUsername(),
+				ao.getUsername(),
 				user)) {
 			return mapping.findForward("accessDenied");
 		}
@@ -121,12 +121,12 @@ public class UsersAction extends DispatchAction {
 		User user = lookupDudgeBean().getUser(uf.getLogin());
 		uf.reset(mapping, request);
 
-		SessionObject so = SessionObject.extract(request.getSession());
+		AuthenticationObject ao = AuthenticationObject.extract(request);
 
 		// Проверяем права пользователя на редактирование выбранного профиля.
-		PermissionCheckerRemote pcb = so.getPermissionChecker();
+		PermissionCheckerRemote pcb = ao.getPermissionChecker();
 		if (!pcb.canModifyUser(
-				so.getUsername(),
+				ao.getUsername(),
 				user.getLogin())) {
 			return mapping.findForward("accessDenied");
 		}
@@ -171,8 +171,8 @@ public class UsersAction extends DispatchAction {
 			HttpServletRequest request,
 			HttpServletResponse response) {
 		UsersForm uf = (UsersForm) af;
-		SessionObject so = SessionObject.extract(request.getSession());
-		PermissionCheckerRemote pcb = so.getPermissionChecker();
+		AuthenticationObject ao = AuthenticationObject.extract(request);
+		PermissionCheckerRemote pcb = ao.getPermissionChecker();
 
 		if (!uf.getPassword().equals(uf.getPasswordConfirm())) {
 			throw new RuntimeException("Passwords do not match.");
@@ -204,7 +204,7 @@ public class UsersAction extends DispatchAction {
 		}
 
 
-		if (pcb.canDeepModifyUser(so.getUsername(), user.getLogin())) {
+		if (pcb.canDeepModifyUser(ao.getUsername(), user.getLogin())) {
 			user.setAdmin(uf.isAdmin());
 			user.setCreateContest(uf.isContestCreator());
 			user.setCreateProblem(uf.isProblemCreator());
@@ -223,12 +223,12 @@ public class UsersAction extends DispatchAction {
 
 		dudge.db.User user = lookupDudgeBean().getUser(uf.getLogin());
 
-		SessionObject so = SessionObject.extract(request.getSession());
+		AuthenticationObject ao = AuthenticationObject.extract(request);
 
 		// Проверяем право пользователя.
-		PermissionCheckerRemote pcb = so.getPermissionChecker();
+		PermissionCheckerRemote pcb = ao.getPermissionChecker();
 		if (!pcb.canModifyUser(
-				so.getUsername(),
+				ao.getUsername(),
 				user.getLogin())) {
 			return mapping.findForward("accessDenied");
 		}
@@ -253,7 +253,7 @@ public class UsersAction extends DispatchAction {
 		} catch (NumberFormatException ex) {
 		}
 
-		if (pcb.canDeepModifyUser(so.getUsername(), user.getLogin())) {
+		if (pcb.canDeepModifyUser(ao.getUsername(), user.getLogin())) {
 			user.setAdmin(uf.isAdmin());
 			user.setCreateContest(uf.isContestCreator());
 			user.setCreateProblem(uf.isProblemCreator());
@@ -327,12 +327,12 @@ public class UsersAction extends DispatchAction {
 			HttpServletRequest request,
 			HttpServletResponse response) {
 
-		SessionObject so = SessionObject.extract(request.getSession());
+		AuthenticationObject ao = AuthenticationObject.extract(request);
 
 		// Проверяем права пользователя на удаление пользователей из системы.
-		PermissionCheckerRemote pcb = so.getPermissionChecker();
+		PermissionCheckerRemote pcb = ao.getPermissionChecker();
 		if (!pcb.canDeleteUser(
-				so.getUsername())) {
+				ao.getUsername())) {
 			return mapping.findForward("accessDenied");
 		}
 		String deletedUser = (String) request.getParameter("login");
@@ -370,7 +370,7 @@ public class UsersAction extends DispatchAction {
 		String oldPassword = request.getParameter("oldPassword");
 		String newPassword = request.getParameter("newPassword");
 
-		SessionObject so = SessionObject.extract(request.getSession());
+		AuthenticationObject ao = AuthenticationObject.extract(request);
 		DudgeLocal dudgeBean = lookupDudgeBean();
 
 		// Передаем клиенту информацию о результате смены пароля.
@@ -388,7 +388,7 @@ public class UsersAction extends DispatchAction {
 		}
 
 		// Проверяем, что старый пароль верен.
-		User currentUser = dudgeBean.getUser(so.getUsername());
+		User currentUser = dudgeBean.getUser(ao.getUsername());
 		
 		// DBG
 		this.logger.severe(oldPassword);

@@ -26,7 +26,7 @@
 			    <label for="problem-select"><bean:message key="problem.problem"/></label>
 			    <div class="x-form-element">
 		   
-				<% if(sessionObject.getDudge().getContest(contestId).getType() == dudge.db.ContestType.GLOBAL) { %>
+				<% if(dudgeLocal.getContest(contestId).getType() == dudge.db.ContestType.GLOBAL) { %>
 	
 				<html:text property="problemId" styleId="problemid" size="5"/>
 	

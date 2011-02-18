@@ -102,7 +102,7 @@ function renderStatus(value, metadata, record, row, col, ds)
 	return '<font color="red">UNCHECKED TESTS</font>';
 }
 
-<% if ( pcb.canAddProblem(sessionObject.getUsername()) ) { %>
+<% if ( pcb.canAddProblem(authenticationObject.getUsername()) ) { %>
 problemsToolbar.addButton({
 	text: '<bean:message key="problems.createProblem" />',
 	handler: function() { window.location = 'problems.do?reqCode=create'; }

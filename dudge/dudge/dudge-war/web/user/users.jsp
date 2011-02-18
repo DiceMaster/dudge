@@ -80,7 +80,7 @@ var grid = new Ext.grid.GridPanel({
 });
 	
 <%
-if ( pcb.canDeleteUser(sessionObject.getUsername()) ) {
+if ( pcb.canDeleteUser(authenticationObject.getUsername()) ) {
 %>
 usersToolbar.addButton(
 	{

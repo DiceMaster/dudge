@@ -59,7 +59,7 @@ var grid = new Ext.grid.GridPanel({
     }
 });
 
-<% if (pcb.canAddLanguage(sessionObject.getUsername())) {%>		
+<% if (pcb.canAddLanguage(authenticationObject.getUsername())) {%>
 languagesToolbar.addButton({
 	text: '<bean:message key="languages.create" />',
 	handler: function() { window.location = "languages.do?reqCode=create"; }

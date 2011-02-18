@@ -25,16 +25,14 @@ on Libraries node in Projects view can be used to add the JSTL 1.1 library.
 <%@taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%> 
 --%>
 
-<jsp:useBean id="sessionObject" class="dudge.web.SessionObject" scope="session" />
-
-<% sessionObject.extractCookies(request); %>
-
-<% dudge.PermissionCheckerRemote pcb = sessionObject.getPermissionChecker(); %>
+<% dudge.web.AuthenticationObject authenticationObject = dudge.web.AuthenticationObject.extract(request); %>
+<% dudge.PermissionCheckerRemote pcb = authenticationObject.getPermissionChecker(); %>
+<% dudge.DudgeLocal dudgeLocal = dudge.web.ServiceLocator.getInstance().lookupDudge(); %>
 
 <%
 int contestId;
 try	{ contestId = Integer.parseInt(request.getParameter("contestId")); }
-catch (Exception ex) { contestId = sessionObject.getDudge().getDefaultContest().getContestId(); }
+catch (Exception ex) { contestId = dudgeLocal.getDefaultContest().getContestId(); }
 %>
 
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
@@ -234,7 +232,7 @@ var mainMenuToolbar = new Ext.Toolbar({
 		'->',
 		languageComboBox,
 		'-',
-<% if (!sessionObject.isAuthenticated()) { %>
+<% if (!authenticationObject.isAuthenticated()) { %>
 		{
 			xtype: 'textfield',
 			id: 'username',
@@ -266,7 +264,7 @@ var mainMenuToolbar = new Ext.Toolbar({
 		{
 			xtype: 'tbtext',
 			html: '<bean:message key="menu.user" />: '
-				+ '<b><a href="users.do?reqCode=view&login=<%=sessionObject.getUsername()%>"><bean:write name="sessionObject" property="username" /></a></b>'
+				+ '<b><a href="users.do?reqCode=view&login=<%=authenticationObject.getUsername()%>"><%=authenticationObject.getUsername()%></a></b>'
 				+' (<a href="javascript:changePassword()"><bean:message key="menu.changePassword"/></a>)'
 		},
 		' ',
@@ -319,7 +317,7 @@ var viewport = new Ext.Viewport({
 	items: [
 	{
 		region: 'north',
-		title: '<a href="index.jsp?contestId=<%=contestId%>">Dudge</a>: <a href="contests.do?reqCode=view&contestId=<%=contestId%>"><%=sessionObject.getDudge().getContest(contestId).getCaption()%></a>',
+		title: '<a href="index.jsp?contestId=<%=contestId%>">Dudge</a>: <a href="contests.do?reqCode=view&contestId=<%=contestId%>"><%=dudgeLocal.getContest(contestId).getCaption()%></a>',
 		tbar: mainMenuToolbar
 	}, {
 		region: 'west',
@@ -377,14 +375,14 @@ var viewport = new Ext.Viewport({
 
 	<%
 	java.util.List<dudge.db.ContestProblem> menuContestProblems = new java.util.LinkedList<dudge.db.ContestProblem>(
-		(java.util.List<dudge.db.ContestProblem>) sessionObject.getDudge().getContest(contestId).getContestProblems()
+		(java.util.List<dudge.db.ContestProblem>) dudgeLocal.getContest(contestId).getContestProblems()
 		);
 	java.util.Collections.sort(menuContestProblems);
 	%>
 
 	<% for (dudge.db.ContestProblem conProb : menuContestProblems) {%>
 
-	<%if(pcb.canViewProblem(sessionObject.getUsername(),
+	<%if(pcb.canViewProblem(authenticationObject.getUsername(),
 		conProb.getProblem().getProblemId())) { %>
 		<p><b><%=conProb.getProblemMark() %></b>. 
 		<a href="problems.do?contestId=<%=contestId%>&reqCode=view&problemId=<%=Integer.toString( conProb.getProblem().getProblemId() )%>"><%=conProb.getProblem().getTitle()%></a>

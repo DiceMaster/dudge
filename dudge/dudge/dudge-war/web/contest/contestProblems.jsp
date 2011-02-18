@@ -15,10 +15,10 @@ Ext.onReady(function() {
 			handler: function()
 			{
 			    problemId = grid.getSelectionModel().getSelected().get('tcol-1');
-			    openSubmit(problemId, <%=sessionObject.getContestId()%>);
+			    openSubmit(problemId, <%=authenticationObject.getContestId()%>);
 			},
 			// Check, can user submit problem in current contest, or not.
-				<% if( pcb.canSubmitSolution(sessionObject.getUsername() , sessionObject.getContest().getContestId()) ) { %> 
+				<% if( pcb.canSubmitSolution(authenticationObject.getUsername() , authenticationObject.getContest().getContestId()) ) { %>
 			disabled: false
 				<% } else {%>
 			disabled: true
@@ -26,7 +26,7 @@ Ext.onReady(function() {
 	 }
 		);
 		 
-	<%if(pcb.canModifyContest(sessionObject.getUsername(), sessionObject.getContest().getContestId())) {%>	  
+	<%if(pcb.canModifyContest(authenticationObject.getUsername(), authenticationObject.getContest().getContestId())) {%>
 	 problemsToolbar.addButton(
 		{
 			text: '<bean:message key="solution.resubmitAll" />',
@@ -133,11 +133,11 @@ Ext.extend(Ext.grid.TableGrid, Ext.grid.GridPanel);
 <tbody>
 	<% 
 	java.util.List<dudge.db.ContestProblem> contestProblems =
-		(java.util.List<dudge.db.ContestProblem>) sessionObject.getContest().getContestProblems(); %>
+		(java.util.List<dudge.db.ContestProblem>) authenticationObject.getContest().getContestProblems(); %>
 
 	<% for (dudge.db.ContestProblem conProb : contestProblems) {%>
 
-	<%if(pcb.canViewProblem(sessionObject.getUsername(),
+	<%if(pcb.canViewProblem(authenticationObject.getUsername(),
 		conProb.getProblem().getProblemId())) { %>
 	<tr>
 	<td><%=conProb.getProblemMark() %></td>

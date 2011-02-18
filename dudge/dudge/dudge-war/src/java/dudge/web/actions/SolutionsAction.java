@@ -14,7 +14,7 @@ import dudge.db.Solution;
 import dudge.db.SolutionStatus;
 import dudge.db.User;
 import dudge.PermissionCheckerRemote;
-import dudge.web.SessionObject;
+import dudge.web.AuthenticationObject;
 import dudge.web.forms.SolutionsForm;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
@@ -69,14 +69,14 @@ public class SolutionsAction extends DispatchAction {
 		
 		DudgeLocal dudgeBean = lookupDudgeBean();
 		
-		SessionObject so = SessionObject.extract(request.getSession());
-		if(so.getUsername() == null)
+		AuthenticationObject ao = AuthenticationObject.extract(request);
+		if(ao.getUsername() == null)
 			return mapping.findForward("loginRequired");
 		
-		User user = dudgeBean.getUser(so.getUsername());
+		User user = dudgeBean.getUser(ao.getUsername());
 		int solutionId = Integer.parseInt(request.getParameter("solutionId"));
 		// Проверяем право пользователя на просмотр решения.
-		if(!so.getPermissionChecker().canViewSolution(user.getLogin(), solutionId)) {
+		if(!ao.getPermissionChecker().canViewSolution(user.getLogin(), solutionId)) {
 			return mapping.findForward("accessDenied");
 		}
 		
@@ -115,7 +115,7 @@ public class SolutionsAction extends DispatchAction {
 		
 		sf.reset(mapping, request);	
 		
-		SessionObject so = SessionObject.extract(request.getSession());
+		AuthenticationObject ao = AuthenticationObject.extract(request);
 		DudgeLocal dudgeBean = lookupDudgeBean();
 		int contestId;
 		// Получаем идентификатор соревнования.
@@ -130,9 +130,9 @@ public class SolutionsAction extends DispatchAction {
 		Contest contest = dudgeBean.getContest(contestId);
 
 		// Проверяем право пользователя.
-		PermissionCheckerRemote pcb = so.getPermissionChecker();
+		PermissionCheckerRemote pcb = ao.getPermissionChecker();
 		if (!pcb.canSubmitSolution(
-				so.getUsername(),
+				ao.getUsername(),
 				contest.getContestId()
 				)
 				) {
@@ -164,9 +164,9 @@ public class SolutionsAction extends DispatchAction {
 		
 		SolutionsForm sf = (SolutionsForm) af;
 		DudgeLocal dudgeBean = lookupDudgeBean();
-		SessionObject so = SessionObject.extract(request.getSession());
+		AuthenticationObject ao = AuthenticationObject.extract(request);
 		
-		if(so.getUsername() == null)
+		if(ao.getUsername() == null)
 			return mapping.findForward("loginRequired");
 
 		int contestId;
@@ -179,15 +179,15 @@ public class SolutionsAction extends DispatchAction {
 			// текущего соревнования.
 			contestId = dudgeBean.getDefaultContest().getContestId();
 		
-		User user = dudgeBean.getUser(so.getUsername());
+		User user = dudgeBean.getUser(ao.getUsername());
 		Contest contest = dudgeBean.getContest(contestId);
 		Language language = dudgeBean.getLanguage(sf.getLanguageId());
 		Problem problem = dudgeBean.getProblem( Integer.parseInt(sf.getProblemId()) );
 			
 		// Проверяем право пользователя.
-		PermissionCheckerRemote pcb = so.getPermissionChecker();
+		PermissionCheckerRemote pcb = ao.getPermissionChecker();
 		if (!pcb.canSubmitSolution(
-				so.getUsername(),
+				ao.getUsername(),
 				contest.getContestId(),
 				problem.getProblemId())
 				) {

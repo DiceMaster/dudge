@@ -18,7 +18,7 @@ import dudge.db.Role;
 import dudge.db.RoleType;
 import dudge.db.User;
 import dudge.PermissionCheckerRemote;
-import dudge.web.SessionObject;
+import dudge.web.AuthenticationObject;
 import dudge.web.forms.ContestsForm;
 import java.io.IOException;
 import java.text.ParseException;
@@ -83,12 +83,12 @@ public class ContestsAction extends DispatchAction {
                 int contestId = Integer.parseInt((String) request.getParameter("contestId"));
 		Contest contest = lookupDudgeBean().getContest(contestId);
 
-		SessionObject so = SessionObject.extract(request.getSession());
+		AuthenticationObject ao = AuthenticationObject.extract(request);
 
 		// Проверяем право пользователя.
-		PermissionCheckerRemote pcb = so.getPermissionChecker();
+		PermissionCheckerRemote pcb = ao.getPermissionChecker();
 		if (!pcb.canViewContest(
-				so.getUsername(),
+				ao.getUsername(),
 				contestId)) {
 			return mapping.findForward("accessDenied");
 		}
@@ -134,9 +134,9 @@ public class ContestsAction extends DispatchAction {
 			return;
 		}
 
-		SessionObject so = SessionObject.extract(request.getSession());
+		AuthenticationObject ao = AuthenticationObject.extract(request);
 		for (Iterator<Contest> iter = contests.iterator(); iter.hasNext();) {
-			ja.put(this.getContestJSONView(iter.next(), so));
+			ja.put(this.getContestJSONView(iter.next(), ao));
 		}
 		try {
 			jo.put("contests", ja);
@@ -158,11 +158,11 @@ public class ContestsAction extends DispatchAction {
 	 * Метод возвращает представления объекта в формата JSON - это нужно
 	 * для его отображение на стороне клиента через JavaScript/AJAX.
 	 */
-	private JSONObject getContestJSONView(Contest contest, SessionObject so) {
+	private JSONObject getContestJSONView(Contest contest, AuthenticationObject ao) {
 
 		JSONObject json = new JSONObject();
 
-		PermissionCheckerRemote pcb = so.getPermissionChecker();
+		PermissionCheckerRemote pcb = ao.getPermissionChecker();
 
 		// Заполняем данными задачи созданный объект JSON.
 		try {
@@ -174,13 +174,13 @@ public class ContestsAction extends DispatchAction {
 			json.put("is_open", contest.isOpen());
 
 			json.put("joinable",
-					pcb.canJoinContest(so.getUsername(), contest.getContestId()));
+					pcb.canJoinContest(ao.getUsername(), contest.getContestId()));
 
 			json.put("editable",
-					pcb.canModifyContest(so.getUsername(), contest.getContestId()));
+					pcb.canModifyContest(ao.getUsername(), contest.getContestId()));
 
 			json.put("deletable",
-					pcb.canDeleteContest(so.getUsername(), contest.getContestId()));
+					pcb.canDeleteContest(ao.getUsername(), contest.getContestId()));
 
 		} catch (JSONException je) {
 			logger.log(Level.SEVERE, "Failed creation of JSON view of Contest object.", je);
@@ -196,12 +196,12 @@ public class ContestsAction extends DispatchAction {
 
 		ContestsForm cf = (ContestsForm) af;
 
-		SessionObject so = SessionObject.extract(request.getSession());
+		AuthenticationObject ao = AuthenticationObject.extract(request);
 
 		// Проверяем право пользователя.
-		PermissionCheckerRemote pcb = so.getPermissionChecker();
+		PermissionCheckerRemote pcb = ao.getPermissionChecker();
 		if (!pcb.canAddContest(
-				so.getUsername())) {
+				ao.getUsername())) {
 			return mapping.findForward("accessDenied");
 
 		}
@@ -250,7 +250,7 @@ public class ContestsAction extends DispatchAction {
 
 		ContestsForm cf = (ContestsForm) af;
 
-		SessionObject so = SessionObject.extract(request.getSession());
+		AuthenticationObject ao = AuthenticationObject.extract(request);
 
 		// Получаем идентификатор редактируемого контеста, чтобы по нему найти объект нужного контеста
 		// и выставить текущие значения как значения по умолчанию для полей на странице редактирования.
@@ -260,9 +260,9 @@ public class ContestsAction extends DispatchAction {
 		cf.setContestId(Integer.toString(contestId));
 		
 		// Проверка прав отредактировать данный контест.
-		PermissionCheckerRemote pcb = so.getPermissionChecker();
+		PermissionCheckerRemote pcb = ao.getPermissionChecker();
 		if (!pcb.canModifyContest(
-				so.getUsername(),
+				ao.getUsername(),
 				contestId)) {
 			return mapping.findForward("accessDenied");
 		}
@@ -321,14 +321,14 @@ public class ContestsAction extends DispatchAction {
 		int contestId = Integer.parseInt((String) request.getParameter("contestId"));
 
 		//Установка текущего соревнования, в которое будут отсылаться все задачи при сабмите их пользователем.
-		SessionObject.extract(request.getSession()).setContestId(contestId);
+		AuthenticationObject.extract(request.getSession()).setContestId(contestId);
 
-		SessionObject so = SessionObject.extract(request.getSession());
+		AuthenticationObject ao = AuthenticationObject.extract(request.getSession());
 
 		// Проверяем право пользователя.
-		PermissionCheckerRemote pcb = so.getPermissionChecker();
+		PermissionCheckerRemote pcb = ao.getPermissionChecker();
 		if (!pcb.canJoinContest(
-				so.getUsername(),
+				ao.getUsername(),
 				contestId)) {
 			return mapping.findForward("accessDenied");
 		}
@@ -343,10 +343,10 @@ public class ContestsAction extends DispatchAction {
 			ActionForm af,
 			HttpServletRequest request,
 			HttpServletResponse response) {
-		SessionObject so = SessionObject.extract(request.getSession());
+		AuthenticationObject ao = AuthenticationObject.extract(request);
 
 		// Проверяем, что заявку подал залогинившийся пользователь.
-		if (!so.isAuthenticated()) {
+		if (!ao.isAuthenticated()) {
 			return;
 		}
 
@@ -354,7 +354,7 @@ public class ContestsAction extends DispatchAction {
 		int contestId = Integer.parseInt(request.getParameter("contestId"));
 		String message = request.getParameter("message");
 		Contest contest = dudgeBean.getContest(contestId);
-		String login = so.getUsername();
+		String login = ao.getUsername();
 
 		// Если пользователь уже является участником этого контеста, 
 		// то нет смысла обрабатывать его заявку.
@@ -390,11 +390,11 @@ public class ContestsAction extends DispatchAction {
 		ContestsForm cf = (ContestsForm) af;
 		DudgeLocal dudgeBean = lookupDudgeBean();
 
-		SessionObject so = SessionObject.extract(request.getSession());
+		AuthenticationObject ao = AuthenticationObject.extract(request);
 
 		// Проверяем право пользователя.
-		PermissionCheckerRemote pcb = so.getPermissionChecker();
-		if (!pcb.canAddContest(so.getUsername())) {
+		PermissionCheckerRemote pcb = ao.getPermissionChecker();
+		if (!pcb.canAddContest(ao.getUsername())) {
 			return mapping.findForward("accessDenied");
 		}
 
@@ -443,7 +443,7 @@ public class ContestsAction extends DispatchAction {
 		// Добавляем в список ролей создателя контеста с правами администрирования.
 		Role creator = new Role(
 				contest,
-				dudgeBean.getUser(so.getUsername()),
+				dudgeBean.getUser(ao.getUsername()),
 				RoleType.ADMINISTRATOR);
 
 		if (!contest.getRoles().contains(creator)) {
@@ -475,12 +475,12 @@ public class ContestsAction extends DispatchAction {
 
 		cf.setContestId(Integer.toString(contestId));
 		
-		SessionObject so = SessionObject.extract(request.getSession());
+		AuthenticationObject ao = AuthenticationObject.extract(request);
 
 		// Проверяем право пользователя.
-		PermissionCheckerRemote pcb = so.getPermissionChecker();
+		PermissionCheckerRemote pcb = ao.getPermissionChecker();
 		if (!pcb.canModifyContest(
-				so.getUsername(),
+				ao.getUsername(),
 				modifiedContest.getContestId())) {
 			return mapping.findForward("accessDenied");
 		}
@@ -550,12 +550,12 @@ public class ContestsAction extends DispatchAction {
 		int contestId = Integer.parseInt((String) request.getParameter("contestId"));
 		Contest contest = lookupDudgeBean().getContest(contestId);
 
-		SessionObject so = SessionObject.extract(request.getSession());
+		AuthenticationObject ao = AuthenticationObject.extract(request);
 
 		// Проверяем право пользователя.
-		PermissionCheckerRemote pcb = so.getPermissionChecker();
+		PermissionCheckerRemote pcb = ao.getPermissionChecker();
 		if (!pcb.canViewContest(
-				so.getUsername(),
+				ao.getUsername(),
 				contestId)) {
 			return mapping.findForward("accessDenied");
 		}
@@ -597,14 +597,14 @@ public class ContestsAction extends DispatchAction {
 			ActionForm af,
 			HttpServletRequest request,
 			HttpServletResponse response) {
-		SessionObject so = SessionObject.extract(request.getSession());
+		AuthenticationObject ao = AuthenticationObject.extract(request);
 		ContestsForm cf = (ContestsForm) af;
 		int contestId = Integer.parseInt((String) request.getParameter("contestId"));
 
 		// Проверяем право пользователя на удаление задачи из системы.
-		PermissionCheckerRemote pcb = so.getPermissionChecker();
+		PermissionCheckerRemote pcb = ao.getPermissionChecker();
 		if (!pcb.canDeleteContest(
-				so.getUsername(),
+				ao.getUsername(),
 				contestId)) {
 
 			return;
@@ -635,7 +635,7 @@ public class ContestsAction extends DispatchAction {
 		DudgeLocal dudgeBean = lookupDudgeBean();
 		
 		//FIXME: Проверять здесь права.
-		SessionObject so = SessionObject.extract(request.getSession());
+		AuthenticationObject ao = AuthenticationObject.extract(request);
 
 		int contestId;
 		// Получаем идентификатор соревнования.
@@ -1004,7 +1004,7 @@ public class ContestsAction extends DispatchAction {
 			json.put("problemId", problem.getProblem().getProblemId());
 			json.put("order", problem.getProblemOrder());
 			json.put("mark", problem.getProblemMark());
-                        json.put("cost", problem.getProblemCost());
+            json.put("cost", problem.getProblemCost());
 		} catch (JSONException Je) {
 			logger.severe("Failed creation of JSON view of User object.");
 		}

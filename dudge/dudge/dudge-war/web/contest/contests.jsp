@@ -105,7 +105,7 @@ function renderDuration(value, metadata, record, row, col, ds)
 	return value/3600 + ':' + (value % 3600) / 60;
 };
 
-<% if (pcb.canAddContest(sessionObject.getUsername())) { %>		
+<% if (pcb.canAddContest(authenticationObject.getUsername())) { %>
 contestsToolbar.addButton({
 	text: '<bean:message key="contest.create" />',
 	handler: function() {

@@ -8,7 +8,6 @@ package dudge.web.actions;
 
 import dudge.DudgeLocal;
 import dudge.web.AuthenticationCookies;
-import dudge.web.SessionObject;
 import dudge.web.forms.LoginForm;
 import java.util.Calendar;
 import java.util.Date;
@@ -54,8 +53,6 @@ public class LoginAction extends DispatchAction {
 		if(lookupDudgeBean()
 			.authenticate(lf.getUsername(), lf.getPassword()) )
 		{
-			SessionObject.extract(request.getSession()).setUsername(lf.getUsername());
-			
 			lf.setPassword("");
 			Calendar calendar = Calendar.getInstance();
 			calendar.add(Calendar.HOUR, 6);
@@ -79,9 +76,7 @@ public class LoginAction extends DispatchAction {
 			HttpServletResponse response) {
 		LoginForm lf = (LoginForm) af;
 
-                AuthenticationCookies.removeCookies(response);
-                
-		SessionObject.extract(request.getSession()).setUsername(null);
+        AuthenticationCookies.removeCookies(response);
 
 		ActionForward forward = new ActionForward();
 		forward.setPath(request.getHeader("referer"));

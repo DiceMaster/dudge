@@ -8,7 +8,7 @@ import dudge.DudgeLocal;
 import dudge.db.Contest;
 import dudge.db.Language;
 import dudge.PermissionCheckerRemote;
-import dudge.web.SessionObject;
+import dudge.web.AuthenticationObject;
 import dudge.web.forms.LanguagesForm;
 import java.io.IOException;
 import java.util.Iterator;
@@ -86,9 +86,9 @@ public class LanguagesAction extends DispatchAction {
 			return;
 		}
 
-		SessionObject so = SessionObject.extract(request.getSession());
+		AuthenticationObject ao = AuthenticationObject.extract(request);
 		for (Iterator<Language> iter = languages.iterator(); iter.hasNext();) {
-			ja.put(this.getLanguageJSONView(iter.next(), so));
+			ja.put(this.getLanguageJSONView(iter.next(), ao));
 		}
 		try {
 			jo.put("languages", ja);
@@ -148,11 +148,11 @@ public class LanguagesAction extends DispatchAction {
 		Language language = lookupDudgeBean().getLanguage(languageId);
 		lf.reset(mapping, request);
 
-		SessionObject so = SessionObject.extract(request.getSession());
+		AuthenticationObject ao = AuthenticationObject.extract(request);
 
 		// Проверяем права пользователя на редактирование языков.
-		PermissionCheckerRemote pcb = so.getPermissionChecker();
-		if (!pcb.canModifyLanguage(so.getUsername())) {
+		PermissionCheckerRemote pcb = ao.getPermissionChecker();
+		if (!pcb.canModifyLanguage(ao.getUsername())) {
 			return mapping.findForward("accessDenied");
 		}
 
@@ -177,11 +177,11 @@ public class LanguagesAction extends DispatchAction {
 
 		LanguagesForm lf = (LanguagesForm) af;
 
-		SessionObject so = SessionObject.extract(request.getSession());
+		AuthenticationObject ao = AuthenticationObject.extract(request);
 
 		// Проверяем право пользователя.
-		PermissionCheckerRemote pcb = so.getPermissionChecker();
-		if (!pcb.canAddLanguage(so.getUsername())) {
+		PermissionCheckerRemote pcb = ao.getPermissionChecker();
+		if (!pcb.canAddLanguage(ao.getUsername())) {
 			return mapping.findForward("accessDenied");
 
 		}
@@ -202,11 +202,11 @@ public class LanguagesAction extends DispatchAction {
 
 		DudgeLocal dudgeBean = lookupDudgeBean();
 
-		SessionObject so = SessionObject.extract(request.getSession());
+		AuthenticationObject ao = AuthenticationObject.extract(request);
 
 		// Проверяем право пользователя.
-		PermissionCheckerRemote pcb = so.getPermissionChecker();
-		if (!pcb.canAddLanguage(so.getUsername())) {
+		PermissionCheckerRemote pcb = ao.getPermissionChecker();
+		if (!pcb.canAddLanguage(ao.getUsername())) {
 			return mapping.findForward("accessDenied");
 		}
 
@@ -243,11 +243,11 @@ public class LanguagesAction extends DispatchAction {
 
 		DudgeLocal dudgeBean = lookupDudgeBean();
 
-		SessionObject so = SessionObject.extract(request.getSession());
+		AuthenticationObject ao = AuthenticationObject.extract(request);
 
 		// Проверяем право пользователя.
-		PermissionCheckerRemote pcb = so.getPermissionChecker();
-		if (!pcb.canModifyLanguage(so.getUsername())) {
+		PermissionCheckerRemote pcb = ao.getPermissionChecker();
+		if (!pcb.canModifyLanguage(ao.getUsername())) {
 			return mapping.findForward("accessDenied");
 		}
 
@@ -277,11 +277,11 @@ public class LanguagesAction extends DispatchAction {
 
 		DudgeLocal dudgeBean = lookupDudgeBean();
 
-		SessionObject so = SessionObject.extract(request.getSession());
+		AuthenticationObject ao = AuthenticationObject.extract(request);
 
 		// Проверяем право пользователя.
-		PermissionCheckerRemote pcb = so.getPermissionChecker();
-		if (!pcb.canDeleteLanguage(so.getUsername())) {
+		PermissionCheckerRemote pcb = ao.getPermissionChecker();
+		if (!pcb.canDeleteLanguage(ao.getUsername())) {
 			return;
 		}
 		dudgeBean.deleteLanguage(languageId);
@@ -291,11 +291,11 @@ public class LanguagesAction extends DispatchAction {
 	 * Метод возвращает представления объекта Language в формата JSON - это нужно
 	 * для его отображение на стороне клиента через JavaScript/AJAX.
 	 */
-	private JSONObject getLanguageJSONView(Language language, SessionObject so) {
+	private JSONObject getLanguageJSONView(Language language, AuthenticationObject ao) {
 
 		JSONObject json = new JSONObject();
 
-		PermissionCheckerRemote pcb = so.getPermissionChecker();
+		PermissionCheckerRemote pcb = ao.getPermissionChecker();
 
 		// Заполняем данными задачи созданный объект JSON.
 		try {
@@ -304,10 +304,10 @@ public class LanguagesAction extends DispatchAction {
 			json.put("description", language.getDescription());
 
 			json.put("editable",
-					pcb.canModifyLanguage(so.getUsername()));
+					pcb.canModifyLanguage(ao.getUsername()));
 
 			json.put("deletable",
-					pcb.canDeleteLanguage(so.getUsername()));
+					pcb.canDeleteLanguage(ao.getUsername()));
 
 		} catch (JSONException je) {
 			logger.log(Level.SEVERE, "Failed creation of JSON view of Language object.", je);

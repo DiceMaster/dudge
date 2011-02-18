@@ -16,7 +16,7 @@ import dudge.monitor.AcmMonitorRecord;
 import dudge.monitor.GlobalMonitorRecord;
 import dudge.PermissionCheckerRemote;
 import dudge.monitor.SchoolMonitorRecord;
-import dudge.web.SessionObject;
+import dudge.web.AuthenticationObject;
 import java.io.IOException;
 import java.util.Date;
 import java.util.List;
@@ -72,7 +72,7 @@ public class MonitorAction extends DispatchAction {
 			HttpServletResponse response) {
 		
 		DudgeLocal dudgeBean = lookupDudgeBean();
-		SessionObject so = SessionObject.extract(request.getSession());
+		AuthenticationObject ao = AuthenticationObject.extract(request);
 		
 		int contestId;
 		// Получаем идентификатор соревнования.
@@ -85,9 +85,9 @@ public class MonitorAction extends DispatchAction {
 			contestId = dudgeBean.getDefaultContest().getContestId();
 		
 		// Проверяем право пользователя.
-		PermissionCheckerRemote pcb = so.getPermissionChecker();
+		PermissionCheckerRemote pcb = ao.getPermissionChecker();
 		if (!pcb.canViewMonitor(
-				so.getUsername(),
+				ao.getUsername(),
 				contestId)
 				) {
 			return mapping.findForward("accessDenied");
@@ -113,12 +113,12 @@ public class MonitorAction extends DispatchAction {
 		//  Получаем идентификатор соревнования.
 		int contestId = Integer.parseInt( request.getParameter("contestId"));
 		
-		SessionObject so = SessionObject.extract(request.getSession());
+		AuthenticationObject ao = AuthenticationObject.extract(request);
 		
 		// Проверяем право пользователя.
-		PermissionCheckerRemote pcb = so.getPermissionChecker();
+		PermissionCheckerRemote pcb = ao.getPermissionChecker();
 		if (!pcb.canViewMonitor(
-				so.getUsername(),
+				ao.getUsername(),
 				contestId)
 				) {
 			return;
@@ -132,7 +132,7 @@ public class MonitorAction extends DispatchAction {
 		
 		// Администраторы соревнования видят монитор размороженным.
 		boolean userIsContestAdmin = dudgeBean.isInRole(
-				so.getUsername(),
+				ao.getUsername(),
 				contest.getContestId(),
 				RoleType.ADMINISTRATOR
 				);
@@ -199,12 +199,12 @@ public class MonitorAction extends DispatchAction {
 		//  Получаем идентификатор соревнования.
 		int contestId = Integer.parseInt( request.getParameter("contestId"));
 		
-		SessionObject so = SessionObject.extract(request.getSession());
+		AuthenticationObject ao = AuthenticationObject.extract(request);
 		
 		// Проверяем право пользователя.
-		PermissionCheckerRemote pcb = so.getPermissionChecker();
+		PermissionCheckerRemote pcb = ao.getPermissionChecker();
 		if (!pcb.canViewMonitor(
-				so.getUsername(),
+				ao.getUsername(),
 				contestId)
 				) {
 			return;
@@ -218,7 +218,7 @@ public class MonitorAction extends DispatchAction {
 		
 		// Администраторы соревнования видят монитор размороженным.
 		boolean userIsContestAdmin = dudgeBean.isInRole(
-				so.getUsername(),
+				ao.getUsername(),
 				contest.getContestId(),
 				RoleType.ADMINISTRATOR
 				);
@@ -306,12 +306,12 @@ public class MonitorAction extends DispatchAction {
 		//  Получаем идентификатор соревнования.
 		int contestId = Integer.parseInt( request.getParameter("contestId"));
 
-		SessionObject so = SessionObject.extract(request.getSession());
+		AuthenticationObject ao = AuthenticationObject.extract(request);
 
 		// Проверяем право пользователя.
-		PermissionCheckerRemote pcb = so.getPermissionChecker();
+		PermissionCheckerRemote pcb = ao.getPermissionChecker();
 		if (!pcb.canViewMonitor(
-				so.getUsername(),
+				ao.getUsername(),
 				contestId)
 				) {
 			return;
@@ -324,7 +324,7 @@ public class MonitorAction extends DispatchAction {
 
 		// Администраторы соревнования видят монитор размороженным.
 		boolean userIsContestAdmin = dudgeBean.isInRole(
-				so.getUsername(),
+				ao.getUsername(),
 				contest.getContestId(),
 				RoleType.ADMINISTRATOR
 				);

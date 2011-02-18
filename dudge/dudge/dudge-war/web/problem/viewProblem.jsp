@@ -9,7 +9,7 @@ Ext.onReady(function(){
 	<%
 	if (
 		pcb.canSubmitSolution(
-		sessionObject.getUsername(),
+		authenticationObject.getUsername(),
 		contestId,
 		problemsForm.getProblemId())
 		) {
@@ -26,7 +26,7 @@ Ext.onReady(function(){
 	<%
 	if (
 		pcb.canModifyProblem(
-		sessionObject.getUsername(),
+		authenticationObject.getUsername(),
 		Integer.parseInt(request.getParameter("problemId"))
 		)
 		) {
@@ -45,7 +45,7 @@ Ext.onReady(function(){
 	<%
 	if (
 		pcb.canDeleteProblem(
-		sessionObject.getUsername(),
+		authenticationObject.getUsername(),
 		Integer.parseInt(request.getParameter("problemId"))
 		)
 		) {

@@ -9,8 +9,6 @@ import dudge.SearcherLocal;
 import dudge.db.User;
 import dudge.db.Problem;
 import dudge.web.ServiceLocator;
-import dudge.web.SessionObject;
-
 import java.io.IOException;
 import java.util.List;
 import javax.servlet.http.HttpServletRequest;
@@ -21,7 +19,6 @@ import json.JSONObject;
 import org.apache.struts.actions.DispatchAction;
 import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionMapping;
-import org.apache.struts.action.ActionForward;
 
 /**
  *
@@ -36,8 +33,6 @@ public class SearchAction extends DispatchAction {
 		throws Exception {
         
 		String query = request.getParameter("query");
-		
-		SessionObject so = SessionObject.extract(request.getSession());
 		
 		SearcherLocal searcher = ServiceLocator.getInstance().getSearcher();
 		

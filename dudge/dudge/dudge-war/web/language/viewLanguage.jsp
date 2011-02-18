@@ -53,7 +53,7 @@
 			</div>
 			</fieldset>
 					   
-		    <% if(pcb.canModifyLanguage(sessionObject.getUsername())) {	%>	
+		    <% if(pcb.canModifyLanguage(authenticationObject.getUsername())) {	%>
 		    <div id="buttons" style="margin:5px;">
 			<html:submit> <bean:message key="language.editProperties"/>
 			</html:submit>

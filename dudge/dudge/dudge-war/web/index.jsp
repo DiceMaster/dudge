@@ -1,15 +1,15 @@
 <h1 align="center"><bean:message key="contests.contests"/></h1>
 <p><p>
 <%
-java.util.List<dudge.db.Contest> activeContests = sessionObject.getDudge().getActiveContests();
+java.util.List<dudge.db.Contest> activeContests = dudgeLocal.getActiveContests();
 java.util.List activeContestsList = activeContests;
 java.util.Collections.sort(activeContestsList);
 
-java.util.List<dudge.db.Contest> pendingContests = sessionObject.getDudge().getPendingContests();
+java.util.List<dudge.db.Contest> pendingContests = dudgeLocal.getPendingContests();
 java.util.List pendingContestsList = pendingContests;
 java.util.Collections.sort(pendingContestsList);
 
-java.util.List<dudge.db.Contest> recentlyFinishedContests = sessionObject.getDudge().getRecentlyFinishedContests();
+java.util.List<dudge.db.Contest> recentlyFinishedContests = dudgeLocal.getRecentlyFinishedContests();
 java.util.List recentlyFinishedContestsList = recentlyFinishedContests;
 java.util.Collections.sort(recentlyFinishedContestsList);
 %>

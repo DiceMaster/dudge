@@ -7,7 +7,7 @@ Ext.onReady(function(){
 
 var buttonsToolbar = Ext.getCmp('content-panel').getTopToolbar();
 
- <% if (pcb.canSendApplication(sessionObject.getUsername(), contestId)) {%>
+ <% if (pcb.canSendApplication(authenticationObject.getUsername(), contestId)) {%>
  var btnApplication = new Ext.Toolbar.Button({
 	text: '<bean:message key="contest.sendApplication" />',
 	handler:function() {
@@ -46,7 +46,7 @@ buttonsToolbar.addButton(btnApplication);
 <% } %>
 <%
 if (pcb.canModifyContest(
-		sessionObject.getUsername(),
+		authenticationObject.getUsername(),
 		contestId
 		)) {
 %>
@@ -60,7 +60,7 @@ if (pcb.canModifyContest(
 <%}%>
 <%
 if (pcb.canDeleteContest(
-		sessionObject.getUsername(),
+		authenticationObject.getUsername(),
 		contestId
 		)) {
 %>
@@ -105,7 +105,7 @@ buttonsToolbar.render();
 				</tr>
 			</thead>
 			<tbody>
-				<% java.util.List<dudge.db.Role> roles = (java.util.List<dudge.db.Role>) sessionObject.getDudge().getContest( contestId ).getRoles();%>
+				<% java.util.List<dudge.db.Role> roles = (java.util.List<dudge.db.Role>) dudgeLocal.getContest( contestId ).getRoles();%>
 				<% for (dudge.db.Role role : roles) {
 		if (role.getRoleType() != dudge.db.RoleType.USER) {
 			continue;

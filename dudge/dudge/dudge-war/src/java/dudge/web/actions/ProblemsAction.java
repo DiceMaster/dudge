@@ -13,7 +13,7 @@ import dudge.PermissionCheckerRemote;
 import dudge.db.Problem;
 import dudge.db.Test;
 
-import dudge.web.SessionObject;
+import dudge.web.AuthenticationObject;
 import dudge.web.forms.ProblemsForm;
 import java.text.SimpleDateFormat;
 import java.util.Collections;
@@ -93,12 +93,12 @@ public class ProblemsAction extends DispatchAction {
 		int problemId = Integer.parseInt( (String)request.getParameter("problemId") );
 		Problem problem = lookupDudgeBean().getProblem(problemId);
 		
-		SessionObject so = SessionObject.extract(request.getSession());
+		AuthenticationObject ao = AuthenticationObject.extract(request);
 		
 		// Проверяем право пользователя.
-		PermissionCheckerRemote pcb = so.getPermissionChecker();
+		PermissionCheckerRemote pcb = ao.getPermissionChecker();
 		if (!pcb.canViewProblem(
-				so.getUsername(),
+				ao.getUsername(),
 				problemId)
 				) {
 			return mapping.findForward("accessDenied");
@@ -136,15 +136,15 @@ public class ProblemsAction extends DispatchAction {
 		DudgeLocal dudgeBean = lookupDudgeBean();
 		
 		List<Problem> problems = dudgeBean.getProblems();
-		SessionObject so = SessionObject.extract(request.getSession());
+		AuthenticationObject ao = AuthenticationObject.extract(request);
 		
 		// Проверяем право пользователя.
-		PermissionCheckerRemote pcb = so.getPermissionChecker();
+		PermissionCheckerRemote pcb = ao.getPermissionChecker();
 		
 		// Отсеиваем из списка задач те, которые пользователь видеть в общем списке задач не должен.
 		List<Problem> selectedProblems = new ArrayList<Problem>();
 		for (Problem problem: problems){
-			if(pcb.canViewProblem(so.getUsername() , problem.getProblemId()))
+			if(pcb.canViewProblem(ao.getUsername() , problem.getProblemId()))
 				selectedProblems.add(problem);
 		}
 		
@@ -169,7 +169,7 @@ public class ProblemsAction extends DispatchAction {
 		}
 		
 		for (Iterator<Problem> iter = selectedProblems.iterator() ; iter.hasNext() ; ) {
-			ja.put(this.getProblemJSONView(iter.next() , so));
+			ja.put(this.getProblemJSONView(iter.next() , ao));
 		}
 		try {
 			jo.put("problems" ,ja);
@@ -197,12 +197,12 @@ public class ProblemsAction extends DispatchAction {
 		
 		Problem problem = lookupDudgeBean().getProblem(Integer.parseInt(request.getParameter("problemId")));
 		
-		SessionObject so = SessionObject.extract(request.getSession());
+		AuthenticationObject ao = AuthenticationObject.extract(request);
 		
 		// Проверяем право пользователя.
-		PermissionCheckerRemote pcb = so.getPermissionChecker();
+		PermissionCheckerRemote pcb = ao.getPermissionChecker();
 		if (!pcb.canModifyProblem(
-				so.getUsername(),
+				ao.getUsername(),
 				problem.getProblemId())
 				) {
 			return mapping.findForward("accessDenied");
@@ -234,12 +234,12 @@ public class ProblemsAction extends DispatchAction {
 		
 		ProblemsForm pf = (ProblemsForm) af;
 		
-		SessionObject so = SessionObject.extract(request.getSession());
+		AuthenticationObject ao = AuthenticationObject.extract(request);
 		
 		// Проверяем право пользователя добавлять задачи.
-		PermissionCheckerRemote pcb = so.getPermissionChecker();
+		PermissionCheckerRemote pcb = ao.getPermissionChecker();
 		if (!pcb.canAddProblem(
-				so.getUsername())
+				ao.getUsername())
 				) { return mapping.findForward("accessDenied");
 				
 		}
@@ -270,12 +270,12 @@ public class ProblemsAction extends DispatchAction {
 		
 		ProblemsForm pf = (ProblemsForm) af;
 		
-		SessionObject so = SessionObject.extract(request.getSession());
+		AuthenticationObject ao = AuthenticationObject.extract(request);
 		
 		// Проверяем право пользователя.
-		PermissionCheckerRemote pcb = so.getPermissionChecker();
+		PermissionCheckerRemote pcb = ao.getPermissionChecker();
 		if (!pcb.canAddProblem(
-				so.getUsername())
+				ao.getUsername())
 				) {
 			return mapping.findForward("accessDenied");
 		}
@@ -297,7 +297,7 @@ public class ProblemsAction extends DispatchAction {
 		
 		problem.setOwner(
 				lookupDudgeBean().getUser(
-				SessionObject.extract(request.getSession()).getUsername())
+				ao.getUsername())
 				);
 		
 		problem.setCreateTime(date);
@@ -322,12 +322,12 @@ public class ProblemsAction extends DispatchAction {
 		// Получение контеста, который требуется отредактировать.
 		Problem problem = lookupDudgeBean().getProblem(pf.getProblemId());
 		
-		SessionObject so = SessionObject.extract(request.getSession());
+		AuthenticationObject ao = AuthenticationObject.extract(request);
 		
 		// Проверяем право пользователя.
-		PermissionCheckerRemote pcb = so.getPermissionChecker();
+		PermissionCheckerRemote pcb = ao.getPermissionChecker();
 		if (!pcb.canModifyProblem(
-				so.getUsername() , problem.getProblemId())
+				ao.getUsername() , problem.getProblemId())
 				) {
 			return mapping.findForward("accessDenied");
 		}
@@ -360,12 +360,12 @@ public class ProblemsAction extends DispatchAction {
 			HttpServletResponse response) {
 		ProblemsForm pf = (ProblemsForm) af;
 		
-		SessionObject so = SessionObject.extract(request.getSession());
+		AuthenticationObject ao = AuthenticationObject.extract(request);
 		
 		// Проверяем право пользователя.
-		PermissionCheckerRemote pcb = so.getPermissionChecker();
+		PermissionCheckerRemote pcb = ao.getPermissionChecker();
 		if (!pcb.canModifyProblem(
-				so.getUsername(),
+				ao.getUsername(),
 				pf.getProblemId())
 				) {
 			return;
@@ -409,15 +409,15 @@ public class ProblemsAction extends DispatchAction {
 			ActionForm af,
 			HttpServletRequest request,
 			HttpServletResponse response) {
-		SessionObject so = SessionObject.extract(request.getSession());
+		AuthenticationObject ao = AuthenticationObject.extract(request);
 		ProblemsForm pf = (ProblemsForm) af;
 		int testId = Integer.parseInt( (String) request.getParameter("testId"));
 		
 		// Проверяем право пользователя.
-		PermissionCheckerRemote pcb = so.getPermissionChecker();
+		PermissionCheckerRemote pcb = ao.getPermissionChecker();
 		if (
 				!pcb.canDeleteTest(
-				so.getUsername(),
+				ao.getUsername(),
 				new Test(testId))
 				
 				) {
@@ -432,7 +432,7 @@ public class ProblemsAction extends DispatchAction {
 			ActionForm af,
 			HttpServletRequest request,
 			HttpServletResponse response) {
-		SessionObject so = SessionObject.extract(request.getSession());
+		AuthenticationObject ao = AuthenticationObject.extract(request);
 		
 		ProblemsForm pf = (ProblemsForm) af;
 		
@@ -444,10 +444,10 @@ public class ProblemsAction extends DispatchAction {
 		test.setTestNumber(numberOfNewTest);
 		
 		// Проверяем права пользователя добавление нового теста для задачи.
-		PermissionCheckerRemote pcb = so.getPermissionChecker();
+		PermissionCheckerRemote pcb = ao.getPermissionChecker();
 		if (
 				!pcb.canAddTest(
-				so.getUsername(),
+				ao.getUsername(),
 				test
 				)
 				) {
@@ -467,12 +467,12 @@ public class ProblemsAction extends DispatchAction {
 		int testId = Integer.parseInt( (String) request.getParameter("testId"));
 		Test test =  lookupDudgeBean().getTest(testId);
 		
-		SessionObject so = SessionObject.extract(request.getSession());
+		AuthenticationObject ao = AuthenticationObject.extract(request);
 		
 		// Проверяем право пользователя.
-		PermissionCheckerRemote pcb = so.getPermissionChecker();
+		PermissionCheckerRemote pcb = ao.getPermissionChecker();
 		if (!pcb.canGetTest(
-				so.getUsername(),
+				ao.getUsername(),
 				test)
 				) {
 			return;
@@ -536,12 +536,12 @@ public class ProblemsAction extends DispatchAction {
 		String data = (String) request.getParameter("data");
 		Test test = lookupDudgeBean().getTest(testId);
 		
-		SessionObject so = SessionObject.extract(request.getSession());
+		AuthenticationObject ao = AuthenticationObject.extract(request);
 		
 		// Проверяем право пользователя.
-		PermissionCheckerRemote pcb = so.getPermissionChecker();
+		PermissionCheckerRemote pcb = ao.getPermissionChecker();
 		if (!pcb.canModifyTest(
-				so.getUsername(),
+				ao.getUsername(),
 				test)
 				) {
 			return;
@@ -561,13 +561,13 @@ public class ProblemsAction extends DispatchAction {
 	 * Метод возвращает представления объекта в формата JSON - это нужно
 	 * для его отображение на стороне клиента через JavaScript/AJAX.
 	 */
-	private JSONObject getProblemJSONView(Problem problem , SessionObject so) {
+	private JSONObject getProblemJSONView(Problem problem , AuthenticationObject ao) {
 		
 		JSONObject json = new JSONObject();
 		
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyy.MM.dd");
 		
-		PermissionCheckerRemote pcb = so.getPermissionChecker();
+		PermissionCheckerRemote pcb = ao.getPermissionChecker();
 		
 		// Заполняем данными задачи созданный объект JSON.
 		try {
@@ -577,7 +577,7 @@ public class ProblemsAction extends DispatchAction {
 			json.put("create_time", sdf.format(problem.getCreateTime()));
 			json.put("is_healthy", problem.isHealthy());
 
-			if(pcb.canDeleteProblem(so.getUsername() , problem.getProblemId())) {
+			if(pcb.canDeleteProblem(ao.getUsername() , problem.getProblemId())) {
 				json.put("deletable" , true);
 			} else{
 				json.put("deletable" , false);
@@ -614,17 +614,17 @@ public class ProblemsAction extends DispatchAction {
 			ActionForm af,
 			HttpServletRequest request,
 			HttpServletResponse response) {
-		SessionObject so = SessionObject.extract(request.getSession());
+		AuthenticationObject ao = AuthenticationObject.extract(request);
 		ProblemsForm pf = (ProblemsForm) af;
 		
 		int problemId = Integer.parseInt( (String) request.getParameter("problemId"));
 		Problem problem = lookupDudgeBean().getProblem(problemId);
 		
 		// Проверяем право пользователя на удаление задачи из системы.
-		PermissionCheckerRemote pcb = so.getPermissionChecker();
+		PermissionCheckerRemote pcb = ao.getPermissionChecker();
 		if (
 				!pcb.canDeleteProblem(
-				so.getUsername(),
+				ao.getUsername(),
 				problemId)
 				
 				) {

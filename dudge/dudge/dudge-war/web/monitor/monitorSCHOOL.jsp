@@ -19,8 +19,7 @@ ds = new Ext.data.Store({
 			'place',
 			'user',
 			<% for(dudge.db.ContestProblem contestProblem :
-			sessionObject.getDudge()
-			.getContest(
+			dudgeLocal.getContest(
 					contestId
 					).getContestProblems()) { %>
 			'problem' + '<%=contestProblem.getProblemMark()%>',
@@ -68,8 +67,7 @@ var cm = new Ext.grid.ColumnModel([
 	   width: 80
 	},
 	<% for(dudge.db.ContestProblem contestProblem :
-	sessionObject.getDudge()
-	.getContest(
+	dudgeLocal.getContest(
 			contestId
 			).getContestProblems()) { %>
 	{

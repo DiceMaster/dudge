@@ -76,7 +76,7 @@
 		    
 			<% if (
 				pcb.canDeepModifyUser(
-					sessionObject.extract(request.getSession()).getUsername(),
+					authenticationObject.getUsername(),
 					usersForm.getLogin()
 					)
 				) {%>
@@ -106,7 +106,7 @@
 			</fieldset>
 			<% }; %>
 		   
-		    <% if(pcb.canModifyUser(sessionObject.getUsername(), request.getParameter("login"))) {	%>	
+		    <% if(pcb.canModifyUser(authenticationObject.getUsername(), request.getParameter("login"))) {	%>
 		    <div id="buttons" style="margin:5px;">
 			<html:submit> <bean:message key="contest.editProperties"/>
 			</html:submit>

@@ -84,7 +84,7 @@
 		    
 		    <% if (
 				pcb.canDeepModifyUser(
-					sessionObject.extract(request.getSession()).getUsername(),
+					authenticationObject.getUsername(),
 					usersForm.getLogin()
 					)
 				) {%>
