@@ -134,6 +134,10 @@ public class ProblemcView extends FrameView {
         problemDescription.setColumns(20);
         problemDescription.setRows(5);
         problemDescription.setName("problemDescription"); // NOI18N
+
+        binding = org.jdesktop.beansbinding.Bindings.createAutoBinding(org.jdesktop.beansbinding.AutoBinding.UpdateStrategy.READ_WRITE, this, org.jdesktop.beansbinding.ELProperty.create("${problem.description}"), problemDescription, org.jdesktop.beansbinding.BeanProperty.create("text"));
+        bindingGroup.addBinding(binding);
+
         jScrollPane1.setViewportView(problemDescription);
 
         javax.swing.GroupLayout desciptionPanelLayout = new javax.swing.GroupLayout(desciptionPanel);
@@ -506,12 +510,24 @@ public class ProblemcView extends FrameView {
 			listener.propertyChange(new PropertyChangeEvent(this, "problem", oldProblem, problem));
 		}
 	}
-	
+
+	private boolean showSaveDialog() {
+		if(saveDialog.showSaveDialog(null) == JFileChooser.APPROVE_OPTION) {
+			problemFile = saveDialog.getSelectedFile();
+			if (problemFile.getName().indexOf('.') == -1) {
+				problemFile = new File(problemFile.getAbsolutePath()+".problem");
+			}
+			return true;
+		}
+
+		return false;
+	}
+
 	@Action
 	public void saveProblem() {
 		if(problemFile == null)
 		{
-			saveProblemAs();
+			showSaveDialog();
 
 			if (problemFile == null)
 				return;
@@ -555,9 +571,8 @@ public class ProblemcView extends FrameView {
 
 	@Action
 	public void saveProblemAs() {
-		if(saveDialog.showSaveDialog(null) == JFileChooser.APPROVE_OPTION)
-		{
-			problemFile = saveDialog.getSelectedFile();
+		if (showSaveDialog()) {
+			saveProblem();
 		}
 	}
 

@@ -72,7 +72,7 @@ public class ContestsAction extends DispatchAction {
 		return mapping.findForward("contests");
 	}
 
-        public ActionForward rules(
+	public ActionForward rules(
 			ActionMapping mapping,
 			ActionForm af,
 			HttpServletRequest request,

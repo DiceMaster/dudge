@@ -382,10 +382,16 @@ exists or setup the property manually. For example like this:
             -->
     <target depends="init" if="no.dist.ear.dir" name="deps-module-jar" unless="no.deps">
         <ant antfile="${project.dudge-ejb}/build.xml" inheritall="false" target="dist"/>
+        <ant antfile="${project.dudge-lib}/build.xml" inheritall="false" target="jar">
+            <property name="deploy.on.save" value="false"/>
+        </ant>
     </target>
     <target depends="init" if="dist.ear.dir" name="deps-ear-jar" unless="no.deps">
         <ant antfile="${project.dudge-ejb}/build.xml" inheritall="false" target="dist-ear">
             <property location="${build.dir}" name="dist.ear.dir"/>
+        </ant>
+        <ant antfile="${project.dudge-lib}/build.xml" inheritall="false" target="jar">
+            <property name="deploy.on.save" value="false"/>
         </ant>
     </target>
     <target depends="init, deps-module-jar, deps-ear-jar" name="deps-jar" unless="no.deps"/>
@@ -525,14 +531,18 @@ exists or setup the property manually. For example like this:
     <target depends="init" if="dist.ear.dir" name="library-inclusion-in-manifest">
         <copyfiles files="${libs.struts.classpath}" iftldtodir="${build.web.dir}/WEB-INF" manifestproperty="manifest.libs.struts.classpath" todir="${dist.ear.dir}"/>
         <copyfiles files="${reference.dudge-ejb.dist}" iftldtodir="${build.web.dir}/WEB-INF" manifestproperty="manifest.reference.dudge-ejb.dist" todir="${dist.ear.dir}"/>
+        <copyfiles files="${reference.dudge-lib.jar}" iftldtodir="${build.web.dir}/WEB-INF" manifestproperty="manifest.reference.dudge-lib.jar" todir="${dist.ear.dir}"/>
+        <copyfiles files="${libs.beans-binding.classpath}" iftldtodir="${build.web.dir}/WEB-INF" manifestproperty="manifest.libs.beans-binding.classpath" todir="${dist.ear.dir}"/>
         <mkdir dir="${build.web.dir}/META-INF"/>
         <manifest file="${build.web.dir}/META-INF/MANIFEST.MF" mode="update">
-            <attribute name="Class-Path" value="${manifest.libs.struts.classpath} ${manifest.reference.dudge-ejb.dist} "/>
+            <attribute name="Class-Path" value="${manifest.libs.struts.classpath} ${manifest.reference.dudge-ejb.dist} ${manifest.reference.dudge-lib.jar} ${manifest.libs.beans-binding.classpath} "/>
         </manifest>
     </target>
     <target depends="init" name="library-inclusion-in-archive" unless="dist.ear.dir">
         <copyfiles files="${libs.struts.classpath}" todir="${build.web.dir}/WEB-INF/lib"/>
         <copyfiles files="${reference.dudge-ejb.dist}" todir="${build.web.dir}/WEB-INF/lib"/>
+        <copyfiles files="${reference.dudge-lib.jar}" todir="${build.web.dir}/WEB-INF/lib"/>
+        <copyfiles files="${libs.beans-binding.classpath}" todir="${build.web.dir}/WEB-INF/lib"/>
     </target>
     <target depends="init,compile,compile-jsps,-pre-dist,library-inclusion-in-manifest" if="do.tmp.war.package" name="do-ear-dist">
         <dirname file="${dist.ear.war}" property="dist.jar.dir"/>
@@ -827,6 +837,7 @@ exists or setup the property manually. For example like this:
             -->
     <target depends="init" if="no.dist.ear.dir" name="deps-clean" unless="no.deps">
         <ant antfile="${project.dudge-ejb}/build.xml" inheritall="false" target="clean"/>
+        <ant antfile="${project.dudge-lib}/build.xml" inheritall="false" target="clean"/>
     </target>
     <target depends="init" name="do-clean">
         <condition property="build.dir.to.clean" value="${build.web.dir}">

@@ -8,13 +8,10 @@ package dudge.web.forms;
 
 import dudge.db.ContestProblem;
 import dudge.db.Problem;
-import dudge.db.Test;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Date;
-import javax.servlet.ServletRequest;
 import javax.servlet.http.HttpServletRequest;
 import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionMapping;
@@ -55,7 +52,8 @@ public class ProblemsForm extends ActionForm {
 	
 	private String exampleInputTest = "";
 	private String exampleOutputTest = "";
-	
+
+	private FormFile file;
 	
 	/** Creates a new instance of ProblemsForm */
 	public ProblemsForm() {
@@ -70,6 +68,7 @@ public class ProblemsForm extends ActionForm {
 		isHidden = false;
 		exampleInputTest = "";
 		exampleOutputTest = "";
+		file = null;
 	}
 	
 	public List<Problem> getProblems() {
@@ -154,6 +153,14 @@ public class ProblemsForm extends ActionForm {
 	
 	public void setOwner(String owner) {
 		this.owner = owner;
+	}
+
+	public FormFile getFile() {
+		return file;
+	}
+
+	public void setFile(FormFile file) {
+		this.file = file;
 	}
 	
 	

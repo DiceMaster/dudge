@@ -28,6 +28,11 @@ Ext.onReady(function(){
 				<%};%>
 				tbar: testToolbar,
 				layout: 'fit'
+			},
+			{
+				contentEl: 'importTab',
+				title: '<bean:message key="problem.import" />',
+				layout: 'form'
 			}
 		]
 	});
@@ -206,7 +211,7 @@ Ext.onReady(function(){
 </script>
 <%};%>
 
-<html:form styleId="problemsForm" styleClass="x-form" action="problems.do" method="POST" >
+<html:form styleId="problemsForm" styleClass="x-form" action="problems.do" method="POST" enctype="multipart/form-data">
     <div class="x-box-tl"><div class="x-box-tr"><div class="x-box-tc"></div></div></div>
     <div class="x-box-ml"><div class="x-box-mr"><div class="x-box-mc">
 		<div class="x-form-bd" id="container">
@@ -285,6 +290,20 @@ Ext.onReady(function(){
 
 		<div id="testsTab" class="x-hide-display">
 			<div id="testsTable"></div>
+		</div>
+
+		<div id="importTab" class="x-hide-display">
+			<div class="x-form-item">
+				<label><bean:message key="problem.importHint" /></label>
+				<a href="#"><bean:message key="problem.importLink" /></a>
+			</div>
+			<br/>
+			<div class="x-form-item">
+				<label><bean:message key="problem.selectFile" /></label>
+			</div>
+			<div class="x-form-item">
+				<html:file property="file"/>
+			</div>
 		</div>
 	</div>
 

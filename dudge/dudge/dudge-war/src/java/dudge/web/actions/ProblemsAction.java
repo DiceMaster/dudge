@@ -15,6 +15,7 @@ import dudge.db.Test;
 
 import dudge.web.AuthenticationObject;
 import dudge.web.forms.ProblemsForm;
+import java.io.ByteArrayInputStream;
 import java.text.SimpleDateFormat;
 import java.util.Collections;
 import java.util.LinkedList;
@@ -40,6 +41,7 @@ import org.apache.struts.actions.DispatchAction;
 import json.JSONObject;
 import json.JSONArray;
 import json.JSONException;
+import org.apache.struts.upload.FormFile;
 
 /**
  *
@@ -194,7 +196,7 @@ public class ProblemsAction extends DispatchAction {
 			HttpServletRequest request,
 			HttpServletResponse response){
 		ProblemsForm pf = (ProblemsForm) af;
-		
+
 		Problem problem = lookupDudgeBean().getProblem(Integer.parseInt(request.getParameter("problemId")));
 		
 		AuthenticationObject ao = AuthenticationObject.extract(request);
@@ -261,7 +263,112 @@ public class ProblemsAction extends DispatchAction {
 		
 		return mapping.findForward("editProblem");
 	}
-	
+
+	private dudge.problemc.binding.Problem importProblem(FormFile file)	{
+		
+		dudge.problemc.binding.Problem importedProblem;
+		try {
+			javax.xml.bind.JAXBContext jaxbCtx =
+					javax.xml.bind.JAXBContext.newInstance(
+						dudge.problemc.binding.Problem.class.getPackage().getName()
+						);
+			javax.xml.bind.Unmarshaller unmarshaller = jaxbCtx.createUnmarshaller();
+			ByteArrayInputStream inputStream = new ByteArrayInputStream(file.getFileData());
+			importedProblem = (dudge.problemc.binding.Problem) unmarshaller.unmarshal(inputStream);
+			inputStream.close();
+		}
+		catch (Exception ex) {
+			return null;
+		}
+
+		return importedProblem;
+	}
+
+	private ActionForward importCreate(
+			ActionMapping mapping,
+			ActionForm af,
+			HttpServletRequest request,
+			HttpServletResponse response) {
+		
+		ProblemsForm pf = (ProblemsForm) af;
+
+		dudge.problemc.binding.Problem importedProblem = importProblem(pf.getFile());
+		if (importedProblem == null) {
+			return null;
+		}
+
+		Problem problem = lookupDudgeBean().getProblem(pf.getProblemId());
+		boolean isNewProblem = problem == null;
+
+		problem = new Problem(
+				-1,
+				importedProblem.getTitle(),
+				importedProblem.getDescription(),
+				(int)importedProblem.getLimits().getMemory(),
+				(int)importedProblem.getLimits().getTime(),
+				(int)importedProblem.getLimits().getTime(),
+				(int)importedProblem.getLimits().getOutput()
+				);		
+
+		problem.setHidden(pf.isHidden());
+
+		AuthenticationObject ao = AuthenticationObject.extract(request);
+		
+		problem.setOwner(
+				lookupDudgeBean().getUser(
+				ao.getUsername())
+				);
+
+		Date date = new Date();
+		problem.setCreateTime(date);
+
+		problem = lookupDudgeBean().addProblem(problem);
+
+		importTests(problem.getProblemId(), importedProblem);
+
+		ActionForward forward = new ActionForward();
+		forward.setPath("problems.do?reqCode=view&problemId=" + problem.getProblemId());
+		forward.setRedirect(true);
+		return forward;
+	}
+
+	private ActionForward importEdit(
+			ActionMapping mapping,
+			ActionForm af,
+			HttpServletRequest request,
+			HttpServletResponse response) {
+
+		ProblemsForm pf = (ProblemsForm) af;
+
+		dudge.problemc.binding.Problem importedProblem = importProblem(pf.getFile());
+		if (importedProblem == null) {
+			return null;
+		}
+
+		Problem problem = lookupDudgeBean().getProblem(pf.getProblemId());
+
+		problem.setTitle(importedProblem.getTitle());
+		problem.setAuthor(importedProblem.getAuthor());
+		problem.setDescription(importedProblem.getDescription());
+		problem.setCpuTimeLimit((int)importedProblem.getLimits().getTime());
+		problem.setMemoryLimit((int)importedProblem.getLimits().getMemory());
+		problem.setOutputLimit((int)importedProblem.getLimits().getOutput());
+		problem.setRealTimeLimit((int)importedProblem.getLimits().getTime());
+
+		problem.setHidden(pf.isHidden());
+
+		lookupDudgeBean().modifyProblem(problem);
+
+		pf.reset(mapping , request);
+
+		importTests(problem.getProblemId(), importedProblem);
+
+		ActionForward forward = new ActionForward();
+		forward.setPath("problems.do?reqCode=view&problemId=" + problem.getProblemId());
+		forward.setRedirect(true);
+		return forward;
+	}
+
 	public ActionForward submitCreate(
 			ActionMapping mapping,
 			ActionForm af,
@@ -278,6 +385,10 @@ public class ProblemsAction extends DispatchAction {
 				ao.getUsername())
 				) {
 			return mapping.findForward("accessDenied");
+		}
+
+		if (pf.getFile() != null) {
+			return importCreate(mapping, af, request, response);
 		}
 		
 		// Создаем новый экземпляр задачи, и передаем ей извлеченные из формы данные.
@@ -331,6 +442,10 @@ public class ProblemsAction extends DispatchAction {
 				) {
 			return mapping.findForward("accessDenied");
 		}
+
+		if (pf.getFile() != null) {
+			return importEdit(mapping, af, request, response);
+		}
 		
 		problem.setTitle(pf.getTitle());
 		problem.setAuthor(pf.getAuthor());
@@ -352,7 +467,49 @@ public class ProblemsAction extends DispatchAction {
 		forward.setRedirect(true);
 		return forward;
 	}
-	
+
+
+	private void importTests(int problemId, dudge.problemc.binding.Problem problem) {
+		List<Test> tests = new LinkedList<Test>( lookupDudgeBean().getProblem(problemId).getTests() );
+		Collections.sort(tests);
+
+		Iterator<dudge.problemc.binding.Problem.Tests.Test> problemTestIterator;
+		Iterator<Test> testsIterator;
+
+		// замена существующих тестов на новые
+		for (testsIterator = tests.iterator(),
+			problemTestIterator = problem.getTests().getTest().iterator()
+			; testsIterator.hasNext() && problemTestIterator.hasNext()
+			; ) {
+			Test nextTest = testsIterator.next();
+			dudge.problemc.binding.Problem.Tests.Test problemTest = problemTestIterator.next();
+
+			nextTest.setInputData(problemTest.getInput());
+			nextTest.setOutputData(problemTest.getOutput());
+			nextTest.setTestNumber(problemTest.getNumber());
+
+			lookupDudgeBean().modifyTest(nextTest);
+		}
+
+		// удаление лишних тестов
+		for (; testsIterator.hasNext(); ) {
+			lookupDudgeBean().deleteTest(testsIterator.next().getTestId());
+		}
+
+		// добавление новых тестов
+		for (; problemTestIterator.hasNext(); ) {
+			dudge.problemc.binding.Problem.Tests.Test problemTest = problemTestIterator.next();
+			int numberOfNewTest  = lookupDudgeBean().getProblem(problemId).getTests().size() + 1;
+
+			Test test = new Test(-1 , problemTest.getInput(), problemTest.getOutput());
+			test.setProblem(lookupDudgeBean().getProblem(problemId));
+			test.setTestNumber(numberOfNewTest);
+			
+			lookupDudgeBean().addTest(test);
+		}
+	}
+
+
 	public void getTestList(
 			ActionMapping mapping,
 			ActionForm af,
