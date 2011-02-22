@@ -294,7 +294,7 @@ public class ProblemsAction extends DispatchAction {
 
 		dudge.problemc.binding.Problem importedProblem = importProblem(pf.getFile());
 		if (importedProblem == null) {
-			return null;
+			return mapping.findForward("importError");
 		}
 
 		Problem problem = lookupDudgeBean().getProblem(pf.getProblemId());
@@ -322,7 +322,12 @@ public class ProblemsAction extends DispatchAction {
 		Date date = new Date();
 		problem.setCreateTime(date);
 
-		problem = lookupDudgeBean().addProblem(problem);
+		try {
+			problem = lookupDudgeBean().addProblem(problem);
+		}
+		catch (Exception ex) {
+			return mapping.findForward("importError");
+		}
 
 		importTests(problem.getProblemId(), importedProblem);
 
@@ -342,7 +347,7 @@ public class ProblemsAction extends DispatchAction {
 
 		dudge.problemc.binding.Problem importedProblem = importProblem(pf.getFile());
 		if (importedProblem == null) {
-			return null;
+			return mapping.findForward("importError");
 		}
 
 		Problem problem = lookupDudgeBean().getProblem(pf.getProblemId());
@@ -357,7 +362,12 @@ public class ProblemsAction extends DispatchAction {
 
 		problem.setHidden(pf.isHidden());
 
-		lookupDudgeBean().modifyProblem(problem);
+		try {
+			lookupDudgeBean().modifyProblem(problem);
+		}
+		catch (Exception ex) {
+			return mapping.findForward("importError");
+		}
 
 		pf.reset(mapping , request);
 
@@ -404,8 +414,7 @@ public class ProblemsAction extends DispatchAction {
 				);
 		
 		problem.setHidden(pf.isHidden());
-		
-		
+
 		problem.setOwner(
 				lookupDudgeBean().getUser(
 				ao.getUsername())
@@ -429,7 +438,6 @@ public class ProblemsAction extends DispatchAction {
 			HttpServletResponse response) {
 		
 		ProblemsForm pf = (ProblemsForm) af;
-		
 		// Получение контеста, который требуется отредактировать.
 		Problem problem = lookupDudgeBean().getProblem(pf.getProblemId());
 		
