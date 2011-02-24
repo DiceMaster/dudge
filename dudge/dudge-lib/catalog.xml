@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<catalog xmlns="urn:oasis:names:tc:entity:xmlns:xml:catalog" prefer="system">
+    <system systemId="file:/D:/Projects/dudge/trunk/dudge/dudge-lib/src/problem.xsd" uri="xml-resources/jaxb/ProblemXML/problem.xsd"/>
+    <system systemId="file:/D:/Projects/dudge/trunk/dudge/dudge-lib/src/Dudge.xjb" uri="xml-resources/jaxb/ProblemXML/Dudge.xjb.xml"/>
+</catalog>
