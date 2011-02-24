@@ -1,0 +1,14 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<schemas xmlns='http://xml.netbeans.org/schema/JAXBWizConfig' destdir='build/generated-sources/jaxb' projectName='dudge-lib' version='1.0'>
+	<schema type='-xmlschema' package='dudge.problemc.binding' name='ProblemXML'>
+		<xjc-options>
+		</xjc-options>
+		<schema-sources>
+			<schema-source location='xml-resources/jaxb/ProblemXML/problem.xsd' origLocation='src/problem.xsd'/>
+		</schema-sources>
+		<bindings>
+			<binding origLocation='src/Dudge.xjb' location='xml-resources/jaxb/ProblemXML/Dudge.xjb.xml'/>
+		</bindings>
+		<catalog/>
+	</schema>
+</schemas>
