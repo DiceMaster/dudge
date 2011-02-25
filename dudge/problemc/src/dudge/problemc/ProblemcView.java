@@ -132,6 +132,9 @@ public class ProblemcView extends FrameView {
         jScrollPane1.setName("jScrollPane1"); // NOI18N
 
         problemDescription.setColumns(20);
+        org.jdesktop.application.ResourceMap resourceMap = org.jdesktop.application.Application.getInstance(dudge.problemc.ProblemcApp.class).getContext().getResourceMap(ProblemcView.class);
+        problemDescription.setFont(resourceMap.getFont("problemDescription.font")); // NOI18N
+        problemDescription.setLineWrap(true);
         problemDescription.setRows(5);
         problemDescription.setName("problemDescription"); // NOI18N
 
@@ -164,7 +167,6 @@ public class ProblemcView extends FrameView {
                 .addContainerGap())
         );
 
-        org.jdesktop.application.ResourceMap resourceMap = org.jdesktop.application.Application.getInstance(dudge.problemc.ProblemcApp.class).getContext().getResourceMap(ProblemcView.class);
         jTabbedPane1.addTab(resourceMap.getString("desciptionPanel.TabConstraints.tabTitle"), desciptionPanel); // NOI18N
 
         testsPanel.setName("testsPanel"); // NOI18N
@@ -401,6 +403,7 @@ public class ProblemcView extends FrameView {
         problemMenu.add(jSeparator2);
 
         openMenuItem.setAction(actionMap.get("openProblem")); // NOI18N
+        openMenuItem.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_O, java.awt.event.InputEvent.CTRL_MASK));
         openMenuItem.setText(resourceMap.getString("openMenuItem.text")); // NOI18N
         openMenuItem.setName("openMenuItem"); // NOI18N
         problemMenu.add(openMenuItem);
@@ -409,6 +412,7 @@ public class ProblemcView extends FrameView {
         problemMenu.add(jSeparator3);
 
         saveMenuItem.setAction(actionMap.get("saveProblem")); // NOI18N
+        saveMenuItem.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_S, java.awt.event.InputEvent.CTRL_MASK));
         saveMenuItem.setText(resourceMap.getString("saveMenuItem.text")); // NOI18N
         saveMenuItem.setName("saveMenuItem"); // NOI18N
         problemMenu.add(saveMenuItem);
@@ -422,6 +426,7 @@ public class ProblemcView extends FrameView {
         problemMenu.add(jSeparator1);
 
         exitMenuItem.setAction(actionMap.get("quit")); // NOI18N
+        exitMenuItem.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_F4, java.awt.event.InputEvent.ALT_MASK));
         exitMenuItem.setText(resourceMap.getString("exitMenuItem.text")); // NOI18N
         exitMenuItem.setName("exitMenuItem"); // NOI18N
         problemMenu.add(exitMenuItem);

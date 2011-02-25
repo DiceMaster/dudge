@@ -264,7 +264,7 @@ public class ProblemsAction extends DispatchAction {
 		return mapping.findForward("editProblem");
 	}
 
-	private dudge.problemc.binding.Problem importProblem(FormFile file)	{
+	private dudge.problemc.binding.Problem importProblem(FormFile file, HttpServletRequest request)	{
 		
 		dudge.problemc.binding.Problem importedProblem;
 		try {
@@ -278,6 +278,7 @@ public class ProblemsAction extends DispatchAction {
 			inputStream.close();
 		}
 		catch (Exception ex) {
+			request.setAttribute("exception", ex);
 			return null;
 		}
 
@@ -292,13 +293,13 @@ public class ProblemsAction extends DispatchAction {
 		
 		ProblemsForm pf = (ProblemsForm) af;
 
-		dudge.problemc.binding.Problem importedProblem = importProblem(pf.getFile());
+		dudge.problemc.binding.Problem importedProblem 
+				= importProblem(pf.getFile(), request);
 		if (importedProblem == null) {
 			return mapping.findForward("importError");
 		}
 
 		Problem problem = lookupDudgeBean().getProblem(pf.getProblemId());
-		boolean isNewProblem = problem == null;
 
 		problem = new Problem(
 				-1,
@@ -311,6 +312,7 @@ public class ProblemsAction extends DispatchAction {
 				);		
 
 		problem.setHidden(pf.isHidden());
+		problem.setAuthor(pf.getAuthor());
 
 		AuthenticationObject ao = AuthenticationObject.extract(request);
 		
@@ -326,6 +328,7 @@ public class ProblemsAction extends DispatchAction {
 			problem = lookupDudgeBean().addProblem(problem);
 		}
 		catch (Exception ex) {
+			request.setAttribute("exception", ex);
 			return mapping.findForward("importError");
 		}
 
@@ -345,7 +348,8 @@ public class ProblemsAction extends DispatchAction {
 
 		ProblemsForm pf = (ProblemsForm) af;
 
-		dudge.problemc.binding.Problem importedProblem = importProblem(pf.getFile());
+		dudge.problemc.binding.Problem importedProblem
+				= importProblem(pf.getFile(), request);
 		if (importedProblem == null) {
 			return mapping.findForward("importError");
 		}
@@ -366,6 +370,7 @@ public class ProblemsAction extends DispatchAction {
 			lookupDudgeBean().modifyProblem(problem);
 		}
 		catch (Exception ex) {
+			request.setAttribute("exception", ex);
 			return mapping.findForward("importError");
 		}
 
@@ -415,6 +420,7 @@ public class ProblemsAction extends DispatchAction {
 		
 		problem.setHidden(pf.isHidden());
 
+		problem.setAuthor(pf.getAuthor());
 		problem.setOwner(
 				lookupDudgeBean().getUser(
 				ao.getUsername())

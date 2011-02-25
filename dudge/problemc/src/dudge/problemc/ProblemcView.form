@@ -122,6 +122,8 @@
                     <Component class="javax.swing.JTextArea" name="problemDescription">
                       <Properties>
                         <Property name="columns" type="int" value="20"/>
+                        <Property name="font" type="java.awt.Font" resourceKey="problemDescription.font"/>
+                        <Property name="lineWrap" type="boolean" value="true"/>
                         <Property name="rows" type="int" value="5"/>
                         <Property name="name" type="java.lang.String" value="problemDescription" noResource="true"/>
                       </Properties>
@@ -521,6 +523,9 @@
                 <Property name="action" type="javax.swing.Action" editor="org.netbeans.modules.swingapp.ActionEditor">
                   <action class="dudge.problemc.ProblemcView" id="openProblem" methodName="openProblem"/>
                 </Property>
+                <Property name="accelerator" type="javax.swing.KeyStroke" editor="org.netbeans.modules.form.editors.KeyStrokeEditor">
+                  <KeyStroke key="Ctrl+O"/>
+                </Property>
                 <Property name="text" type="java.lang.String" resourceKey="openMenuItem.text"/>
                 <Property name="name" type="java.lang.String" value="openMenuItem" noResource="true"/>
               </Properties>
@@ -534,6 +539,9 @@
               <Properties>
                 <Property name="action" type="javax.swing.Action" editor="org.netbeans.modules.swingapp.ActionEditor">
                   <action class="dudge.problemc.ProblemcView" id="saveProblem" methodName="saveProblem"/>
+                </Property>
+                <Property name="accelerator" type="javax.swing.KeyStroke" editor="org.netbeans.modules.form.editors.KeyStrokeEditor">
+                  <KeyStroke key="Ctrl+S"/>
                 </Property>
                 <Property name="text" type="java.lang.String" resourceKey="saveMenuItem.text"/>
                 <Property name="name" type="java.lang.String" value="saveMenuItem" noResource="true"/>
@@ -557,6 +565,9 @@
               <Properties>
                 <Property name="action" type="javax.swing.Action" editor="org.netbeans.modules.swingapp.ActionEditor">
                   <action class="org.jdesktop.application.Application" id="quit" methodName="quit"/>
+                </Property>
+                <Property name="accelerator" type="javax.swing.KeyStroke" editor="org.netbeans.modules.form.editors.KeyStrokeEditor">
+                  <KeyStroke key="Alt+F4"/>
                 </Property>
                 <Property name="text" type="java.lang.String" resourceKey="exitMenuItem.text"/>
                 <Property name="name" type="java.lang.String" value="exitMenuItem" noResource="true"/>
