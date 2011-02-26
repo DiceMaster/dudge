@@ -402,7 +402,10 @@ public class ProblemsAction extends DispatchAction {
 			return mapping.findForward("accessDenied");
 		}
 
-		if (pf.getFile() != null) {
+		if (pf.getFile() != null
+			&& pf.getFile().getFileName() != null
+			&& !pf.getFile().getFileName().isEmpty()
+			) {
 			return importCreate(mapping, af, request, response);
 		}
 		
@@ -457,7 +460,11 @@ public class ProblemsAction extends DispatchAction {
 			return mapping.findForward("accessDenied");
 		}
 
-		if (pf.getFile() != null) {
+
+		if (pf.getFile() != null
+			&& pf.getFile().getFileName() != null
+			&& !pf.getFile().getFileName().isEmpty()
+			) {
 			return importEdit(mapping, af, request, response);
 		}
 		

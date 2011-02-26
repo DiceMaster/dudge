@@ -329,9 +329,14 @@ exists or setup the property manually. For example like this:
         <!-- Empty placeholder for easier customization. -->
         <!-- You can override this target in the ../build.xml file. -->
     </target>
-    <target depends="compile" name="library-inclusion-in-archive"/>
+    <target depends="compile" name="library-inclusion-in-archive">
+        <copyfiles files="${libs.beans-binding.classpath}" todir="${build.classes.dir}"/>
+    </target>
     <target depends="compile" name="library-inclusion-in-manifest">
-        <manifest file="${build.ear.classes.dir}/META-INF/MANIFEST.MF" mode="update"/>
+        <copyfiles files="${libs.beans-binding.classpath}" manifestproperty="manifest.libs.beans-binding.classpath" todir="${dist.ear.dir}"/>
+        <manifest file="${build.ear.classes.dir}/META-INF/MANIFEST.MF" mode="update">
+            <attribute name="Class-Path" value="${manifest.libs.beans-binding.classpath} "/>
+        </manifest>
     </target>
     <target name="-copy-meta-inf">
         <copy todir="${classes.dir}">

@@ -6,6 +6,7 @@
         <data xmlns="http://www.netbeans.org/ns/j2ee-ejbjarproject/3">
             <name>dudge-ejb</name>
             <minimum-ant-version>1.6</minimum-ant-version>
+            <included-library>libs.beans-binding.classpath</included-library>
             <source-roots>
                 <root id="src.dir"/>
             </source-roots>
