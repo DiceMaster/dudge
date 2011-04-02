@@ -30,6 +30,7 @@ private:
 private:
 	void Init();
 	void Connect();
+	bool FindServer(sockaddr_in &serverAddr);
 	static unsigned WINAPI ConnectionThread(void *param);
 
 	ConnectionStatus GetConnectedStatus();

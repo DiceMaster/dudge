@@ -1,8 +1,10 @@
 #include <WinSock2.h>
+#include <Ws2tcpip.h>
 #include <process.h>
 #include "ClientClass.h"
 #include "EnterDialog.h"
 #include "RegDialog.h"
+#include "Settings.h"
 #include "../Server/Commands.h"
 #include "../SocketStreamLib/PacketSocket.h"
 #include "../SocketStreamLib/MemoryReader.h"
@@ -55,94 +57,142 @@ void ClientClass::Connect()
 	connectionThread = _beginthreadex(NULL, 0, &ConnectionThread, this, 0, NULL);
 }
 
+bool ClientClass::FindServer(sockaddr_in &serverAddr)
+{
+	std::string addrString = Settings::GetInstance()->GetServerAddr();
+	if (addrString.empty())
+	{
+		SOCKET brSocket = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
+		if (brSocket == INVALID_SOCKET)
+		{
+			MessageBox(mpWindow->GetHandle(), "Ошибка соединения (#1001)", "Ошибка!", MB_ICONERROR);
+			SetConnectedStatus(csDisconnected);
+			return false;
+		}
+
+		BOOL bSOargument = TRUE;
+		if (setsockopt(brSocket, SOL_SOCKET, SO_BROADCAST, (char *)&bSOargument, sizeof(BOOL)) == SOCKET_ERROR)
+		{
+			MessageBox(mpWindow->GetHandle(), "Ошибка соединения (#1002)", "Ошибка!", MB_ICONERROR);
+			shutdown(brSocket, SD_BOTH);
+			closesocket(brSocket);
+			SetConnectedStatus(csDisconnected);
+			return false;
+		}
+
+		sockaddr_in clientAddr;
+		clientAddr.sin_family = AF_INET;	
+		clientAddr.sin_port = 0;
+		clientAddr.sin_addr.s_addr = INADDR_ANY;
+
+		if (bind(brSocket, (SOCKADDR *)&clientAddr, sizeof(sockaddr_in)) == SOCKET_ERROR)
+		{
+			MessageBox(mpWindow->GetHandle(), "Ошибка соединения (#1002)", "Ошибка!", MB_ICONERROR);
+			shutdown(brSocket, SD_BOTH);
+			closesocket(brSocket);
+			SetConnectedStatus(csDisconnected);
+			return false;
+		}
+
+		sockaddr_in serverAddrBroadcast;
+		serverAddrBroadcast.sin_family = AF_INET;
+		serverAddrBroadcast.sin_port = htons(PORT_BROADCAST);
+		serverAddrBroadcast.sin_addr.s_addr = INADDR_BROADCAST;
+
+		DWORD buf = 1;
+		if (sendto(brSocket, (char *)&buf, 4, 0, (SOCKADDR *)&serverAddrBroadcast, sizeof(sockaddr_in)) == SOCKET_ERROR)
+		{
+			MessageBox(mpWindow->GetHandle(), "Ошибка соединения (#1003)", "Ошибка!", MB_ICONERROR);
+			shutdown(brSocket, SD_BOTH);
+			closesocket(brSocket);
+			SetConnectedStatus(csDisconnected);
+			return false;
+		}
+
+		fd_set brSet;
+		brSet.fd_count = 1;
+		brSet.fd_array[0] = brSocket;
+		TIMEVAL maxWaitTime;
+		maxWaitTime.tv_sec = Settings::GetInstance()->GetTimeout();
+		maxWaitTime.tv_usec = 0;
+		int selected = select(0, &brSet, NULL, NULL, &maxWaitTime);
+		if (selected == 0)
+		{
+			shutdown(brSocket, SD_BOTH);
+			closesocket(brSocket);
+			MessageBox(mpWindow->GetHandle(), "Сервер не найден!", "Внимание!", MB_ICONEXCLAMATION);
+			SetConnectedStatus(csDisconnected);
+			return false;
+		}
+
+		int len = sizeof(sockaddr_in);
+		if (recvfrom(brSocket, (char *)&buf, 4, 0, (SOCKADDR *)&serverAddr, &len) == SOCKET_ERROR)
+		{
+			MessageBox(mpWindow->GetHandle(), "Ошибка соединения (#1004)", "Ошибка!", MB_ICONERROR);
+			shutdown(brSocket, SD_BOTH);
+			closesocket(brSocket);
+			SetConnectedStatus(csDisconnected);
+			return false;
+		}
+
+		shutdown(brSocket, SD_BOTH);
+		closesocket(brSocket);
+
+		if (buf != 23)
+		{
+			MessageBox(mpWindow->GetHandle(), "Ошибка соединения (#1005)", "Ошибка!", MB_ICONERROR);
+			SetConnectedStatus(csDisconnected);
+			return false;
+		}
+
+		serverAddr.sin_port = htons(PORT_SERVER);
+		return true;
+	}
+	else
+	{
+		char port[64];
+		wsprintf(port, "%d", PORT_SERVER);
+
+		struct addrinfo aiHints;
+		struct addrinfo *aiList = NULL;
+
+		ZeroMemory(&aiHints, sizeof(aiHints));
+		aiHints.ai_family = AF_INET;
+		aiHints.ai_socktype = SOCK_STREAM;
+		aiHints.ai_protocol = IPPROTO_TCP;
+
+		if (getaddrinfo(addrString.c_str(), port, &aiHints, &aiList) != 0)
+		{
+			MessageBox(mpWindow->GetHandle(), "Не удалось определить адрес сервера (#1010)", "Ошибка!", MB_ICONERROR);
+			SetConnectedStatus(csDisconnected);
+			return false;
+		}
+ 
+		while (aiList != NULL)
+		{
+			if (aiList->ai_family == AF_INET && aiList->ai_addrlen  == sizeof(serverAddr))
+			{
+				CopyMemory(&serverAddr, aiList->ai_addr, aiList->ai_addrlen);
+				return true;
+			}
+
+			aiList = aiList->ai_next;
+		}
+
+		MessageBox(mpWindow->GetHandle(), "Не удалось определить адрес сервера (#1011)", "Ошибка!", MB_ICONERROR);
+		SetConnectedStatus(csDisconnected);
+		return false;
+	}
+}
+
 unsigned WINAPI ClientClass::ConnectionThread(void *param)
 {
 	ClientClass *pClient = (ClientClass *)param;
 	pClient->mbSilentDisconnect = false;
 
-	SOCKET brSocket = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
-	if (brSocket == INVALID_SOCKET)
-	{
-		MessageBox(pClient->mpWindow->GetHandle(), "Ошибка соединения (#1001)", "Ошибка!", MB_ICONERROR);
-		pClient->SetConnectedStatus(csDisconnected);
-		return 0;
-	}
-
-	BOOL bSOargument = TRUE;
-	if (setsockopt(brSocket, SOL_SOCKET, SO_BROADCAST, (char *)&bSOargument, sizeof(BOOL)) == SOCKET_ERROR)
-	{
-		MessageBox(pClient->mpWindow->GetHandle(), "Ошибка соединения (#1002)", "Ошибка!", MB_ICONERROR);
-		shutdown(brSocket, SD_BOTH);
-		closesocket(brSocket);
-		pClient->SetConnectedStatus(csDisconnected);
-		return 0;
-	}
-
-	sockaddr_in clientAddr;
-	clientAddr.sin_family = AF_INET;	
-	clientAddr.sin_port = 0;
-	clientAddr.sin_addr.s_addr = INADDR_ANY;
-
-	if (bind(brSocket, (SOCKADDR *)&clientAddr, sizeof(sockaddr_in)) == SOCKET_ERROR)
-	{
-		MessageBox(pClient->mpWindow->GetHandle(), "Ошибка соединения (#1002)", "Ошибка!", MB_ICONERROR);
-		shutdown(brSocket, SD_BOTH);
-		closesocket(brSocket);
-		pClient->SetConnectedStatus(csDisconnected);
-		return 0;
-	}
-
 	sockaddr_in serverAddr;
-	serverAddr.sin_family = AF_INET;
-	serverAddr.sin_port = htons(PORT_BROADCAST);
-	serverAddr.sin_addr.s_addr = INADDR_BROADCAST;
-
-	DWORD buf = 1;
-	if (sendto(brSocket, (char *)&buf, 4, 0, (SOCKADDR *)&serverAddr, sizeof(sockaddr_in)) == SOCKET_ERROR)
-	{
-		MessageBox(pClient->mpWindow->GetHandle(), "Ошибка соединения (#1003)", "Ошибка!", MB_ICONERROR);
-		shutdown(brSocket, SD_BOTH);
-		closesocket(brSocket);
-		pClient->SetConnectedStatus(csDisconnected);
+	if (!pClient->FindServer(serverAddr))
 		return 0;
-	}
-
-	fd_set brSet;
-	brSet.fd_count = 1;
-	brSet.fd_array[0] = brSocket;
-	TIMEVAL maxWaitTime;
-	maxWaitTime.tv_sec = 3;
-	maxWaitTime.tv_usec = 0;
-	int selected = select(0, &brSet, NULL, NULL, &maxWaitTime);
-	if (selected == 0)
-	{
-		shutdown(brSocket, SD_BOTH);
-		closesocket(brSocket);
-		MessageBox(pClient->mpWindow->GetHandle(), "Сервер не найден!", "Внимание!", MB_ICONEXCLAMATION);
-		pClient->SetConnectedStatus(csDisconnected);
-		return 0;
-	}
-
-	// Делать с таймаутом
-	int len = sizeof(sockaddr_in);
-	if (recvfrom(brSocket, (char *)&buf, 4, 0, (SOCKADDR *)&serverAddr, &len) == SOCKET_ERROR)
-	{
-		MessageBox(pClient->mpWindow->GetHandle(), "Ошибка соединения (#1004)", "Ошибка!", MB_ICONERROR);
-		shutdown(brSocket, SD_BOTH);
-		closesocket(brSocket);
-		pClient->SetConnectedStatus(csDisconnected);
-		return 0;
-	}
-
-	shutdown(brSocket, SD_BOTH);
-	closesocket(brSocket);
-
-	if (buf != 23)
-	{
-		MessageBox(pClient->mpWindow->GetHandle(), "Ошибка соединения (#1005)", "Ошибка!", MB_ICONERROR);
-		pClient->SetConnectedStatus(csDisconnected);
-		return 0;
-	}
 
 	SOCKET client = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
 	if (client == INVALID_SOCKET)
@@ -151,6 +201,11 @@ unsigned WINAPI ClientClass::ConnectionThread(void *param)
 		pClient->SetConnectedStatus(csDisconnected);
 		return 0;
 	}
+
+	sockaddr_in clientAddr;
+	clientAddr.sin_family = AF_INET;	
+	clientAddr.sin_port = 0;
+	clientAddr.sin_addr.s_addr = INADDR_ANY;
 
 	if (bind(client, (SOCKADDR *)&clientAddr, sizeof(sockaddr_in)) == SOCKET_ERROR)
 	{
@@ -161,7 +216,6 @@ unsigned WINAPI ClientClass::ConnectionThread(void *param)
 		return 0;
 	}
 
-	serverAddr.sin_port = htons(PORT_SERVER);
 	if (connect(client, (SOCKADDR *)&serverAddr, sizeof(sockaddr_in)) == SOCKET_ERROR)
 	{
 		MessageBox(pClient->mpWindow->GetHandle(), "Ошибка соединения (#1008)", "Ошибка!", MB_ICONERROR);

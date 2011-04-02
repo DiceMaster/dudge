@@ -215,6 +215,10 @@
 				RelativePath="resource.h"
 				>
 			</File>
+			<File
+				RelativePath=".\Settings.h"
+				>
+			</File>
 		</Filter>
 		<Filter
 			Name="Resource Files"
@@ -251,6 +255,10 @@
 			</File>
 			<File
 				RelativePath=".\RegDialog.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\Settings.cpp"
 				>
 			</File>
 		</Filter>
