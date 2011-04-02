@@ -1,20 +1,13 @@
 ﻿
-Microsoft Visual Studio Solution File, Format Version 10.00
-# Visual Studio 2008
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SocketStreamLib", "SocketStreamLib\SocketStreamLib.vcproj", "{06B486B3-2967-4D59-B4A1-6B1D5F4DE5B3}"
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Visual Studio 2010
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SocketStreamLib", "SocketStreamLib\SocketStreamLib.vcxproj", "{06B486B3-2967-4D59-B4A1-6B1D5F4DE5B3}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Server", "Server\Server.vcproj", "{EDF12EBA-8168-46D2-8E89-E845B6448F46}"
-	ProjectSection(ProjectDependencies) = postProject
-		{06B486B3-2967-4D59-B4A1-6B1D5F4DE5B3} = {06B486B3-2967-4D59-B4A1-6B1D5F4DE5B3}
-		{316855CC-7F10-4F65-8307-82B4A85BE2AD} = {316855CC-7F10-4F65-8307-82B4A85BE2AD}
-	EndProjectSection
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Server", "Server\Server.vcxproj", "{EDF12EBA-8168-46D2-8E89-E845B6448F46}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Client", "Client\Client.vcproj", "{DE43D8DD-7642-49D2-8EDF-544CE7B2D18E}"
-	ProjectSection(ProjectDependencies) = postProject
-		{06B486B3-2967-4D59-B4A1-6B1D5F4DE5B3} = {06B486B3-2967-4D59-B4A1-6B1D5F4DE5B3}
-	EndProjectSection
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Client", "Client\Client.vcxproj", "{DE43D8DD-7642-49D2-8EDF-544CE7B2D18E}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "dtest", "..\dtest\dtest.vcproj", "{316855CC-7F10-4F65-8307-82B4A85BE2AD}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "dtest", "..\dtest\dtest.vcxproj", "{316855CC-7F10-4F65-8307-82B4A85BE2AD}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
