@@ -8,58 +8,58 @@
     <html:hidden property="languageId" />
     <div class="x-box-tl"><div class="x-box-tr"><div class="x-box-tc"></div></div></div>
     <div class="x-box-ml"><div class="x-box-mr"><div class="x-box-mc">
-		<div class="x-form-bd" id="container"> 
-		    <h3 style="margin-bottom:5px;"><bean:message key="language.language" /> <%=languagesForm.getLanguageId()%></h3>
-		    <fieldset>
-			<legend><bean:message key="language.languageInfo" /></legend>
-			
-			<% if(!languagesForm.getTitle().equals("")) {%>
-			<div class="x-form-item">
-			    <label><bean:message key="language.title" /></label>
-			    <div class="x-form-element">
-				<b> <%=languagesForm.getTitle()%></b>
-			    </div>
-			</div>
-			<%};%>
-			<div class="x-form-item">
-			    <label><bean:message key="language.description" /></label>
-			    <div class="x-form-element">
-				<b> <%=languagesForm.getDescription()%></b>
-			    </div>
-			</div>
-			</fieldset>
-			<fieldset>
-			    <legend><bean:message key="language.technicalParameters" /></legend>
-			    
-			    <div class="x-form-item">
-			    <label><bean:message key="language.fileExtension" /></label>
-			    <div class="x-form-element">
-				<b> <%=languagesForm.getFileExtension()%></b>
-			    </div>
-			</div>
-			
-			<div class="x-form-item">
-			    <label><bean:message key="language.compilationCommand" /></label>
-			    <div class="x-form-element">
-				<b> <%=languagesForm.getCompilationCommand()%></b>
-			    </div>
-			</div>
-			
-			<div class="x-form-item">
-			    <label><bean:message key="language.executionCommand" /></label>
-			    <div class="x-form-element">
-				<b> <%=languagesForm.getExecutionCommand()%></b>
-			    </div>
-			</div>
-			</fieldset>
-					   
-		    <% if(pcb.canModifyLanguage(authenticationObject.getUsername())) {	%>
-		    <div id="buttons" style="margin:5px;">
-			<html:submit> <bean:message key="language.editProperties"/>
-			</html:submit>
-		    </div>
-		    <% };%>
-		</div> 
-    </div></div></div>
+                <div class="x-form-bd" id="container"> 
+                    <h3 style="margin-bottom:5px;"><bean:message key="language.language" /> ${languagesForm.languageId}</h3>
+                    <fieldset>
+                        <legend><bean:message key="language.languageInfo" /></legend>
+
+                        <c:if test="${empty languagesForm.title}">
+                            <div class="x-form-item">
+                                <label><bean:message key="language.title" /></label>
+                                <div class="x-form-element">
+                                    <b> ${languagesForm.title}</b>
+                                </div>
+                            </div>
+                        </c:if>
+                        <div class="x-form-item">
+                            <label><bean:message key="language.description" /></label>
+                            <div class="x-form-element">
+                                <b> ${languagesForm.description}</b>
+                            </div>
+                        </div>
+                    </fieldset>
+                    <fieldset>
+                        <legend><bean:message key="language.technicalParameters" /></legend>
+
+                        <div class="x-form-item">
+                            <label><bean:message key="language.fileExtension" /></label>
+                            <div class="x-form-element">
+                                <b> ${languagesForm.fileExtension}</b>
+                            </div>
+                        </div>
+
+                        <div class="x-form-item">
+                            <label><bean:message key="language.compilationCommand" /></label>
+                            <div class="x-form-element">
+                                <b> ${languagesForm.compilationCommand}</b>
+                            </div>
+                        </div>
+
+                        <div class="x-form-item">
+                            <label><bean:message key="language.executionCommand" /></label>
+                            <div class="x-form-element">
+                                <b> ${languagesForm.executionCommand}</b>
+                            </div>
+                        </div>
+                    </fieldset>
+
+                    <c:if test="${permissionCheckerRemote.canModifyLanguage(autentificationObject.username)}">
+                        <div id="buttons" style="margin:5px;">
+                            <html:submit> <bean:message key="language.editProperties"/>
+                            </html:submit>
+                        </div>
+                    </c:if>
+                </div> 
+            </div></div></div>
     <div class="x-box-bl"><div class="x-box-br"><div class="x-box-bc"></div></div></div>
 </html:form>

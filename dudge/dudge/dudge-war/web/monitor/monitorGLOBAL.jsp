@@ -83,7 +83,7 @@ var grid = new Ext.grid.GridPanel({
 monitorToolbar.addButton({
 	text: '<bean:message key="monitor.update" />',
 	handler: function() {
-		ds.load({params:{contestId: <%=contestId%>}});
+		ds.load({params:{contestId: ${contestId}}});
 		grid.getView().refresh(false);
 	}
 	});
@@ -95,7 +95,7 @@ monitorToolbar.doLayout();
 
 <script type="text/javascript">
 Ext.onReady(function(){
-	ds.load({params:{contestId: <%=contestId%>}});
+	ds.load({params:{contestId: ${contestId}}});
 });
 </script>
 

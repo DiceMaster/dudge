@@ -7,6 +7,7 @@
 
 <struts-config>
 	<form-beans>
+                <form-bean name="announceForm" type="dudge.web.forms.AnnounceForm"/>
 		<form-bean name="usersForm" type="dudge.web.forms.UsersForm"/>
 		<form-bean name="loginForm" type="dudge.web.forms.LoginForm"/>
 		<form-bean name="contestsForm" type="dudge.web.forms.ContestsForm"/>	
@@ -20,7 +21,9 @@
 	</global-exceptions>
 	
 	<global-forwards>
-		
+
+                <forward name="announce" path="/announce.jsp"/>
+
 		<forward name="news" path="/news.jsp"/>
 		
 		<forward name="register" path="/user/editUser.jsp"/>
@@ -58,6 +61,16 @@
 	</global-forwards>
 	
 	<action-mappings>
+
+                <action  
+                    path="/announces"  
+                    type="dudge.web.actions.AnnounceAction"
+                    name="announceForm" 
+                    scope="session"
+                    parameter="reqCode">
+                    <forward name="toAnnounce" path="/announce.jsp" redirect="true"/>  
+                </action>  
+                
 		<action path="/login"
 			 type="dudge.web.actions.LoginAction"
 			 name="loginForm"
