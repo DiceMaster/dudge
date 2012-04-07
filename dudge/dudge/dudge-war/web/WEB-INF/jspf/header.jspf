@@ -28,17 +28,17 @@ on Libraries node in Projects view can be used to add the JSTL 1.1 library.
 <jsp:useBean id="autentificationObject" class="dudge.web.AuthenticationObject" />
 <jsp:useBean id="permissionCheckerRemote" class="dudge.PermissionCheckerBean" />
 
-
-
 <c:set var="autentificationObject" value="${autentificationObject.extract(pageContext.request)}" />
 <c:set var="permissionCheckerRemote" value="${autentificationObject.permissionChecker}" />
 <% dudge.DudgeLocal dudgeLocal = dudge.web.ServiceLocator.getInstance().lookupDudge();
     pageContext.setAttribute("dudgeLocal", dudgeLocal);%>
 
-<c:set var="contestId" value="${requestScope.contestId}" />
+
+<c:set var="contestId" value="${contestsForm.contestId}" scope="session"/>
+
 
 <c:if test="${contestId == null}">
-    <c:set var="contestId" value="${dudgeLocal.defaultContest.contestId}" />
+    <c:set var="contestId" value="${dudgeLocal.defaultContest.contestId}" scope="session"/>
 </c:if>
 
 <c:forEach items="${dudgeLocal.contests}" var="con">
@@ -48,8 +48,6 @@ on Libraries node in Projects view can be used to add the JSTL 1.1 library.
         <c:set var="contest" value="${con}" />
     </c:if>  
 </c:forEach>
-
-
 
 
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
@@ -117,6 +115,7 @@ on Libraries node in Projects view can be used to add the JSTL 1.1 library.
             <p><a href="users.do?contestId=${contestId}&reqCode=list"><bean:message key="menu.users"/></a>
             <p><a href="problems.do?contestId=${contestId}&reqCode=list"><bean:message key="menu.problems"/></a>
             <p><a href="languages.do?contestId=${contestId}&reqCode=list"><bean:message key="menu.languages"/></a>
+            <p><a href="reports.do?contestId=${contestId}&reqCode=list">Отчёт</a>
         </div>
 
         <div id="content" class="x-hide-display">
@@ -314,25 +313,25 @@ on Libraries node in Projects view can be used to add the JSTL 1.1 library.
                                     }
                     </c:when>
                     <c:otherwise>
-                                        {
-                                            xtype: 'tbtext',
-                                            html: '<bean:message key="menu.user" />: '
-                                                + '<b><a href="users.do?reqCode=view&login=${autentificationObject.username}">${autentificationObject.username}</a></b>'
-                                                +' (<a href="javascript:changePassword()"><bean:message key="menu.changePassword"/></a>)'
-                                        },
-                                        ' ',
-                                        {
-                                            xtype: 'button',
-                                            name: 'logout',
-                                            text: '<bean:message key="login.logout"/>',
-                                            type: 'submit',
-                                            handler: function (button, e) {
-                                                var loginConnection = new Ext.data.Connection({method: 'POST' , url: 'login.do?reqCode=logout'});
-                                                loginConnection.request({
-                                                    callback: function() { window.location.reload( true );}
-                                                });
-                                            }
+                                    {
+                                        xtype: 'tbtext',
+                                        html: '<bean:message key="menu.user" />: '
+                                            + '<b><a href="users.do?reqCode=view&login=${autentificationObject.username}">${autentificationObject.username}</a></b>'
+                                            +' (<a href="javascript:changePassword()"><bean:message key="menu.changePassword"/></a>)'
+                                    },
+                                    ' ',
+                                    {
+                                        xtype: 'button',
+                                        name: 'logout',
+                                        text: '<bean:message key="login.logout"/>',
+                                        type: 'submit',
+                                        handler: function (button, e) {
+                                            var loginConnection = new Ext.data.Connection({method: 'POST' , url: 'login.do?reqCode=logout'});
+                                            loginConnection.request({
+                                                callback: function() { window.location.reload( true );}
+                                            });
                                         }
+                                    }
                     </c:otherwise>
                 </c:choose>
                                 , ' '

@@ -1,6 +1,6 @@
 <jsp:useBean id="problemsForm" class="dudge.web.forms.ProblemsForm" scope="session" />
 
-<c:set var="problemId" value="${problemsForm.problemId}" />
+<c:set var="problemId" value="${problemsForm.problemId}" scope="session"/>
 
 <script type="text/javascript" src="scripts/json.js"></script>
 

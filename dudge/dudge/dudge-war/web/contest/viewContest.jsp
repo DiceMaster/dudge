@@ -2,7 +2,7 @@
 <%@page import="dudge.db.Contest" %>
 <jsp:useBean id="contestsForm" class="dudge.web.forms.ContestsForm" scope="session" />
 <% pageContext.setAttribute("roleTypeUser", dudge.db.RoleType.USER);%>
-<c:set var="contestId" value="${contestsForm.contestId}" />
+<c:set var="contestId" value="${contestsForm.contestId}" scope="session" />
 
 <script type="text/javascript">
     Ext.onReady(function(){

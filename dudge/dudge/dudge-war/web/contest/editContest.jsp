@@ -1,6 +1,5 @@
 <%@page import="java.text.SimpleDateFormat" %>
 <jsp:useBean id="contestsForm" class="dudge.web.forms.ContestsForm" scope="session" />
-<c:set var="contestId" value="${contestsForm.contestId}" />
 
 <script type="text/javascript">
     // Defining data stores for using in callback-function, set hidden-fields in contestsForm.
@@ -525,7 +524,7 @@
     <div class="x-box-ml"><div class="x-box-mr"><div class="x-box-mc">
 
                 <div class="x-form-bd" id="container">
-                    <input type="hidden" name="contestId" value="${contestId}"/>
+                    <input type="hidden" name="contestId" value="${sessionScope.contestId}"/>
 
                     <c:choose>
                         <c:when test="${contestsForm.newContest}">

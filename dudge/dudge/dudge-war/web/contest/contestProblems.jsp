@@ -1,7 +1,6 @@
 <jsp:useBean id="contestsForm" class="dudge.web.forms.ContestsForm" scope="session" />
 <jsp:useBean id="contestsAction" class="dudge.web.actions.ContestsAction" scope="session" />
 
-<c:set var="contestId" value="${contestsForm.contestId}" />
 <c:set var="userName" value="${autentificationObject.username}" />
 <c:set var="contestProblems" value="${requestScope.contest.contestProblems}" />
 
@@ -19,11 +18,11 @@
             handler: function()
             {
                 problemId = grid.getSelectionModel().getSelected().get('tcol-1');
-                openSubmit(problemId, ${contestId});
+                openSubmit(problemId, ${contestsForm.contestId});
             },
             // Check, can user submit problem in current contest, or not.
     <c:choose>
-        <c:when test="${permissionCheckerRemote.canSubmitSolution(autentificationObject.username, contestId)}"> 
+        <c:when test="${permissionCheckerRemote.canSubmitSolution(autentificationObject.username, contestsForm.contestId)}"> 
                     disabled: false
         </c:when>
         <c:otherwise>
@@ -33,7 +32,7 @@
           
             );
                     
-    <c:if test="${permissionCheckerRemote.canSubmitSolution(autentificationObject.username, contestId)}"> 
+    <c:if test="${permissionCheckerRemote.canSubmitSolution(autentificationObject.username, contestsForm.contestId)}"> 
                 problemsToolbar.addButton(
                 {
                     text: '<bean:message key="solution.resubmitAll" />',
@@ -141,7 +140,7 @@
             <c:forEach items="${contestProblems}" var="problem">
 
                 <c:choose>
-                    <c:when test="${permissionCheckerRemote.canSubmitSolution(autentificationObject.username, contestId)}">
+                    <c:when test="${permissionCheckerRemote.canSubmitSolution(autentificationObject.username, contestsForm.contestId)}">
                         <tr>
                             <td>${problem.problemMark}</td>
                             <td>${problem.problem.problemId}</td>

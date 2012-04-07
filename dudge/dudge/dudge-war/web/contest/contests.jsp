@@ -2,6 +2,7 @@
 
 <jsp:useBean id="problemsForm" class="dudge.web.forms.ProblemsForm" scope="page" />
 <jsp:useBean id="problemsAction" scope="page" class="dudge.web.actions.ProblemsAction" />
+
 <script type="text/javascript" src="scripts/json.js"></script>
 
 <script type="text/javascript">
@@ -119,7 +120,8 @@
                     disabled: true,
                     handler:function()
                     {
-                        var contestId = grid.getSelectionModel().getSelected().get('id');
+                        contestId = grid.getSelectionModel().getSelected().get('id');
+                        session.setAttribute("contestId", contestId);
                         window.location = 'contests.do?reqCode=edit&contestId=' + contestId;
                     }
                 });
@@ -135,7 +137,8 @@
                         {
                             if (btn == 'yes')
                             {
-                                var contestId = grid.getSelectionModel().getSelected().get('id');
+                                contestId = grid.getSelectionModel().getSelected().get('id');
+                                session.setAttribute("contestId", contestId);
                                 var contestConnection =  (new Ext.data.HttpProxy({})).getConnection();
                                 contestConnection.request({
                                     method: 'POST' ,
