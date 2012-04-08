@@ -142,7 +142,7 @@ CREATE TABLE contest_problems (
     contest_id integer DEFAULT 0 NOT NULL,
     problem_id integer NOT NULL,
     problem_order integer NOT NULL,
-    problem_mark character varying(255) NOT NULL
+    problem_mark character varying(255) NOT NULL,    problem_cost integer NOT NULL DEFAULT 1
 );
 
 

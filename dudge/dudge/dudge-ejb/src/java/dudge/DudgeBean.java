@@ -6,45 +6,21 @@
 
 package dudge;
 
-import dudge.db.ContestLanguage;
-import dudge.db.ContestProblem;
-import dudge.db.Param;
-import dudge.db.Role;
-import dudge.db.RoleType;
-import dudge.db.SolutionStatus;
+import dudge.db.*;
 import dudge.monitor.AcmMonitorRecord;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.Date;
-import java.util.LinkedList;
-import java.util.List;
+import dudge.monitor.GlobalMonitorRecord;
+import dudge.monitor.SchoolMonitorRecord;
+import java.net.URI;
+import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.annotation.Resource;
 import javax.ejb.Stateless;
-import javax.jms.Connection;
-import javax.jms.ConnectionFactory;
-import javax.jms.JMSException;
-import javax.jms.Message;
-import javax.jms.MessageProducer;
-import javax.jms.ObjectMessage;
 import javax.jms.Queue;
-import javax.jms.Session;
+import javax.jms.*;
 import javax.naming.NamingException;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
-
-import dudge.db.Contest;
-import dudge.db.Language;
-import dudge.db.Problem;
-import dudge.db.Solution;
-import dudge.db.User;
-import dudge.db.Run;
-import dudge.db.Test;
-import dudge.monitor.GlobalMonitorRecord;
-import dudge.monitor.SchoolMonitorRecord;
-import java.net.URI;
 
 /**
  * Класс основного Bean'а системы. Реализует

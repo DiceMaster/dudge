@@ -6,10 +6,10 @@
 <datasources>
   <local-tx-datasource>
     <jndi-name>jdbc/dudge</jndi-name>
-    <connection-url>jdbc:postgresql://dudgedb:5432/dudge</connection-url>
+    <connection-url>jdbc:dudge://localhost:5432/dudgedb</connection-url>
     <driver-class>org.postgresql.Driver</driver-class>
-    <user-name>dudge</user-name>
-    <password>123</password>
+    <user-name>postgres</user-name>
+    <password>password</password>
         <!-- sql to call when connection is created.  Can be anything, select 1 is valid for PostgreSQL
         <new-connection-sql>select 1</new-connection-sql>
         -->
@@ -20,7 +20,7 @@
 
       <!-- corresponding type-mapping in the standardjbosscmp-jdbc.xml (optional) -->
       <metadata>
-         <type-mapping>PostgreSQL 8.0</type-mapping>
+         <type-mapping>PostgreSQL 9.1</type-mapping>
       </metadata>
   </local-tx-datasource>
 

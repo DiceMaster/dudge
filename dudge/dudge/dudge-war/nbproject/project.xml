@@ -11,22 +11,22 @@
             <name>dudge-war</name>
             <minimum-ant-version>1.6</minimum-ant-version>
             <web-module-libraries>
-                <library>
+                <library dirs="200">
                     <file>${libs.struts.classpath}</file>
                     <path-in-war>WEB-INF/lib</path-in-war>
                 </library>
-                <library>
+                <library dirs="100">
                     <file>${reference.dudge-ejb.dist}</file>
                     <path-in-war>WEB-INF/lib</path-in-war>
                 </library>
-                <library>
+                <library dirs="200">
                     <file>${libs.restapi.classpath}</file>
                 </library>
-                <library>
+                <library dirs="200">
                     <file>${reference.dudge-lib.jar}</file>
                     <path-in-war>WEB-INF/lib</path-in-war>
                 </library>
-                <library>
+                <library dirs="200">
                     <file>${libs.beans-binding.classpath}</file>
                     <path-in-war>WEB-INF/lib</path-in-war>
                 </library>
