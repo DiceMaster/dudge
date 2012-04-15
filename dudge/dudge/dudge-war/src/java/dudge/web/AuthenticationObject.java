@@ -7,6 +7,7 @@ package dudge.web;
 
 import dudge.DudgeLocal;
 import dudge.PermissionCheckerRemote;
+import dudge.ReportingLocal;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.util.Date;
@@ -98,5 +99,9 @@ public class AuthenticationObject {
 
 	public PermissionCheckerRemote getPermissionChecker() {
 		return ServiceLocator.getInstance().lookupPermissionChecker();
+	}
+        
+        public ReportingLocal getReporting() {
+		return ServiceLocator.getInstance().getReporter();
 	}
 }

@@ -480,16 +480,20 @@ exists or setup the property manually. For example like this:
     <target depends="compile,-library-inclusion-in-archive-weblogic,-library-inclusion-in-archive-by-user" name="library-inclusion-in-archive"/>
     <target if="is.jars.in.ejbjar" name="-library-inclusion-in-archive-by-user">
         <copyfiles files="${libs.beans-binding.classpath}" todir="${build.classes.dir}"/>
+        <copyfiles files="${libs.Apache POI.classpath}" todir="${build.classes.dir}"/>
     </target>
     <target if="is.server.weblogic" name="-library-inclusion-in-archive-weblogic">
         <basename file="${libs.beans-binding.classpath}" property="manifest.libs.beans-binding.classpath"/>
+        <basename file="${libs.Apache POI.classpath}" property="manifest.libs.Apache POI.classpath"/>
         <manifest file="${build.ear.classes.dir}/META-INF/MANIFEST.MF" mode="update">
-            <attribute name="Extension-List" value="jar-1 "/>
+            <attribute name="Extension-List" value="jar-1 jar-2 "/>
             <attribute name="jar-1-Extension-Name" value="${manifest.libs.beans-binding.classpath}"/>
+            <attribute name="jar-2-Extension-Name" value="${manifest.libs.Apache POI.classpath}"/>
         </manifest>
     </target>
     <target depends="compile" name="library-inclusion-in-manifest">
         <copyfiles files="${libs.beans-binding.classpath}" todir="${dist.ear.dir}/lib"/>
+        <copyfiles files="${libs.Apache POI.classpath}" todir="${dist.ear.dir}/lib"/>
         <manifest file="${build.ear.classes.dir}/META-INF/MANIFEST.MF" mode="update"/>
     </target>
     <target name="-copy-meta-inf">

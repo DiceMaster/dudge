@@ -30,8 +30,7 @@
 		<forward name="users" path="/user/users.jsp"/>
 		<forward name="editUser" path="/user/editUser.jsp"/>
 		<forward name="viewUser" path="/user/viewUser.jsp"/>
-		
-		
+                
 		<forward name="contests" path="/contest/contests.jsp"/>
 		<forward name="createContest" path="/contest/editContest.jsp"/>
 		<forward name="editContest" path="/contest/editContest.jsp"/>
@@ -58,7 +57,10 @@
 		<forward name="loginRequired" path="/loginRequired.jsp"/>
 		<forward name="accessDenied" path="/accessDenied.jsp"/>
 		<forward name="importError" path="/importError.jsp"/>
-	</global-forwards>
+	
+		<forward name="reports" path="/report/reports.jsp"/>
+		
+        </global-forwards>
 	
 	<action-mappings>
 
@@ -133,7 +135,12 @@
 			parameter="reqCode"
 			type="dudge.web.actions.SearchAction">
 		</action>
-		
+               
+                <action path="/reports"
+			parameter="reqCode"
+			type="dudge.web.actions.ReportsAction">
+		</action>
+               
 	</action-mappings>
 	
 	<controller processorClass="org.apache.struts.tiles.TilesRequestProcessor"/>
