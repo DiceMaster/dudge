@@ -115,7 +115,7 @@ on Libraries node in Projects view can be used to add the JSTL 1.1 library.
             <p><a href="users.do?contestId=${contestId}&reqCode=list"><bean:message key="menu.users"/></a>
             <p><a href="problems.do?contestId=${contestId}&reqCode=list"><bean:message key="menu.problems"/></a>
             <p><a href="languages.do?contestId=${contestId}&reqCode=list"><bean:message key="menu.languages"/></a>
-            <p><a href="reports.do?contestId=${contestId}&reqCode=list"><bean:message key="menu.reports"/></a>
+            <p><a href="reports.do?reqCode=list"><bean:message key="menu.reports"/></a>
         </div>
 
         <div id="content" class="x-hide-display">

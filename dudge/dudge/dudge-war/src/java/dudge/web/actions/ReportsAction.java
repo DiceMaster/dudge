@@ -10,6 +10,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.Enumeration;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.naming.Context;
@@ -52,16 +53,15 @@ public class ReportsAction extends DispatchAction {
         return mapping.findForward("reports");
     }
 
-    public ActionForward print(
+    public ActionForward printCurrentContestInfo(
             ActionMapping mapping,
             ActionForm af,
             HttpServletRequest request,
             HttpServletResponse response) {
-
         FileInputStream in = null;
         try {
             ReportingLocal reportingBean = lookupReportingBean();
-            File report = reportingBean.printContestInfo(2);
+            File report = reportingBean.printContestInfo(Integer.parseInt(request.getSession().getAttribute("contestId").toString()));
             response.setContentType("application/x-msdownload");
             response.setHeader("Content-Disposition", "attachment;" + " filename="
                     + new String(report.getName().getBytes(), "ISO-8859-1"));
@@ -72,7 +72,6 @@ public class ReportsAction extends DispatchAction {
             while ((length = in.read(buffer)) > 0) {
                 out.write(buffer, 0, length);
             }
-            in.close();
             out.flush();
         } catch (IOException ex) {
             Logger.getLogger(ReportsAction.class.getName()).log(Level.SEVERE, null, ex);

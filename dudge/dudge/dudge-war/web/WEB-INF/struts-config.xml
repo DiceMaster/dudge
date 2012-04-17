@@ -138,9 +138,10 @@
                
                 <action path="/reports"
 			parameter="reqCode"
+                        name="reportsForm"
 			type="dudge.web.actions.ReportsAction">
 		</action>
-               
+                
 	</action-mappings>
 	
 	<controller processorClass="org.apache.struts.tiles.TilesRequestProcessor"/>

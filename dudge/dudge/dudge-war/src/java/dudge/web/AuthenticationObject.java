@@ -101,7 +101,7 @@ public class AuthenticationObject {
 		return ServiceLocator.getInstance().lookupPermissionChecker();
 	}
         
-        public ReportingLocal getReporting() {
+        public ReportingLocal getReporter() {
 		return ServiceLocator.getInstance().getReporter();
 	}
 }
