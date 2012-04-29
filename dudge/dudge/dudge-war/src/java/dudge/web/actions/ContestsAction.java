@@ -981,7 +981,7 @@ public class ContestsAction extends DispatchAction {
 		// Заполняем данными пользователя созданный объект JSON.
 		try {
 			json.put("login", app.getOwner().getLogin());
-			json.put("filing_time", new SimpleDateFormat("EEE, d MMM yyyy HH:mm:ss").format(app.getFilingTime()));
+			json.put("filing_time", new SimpleDateFormat("yyyy.MM.dd HH:mm").format(app.getFilingTime()));
 			json.put("message", app.getMessage());
 			json.put("status", app.getStatus());
 

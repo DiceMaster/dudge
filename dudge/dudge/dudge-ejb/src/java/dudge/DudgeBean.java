@@ -100,7 +100,7 @@ public class DudgeBean implements DudgeLocal, DudgeRemote {
 		if(password == null)
 			throw new IllegalArgumentException("password is null.");
 		
-		User dbUser = em.find(User.class, login);
+		User dbUser = em.find(User.class, login.toLowerCase());
 		
 		//Если пользователь не авторизован
 		if(dbUser == null) {
