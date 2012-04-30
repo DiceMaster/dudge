@@ -4,13 +4,13 @@
 <jsp:useBean id="usersAction" class="dudge.web.actions.UsersAction" scope="session"/>
 
 <link rel="stylesheet" type="text/css" href="/dudge/css/editUser.css" />
-<script type="text/javascript" >
+<script type="text/javascript">
     function checkform() {
     
-    document.getElementById("loginFieldError").style.visibility = "hidden";
-    document.getElementById("realNameFieldError").style.visibility = "hidden";
-    document.getElementById("passwordFieldError").style.visibility = "hidden";
-    document.getElementById("emailFieldError").style.visibility = "hidden";
+        document.getElementById("loginFieldError").style.visibility = "hidden";
+        document.getElementById("realNameFieldError").style.visibility = "hidden";
+        document.getElementById("passwordFieldError").style.visibility = "hidden";
+        document.getElementById("emailFieldError").style.visibility = "hidden";
     
         // Login validation
         var loginExp = /^[a-zA-Z0-9-_]+$/;
@@ -70,7 +70,7 @@
             passwordFieldError.innerHTML = '<bean:message key="register.passwordWrongConfirm" />';
             return false;
         }
-        */
+         */
         
         // Email validation
         var emailExp = /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
@@ -82,13 +82,14 @@
         }
     
         return true;
-    } 
+    }
 </script>
 
 <html:form styleId="userForm" action="users" styleClass="x-form" onsubmit="return checkform()">
     <div class="x-box-tl"><div class="x-box-tr"><div class="x-box-tc"></div></div></div>
     <div class="x-box-ml"><div class="x-box-mr"><div class="x-box-mc">
                 <div class="x-form-bd" id="container">
+
                     <c:choose>
                         <c:when test="${usersForm.newUser}">
                             <html:hidden property="reqCode" value="submitRegister" />
@@ -100,6 +101,7 @@
                             <h3 style="margin-bottom:5px;"><bean:message key="user.user" /> ${usersForm.login}</h3>
                         </c:otherwise>
                     </c:choose>
+
                     <fieldset>
                         <legend><bean:message key="registration.requiredInfo" /></legend>
 
@@ -111,7 +113,16 @@
                                 <div class="tableCell">
                                     <html:text  property="login" styleId="login" size="20" styleClass="x-form-text x-form-field"/>
                                 </div>
-                                <div class="validationError" id="loginFieldError"></div>
+                                <c:choose>
+                                    <c:when test="${usersForm.hasLoginError}">
+                                        <div class="validationError" id="loginFieldError" style="visibility: visible">
+                                            <bean:message key="${usersForm.errorMessageKey}" />
+                                        </div>
+                                    </c:when>
+                                    <c:otherwise>
+                                        <div class="validationError" id="loginFieldError"></div>
+                                    </c:otherwise>
+                                </c:choose>
                             </div>
                             <div class="tableRow">
                                 <div class="tableCell">
@@ -129,7 +140,16 @@
                                 <div class="tableCell">
                                     <html:password property="password" styleId="password" size="20" styleClass="x-form-text x-form-field"/>
                                 </div>
-                                <div class="validationError" id="passwordFieldError"></div>
+                                <c:choose>
+                                    <c:when test="${usersForm.hasPasswordError}">
+                                        <div class="validationError" id="passwordFieldError" style="visibility: visible">
+                                            <bean:message key="${usersForm.errorMessageKey}" />
+                                        </div>
+                                    </c:when>
+                                    <c:otherwise>
+                                        <div class="validationError" id="passwordFieldError"></div>
+                                    </c:otherwise>
+                                </c:choose>
                             </div>
                             <div class="tableRow">
                                 <div class="tableCell">
