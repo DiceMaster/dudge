@@ -17,6 +17,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import javax.naming.Context;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
@@ -116,7 +118,7 @@ public class UsersAction extends DispatchAction {
             HttpServletRequest request,
             HttpServletResponse response) {
         UsersForm uf = (UsersForm) af;
-        
+
         uf.setHasLoginError(false);
         uf.setHasRealNameError(false);
         uf.setHasPasswordError(false);
@@ -170,7 +172,7 @@ public class UsersAction extends DispatchAction {
         uf.setHasRealNameError(false);
         uf.setHasPasswordError(false);
         uf.setHasEmailError(false);
-        
+
         uf.setNewUser(true);
         return mapping.findForward("editUser");
     }
@@ -183,23 +185,52 @@ public class UsersAction extends DispatchAction {
         UsersForm uf = (UsersForm) af;
         AuthenticationObject ao = AuthenticationObject.extract(request);
         PermissionCheckerRemote pcb = ao.getPermissionChecker();
-        
-        dudge.db.User user = null;
-        
+
+        dudge.db.User user;
+
         uf.setHasLoginError(false);
         uf.setHasRealNameError(false);
         uf.setHasPasswordError(false);
         uf.setHasEmailError(false);
-        
+
+        Matcher matcher;
+
         // Login validation
+        if (uf.getLogin().length() < 3) {
+            uf.setHasLoginError(true);
+            uf.setErrorMessageKey("register.loginTooShort");
+            return mapping.findForward("editUser");
+        }
+        if (uf.getLogin().length() > 20) {
+            uf.setHasLoginError(true);
+            uf.setErrorMessageKey("register.loginTooLong");
+            return mapping.findForward("editUser");
+        }
+        Pattern loginPattern = Pattern.compile("^[a-zA-Z0-9-_]+$");
+        matcher = loginPattern.matcher(uf.getLogin());
+        if (!matcher.matches()) {
+            uf.setHasLoginError(true);
+            uf.setErrorMessageKey("register.loginWrongSymbols");
+            return mapping.findForward("editUser");
+        }
         if (lookupDudgeBean().getUser(uf.getLogin()) != null) {
             uf.setHasLoginError(true);
             uf.setErrorMessageKey("register.loginAlreadyExists");
             return mapping.findForward("editUser");
         }
-        
+
         // RealName validation
-        
+        if (uf.getRealName() == null || uf.getRealName().length() < 3) {
+            uf.setHasRealNameError(true);
+            uf.setErrorMessageKey("register.realNameTooShort");
+            return mapping.findForward("editUser");
+        }
+        if (uf.getRealName().length() > 20) {
+            uf.setHasRealNameError(true);
+            uf.setErrorMessageKey("register.realNameTooLong");
+            return mapping.findForward("editUser");
+        }
+
         // Password validation
         if (uf.getPassword().isEmpty()) {
             uf.setHasPasswordError(true);
@@ -211,9 +242,7 @@ public class UsersAction extends DispatchAction {
             uf.setErrorMessageKey("register.passwordWrongConfirm");
             return mapping.findForward("editUser");
         }
-
-        // Email validation
-        
+       
         try {
             user = lookupDudgeBean().registerUser(uf.getLogin(), uf.getPassword(), uf.getEmail());
         } catch (EntityExistsException ex) {

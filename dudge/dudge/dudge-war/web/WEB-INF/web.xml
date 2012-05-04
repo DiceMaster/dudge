@@ -105,16 +105,9 @@
         <local-home/>
         <local>dudge.DudgeLocal</local>
     </ejb-local-ref>
-    <ejb-local-ref>
+    <ejb-ref>
         <ejb-ref-name>SearcherBean</ejb-ref-name>
         <ejb-ref-type>Session</ejb-ref-type>
-        <local>dudge.SearcherLocal</local>
-        <ejb-link>dudge-ejb.jar#SearcherBean</ejb-link>
-    </ejb-local-ref>
-    <ejb-local-ref>
-        <ejb-ref-name>ReportingBean</ejb-ref-name>
-        <ejb-ref-type>Session</ejb-ref-type>
-        <local>dudge.ReportingLocal</local>
-        <ejb-link>dudge-ejb.jar#ReportingBean</ejb-link>
-    </ejb-local-ref>
+        <remote>dudge.SearcherLocal</remote>
+    </ejb-ref>
     </web-app>

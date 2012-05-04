@@ -129,10 +129,12 @@ public class Solution implements Serializable, Cloneable {
 	 * иначе false.
 	 */
 	public boolean isAllTestsPassed() {
+            if (this.runs != null) {
 		for(Run run : this.runs) {
 			if(run.getResultType() != RunResultType.SUCCESS)
 				return false;
 		}
+            }
 		
 		return true;
 	}	

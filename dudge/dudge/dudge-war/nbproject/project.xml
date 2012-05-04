@@ -23,11 +23,11 @@
                     <file>${libs.restapi.classpath}</file>
                 </library>
                 <library dirs="200">
-                    <file>${reference.dudge-lib.jar}</file>
+                    <file>${libs.beans-binding.classpath}</file>
                     <path-in-war>WEB-INF/lib</path-in-war>
                 </library>
                 <library dirs="200">
-                    <file>${libs.beans-binding.classpath}</file>
+                    <file>${reference.dudge-lib.jar}</file>
                     <path-in-war>WEB-INF/lib</path-in-war>
                 </library>
             </web-module-libraries>

@@ -63,9 +63,10 @@ public class LoginAction extends DispatchAction {
 			ActionForward forward = new ActionForward();
 			forward.setPath(request.getHeader("referer"));
 			forward.setRedirect(true);
+                        
 			return forward;
 		}
-		
+
 		return mapping.findForward("fail");
 	}
 

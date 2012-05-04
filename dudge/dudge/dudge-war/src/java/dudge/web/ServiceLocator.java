@@ -7,25 +7,22 @@ package dudge.web;
 
 import dudge.DudgeLocal;
 import dudge.PermissionCheckerRemote;
-import dudge.ReportingLocal;
 import dudge.SearcherLocal;
+import java.net.URL;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Collections;
-import java.net.URL;
-
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.ejb.EJBHome;
 import javax.ejb.EJBLocalHome;
 import javax.jms.ConnectionFactory;
 import javax.jms.Destination;
-import javax.naming.Context;
+import javax.mail.Session;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
 import javax.rmi.PortableRemoteObject;
 import javax.sql.DataSource;
-import javax.mail.Session;
 
 /**
  *
@@ -165,15 +162,6 @@ public class ServiceLocator {
     public SearcherLocal getSearcher() {
         try {
             return (SearcherLocal) this.lookup("java:comp/env/SearcherBean");
-        } catch (NamingException ne) {
-            java.util.logging.Logger.getLogger(getClass().getName()).log(java.util.logging.Level.SEVERE, "exception caught", ne);
-            throw new RuntimeException(ne);
-        }
-    }
-
-    public ReportingLocal getReporter() {
-        try {
-            return (ReportingLocal) this.lookup("java:comp/env/ReportingBean");
         } catch (NamingException ne) {
             java.util.logging.Logger.getLogger(getClass().getName()).log(java.util.logging.Level.SEVERE, "exception caught", ne);
             throw new RuntimeException(ne);

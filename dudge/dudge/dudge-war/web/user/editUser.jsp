@@ -14,12 +14,6 @@
     
         // Login validation
         var loginExp = /^[a-zA-Z0-9-_]+$/;
-        if (!loginExp.test(document.getElementById("login").value))
-        {
-            document.getElementById("loginFieldError").style.visibility = "visible";
-            document.getElementById("loginFieldError").innerHTML = '<bean:message key="register.loginWrongSymbols" />';
-            return false;
-        }
         if (document.getElementById("login").value.length < 3)
         {
             document.getElementById("loginFieldError").style.visibility = "visible";
@@ -30,6 +24,12 @@
         {
             document.getElementById("loginFieldError").style.visibility = "visible";
             document.getElementById("loginFieldError").innerHTML = '<bean:message key="register.loginTooLong" />';
+            return false;
+        }
+        if (!loginExp.test(document.getElementById("login").value))
+        {
+            document.getElementById("loginFieldError").style.visibility = "visible";
+            document.getElementById("loginFieldError").innerHTML = '<bean:message key="register.loginWrongSymbols" />';
             return false;
         }
     

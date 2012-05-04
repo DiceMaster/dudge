@@ -33,9 +33,7 @@ on Libraries node in Projects view can be used to add the JSTL 1.1 library.
 <% dudge.DudgeLocal dudgeLocal = dudge.web.ServiceLocator.getInstance().lookupDudge();
     pageContext.setAttribute("dudgeLocal", dudgeLocal);%>
 
-
 <c:set var="contestId" value="${contestsForm.contestId}" scope="session"/>
-
 
 <c:if test="${contestId == null}">
     <c:set var="contestId" value="${dudgeLocal.defaultContest.contestId}" scope="session"/>
@@ -115,7 +113,6 @@ on Libraries node in Projects view can be used to add the JSTL 1.1 library.
             <p><a href="users.do?contestId=${contestId}&reqCode=list"><bean:message key="menu.users"/></a>
             <p><a href="problems.do?contestId=${contestId}&reqCode=list"><bean:message key="menu.problems"/></a>
             <p><a href="languages.do?contestId=${contestId}&reqCode=list"><bean:message key="menu.languages"/></a>
-            <p><a href="reports.do?reqCode=list"><bean:message key="menu.reports"/></a>
         </div>
 
         <div id="content" class="x-hide-display">
@@ -288,19 +285,38 @@ on Libraries node in Projects view can be used to add the JSTL 1.1 library.
                                         xtype: 'textfield',
                                         id: 'username',
                                         emptyText: '<bean:message key="user.login"/>',
-                                        width: 80
+                                        width: 80,
+                                        listeners: {
+                                            specialkey: function(f,e){
+                                                if(e.getKey() == e.ENTER){
+                                                    console.log('Special Key = Enter');
+                                                    var loginBtn = Ext.getCmp("loginBtn");
+                                                    loginBtn.handler.call(loginBtn.scope, loginBtn, Ext.EventObject);
+                                                }
+                                            }
+                                        }
                                     },
                                     ' ',
                                     {
                                         xtype: 'textfield',
                                         id: 'password',
                                         inputType: 'password',
-                                        width: 80
+                                        width: 80,
+                                        listeners: {
+                                            specialkey: function(f,e){
+                                                if(e.getKey() == e.ENTER){
+                                                    console.log('Special Key = Enter');
+                                                    var loginBtn = Ext.getCmp("loginBtn");
+                                                    loginBtn.handler.call(loginBtn.scope, loginBtn, Ext.EventObject);
+                                                }
+                                            }
+                                        }
                                     },
                                     ' ',
                                     {
                                         xtype: 'button',
                                         name: 'login',
+                                        id: 'loginBtn',
                                         text: '<bean:message key="login.login"/>',
                                         type: 'submit',
                                         handler: function (button, e) {
