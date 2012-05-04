@@ -77,7 +77,7 @@ public class SlaveBean implements dudge.slave.SlaveLocal {
 	}
 	
 	protected void saveSolution(Solution solution) {
-		dudgeBean.saveSolution(solution);
+            dudgeBean.saveSolution(solution);
 	}
 
 	@TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
