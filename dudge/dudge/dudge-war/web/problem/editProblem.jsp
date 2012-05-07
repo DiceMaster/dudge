@@ -41,7 +41,6 @@
         // If we create new problem, problem with this ID doesn't exists, so we cant't add/edit tests for it.
 </script>
 
-<c:if test="${problemsForm.newProblem}">
     <script type="text/javascript">
   
         // Global variable for catch the current test ID.
@@ -80,10 +79,8 @@
                     msg: '<bean:message key="problem.tests.changeMsg" />',
                     buttons: Ext.Msg.OKCANCEL,
                     fn: commitTestData,
-                    animEl: button,
                     multiline: true,
                     value: testDataStore.getAt(0).get('data'),
-                    defaultTextHeight: 200,
                     width: 500,
                     closable: false
                 });
@@ -209,7 +206,7 @@
             });
         }); 
     </script>
-</c:if>
+
 <html:form styleId="problemsForm" styleClass="x-form" action="problems.do" method="POST" enctype="multipart/form-data">
     <div class="x-box-tl"><div class="x-box-tr"><div class="x-box-tc"></div></div></div>
     <div class="x-box-ml"><div class="x-box-mr"><div class="x-box-mc">
