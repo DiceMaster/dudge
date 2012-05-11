@@ -522,7 +522,7 @@ public class ProblemsAction extends DispatchAction {
 			dudge.problemc.binding.Problem.Tests.Test problemTest = problemTestIterator.next();
 			int numberOfNewTest  = lookupDudgeBean().getProblem(problemId).getTests().size() + 1;
 
-			Test test = new Test(-1 , problemTest.getInput(), problemTest.getOutput());
+			Test test = new Test(problemTest.getInput(), problemTest.getOutput());
 			test.setProblem(lookupDudgeBean().getProblem(problemId));
 			test.setTestNumber(numberOfNewTest);
 			
@@ -596,7 +596,7 @@ public class ProblemsAction extends DispatchAction {
 		if (
 				!pcb.canDeleteTest(
 				ao.getUsername(),
-				new Test(testId))
+				new Test())
 				
 				) {
 			
@@ -616,7 +616,7 @@ public class ProblemsAction extends DispatchAction {
 		
 		int numberOfNewTest  = lookupDudgeBean().getProblem(pf.getProblemId()).getTests().size() + 1;
 		
-		Test test = new Test(-1 , "" , "");
+		Test test = new Test("" , "");
 		test.setProblem(lookupDudgeBean().
 				getProblem(pf.getProblemId()));
 		test.setTestNumber(numberOfNewTest);

@@ -11,8 +11,6 @@ package dudge.db;
 
 import java.io.Serializable;
 import javax.persistence.Column;
-import javax.persistence.Embeddable;
-import javax.persistence.JoinColumn;
 
 /**
  * Primary Key class ContestProblemPK for entity class ContestProblems

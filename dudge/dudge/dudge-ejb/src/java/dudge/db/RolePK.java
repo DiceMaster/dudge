@@ -9,10 +9,8 @@
 
 package dudge.db;
 
-import dudge.db.RoleType;
 import java.io.Serializable;
 import javax.persistence.Column;
-import javax.persistence.Embeddable;
 
 /**
  * Primary Key class RolePK for entity class Role

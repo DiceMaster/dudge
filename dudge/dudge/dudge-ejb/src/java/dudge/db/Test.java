@@ -10,26 +10,8 @@
 package dudge.db;
 
 import java.io.Serializable;
-import javax.persistence.Column;
-import javax.persistence.EmbeddedId;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.JoinColumn;
-import javax.persistence.Lob;
-import javax.persistence.Id;
-import javax.persistence.ManyToOne;
-import javax.persistence.NamedQueries;
-import javax.persistence.NamedQuery;
-import javax.persistence.Table;
-import javax.persistence.UniqueConstraint;
-import javax.persistence.SequenceGenerator;
-import javax.annotation.Generated;
-
-import json.JSONObject;
-import json.JSONException;
-
 import java.util.logging.Logger;
+import javax.persistence.*;
 
 /**
  * Entity class Tests
@@ -80,19 +62,10 @@ public class Test implements Serializable, Comparable {
 	/**
 	 * Creates a new instance of Tests with the specified values.
 	 * @param testsPK the testsPK of the Tests
-	 */
-	public Test(Integer testId) {
-		this.setTestId(testId);
-	}
-	
-	/**
-	 * Creates a new instance of Tests with the specified values.
-	 * @param testsPK the testsPK of the Tests
 	 * @param inputData the inputData of the Tests
 	 * @param outputData the outputData of the Tests
 	 */
-	public Test(Integer testId, String inputData, String outputData) {
-		this.testId = testId;
+	public Test(String inputData, String outputData) {
 		this.inputData = inputData;
 		this.outputData = outputData;
 	}

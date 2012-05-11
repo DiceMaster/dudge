@@ -9,26 +9,9 @@
 
 package dudge.db;
 
-import dudge.db.RolePK;
-import dudge.db.RoleType;
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.logging.Logger;
-import javax.persistence.Column;
-import javax.persistence.EmbeddedId;
-import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
-import javax.persistence.Id;
-import javax.persistence.IdClass;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.NamedQueries;
-import javax.persistence.NamedQuery;
-import javax.persistence.Table;
-import json.JSONException;
-import json.JSONObject;
+import javax.persistence.*;
 
 /**
  * Entity class Roles
