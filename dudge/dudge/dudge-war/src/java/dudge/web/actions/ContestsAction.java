@@ -410,7 +410,6 @@ public class ContestsAction extends DispatchAction {
 		date.setMinutes(Integer.parseInt(cf.getStartMinute()));
 
 		Contest contest = new Contest(
-				-1,
 				cf.getCaption(),
 				cf.getDescription(),
                                 cf.getRules(),

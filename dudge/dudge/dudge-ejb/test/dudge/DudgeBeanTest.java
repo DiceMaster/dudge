@@ -129,7 +129,6 @@ public class DudgeBeanTest extends TestCase {
 	public void testContestAddGetModify() {
 		try {
 			Contest contest = new Contest(
-					0,
 					ContestType.ACM,
 					new Date(),
 					3600,
@@ -165,7 +164,7 @@ public class DudgeBeanTest extends TestCase {
 	@org.junit.Test
 	public void testProblemAddGetModify() {
 		try {
-			Problem prob = new Problem(0);
+			Problem prob = new Problem();
 			prob.setTitle("foo");
 			
 			Problem nprob = dudge.addProblem(prob);

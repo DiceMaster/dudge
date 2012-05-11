@@ -100,23 +100,12 @@ public class Contest implements Serializable, Comparable<Contest> {
 	
 	/**
 	 * Creates a new instance of Contest with the specified values.
-	 * @param contestId the contestId of the Contest
-	 */
-	public Contest(Integer contestId) {
-		this();
-		this.contestId = contestId;		
-	};
-	
-	/**
-	 * Creates a new instance of Contest with the specified values.
-	 * @param contestId the contestId of the Contest
 	 * @param type the type of the Contest
 	 * @param startTime the startTime of the Contest
 	 */
-	public Contest(Integer contestId, String caption , String description , String rules ,
+	public Contest(String caption , String description , String rules ,
                         ContestType type, Date startTime, int duration) {
 		this();
-		this.contestId = contestId;
 		this.caption = caption;
 		this.description = description;
                 this.rules = rules;

@@ -302,7 +302,6 @@ public class ProblemsAction extends DispatchAction {
 		Problem problem = lookupDudgeBean().getProblem(pf.getProblemId());
 
 		problem = new Problem(
-				-1,
 				importedProblem.getTitle(),
 				importedProblem.getDescription(),
 				(int)importedProblem.getLimits().getMemory(),
@@ -412,7 +411,6 @@ public class ProblemsAction extends DispatchAction {
 		// Создаем новый экземпляр задачи, и передаем ей извлеченные из формы данные.
 		Date date = new Date();
 		Problem problem = new Problem(
-				-1,
 				pf.getTitle(),
 				pf.getDescription(),
 				pf.getMemoryLimit(),

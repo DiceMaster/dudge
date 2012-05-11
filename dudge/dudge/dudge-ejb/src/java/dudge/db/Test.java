@@ -61,7 +61,6 @@ public class Test implements Serializable, Comparable {
 	
 	/**
 	 * Creates a new instance of Tests with the specified values.
-	 * @param testsPK the testsPK of the Tests
 	 * @param inputData the inputData of the Tests
 	 * @param outputData the outputData of the Tests
 	 */

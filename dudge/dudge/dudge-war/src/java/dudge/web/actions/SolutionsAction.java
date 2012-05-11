@@ -140,18 +140,10 @@ public class SolutionsAction extends DispatchAction {
 		}
 
 		String prob = request.getParameter("problemId");
-		int problemId = -1;
-		if(prob != null) {
-			problemId = Integer.parseInt(prob);
-		} else if (contest.getContestProblems().size() != 0) {
-			problemId = contest.getContestProblems().get(0).getProblem().getProblemId();
-		}
 		
 		// Установление свойств, нужных для корректного отображение параметров языка соревнования.
 		sf.getContestLanguages().addAll(contest.getContestLanguages());
 		sf.getContestProblems().addAll(contest.getContestProblems());
-		
-		sf.setProblemId(Integer.toString(problemId));
 		
 		return mapping.findForward("submitSolution");
 	}

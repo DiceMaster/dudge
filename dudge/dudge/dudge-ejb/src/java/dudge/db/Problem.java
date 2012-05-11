@@ -96,16 +96,6 @@ public class Problem implements Serializable {
 	
 	/**
 	 * Creates a new instance of Problem with the specified values.
-	 * @param problemId the problemId of the Problem
-	 */
-	public Problem(Integer problemId) {
-		this.problemId = problemId;
-		this.tests = new ArrayList<Test>();
-	}
-	
-	/**
-	 * Creates a new instance of Problem with the specified values.
-	 * @param problemId the problemId of the Problem
 	 * @param title the title of the Problem
 	 * @param description the description of the Problem
 	 * @param memoryLimit the memoryLimit of the Problem
@@ -113,8 +103,7 @@ public class Problem implements Serializable {
 	 * @param realTimeLimit the realTimeLimit of the Problem
 	 * @param outputLimit the outputLimit of the Problem
 	 */
-	public Problem(Integer problemId, String title, String description, int memoryLimit, int cpuTimeLimit, int realTimeLimit, int outputLimit) {
-		this.problemId = problemId;
+	public Problem(String title, String description, int memoryLimit, int cpuTimeLimit, int realTimeLimit, int outputLimit) {
 		this.title = title;
 		this.description = description;
 		this.memoryLimit = memoryLimit;
