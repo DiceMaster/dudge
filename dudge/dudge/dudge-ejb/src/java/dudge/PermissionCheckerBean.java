@@ -541,7 +541,7 @@ public class PermissionCheckerBean implements PermissionCheckerRemote {
 		if(dudgeBean.isInRole(principal, contestId, RoleType.ADMINISTRATOR)) return true;
 		
 		//Или если пользователь является участником соревнования, и это соревнование сейчас идет.
-		if(dudgeBean.isInRole(principal , contestId , RoleType.USER) && contest.isInProgress())
+		if(dudgeBean.isInRole(principal, contestId , RoleType.USER) && contest.isInProgress())
 			return true;
 		
 		// Если соревнование открытое  и в настоящее время идет.

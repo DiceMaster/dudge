@@ -120,7 +120,7 @@ public class DudgeBean implements DudgeLocal, DudgeRemote {
                 "SELECT COUNT(r) FROM Role r WHERE"
                 + " r.contest.contestId = :contestId"
                 + " AND r.user.login = :username"
-                + " AND r.roleType = :roleType").setParameter("contestId", contestId).setParameter("username", login).setParameter("roleType", roleType.toString()).getResultList().get(0);
+                + " AND r.roleType = :roleType").setParameter("contestId", contestId).setParameter("username", login.toLowerCase()).setParameter("roleType", roleType.toString()).getResultList().get(0);
         
         return count != 0;
     }
@@ -129,14 +129,14 @@ public class DudgeBean implements DudgeLocal, DudgeRemote {
         long count = (Long) em.createQuery(
                 "SELECT COUNT(r) FROM Role r WHERE"
                 + " r.contest.contestId = :contestId"
-                + " AND r.user.login = :username").setParameter("contestId", contestId).setParameter("username", login).getResultList().get(0);
+                + " AND r.user.login = :username").setParameter("contestId", contestId).setParameter("username", login.toLowerCase()).getResultList().get(0);
         
         return count == 0;
     }
     
     public User getUser(String login) {
         
-        User dbuser = (User) em.find(User.class, login);
+        User dbuser = (User) em.find(User.class, login.toLowerCase());
         
         return dbuser;
     }
@@ -190,7 +190,7 @@ public class DudgeBean implements DudgeLocal, DudgeRemote {
     }
     
     public void deleteUser(String login) {
-        em.remove((User) em.find(User.class, login));
+        em.remove((User) em.find(User.class, login.toLowerCase()));
     }
     
     public Language getLanguage(String languageId) {
@@ -414,7 +414,7 @@ public class DudgeBean implements DudgeLocal, DudgeRemote {
     
     public List<Solution> getSolutions(String login, int contestId, int problemId) {
         List<Solution> lcpSolutions = (List<Solution>) em.createNamedQuery(
-                "Solution.findByUserContestProblem").setParameter("login", login).setParameter("contestId", contestId).setParameter("problemId", problemId).getResultList();
+                "Solution.findByUserContestProblem").setParameter("login", login.toLowerCase()).setParameter("contestId", contestId).setParameter("problemId", problemId).getResultList();
 
         // Удаляем из полученного списка решений те, которые не попадают
         // в интервал проведения соревнования.
