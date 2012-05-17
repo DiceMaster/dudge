@@ -26,6 +26,9 @@ public class UsersForm extends org.apache.struts.action.ActionForm {
     private String email = "";
     private String realName = "";
     private String organization = "";
+    private String faculty = "";
+    private String course = "";
+    private String group = "";
     private String age = "";
     private String jabberId = "";
     private String icqNumber = "";
@@ -85,7 +88,6 @@ public class UsersForm extends org.apache.struts.action.ActionForm {
     public void setErrorMessageKey(String errorMessageKey) {
         this.errorMessageKey = errorMessageKey;
     }
-
     
     @Override
     public void reset(ActionMapping mapping, HttpServletRequest request) {
@@ -96,6 +98,8 @@ public class UsersForm extends org.apache.struts.action.ActionForm {
         setEmail("");
         setRealName("");
         setOrganization("");
+        setCourse("");
+        setGroup("");
         setAge("");
         setTotalContestsMember("0");
         setTotalContestsMember("0");
@@ -152,6 +156,30 @@ public class UsersForm extends org.apache.struts.action.ActionForm {
 
     public void setOrganization(String organization) {
         this.organization = organization;
+    }
+
+    public String getFaculty() {
+        return faculty;
+    }
+
+    public void setFaculty(String faculty) {
+        this.faculty = faculty;
+    }
+
+    public String getCourse() {
+        return course;
+    }
+
+    public void setCourse(String course) {
+        this.course = course;
+    }
+
+    public String getGroup() {
+        return group;
+    }
+
+    public void setGroup(String group) {
+        this.group = group;
     }
 
     public String getAge() {

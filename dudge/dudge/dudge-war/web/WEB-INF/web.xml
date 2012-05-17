@@ -110,4 +110,10 @@
         <ejb-ref-type>Session</ejb-ref-type>
         <remote>dudge.SearcherLocal</remote>
     </ejb-ref>
+    <ejb-local-ref>
+        <ejb-ref-name>ReportingBean</ejb-ref-name>
+        <ejb-ref-type>Session</ejb-ref-type>
+        <local-home/>
+        <local>dudge.ReportingLocal</local>
+    </ejb-local-ref>
     </web-app>

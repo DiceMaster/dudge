@@ -949,8 +949,10 @@ CREATE TABLE users (
     icq_number integer,
     is_admin boolean DEFAULT false NOT NULL,
     can_create_contest boolean DEFAULT false NOT NULL,
-    can_create_problem boolean DEFAULT false NOT NULL
-);
+    can_create_problem boolean DEFAULT false NOT NULL,
+    stud_faculty character varying(255),
+    stud_course integer,
+    stud_group character varying(255));
 
 
 --

@@ -45,6 +45,15 @@ public class User implements Serializable {
 	
 	@Column(name = "organization", nullable = false)
 	private String organization = "";
+        
+        @Column(name = "stud_faculty", nullable = true)
+	private String faculty = "";
+        
+	@Column(name = "stud_course", nullable = true)
+	private Integer course = null;
+        
+	@Column(name = "stud_group", nullable = true)
+	private String group = "";
 	
 	@Column(name = "register_date", nullable=false)
 	@Temporal(TemporalType.DATE)
@@ -242,7 +251,31 @@ public class User implements Serializable {
 	public void setOrganization(String organization) {
 		this.organization = organization;
 	}
-	
+
+        public String getFaculty() {
+            return faculty;
+        }
+
+        public void setFaculty(String faculty) {
+            this.faculty = faculty;
+        }
+
+        public Integer getCourse() {
+            return course;
+        }
+
+        public void setCourse(Integer course) {
+            this.course = course;
+        }
+
+        public String getGroup() {
+            return group;
+        }
+
+        public void setGroup(String group) {
+            this.group = group;
+        }
+        
 	public Date getRegDate() {
 		return regDate;
 	}

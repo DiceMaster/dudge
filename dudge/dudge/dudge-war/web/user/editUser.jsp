@@ -40,7 +40,7 @@
             document.getElementById("realNameFieldError").innerHTML = '<bean:message key="register.realNameTooShort" />';
             return false;
         }
-        if (document.getElementById("realName").value.length > 20)
+        if (document.getElementById("realName").value.length > 100)
         {
             document.getElementById("realNameFieldError").style.visibility = "visible";
             document.getElementById("realNameFieldError").innerHTML = '<bean:message key="register.realNameTooLong" />';
@@ -181,6 +181,30 @@
                             </div>
                             <div class="tableCell">
                                 <html:text property="organization" styleId="organization" size="20" styleClass="x-form-text x-form-field"/>
+                            </div>
+                        </div>
+                        <div class="tableRow">
+                            <div class="tableCell">
+                                <label for="faculty"><bean:message key="user.faculty" /></label>
+                            </div>
+                            <div class="tableCell">
+                                <html:text property="faculty" styleId="faculty" size="20" styleClass="x-form-text x-form-field"/>
+                            </div>
+                        </div>    
+                        <div class="tableRow">
+                            <div class="tableCell">
+                                <label for="course"><bean:message key="user.course" /></label>
+                            </div>
+                            <div class="tableCell">
+                                <html:text property="course" styleId="course" size="20" styleClass="x-form-text x-form-field"/>
+                            </div>
+                        </div>
+                        <div class="tableRow">
+                            <div class="tableCell">
+                                <label for="group"><bean:message key="user.group" /></label>
+                            </div>
+                            <div class="tableCell">
+                                <html:text property="group" styleId="group" size="20" styleClass="x-form-text x-form-field"/>
                             </div>
                         </div>
                         <div class="tableRow">

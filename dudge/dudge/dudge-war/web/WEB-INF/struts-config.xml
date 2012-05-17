@@ -57,6 +57,8 @@
 		<forward name="loginRequired" path="/loginRequired.jsp"/>
 		<forward name="accessDenied" path="/accessDenied.jsp"/>
 		<forward name="importError" path="/importError.jsp"/>
+                
+		<forward name="reports" path="/report/reports.jsp"/>
 		
         </global-forwards>
 	

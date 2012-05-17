@@ -97,6 +97,11 @@ public class UsersAction extends DispatchAction {
         uf.setRealName(user.getRealName());
         uf.setEmail(user.getEmail());
         uf.setOrganization(user.getOrganization());
+        uf.setFaculty(user.getFaculty());
+        if (user.getCourse() != null) {
+            uf.setCourse(String.valueOf(user.getCourse()));
+        }
+        uf.setGroup(user.getGroup());
         uf.setRegDate(user.getRegDate());
         if (user.getAge() != null) {
             uf.setAge(String.valueOf(user.getAge()));
@@ -225,7 +230,7 @@ public class UsersAction extends DispatchAction {
             uf.setErrorMessageKey("register.realNameTooShort");
             return mapping.findForward("editUser");
         }
-        if (uf.getRealName().length() > 20) {
+        if (uf.getRealName().length() > 100) {
             uf.setHasRealNameError(true);
             uf.setErrorMessageKey("register.realNameTooLong");
             return mapping.findForward("editUser");
@@ -250,7 +255,16 @@ public class UsersAction extends DispatchAction {
         }
         user.setRealName(uf.getRealName());
         user.setOrganization(uf.getOrganization());
-
+        
+        user.setFaculty(uf.getFaculty());
+        try {
+            if (!uf.getCourse().equals("")) {
+                user.setCourse(Integer.parseInt(uf.getCourse()));
+            }
+        } catch (NumberFormatException ex) {
+        }
+        user.setGroup(uf.getGroup());
+        
         try {
             if (!uf.getAge().equals("")) {
                 user.setAge(Integer.parseInt(uf.getAge()));
@@ -299,7 +313,16 @@ public class UsersAction extends DispatchAction {
         user.setEmail(uf.getEmail());
         user.setRealName(uf.getRealName());
         user.setOrganization(uf.getOrganization());
-
+        
+        user.setFaculty(uf.getFaculty());
+        try {
+            if (!uf.getCourse().equals("")) {
+                user.setCourse(Integer.parseInt(uf.getCourse()));
+            }
+        } catch (NumberFormatException ex) {
+        }
+        user.setGroup(uf.getGroup());
+        
         try {
             if (!uf.getAge().equals("")) {
                 user.setAge(Integer.parseInt(uf.getAge()));

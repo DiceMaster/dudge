@@ -480,16 +480,40 @@ exists or setup the property manually. For example like this:
     <target depends="compile,-library-inclusion-in-archive-weblogic,-library-inclusion-in-archive-by-user" name="library-inclusion-in-archive"/>
     <target if="is.jars.in.ejbjar" name="-library-inclusion-in-archive-by-user">
         <copyfiles files="${libs.beans-binding.classpath}" todir="${build.classes.dir}"/>
+        <copyfiles files="${file.reference.poi-3.8-20120326.jar}" todir="${build.classes.dir}"/>
+        <copyfiles files="${file.reference.poi-ooxml-3.8-20120326.jar}" todir="${build.classes.dir}"/>
+        <copyfiles files="${file.reference.poi-ooxml-schemas-3.8-20120326.jar}" todir="${build.classes.dir}"/>
+        <copyfiles files="${file.reference.dom4j-1.6.1.jar}" todir="${build.classes.dir}"/>
+        <copyfiles files="${file.reference.stax-api-1.0.1.jar}" todir="${build.classes.dir}"/>
+        <copyfiles files="${file.reference.xmlbeans-2.3.0.jar}" todir="${build.classes.dir}"/>
     </target>
     <target if="is.server.weblogic" name="-library-inclusion-in-archive-weblogic">
         <basename file="${libs.beans-binding.classpath}" property="manifest.libs.beans-binding.classpath"/>
+        <basename file="${file.reference.poi-3.8-20120326.jar}" property="manifest.file.reference.poi-3.8-20120326.jar"/>
+        <basename file="${file.reference.poi-ooxml-3.8-20120326.jar}" property="manifest.file.reference.poi-ooxml-3.8-20120326.jar"/>
+        <basename file="${file.reference.poi-ooxml-schemas-3.8-20120326.jar}" property="manifest.file.reference.poi-ooxml-schemas-3.8-20120326.jar"/>
+        <basename file="${file.reference.dom4j-1.6.1.jar}" property="manifest.file.reference.dom4j-1.6.1.jar"/>
+        <basename file="${file.reference.stax-api-1.0.1.jar}" property="manifest.file.reference.stax-api-1.0.1.jar"/>
+        <basename file="${file.reference.xmlbeans-2.3.0.jar}" property="manifest.file.reference.xmlbeans-2.3.0.jar"/>
         <manifest file="${build.ear.classes.dir}/META-INF/MANIFEST.MF" mode="update">
-            <attribute name="Extension-List" value="jar-1 "/>
+            <attribute name="Extension-List" value="jar-1 jar-2 jar-3 jar-4 jar-5 jar-6 jar-7 "/>
             <attribute name="jar-1-Extension-Name" value="${manifest.libs.beans-binding.classpath}"/>
+            <attribute name="jar-2-Extension-Name" value="${manifest.file.reference.poi-3.8-20120326.jar}"/>
+            <attribute name="jar-3-Extension-Name" value="${manifest.file.reference.poi-ooxml-3.8-20120326.jar}"/>
+            <attribute name="jar-4-Extension-Name" value="${manifest.file.reference.poi-ooxml-schemas-3.8-20120326.jar}"/>
+            <attribute name="jar-5-Extension-Name" value="${manifest.file.reference.dom4j-1.6.1.jar}"/>
+            <attribute name="jar-6-Extension-Name" value="${manifest.file.reference.stax-api-1.0.1.jar}"/>
+            <attribute name="jar-7-Extension-Name" value="${manifest.file.reference.xmlbeans-2.3.0.jar}"/>
         </manifest>
     </target>
     <target depends="compile" name="library-inclusion-in-manifest">
         <copyfiles files="${libs.beans-binding.classpath}" todir="${dist.ear.dir}/lib"/>
+        <copyfiles files="${file.reference.poi-3.8-20120326.jar}" todir="${dist.ear.dir}/lib"/>
+        <copyfiles files="${file.reference.poi-ooxml-3.8-20120326.jar}" todir="${dist.ear.dir}/lib"/>
+        <copyfiles files="${file.reference.poi-ooxml-schemas-3.8-20120326.jar}" todir="${dist.ear.dir}/lib"/>
+        <copyfiles files="${file.reference.dom4j-1.6.1.jar}" todir="${dist.ear.dir}/lib"/>
+        <copyfiles files="${file.reference.stax-api-1.0.1.jar}" todir="${dist.ear.dir}/lib"/>
+        <copyfiles files="${file.reference.xmlbeans-2.3.0.jar}" todir="${dist.ear.dir}/lib"/>
         <manifest file="${build.ear.classes.dir}/META-INF/MANIFEST.MF" mode="update"/>
     </target>
     <target name="-copy-meta-inf">
