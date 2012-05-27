@@ -20,6 +20,4 @@ public class ReportsForm extends org.apache.struts.action.ActionForm {
         this.contestId = contestId;
     }
     
-    
-    
 }

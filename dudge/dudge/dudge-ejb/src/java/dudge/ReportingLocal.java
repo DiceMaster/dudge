@@ -15,8 +15,7 @@ import javax.ejb.Local;
 @Local
 public interface ReportingLocal {
 
-    public File printContestInfo(int contestId) throws IOException;
-    
-    public File printContestParticipants(int contestId) throws IOException;
+    public File printContestProtocol(int contestId) throws IOException;
 
+    public File printContestParticipants(int contestId) throws IOException;
 }

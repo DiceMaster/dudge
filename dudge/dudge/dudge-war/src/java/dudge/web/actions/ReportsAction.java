@@ -53,7 +53,7 @@ public class ReportsAction extends DispatchAction {
         return mapping.findForward("reports");
     }
 
-    public ActionForward printCurrentContestInfo(
+    public ActionForward printCurrentContestProtocol(
             ActionMapping mapping,
             ActionForm af,
             HttpServletRequest request,
@@ -61,7 +61,7 @@ public class ReportsAction extends DispatchAction {
         FileInputStream in = null;
         try {
             ReportingLocal reportingBean = lookupReportingBean();
-            File report = reportingBean.printContestInfo(Integer.parseInt(request.getSession().getAttribute("contestId").toString()));
+            File report = reportingBean.printContestProtocol(Integer.parseInt(request.getSession().getAttribute("contestId").toString()));
             response.setContentType("application/x-msdownload");
             response.setHeader("Content-Disposition", "attachment;" + " filename="
                     + new String(report.getName().getBytes(), "ISO-8859-1"));
