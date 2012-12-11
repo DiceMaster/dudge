@@ -999,6 +999,7 @@ exists or setup the property manually. For example like this:
         <copyfiles files="${reference.dudge-ejb.dist}" todir="${build.web.dir}/WEB-INF/lib"/>
         <copyfiles files="${libs.beans-binding.classpath}" todir="${build.web.dir}/WEB-INF/lib"/>
         <copyfiles files="${reference.dudge-lib.jar}" todir="${build.web.dir}/WEB-INF/lib"/>
+        <copyfiles files="${file.reference.postgresql-9.2-1002.jdbc4.jar}" todir="${build.web.dir}//"/>
     </target>
     <target depends="init" if="dist.ear.dir" name="-clean-webinf-lib">
         <delete dir="${build.web.dir}/WEB-INF/lib"/>
