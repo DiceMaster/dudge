@@ -13,6 +13,9 @@
     });
 </script>
 
+<a href="solutions.do?reqCode=submit&contestId=${contestId}"><bean:message key="solution.submitAnother"/></a>
+<p><br>
+
 <div id="solutionContent">
 
     <h3><bean:message key="solution.solution" /> ${solutionsForm.solutionId}</h3>

@@ -30,7 +30,7 @@
 		<forward name="users" path="/user/users.jsp"/>
 		<forward name="editUser" path="/user/editUser.jsp"/>
 		<forward name="viewUser" path="/user/viewUser.jsp"/>
-                
+		
 		<forward name="contests" path="/contest/contests.jsp"/>
 		<forward name="createContest" path="/contest/editContest.jsp"/>
 		<forward name="editContest" path="/contest/editContest.jsp"/>
@@ -39,8 +39,9 @@
 		<forward name="contestRules" path="/contest/rules.jsp"/>
 		
 		<forward name="submitSolution" path="/solution/submitSolution.jsp"/>
+		<forward name="submitSuccess" path="/solution/submitSuccess.jsp"/>
 		<forward name="viewSolution" path="/solution/viewSolution.jsp"/>
-				
+		
 		<forward name="editProblem" path="/problem/editProblem.jsp"/>
 		<forward name="problems" path="/problem/problems.jsp"/>
 		<forward name="viewProblem" path="/problem/viewProblem.jsp"/>
@@ -57,7 +58,7 @@
 		<forward name="loginRequired" path="/loginRequired.jsp"/>
 		<forward name="accessDenied" path="/accessDenied.jsp"/>
 		<forward name="importError" path="/importError.jsp"/>
-                
+		
 		<forward name="reports" path="/report/reports.jsp"/>
 		
         </global-forwards>
@@ -98,13 +99,6 @@
 			 name="problemsForm"
 			 scope="session"
 			 parameter="reqCode">
-		</action>
-		
-		<action path="/solutions"
-			 type="dudge.web.actions.SolutionsAction"
-			 name="solutionsForm"
-			 parameter="reqCode">
-			<forward name="submitSuccess" path="/solution/submitSuccess.jsp"/>
 		</action>
 		
 		<action path="/monitor"
