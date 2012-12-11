@@ -6,7 +6,6 @@
         <data xmlns="http://www.netbeans.org/ns/j2ee-ejbjarproject/3">
             <name>dudge-ejb</name>
             <minimum-ant-version>1.6</minimum-ant-version>
-            <included-library dirs="200">libs.beans-binding.classpath</included-library>
             <included-library dirs="200">file.reference.poi-3.8-20120326.jar</included-library>
             <included-library dirs="200">file.reference.poi-ooxml-3.8-20120326.jar</included-library>
             <included-library dirs="200">file.reference.poi-ooxml-schemas-3.8-20120326.jar</included-library>
