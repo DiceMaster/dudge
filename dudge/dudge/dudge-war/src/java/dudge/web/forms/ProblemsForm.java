@@ -10,8 +10,8 @@ import dudge.db.ContestProblem;
 import dudge.db.Problem;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.List;
 import java.util.Date;
+import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionMapping;
@@ -25,8 +25,7 @@ public class ProblemsForm extends ActionForm {
 	
 	// Список задач, полученных от сервера.
 	private List<Problem> problems = Collections.synchronizedList(new ArrayList<Problem>());
-	private List<ContestProblem> contestProblems
-			= Collections.synchronizedList(new ArrayList<ContestProblem>());
+	private List<ContestProblem> contestProblems = Collections.synchronizedList(new ArrayList<ContestProblem>());
 	
 	//  Действие над текущей задачей.
 	private boolean newProblem = false;
@@ -50,8 +49,8 @@ public class ProblemsForm extends ActionForm {
 	private String owner;
 	private String author;
 	
-	private String exampleInputTest = "";
-	private String exampleOutputTest = "";
+	private String exampleInputTest = "&nbsp;";
+	private String exampleOutputTest = "&nbsp;";
 
 	private FormFile file;
 	
@@ -66,8 +65,8 @@ public class ProblemsForm extends ActionForm {
 		title = "";
 		description = "";
 		isHidden = false;
-		exampleInputTest = "";
-		exampleOutputTest = "";
+		exampleInputTest = "&nbsp;";
+		exampleOutputTest = "&nbsp;";
 		file = null;
 	}
 	

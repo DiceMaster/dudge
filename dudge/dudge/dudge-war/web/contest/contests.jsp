@@ -103,7 +103,7 @@
 
         function renderDuration(value, metadata, record, row, col, ds)
         {
-            return value/3600 + ':' + (value % 3600) / 60;
+            return Math.floor(value/3600) + ':' + (value % 3600) / 60;
         };
 
     <c:if test="${permissionCheckerRemote.canAddContest(autentificationObject.username)}">

@@ -116,21 +116,25 @@ public class DudgeBean implements DudgeLocal, DudgeRemote {
     }
     
     public boolean isInRole(String login, int contestId, RoleType roleType) {
-        long count = (Long) em.createQuery(
+        long count = 0;
+        if (login != null) {
+            count = (Long) em.createQuery(
                 "SELECT COUNT(r) FROM Role r WHERE"
                 + " r.contest.contestId = :contestId"
                 + " AND r.user.login = :username"
                 + " AND r.roleType = :roleType").setParameter("contestId", contestId).setParameter("username", login.toLowerCase()).setParameter("roleType", roleType.toString()).getResultList().get(0);
-        
+        }
         return count != 0;
     }
     
     public boolean haveNoRoles(String login, int contestId) {
-        long count = (Long) em.createQuery(
+        long count = 0;
+        if (login != null) {
+            count = (Long) em.createQuery(
                 "SELECT COUNT(r) FROM Role r WHERE"
                 + " r.contest.contestId = :contestId"
                 + " AND r.user.login = :username").setParameter("contestId", contestId).setParameter("username", login.toLowerCase()).getResultList().get(0);
-        
+        }
         return count == 0;
     }
     

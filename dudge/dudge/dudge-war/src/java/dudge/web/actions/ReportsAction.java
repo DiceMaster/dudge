@@ -10,7 +10,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.util.Enumeration;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.naming.Context;
@@ -62,27 +61,32 @@ public class ReportsAction extends DispatchAction {
         try {
             ReportingLocal reportingBean = lookupReportingBean();
             File report = reportingBean.printContestProtocol(Integer.parseInt(request.getSession().getAttribute("contestId").toString()));
-            response.setContentType("application/x-msdownload");
-            response.setHeader("Content-Disposition", "attachment;" + " filename="
-                    + new String(report.getName().getBytes(), "ISO-8859-1"));
-            OutputStream out = response.getOutputStream();
-            in = new FileInputStream(report);
-            byte[] buffer = new byte[4096];
-            int length;
-            while ((length = in.read(buffer)) > 0) {
-                out.write(buffer, 0, length);
+            if (report != null) {
+                response.setContentType("application/x-msdownload");
+                response.setHeader("Content-Disposition", "attachment;" + " filename="
+                        + new String(report.getName().getBytes(), "ISO-8859-1"));
+                OutputStream out = response.getOutputStream();
+                in = new FileInputStream(report);
+                byte[] buffer = new byte[4096];
+                int length;
+                while ((length = in.read(buffer)) > 0) {
+                    out.write(buffer, 0, length);
+                }
+                out.flush();
+                return null;
             }
-            out.flush();
         } catch (IOException ex) {
             Logger.getLogger(ReportsAction.class.getName()).log(Level.SEVERE, null, ex);
         } finally {
-            try {
-                in.close();
-            } catch (IOException ex) {
-                Logger.getLogger(ReportsAction.class.getName()).log(Level.SEVERE, null, ex);
+            if (in != null) {
+                try {
+                    in.close();
+                } catch (IOException ex) {
+                    Logger.getLogger(ReportsAction.class.getName()).log(Level.SEVERE, null, ex);
+                }
             }
         }
-        return null;
+        return mapping.findForward("reports");
     }
     
         public ActionForward printCurrentContestParticipants(
@@ -94,27 +98,32 @@ public class ReportsAction extends DispatchAction {
         try {
             ReportingLocal reportingBean = lookupReportingBean();
             File report = reportingBean.printContestParticipants(Integer.parseInt(request.getSession().getAttribute("contestId").toString()));
-            response.setContentType("application/x-msdownload");
-            response.setHeader("Content-Disposition", "attachment;" + " filename="
-                    + new String(report.getName().getBytes(), "ISO-8859-1"));
-            OutputStream out = response.getOutputStream();
-            in = new FileInputStream(report);
-            byte[] buffer = new byte[4096];
-            int length;
-            while ((length = in.read(buffer)) > 0) {
-                out.write(buffer, 0, length);
+            if (report != null) {
+                response.setContentType("application/x-msdownload");
+                response.setHeader("Content-Disposition", "attachment;" + " filename="
+                        + new String(report.getName().getBytes(), "ISO-8859-1"));
+                OutputStream out = response.getOutputStream();
+                in = new FileInputStream(report);
+                byte[] buffer = new byte[4096];
+                int length;
+                while ((length = in.read(buffer)) > 0) {
+                    out.write(buffer, 0, length);
+                }
+                out.flush();
+                return null;
             }
-            out.flush();
         } catch (IOException ex) {
             Logger.getLogger(ReportsAction.class.getName()).log(Level.SEVERE, null, ex);
         } finally {
             try {
-                in.close();
+                if (in != null) {
+                    in.close();
+                }
             } catch (IOException ex) {
                 Logger.getLogger(ReportsAction.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
-        return null;
+        return mapping.findForward("reports");
     }
     
 }
