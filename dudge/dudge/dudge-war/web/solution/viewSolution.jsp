@@ -88,5 +88,5 @@
         </c:if>
 
     <p><br><br>
-    <textarea name="" cols="" rows="" style="border: 0; padding: 0;">${solutionsForm.sourceCode}</textarea>
+    <textarea readonly wrap="off" style="border: 1; width: 50%; height: 80%; position: absolute;">${solutionsForm.sourceCode}</textarea>
 </div>
