@@ -281,7 +281,7 @@ public class DudgeBean implements DudgeLocal, DudgeRemote {
             c.setTime(contest.getEndTime());
             c.add(java.util.Calendar.DAY_OF_MONTH, 7);
             
-            if (contest.isFinished() && c.after(java.util.Calendar.getInstance())) {
+            if (contest.isFinished() && c.before(java.util.Calendar.getInstance())) {
                 recentlyFinishedContests.add(contest);
             }
         }
