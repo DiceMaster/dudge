@@ -356,32 +356,44 @@ public class PermissionCheckerBean implements PermissionCheckerRemote {
 		}
 
 		for (Contest contest: selectedContests) {
-			if (contest.isOpen() && (contest.isInProgress() || contest.isFinished()) ) return true;
+                    if (contest.isOpen() && (contest.isInProgress() || contest.isFinished()) ) {
+                        return true;
+                    }
 		}
 
-		if (principal == null)
-			return false;
-		
-		User princ = dudgeBean.getUser(principal);
-		
-		if (princ.isAdmin()) return true;
-		if(dudgeBean.getProblem(problemId).getOwner().equals(princ)) return true;
+		if (principal == null) {
+                    return false;
+                }
+                
+		User princ = dudgeBean.getUser(principal);		
+		if (princ == null) {
+                    return false;
+                }
+                if (princ.isAdmin()) {
+                    return true;
+                }
+		if(dudgeBean.getProblem(problemId).getOwner().equals(princ)) {
+                    return true;
+                }
 		
 		for (Contest contest: selectedContests) {
-			if(dudgeBean.isInRole(principal , contest.getContestId() , RoleType.ADMINISTRATOR)) return true;
+                    if(dudgeBean.isInRole(principal , contest.getContestId() , RoleType.ADMINISTRATOR)) {
+                        return true;
+                    }
 		}
 		
 		for (Contest contest: selectedContests) {
-			if ( (dudgeBean.isInRole(principal , contest.getContestId() , RoleType.USER) ||
-					dudgeBean.isInRole(principal , contest.getContestId() , RoleType.OBSERVER))
-					&& (contest.isInProgress() || contest.isFinished())
-					) return true;
+                    if ( (dudgeBean.isInRole(principal , contest.getContestId() , RoleType.USER) ||
+                                    dudgeBean.isInRole(principal , contest.getContestId() , RoleType.OBSERVER))
+                                    && (contest.isInProgress() || contest.isFinished())
+                                    ) {
+                        return true;
+                    }
 		}
 
 		/*for (Contest contest: selectedContests) {
 			if (contest.isOpen() && contest.getStartTime().before(new Date())) return true;
 		}*/
-		
 		
 		return false;
 	}
