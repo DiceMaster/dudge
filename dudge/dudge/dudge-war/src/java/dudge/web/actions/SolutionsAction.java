@@ -80,6 +80,7 @@ public class SolutionsAction extends DispatchAction {
 			return mapping.findForward("accessDenied");
 		}
 		
+                // TODO: нельзя доверять тому, что солюшен с таким id существует
 		Solution solution = dudgeBean.getSolution(solutionId);
 		
 		sf.setSolutionId(Integer.toString(solution.getSolutionId()));
@@ -200,6 +201,55 @@ public class SolutionsAction extends DispatchAction {
 	}
 
 	/**
+	 * Метод для получения через AJAX статуса решения,
+         * где идентификатор решения задачется параметром solutionId.
+	 */
+	public void getSolutionStatus(
+			ActionMapping mapping,
+			ActionForm af,
+			HttpServletRequest request,
+			HttpServletResponse response) {
+            int solutionId = Integer.parseInt( (String) request.getParameter("solutionId"));
+            Solution solution = lookupDudgeBean().getSolution(solutionId);
+            
+            JSONObject jo = new JSONObject();
+            String status = SolutionStatus.INTERNAL_ERROR.toString();
+            int testNumber;		
+            try {
+                    testNumber = Collections.max(solution.getRuns()).getRunNumber();
+            } catch (NoSuchElementException ex) {
+                    testNumber = 0;
+            }
+            
+            if (solution != null) {
+                if(solution.getStatus() != SolutionStatus.PROCESSED
+                    || solution.getContest().getTraits().isRunAllTests()
+                    || solution.getLastRunResult() == null) {
+                    status = solution.getStatus().toString();
+		} else {
+                    status = solution.getLastRunResult().toString();
+		}
+            }    
+            try {
+                jo.put("status", status);
+                jo.put("testNumber", testNumber);
+                jo.put("statusMessage", solution.getStatusMessage());
+            } catch (JSONException ex) {
+                ex.printStackTrace();
+                return;
+            }
+            
+            response.setContentType("application/x-json");
+            try {
+                    response.getWriter().print(jo);
+            } catch (IOException ex) {
+                    ex.printStackTrace();
+                    logger.log(Level.SEVERE, "Exception occured.", ex);
+                    return;
+            }
+        }
+        
+        /**
 	 * Метод для получения через AJAX списка из последних N отправленных
 	 * в систему решений, где n задачется параметром limit.
 	 */
