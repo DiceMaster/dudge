@@ -24,19 +24,19 @@
                     contentEl: 'testsTab',
                     title: '<bean:message key="problem.tests" />',
     <c:if test="${problemsForm.newProblem}">
-                        disabled: true,
+                    disabled: true,
     </c:if>
-                        tbar: testToolbar,
-                        layout: 'fit'
-                    },
-                    {
-                        contentEl: 'importTab',
-                        title: '<bean:message key="problem.import" />',
-                        layout: 'form'
-                    }
-                ]
-            });
+                    tbar: testToolbar,
+                    layout: 'fit'
+                },
+                {
+                    contentEl: 'importTab',
+                    title: '<bean:message key="problem.import" />',
+                    layout: 'form'
+                }
+            ]
         });
+    });
 
         // If we create new problem, problem with this ID doesn't exists, so we cant't add/edit tests for it.
 </script>
@@ -167,15 +167,16 @@
             // Test table.
             testGrid = new Ext.grid.EditorGridPanel({
                 applyTo: 'testsTable',
-                width: 'auto',
-                height: 'auto',
                 ds: ds,
                 cm: testGridColumns,
-                sm: new Ext.grid.RowSelectionModel()
+                sm: new Ext.grid.RowSelectionModel(),
+                autoHeight: true
             });
     
             ds.load();
-            ds.on('load' , function () {testGrid.getView().refresh(false);});
+            ds.on('load' , function () {
+                testGrid.getView().refresh(false);
+            });
     
             testToolbar.addButton({
                 text: '<bean:message key="problem.tests.add" />',
