@@ -1,6 +1,7 @@
 <%@page import="java.text.SimpleDateFormat" %>
 <jsp:useBean id="contestsForm" class="dudge.web.forms.ContestsForm" scope="session" />
 
+<script type="text/javascript" src="/dudge/ext/examples/ux/CheckColumn.js"></script>
 <script type="text/javascript">
     // Defining data stores for using in callback-function, set hidden-fields in contestsForm.
     var userDs;
@@ -402,11 +403,10 @@
         };
  
         var languageGridColumns = new Ext.grid.ColumnModel([{
+                xtype: 'checkcolumn',
                 header: '<bean:message key="contest.languages.enabled" />',
                 dataIndex: 'enabled',
-                width: 70,
-                renderer: formatBoolean,
-                editor:  new Ext.form.Checkbox()
+                width: 70
             },{
                 header: "<bean:message key="contest.languages.id" />",
                 dataIndex: 'id',
@@ -432,7 +432,7 @@
                 root: 'languages',
                 totalProperty: 'languagesTotalCount'
             }, [
-                {name: 'enabled' , mapping: 'enabled'},
+                {name: 'enabled' , mapping: 'enabled', type: 'bool'},
                 {name: 'id', mapping: 'id'},
                 {name: 'title', mapping: 'title'},
                 {name: 'description', mapping: 'description'},
