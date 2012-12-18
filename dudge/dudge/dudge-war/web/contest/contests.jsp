@@ -31,11 +31,10 @@
                 {name: 'starts', mapping: 'starts'},
                 {name: 'duration', mapping: 'duration'},
                 {name: 'is_open', mapping: 'is_open'}
-            ]),
-
-            // turn on remote sorting
-            remoteSort: false
-        });	
+            ])
+        });
+        
+        ds.sort('starts', 'DESC');
 
         // the column model has information about grid columns
         // dataIndex maps the column to the specific data field in
