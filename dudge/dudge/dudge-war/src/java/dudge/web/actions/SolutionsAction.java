@@ -7,13 +7,13 @@
 package dudge.web.actions;
 
 import dudge.DudgeLocal;
+import dudge.PermissionCheckerRemote;
 import dudge.db.Contest;
 import dudge.db.Language;
 import dudge.db.Problem;
 import dudge.db.Solution;
 import dudge.db.SolutionStatus;
 import dudge.db.User;
-import dudge.PermissionCheckerRemote;
 import dudge.web.AuthenticationObject;
 import dudge.web.forms.SolutionsForm;
 import java.io.IOException;
@@ -42,7 +42,7 @@ import org.apache.struts.actions.DispatchAction;
  */
 public class SolutionsAction extends DispatchAction {
 	
-	private Logger logger = Logger.getLogger(this.getClass().toString());
+	private static final Logger logger = Logger.getLogger(SolutionsAction.class.toString());
 	
 	/** Creates a new instance of SolutionsAction */
 	public SolutionsAction() {
@@ -140,8 +140,6 @@ public class SolutionsAction extends DispatchAction {
 			return mapping.findForward("accessDenied");
 		}
 
-		String prob = request.getParameter("problemId");
-		
 		// Установление свойств, нужных для корректного отображение параметров языка соревнования.
 		sf.getContestLanguages().addAll(contest.getContestLanguages());
 		sf.getContestProblems().addAll(contest.getContestProblems());
@@ -314,7 +312,6 @@ public class SolutionsAction extends DispatchAction {
 		} catch (IOException ex) {
 			ex.printStackTrace();
 			logger.log(Level.SEVERE, "Exception occured.", ex);
-			return;
 		}		
 	}				
 }
