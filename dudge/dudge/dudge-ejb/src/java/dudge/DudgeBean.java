@@ -5,6 +5,7 @@
  */
 package dudge;
 
+import dudge.ifaces.DudgeRemote;
 import dudge.db.*;
 import dudge.monitor.AcmMonitorRecord;
 import dudge.monitor.GlobalMonitorRecord;

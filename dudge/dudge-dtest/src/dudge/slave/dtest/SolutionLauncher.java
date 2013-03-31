@@ -6,17 +6,13 @@
 
 package dudge.slave.dtest;
 
+import java.lang.Runtime;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.io.Reader;
 import java.io.Writer;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
-import dudge.slave.dtest.CheckingLimits;
 
 /**
  * Класс, содержащий методы для создания и удаления
@@ -33,15 +29,19 @@ public class SolutionLauncher
 	static {
 		try
 		{
-			System.loadLibrary("dtest");
+                        String lb="dtest"; //System.mapLibraryName("dtest");
+                        logger.log(Level.INFO,"Try to loading "+lb+" library ...");
+			Runtime.getRuntime().loadLibrary(lb);
+                        //System.loadLibrary(lb);
+                        //System.load("/usr/java/packages/lib/i386/libdtest.so");
 		}
 		catch(UnsatisfiedLinkError ex)
 		{
-			logger.log(Level.SEVERE,
-					"Failed to load library dtest/libdtest. java.library.path" + System.getProperty("java.library.path"),
+			logger.log(Level.INFO,
+					"Failed to load library dtest/libdtest. java.library.path=" + System.getProperty("java.library.path"),
 					ex);
 
-			throw ex;
+//			throw ex;
 		}
 		
 		if(!init())

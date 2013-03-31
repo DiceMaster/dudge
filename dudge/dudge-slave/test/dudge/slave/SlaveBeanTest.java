@@ -78,9 +78,9 @@ public class SlaveBeanTest extends TestCase {
 		lang.setExecutionCommand(quote + "${PROG.TESTDIR}/${PROG.EXENAME}" + quote);
 
 		tests = new ArrayList<dudge.db.Test>();
-		tests.add(new dudge.db.Test(1, "2 3\n", "5\n"));
+		tests.add(new dudge.db.Test("2 3\n", "5\n"));
 	
-		prob = new Problem(42);
+		prob = new Problem();
 		prob.setTests(tests);
 		prob.setCpuTimeLimit(1000);
 		prob.setMemoryLimit(memoryLimit);
@@ -142,7 +142,7 @@ public class SlaveBeanTest extends TestCase {
 			);
 		
 		/* Второй тест. */
-		tests.add(new dudge.db.Test(2, "3 4\n", "7\n"));
+		tests.add(new dudge.db.Test("3 4\n", "7\n"));
 
 		List<Run> runs = new ArrayList<Run>();
 		runs.add(new Run(sol, tests.get(0), RunResultType.SUCCESS));

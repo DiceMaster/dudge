@@ -65,4 +65,5 @@
     nbproject/build-impl.xml file. 
 
     -->
+   <property name="run.jvmargs.ide" value=""/>
 </project>

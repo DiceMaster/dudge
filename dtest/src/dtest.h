@@ -13,6 +13,19 @@
 #define DTEST_PROCESS_LIMIT		5
 #define DTEST_INTERNAL_ERROR	13
 
+#if defined _WIN32 || defined __CYGWIN__
+ #define DLL_PUBLIC __declspec(dllexport) // Note: actually gcc seems to also supports this 
+ #define DLL_LOCAL
+#else
+ #if __GNUC__ >= 4
+   #define DLL_PUBLIC __attribute__ ((visibility ("default")))
+   #define DLL_LOCAL  __attribute__ ((visibility ("hidden")))
+ #else
+   #define DLL_PUBLIC
+   #define DLL_LOCAL
+ #endif
+#endif
+
 extern bool is_debug;
 
 struct run_limits
@@ -30,15 +43,16 @@ struct checking_result
 	int ret_value;
 };
 
-__declspec(dllexport)
+//__declspec(dllexport) 
+__attribute__ ((visibility ("default")))
 bool dtest_init();
 
 std::string create_test_dir();
 
 bool delete_test_dir(const std::string& path);
 
-__declspec(dllexport)
-checking_result check_solution(
+//__declspec(dllexport)
+DLL_PUBLIC checking_result check_solution(
 	const run_limits& limits,
 	const std::string& command,
 	const std::string& test_dir_path,
@@ -46,8 +60,8 @@ checking_result check_solution(
 	std::ostream& output
 	);
 
-__declspec(dllexport)
-checking_result check_solution(
+//__declspec(dllexport)
+DLL_PUBLIC checking_result check_solution(
 	const run_limits& limits,
 	const std::string& command,
 	const std::string& test_dir_path,
@@ -56,8 +70,8 @@ checking_result check_solution(
 	std::ostream& error_stream
 	);
 
-__declspec(dllexport)
-checking_result check_solution_as_user(
+//__declspec(dllexport)
+DLL_PUBLIC checking_result check_solution_as_user(
 	const run_limits& limits,
 	const std::string& command,
 	const std::string& test_dir_path,

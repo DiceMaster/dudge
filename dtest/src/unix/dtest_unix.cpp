@@ -84,6 +84,21 @@ checking_result check_solution(
 	std::ostream& error_stream
 	)
 {
+	return check_solution_as_user(limits, command, test_dir_path, input_test, output, error_stream, "", "", "");
+}
+
+checking_result check_solution_as_user(
+	const run_limits& limits,
+	const std::string& command,
+	const std::string& test_dir_path,
+	std::istream& input_test,
+	std::ostream& output,
+	std::ostream& error_stream,
+	const std::string& username,
+	const std::string& domain,
+	const std::string& password
+	)
+{
 	checking_result res;
 	res.res_type = DTEST_INTERNAL_ERROR;
 	res.ret_value = 0;

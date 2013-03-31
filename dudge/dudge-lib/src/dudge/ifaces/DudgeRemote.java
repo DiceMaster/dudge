@@ -1,5 +1,5 @@
 
-package dudge;
+package dudge.ifaces;
 
 import dudge.db.Solution;
 import javax.ejb.Remote;

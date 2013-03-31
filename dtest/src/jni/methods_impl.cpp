@@ -34,6 +34,7 @@ JNIEXPORT jobject JNICALL Java_dudge_slave_dtest_SolutionLauncher_checkSolution(
 	jobject errorStream
 	)
 {	
+
 	jclass thisClass = env->FindClass("dudge/slave/dtest/SolutionLauncher");
 
 	jclass clsCheckingResult = env->FindClass(
@@ -43,6 +44,9 @@ JNIEXPORT jobject JNICALL Java_dudge_slave_dtest_SolutionLauncher_checkSolution(
 					clsCheckingResult,
 					"<init>",
 					"()V");
+	jobject result = env->NewObject(
+					clsCheckingResult,
+					ctorCheckingResult);
 	
 	jclass clsInputStream = env->FindClass("java/io/InputStream");
 	
@@ -65,9 +69,6 @@ JNIEXPORT jobject JNICALL Java_dudge_slave_dtest_SolutionLauncher_checkSolution(
 				"write",
 				"(Ljava/lang/String;)V");
 
-	jobject result = env->NewObject(
-					clsCheckingResult,
-					ctorCheckingResult);
 	
 	string exe_command = jstr_conv(env, command);
 		
@@ -133,7 +134,6 @@ JNIEXPORT jobject JNICALL Java_dudge_slave_dtest_SolutionLauncher_checkSolution(
 	
 	//Сохраняем старый поток ошибок.
 	stringstream my_error_stream;
-
 	//Запускаем проверку решения.
 	if(!use_privelege_drop)
 	{
@@ -160,7 +160,7 @@ JNIEXPORT jobject JNICALL Java_dudge_slave_dtest_SolutionLauncher_checkSolution(
 				get_property(env, thisObject, "dtest.password", "")
 				);
 	}
-	
+
 	//Возвращаем результаты проверки.
 	set_field<jbyte>(env,
 		result,

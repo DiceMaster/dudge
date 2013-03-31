@@ -6,39 +6,35 @@
 
 package dudge.slave;
 
-import dudge.DudgeRemote;
-import dudge.db.SolutionStatus;
+import dudge.ifaces.DudgeRemote;
+import dudge.db.Contest;
 import dudge.db.Language;
 import dudge.db.Problem;
-import dudge.db.RunResultType;
 import dudge.db.Run;
+import dudge.db.RunResultType;
 import dudge.db.Solution;
-import dudge.db.Contest;
-import dudge.logic.ContestTraits;
-import dudge.util.Substitution;
+import dudge.db.SolutionStatus;
 import dudge.db.Test;
+import dudge.logic.ContestTraits;
 import dudge.slave.dtest.CheckingLimits;
 import dudge.slave.dtest.CheckingResult;
 import dudge.slave.dtest.OutputComparer;
 import dudge.slave.dtest.SolutionLauncher;
+import dudge.util.Substitution;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.annotation.Resource;
 import javax.ejb.EJB;
-import javax.ejb.SessionContext;
 import javax.ejb.Stateless;
 import javax.ejb.TransactionAttribute;
 import javax.ejb.TransactionAttributeType;
@@ -83,7 +79,7 @@ public class SlaveBean implements dudge.slave.SlaveLocal {
 	@TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
 	protected void testSolutionInternal(Solution solution)
 	throws SlaveException {
-		logger.fine("Testing Solution " + solution.getSolutionId());
+		logger.info("Testing Solution " + solution.getSolutionId());
 
 		Properties props = new Properties();
 		props.setProperty("dtest.usePrivelegeDrop", Boolean.toString(launcherUsePrivilegeDrop));

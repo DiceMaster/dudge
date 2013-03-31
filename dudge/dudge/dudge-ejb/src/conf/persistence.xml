@@ -3,6 +3,21 @@
   <persistence-unit name="dudge-ejbPU" transaction-type="JTA">
     <!-- <provider>org.hibernate.ejb.HibernatePersistence</provider> -->
     <jta-data-source>jdbc/dudge</jta-data-source>
+    <class>dudge.db.Application</class>
+    <class>dudge.db.Complaint</class>
+    <class>dudge.db.Contest</class>
+    <class>dudge.db.ContestLanguage</class>
+    <class>dudge.db.ContestProblem</class>
+    <class>dudge.db.Language</class>
+    <class>dudge.db.News</class>
+    <class>dudge.db.Param</class>
+    <class>dudge.db.Problem</class>
+    <class>dudge.db.Role</class>
+    <class>dudge.db.Run</class>
+    <class>dudge.db.Solution</class>
+    <class>dudge.db.Test</class>
+    <class>dudge.db.User</class>
+    <exclude-unlisted-classes>true</exclude-unlisted-classes>
     <properties>
       <!-- <property name="hibernate.dialect" value="org.hibernate.dialect.PostgreSQLDialect"/>
       <property name="hibernate.hbm2ddl.auto" value="create-drop"/> -->

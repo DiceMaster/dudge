@@ -3,6 +3,7 @@
     <type>org.netbeans.modules.web.project</type>
     <configuration>
         <buildExtensions xmlns="http://www.netbeans.org/ns/ant-build-extender/1">
+            <extension file="jaxws-build.xml" id="jaxws"/>
             <extension file="rest-build.xml" id="rest.1">
                 <dependency dependsOn="-rest-post-compile" target="-post-compile"/>
             </extension>
@@ -15,12 +16,12 @@
                     <file>${libs.struts.classpath}</file>
                     <path-in-war>WEB-INF/lib</path-in-war>
                 </library>
-                <library dirs="100">
-                    <file>${reference.dudge-ejb.dist}</file>
-                    <path-in-war>WEB-INF/lib</path-in-war>
-                </library>
                 <library dirs="200">
                     <file>${libs.beans-binding.classpath}</file>
+                    <path-in-war>WEB-INF/lib</path-in-war>
+                </library>
+                <library dirs="100">
+                    <file>${reference.dudge-ejb.dist}</file>
                     <path-in-war>WEB-INF/lib</path-in-war>
                 </library>
                 <library dirs="200">

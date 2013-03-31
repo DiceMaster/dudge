@@ -6,10 +6,10 @@
 
 package dudge.slave;
 
-import dudge.DudgeLocal;
-import dudge.DudgeRemote;
-import dudge.db.SolutionStatus;
+//import dudge.DudgeLocal;
+import dudge.ifaces.DudgeRemote;
 import dudge.db.Solution;
+import dudge.db.SolutionStatus;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.logging.Level;

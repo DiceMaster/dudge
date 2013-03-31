@@ -5,9 +5,8 @@
         <data xmlns="http://www.netbeans.org/ns/j2ee-ejbjarproject/3">
             <name>dudge-slave</name>
             <minimum-ant-version>1.6</minimum-ant-version>
-            <included-library dirs="100">reference.dudge-ejb.dist</included-library>
-            <included-library dirs="200">reference.dudge-lib.jar</included-library>
             <included-library dirs="200">libs.junit_4.classpath</included-library>
+            <included-library dirs="200">reference.dudge-lib.jar</included-library>
             <source-roots>
                 <root id="src.dir"/>
             </source-roots>
@@ -17,12 +16,12 @@
         </data>
         <references xmlns="http://www.netbeans.org/ns/ant-project-references/1">
             <reference>
-                <foreign-project>dudge-ejb</foreign-project>
+                <foreign-project>dudge-dtest</foreign-project>
                 <artifact-type>jar</artifact-type>
                 <script>build.xml</script>
-                <target>dist</target>
+                <target>jar</target>
                 <clean-target>clean</clean-target>
-                <id>dist</id>
+                <id>jar</id>
             </reference>
             <reference>
                 <foreign-project>dudge-lib</foreign-project>

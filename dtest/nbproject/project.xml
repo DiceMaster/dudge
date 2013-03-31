@@ -10,6 +10,41 @@
             <header-extensions>h</header-extensions>
             <sourceEncoding>UTF-8</sourceEncoding>
             <make-dep-projects/>
+            <sourceRootList/>
+            <confList>
+                <confElem>
+                    <name>linux-Debug</name>
+                    <type>2</type>
+                </confElem>
+                <confElem>
+                    <name>linux-Release</name>
+                    <type>2</type>
+                </confElem>
+                <confElem>
+                    <name>winnt-Debug</name>
+                    <type>2</type>
+                </confElem>
+                <confElem>
+                    <name>winnt-Release</name>
+                    <type>2</type>
+                </confElem>
+                <confElem>
+                    <name>win9x-Debug</name>
+                    <type>2</type>
+                </confElem>
+                <confElem>
+                    <name>win9x-Release</name>
+                    <type>2</type>
+                </confElem>
+                <confElem>
+                    <name>darwin-Debug</name>
+                    <type>2</type>
+                </confElem>
+                <confElem>
+                    <name>darwin-Release</name>
+                    <type>2</type>
+                </confElem>
+            </confList>
         </data>
     </configuration>
 </project>

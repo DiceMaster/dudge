@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<configurationDescriptor version="62">
-  <logicalFolder name="root" displayName="root" projectFiles="true">
+<configurationDescriptor version="84">
+  <logicalFolder name="root" displayName="root" projectFiles="true" kind="ROOT">
     <logicalFolder name="HeaderFiles"
                    displayName="Header Files"
                    projectFiles="true">
@@ -45,25 +45,24 @@
   <confs>
     <conf name="linux-Debug" type="2">
       <toolsSet>
-        <developmentServer>localhost</developmentServer>
-        <compilerSet>Cygwin|Cygwin</compilerSet>
-        <platform>3</platform>
+        <remote-sources-mode>LOCAL_SOURCES</remote-sources-mode>
+        <compilerSet>GNU|GNU</compilerSet>
       </toolsSet>
       <compileType>
         <ccTool>
-          <commandLine>-I${JDK_HOME}/include -I${JDK_HOME}/include/linux</commandLine>
+          <incDir>
+            <pElem>/usr/include/c++/4.7.2</pElem>
+            <pElem>/usr/java/latest/include/linux</pElem>
+            <pElem>/usr/java/latest/include</pElem>
+          </incDir>
+          <commandLine>-fvisibility=hidden</commandLine>
         </ccTool>
-        <linkerTool>
-          <linkerLibItems>
-          </linkerLibItems>
-        </linkerTool>
       </compileType>
     </conf>
     <conf name="linux-Release" type="2">
       <toolsSet>
-        <developmentServer>localhost</developmentServer>
-        <compilerSet>Cygwin|Cygwin</compilerSet>
-        <platform>3</platform>
+        <remote-sources-mode>LOCAL_SOURCES</remote-sources-mode>
+        <compilerSet>GNU|GNU</compilerSet>
       </toolsSet>
       <compileType>
         <cTool>
@@ -76,17 +75,12 @@
         <fortranCompilerTool>
           <developmentMode>5</developmentMode>
         </fortranCompilerTool>
-        <linkerTool>
-          <linkerLibItems>
-          </linkerLibItems>
-        </linkerTool>
       </compileType>
     </conf>
     <conf name="winnt-Debug" type="2">
       <toolsSet>
-        <developmentServer>localhost</developmentServer>
+        <remote-sources-mode>LOCAL_SOURCES</remote-sources-mode>
         <compilerSet>Cygwin|Cygwin</compilerSet>
-        <platform>3</platform>
       </toolsSet>
       <compileType>
         <cTool>
@@ -104,16 +98,13 @@
         </ccTool>
         <linkerTool>
           <output>${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/dtest.dll</output>
-          <linkerLibItems>
-          </linkerLibItems>
         </linkerTool>
       </compileType>
     </conf>
     <conf name="winnt-Release" type="2">
       <toolsSet>
-        <developmentServer>localhost</developmentServer>
+        <remote-sources-mode>LOCAL_SOURCES</remote-sources-mode>
         <compilerSet>MinGW|MinGW</compilerSet>
-        <platform>3</platform>
       </toolsSet>
       <compileType>
         <cTool>
@@ -136,16 +127,13 @@
         </fortranCompilerTool>
         <linkerTool>
           <output>${CND_DISTDIR}/${CND_CONF}/${CND_PLATFORM}/dtest.dll</output>
-          <linkerLibItems>
-          </linkerLibItems>
         </linkerTool>
       </compileType>
     </conf>
     <conf name="win9x-Debug" type="2">
       <toolsSet>
-        <developmentServer>localhost</developmentServer>
+        <remote-sources-mode>LOCAL_SOURCES</remote-sources-mode>
         <compilerSet>Cygwin|Cygwin</compilerSet>
-        <platform>3</platform>
       </toolsSet>
       <compileType>
         <cTool>
@@ -163,17 +151,12 @@
             <Elem>_WIN32_WINDOWS=0x0410</Elem>
           </preprocessorList>
         </ccTool>
-        <linkerTool>
-          <linkerLibItems>
-          </linkerLibItems>
-        </linkerTool>
       </compileType>
     </conf>
     <conf name="win9x-Release" type="2">
       <toolsSet>
-        <developmentServer>localhost</developmentServer>
+        <remote-sources-mode>LOCAL_SOURCES</remote-sources-mode>
         <compilerSet>Cygwin|Cygwin</compilerSet>
-        <platform>3</platform>
       </toolsSet>
       <compileType>
         <cTool>
@@ -193,17 +176,12 @@
         <fortranCompilerTool>
           <developmentMode>5</developmentMode>
         </fortranCompilerTool>
-        <linkerTool>
-          <linkerLibItems>
-          </linkerLibItems>
-        </linkerTool>
       </compileType>
     </conf>
     <conf name="darwin-Debug" type="2">
       <toolsSet>
-        <developmentServer>localhost</developmentServer>
+        <remote-sources-mode>LOCAL_SOURCES</remote-sources-mode>
         <compilerSet>Cygwin|Cygwin</compilerSet>
-        <platform>3</platform>
       </toolsSet>
       <compileType>
         <ccTool>
@@ -214,17 +192,12 @@
             <Elem>macosx</Elem>
           </preprocessorList>
         </ccTool>
-        <linkerTool>
-          <linkerLibItems>
-          </linkerLibItems>
-        </linkerTool>
       </compileType>
     </conf>
     <conf name="darwin-Release" type="2">
       <toolsSet>
-        <developmentServer>localhost</developmentServer>
+        <remote-sources-mode>LOCAL_SOURCES</remote-sources-mode>
         <compilerSet>Cygwin|Cygwin</compilerSet>
-        <platform>3</platform>
       </toolsSet>
       <compileType>
         <cTool>
@@ -242,10 +215,6 @@
         <fortranCompilerTool>
           <developmentMode>5</developmentMode>
         </fortranCompilerTool>
-        <linkerTool>
-          <linkerLibItems>
-          </linkerLibItems>
-        </linkerTool>
       </compileType>
     </conf>
   </confs>
