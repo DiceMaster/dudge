@@ -1,19 +1,19 @@
 
 package dudge;
 
-import dudge.db.RoleType;
-import dudge.monitor.AcmMonitorRecord;
-import java.util.List;
-import dudge.db.Test;
 import dudge.db.Contest;
 import dudge.db.Language;
 import dudge.db.Problem;
+import dudge.db.RoleType;
 import dudge.db.Solution;
+import dudge.db.Test;
 import dudge.db.User;
+import dudge.monitor.AcmMonitorRecord;
 import dudge.monitor.GlobalMonitorRecord;
 import dudge.monitor.SchoolMonitorRecord;
 import java.net.URI;
 import java.util.Date;
+import java.util.List;
 import javax.ejb.Local;
 
 /**

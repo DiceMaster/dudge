@@ -6,6 +6,7 @@
 package dudge.web.actions;
 
 import dudge.DudgeLocal;
+import dudge.PermissionCheckerRemote;
 import dudge.db.Application;
 import dudge.db.ApplicationStatus;
 import dudge.db.Contest;
@@ -17,11 +18,11 @@ import dudge.db.Problem;
 import dudge.db.Role;
 import dudge.db.RoleType;
 import dudge.db.User;
-import dudge.PermissionCheckerRemote;
 import dudge.web.AuthenticationObject;
 import dudge.web.forms.ContestsForm;
 import java.io.IOException;
 import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -37,7 +38,6 @@ import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
 import org.apache.struts.actions.DispatchAction;
-import java.text.SimpleDateFormat;
 
 /**
  *
@@ -45,7 +45,7 @@ import java.text.SimpleDateFormat;
  */
 public class ContestsAction extends DispatchAction {
 
-	protected static Logger logger = Logger.getLogger(ContestsAction.class.toString());
+	protected static final Logger logger = Logger.getLogger(ContestsAction.class.toString());
 
 	/** Creates a new instance of ContestsAction */
 	public ContestsAction() {
@@ -94,13 +94,8 @@ public class ContestsAction extends DispatchAction {
 		}
 
 		cf.reset(mapping, request);
-		for (ContestType contype : ContestType.values()) {
-			cf.getContestTypes().add(contype);
-		}
-
-		for (RoleType roleType : RoleType.values()) {
-			cf.getRoleTypes().add(roleType);
-		}
+                cf.getContestTypes().addAll(Arrays.asList(ContestType.values()));
+                cf.getRoleTypes().addAll(Arrays.asList(RoleType.values()));
 
                 // Выставляем значения для полей, соотв. текущим значениям редактируемого контеста.
 		cf.setContestId(String.valueOf(contestId));
@@ -207,12 +202,8 @@ public class ContestsAction extends DispatchAction {
 		}
 
 		cf.reset(mapping, request);
-		for (ContestType contype : ContestType.values()) {
-			cf.getContestTypes().add(contype);
-		}
-		for (RoleType roleType : RoleType.values()) {
-			cf.getRoleTypes().add(roleType);
-		}
+                cf.getContestTypes().addAll(Arrays.asList(ContestType.values()));
+                cf.getRoleTypes().addAll(Arrays.asList(RoleType.values()));
 
 		//  Выставляем дефолтные значения полей.
 		cf.setCaption("");
@@ -268,12 +259,8 @@ public class ContestsAction extends DispatchAction {
 		}
 
 		cf.reset(mapping, request);
-		for (ContestType contype : ContestType.values()) {
-			cf.getContestTypes().add(contype);
-		}
-		for (RoleType roleType : RoleType.values()) {
-			cf.getRoleTypes().add(roleType);
-		}
+                cf.getContestTypes().addAll(Arrays.asList(ContestType.values()));
+                cf.getRoleTypes().addAll(Arrays.asList(RoleType.values()));
 
 		// Выставляем значения для полей, соотв. текущим значениям редактируемого контеста.
 		cf.setContestId(String.valueOf(contestId));
@@ -560,13 +547,8 @@ public class ContestsAction extends DispatchAction {
 		}
 
 		cf.reset(mapping, request);
-		for (ContestType contype : ContestType.values()) {
-			cf.getContestTypes().add(contype);
-		}
-
-		for (RoleType roleType : RoleType.values()) {
-			cf.getRoleTypes().add(roleType);
-		}
+                cf.getContestTypes().addAll(Arrays.asList(ContestType.values()));
+                cf.getRoleTypes().addAll(Arrays.asList(RoleType.values()));
 
 // Выставляем значения для полей, соотв. текущим значениям редактируемого контеста.
 		cf.setContestId(String.valueOf(contestId));
@@ -662,6 +644,7 @@ public class ContestsAction extends DispatchAction {
 		JSONArray jsonRoles;
 		Set<Role> roles = new TreeSet<Role>(new Comparator<Role>() {
 
+                                        @Override
 					public int compare(Role a, Role b) {
 						if (!a.getUser().getLogin().equals(b.getUser().getLogin())) {
 							return a.getUser().getLogin().compareTo(b.getUser().getLogin());

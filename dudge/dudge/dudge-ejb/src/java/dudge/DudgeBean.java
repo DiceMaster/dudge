@@ -16,8 +16,8 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.annotation.Resource;
 import javax.ejb.Stateless;
-import javax.jms.Queue;
 import javax.jms.*;
+import javax.jms.Queue;
 import javax.naming.NamingException;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
@@ -36,7 +36,7 @@ public class DudgeBean implements DudgeLocal, DudgeRemote {
     private ConnectionFactory solutionsQueueFactory;
     @Resource(mappedName = "jms/solutionsQueue")
     private Queue solutionsQueue;
-    protected Logger logger = Logger.getLogger(this.getClass().toString());
+    protected static final Logger logger = Logger.getLogger(DudgeBean.class.toString());
     @PersistenceContext(unitName = "dudge-ejbPU")
     private EntityManager em;
     private final int minimumPasswordLength = 3;
@@ -53,6 +53,7 @@ public class DudgeBean implements DudgeLocal, DudgeRemote {
      * em.createNativeQuery("SELECT last_value FROM " + seq) .getSingleResult())
      * .get(0).intValue(); }
      */
+    @Override
     public String calcHash(String password) {
         /*
          * return ( (List<String>) em.createNativeQuery("SELECT MD5( ?1
@@ -69,25 +70,26 @@ public class DudgeBean implements DudgeLocal, DudgeRemote {
             algorithm.update(bytes);
             byte messageDigest[] = algorithm.digest();
             
-            StringBuffer hexString = new StringBuffer();
+            StringBuilder hexString = new StringBuilder();
             for (int i = 0; i < messageDigest.length; i++) {
                 String hex = Integer.toHexString(0xFF & messageDigest[i]);
                 if (hex.length() == 1) {
-                    hexString.append("0" + hex);
+                    hexString.append("0").append(hex);
                 } else {
                     hexString.append(hex);
                 }
             }
             return hexString.toString();
         } catch (java.security.NoSuchAlgorithmException nsae) {
-            this.logger.severe("Unable to find hash algorithm.\n" + nsae.getMessage());
+            this.logger.log(Level.SEVERE, "Unable to find hash algorithm.\n{0}", nsae.getMessage());
             return null;
         } catch (java.io.UnsupportedEncodingException uee) {
-            this.logger.severe("Unsupported hash encoding.\n" + uee.getMessage());
+            this.logger.log(Level.SEVERE, "Unsupported hash encoding.\n{0}", uee.getMessage());
             return null;
         }
     }
     
+    @Override
     public boolean authenticate(String login, String password) {
         
         if (login == null) {
@@ -102,12 +104,12 @@ public class DudgeBean implements DudgeLocal, DudgeRemote {
 
         //Если пользователь не авторизован
         if (dbUser == null) {
-            this.logger.warning("Authentication for user '" + login + "' failed - user does not exist.");
+            this.logger.log(Level.WARNING, "Authentication for user ''{0}'' failed - user does not exist.", login);
             return false;
         }
         
         if (!dbUser.getPwdHash().equals(calcHash(password))) {
-            this.logger.warning("Authentication for user '" + login + "' failed - incorrect password. ");// + calcHash(password) + " " + calcHash(password).length());
+            this.logger.log(Level.WARNING, "Authentication for user ''{0}'' failed - incorrect password. ", login);// + calcHash(password) + " " + calcHash(password).length());
             //this.logger.severe(dbUser.getPwdHash() + " " + dbUser.getPwdHash().length());
             return false;
         }
@@ -116,6 +118,7 @@ public class DudgeBean implements DudgeLocal, DudgeRemote {
         return true;
     }
     
+    @Override
     public boolean isInRole(String login, int contestId, RoleType roleType) {
         long count = 0;
         if (login != null) {
@@ -128,6 +131,7 @@ public class DudgeBean implements DudgeLocal, DudgeRemote {
         return count != 0;
     }
     
+    @Override
     public boolean haveNoRoles(String login, int contestId) {
         long count = 0;
         if (login != null) {
@@ -139,6 +143,7 @@ public class DudgeBean implements DudgeLocal, DudgeRemote {
         return count == 0;
     }
     
+    @Override
     public User getUser(String login) {
         
         User dbuser = (User) em.find(User.class, login.toLowerCase());
@@ -146,6 +151,7 @@ public class DudgeBean implements DudgeLocal, DudgeRemote {
         return dbuser;
     }
     
+    @Override
     public User registerUser(
             String login,
             String password,
@@ -173,6 +179,7 @@ public class DudgeBean implements DudgeLocal, DudgeRemote {
         return dbUser;
     }
     
+    @Override
     public void joinAllOpenContests(String login) {
         User user = this.getUser(login);
         
@@ -190,36 +197,44 @@ public class DudgeBean implements DudgeLocal, DudgeRemote {
         }
     }
     
+    @Override
     public void modifyUser(User user) {
         em.merge(user);
     }
     
+    @Override
     public void deleteUser(String login) {
         em.remove((User) em.find(User.class, login.toLowerCase()));
     }
     
+    @Override
     public Language getLanguage(String languageId) {
         return (Language) em.find(Language.class, languageId);
     }
     
+    @Override
     public List<Language> getLanguages() {
         return (List<Language>) em.createNamedQuery("Language.getLanguages").getResultList();
     }
     
+    @Override
     public Language addLanguage(Language language) {
         em.persist(language);
         em.flush();
         return language;
     }
     
+    @Override
     public void modifyLanguage(Language language) {
         em.merge(language);
     }
     
+    @Override
     public void deleteLanguage(String languageId) {
         em.remove((Language) em.find(Language.class, languageId));
     }
     
+    @Override
     public Contest getDefaultContest() {
         Param param = (Param) em.find(Param.class, "default_contest");
         if (param == null) {
@@ -232,18 +247,21 @@ public class DudgeBean implements DudgeLocal, DudgeRemote {
         return getContest(Integer.parseInt(param.getValue()));
     }
     
+    @Override
     public Contest getContest(int contestId) {
         Contest contest = (Contest) em.find(Contest.class, contestId);
         
         return contest;
     }
     
+    @Override
     public List<Contest> getContests() {
         List<Contest> contests = (List<Contest>) em.createNamedQuery("Contest.getContests").getResultList();
         
         return contests;
     }
     
+    @Override
     public List<Contest> getPendingContests() {
         List<Contest> contests = (List<Contest>) em.createNamedQuery("Contest.getPendingContests").getResultList();
         
@@ -258,6 +276,7 @@ public class DudgeBean implements DudgeLocal, DudgeRemote {
         return pendingContests;
     }
     
+    @Override
     public List<Contest> getActiveContests() {
         List<Contest> contests = (List<Contest>) em.createNamedQuery("Contest.getActiveContests").getResultList();
         
@@ -272,6 +291,7 @@ public class DudgeBean implements DudgeLocal, DudgeRemote {
         return activeContests;
     }
     
+    @Override
     public List<Contest> getRecentlyFinishedContests() {
         List<Contest> contests = (List<Contest>) em.createNamedQuery("Contest.getRecentlyFinishedContests").getResultList();
         
@@ -290,12 +310,14 @@ public class DudgeBean implements DudgeLocal, DudgeRemote {
         return recentlyFinishedContests;
     }
     
+    @Override
     public Contest addContest(Contest contest) {
         em.persist(contest);
         em.flush();
         return contest;
     }
     
+    @Override
     public void modifyContest(Contest contest) {
 
 
@@ -356,31 +378,38 @@ public class DudgeBean implements DudgeLocal, DudgeRemote {
         em.merge(contest);
     }
     
+    @Override
     public void deleteContest(int contestId) {
         em.remove((Contest) em.find(Contest.class, contestId));
     }
     
+    @Override
     public Problem getProblem(int problemId) {
         return (Problem) em.find(Problem.class, problemId);
     }
     
+    @Override
     public long getProblemsCount() {
         return (Long) em.createQuery("SELECT COUNT(p) FROM Problem p").getSingleResult();
     }
     
+    @Override
     public List<Problem> getProblems() {
         return (List<Problem>) em.createNamedQuery("Problem.getProblems").getResultList();
     }
     
+    @Override
     public List<Problem> getProblems(int start, int limit) {
         return (List<Problem>) em.createQuery(
                 "SELECT p FROM Problem p ORDER BY p.problemId").setFirstResult(start).setMaxResults(limit).getResultList();
     }
     
+    @Override
     public List<User> getUsers() {
         return (List<User>) em.createNamedQuery("User.getUsers").getResultList();
     }
     
+    @Override
     public Problem addProblem(Problem problem) {
         
         em.persist(problem);
@@ -388,18 +417,22 @@ public class DudgeBean implements DudgeLocal, DudgeRemote {
         return problem;
     }
     
+    @Override
     public void modifyProblem(Problem problem) {
         em.merge(problem);
     }
     
+    @Override
     public void deleteProblem(int problemId) {
         em.remove((Problem) em.find(Problem.class, problemId));
     }
     
+    @Override
     public Solution getSolution(int solutionId) {
         return (Solution) em.find(Solution.class, solutionId);
     }
     
+    @Override
     public Solution getSolutionEager(int solutionId) {
         //Logger.getLogger(this.getClass().getName()).info("Trying to get solution " + solutionId);
         Solution solution = getSolution(solutionId);
@@ -417,6 +450,7 @@ public class DudgeBean implements DudgeLocal, DudgeRemote {
         return solution;
     }
     
+    @Override
     public List<Solution> getSolutions(String login, int contestId, int problemId) {
         List<Solution> lcpSolutions = (List<Solution>) em.createNamedQuery(
                 "Solution.findByUserContestProblem").setParameter("login", login.toLowerCase()).setParameter("contestId", contestId).setParameter("problemId", problemId).getResultList();
@@ -438,16 +472,19 @@ public class DudgeBean implements DudgeLocal, DudgeRemote {
         return solutions;
     }
     
+    @Override
     public List<Solution> getPendingSolutions() {
         return (List<Solution>) em.createNamedQuery(
                 "Solution.getPendingSolutions").getResultList();
     }
     
+    @Override
     public List<Solution> getLastSolutions(int count) {
         return (List<Solution>) em.createNamedQuery(
                 "Solution.getLastSolutions").setMaxResults(count).getResultList();
     }
     
+    @Override
     public Solution submitSolution(Solution solution) {
         solution.setStatus(SolutionStatus.NEW);
         solution.setSubmitTime(new Date());
@@ -467,7 +504,7 @@ public class DudgeBean implements DudgeLocal, DudgeRemote {
         
         try {
             sendJMSMessageToSolutionsQueue(this.getSolutionEager(solution.getSolutionId()));
-            logger.info("Solution " + solution.getSolutionId() + " submitted to JMS queue.");
+            logger.log(Level.INFO, "Solution {0} submitted to JMS queue.", solution.getSolutionId());
         } catch (JMSException ex) {
             logger.log(Level.SEVERE, "Exception thrown when sending solution message.", ex);
             throw new RuntimeException(ex);
@@ -479,6 +516,7 @@ public class DudgeBean implements DudgeLocal, DudgeRemote {
         return solution;
     }
     
+    @Override
     public void resubmitSolution(int solutionId) {
         Solution solution = this.getSolution(solutionId);
         solution.setStatus(SolutionStatus.NEW);
@@ -491,7 +529,7 @@ public class DudgeBean implements DudgeLocal, DudgeRemote {
         
         try {
             sendJMSMessageToSolutionsQueue(this.getSolutionEager(solution.getSolutionId()));
-            logger.info("Solution " + solution.getSolutionId() + " submitted to JMS queue.");
+            logger.log(Level.INFO, "Solution {0} submitted to JMS queue.", solution.getSolutionId());
         } catch (JMSException ex) {
             logger.log(Level.SEVERE, "Exception thrown when sending solution message.", ex);
             throw new RuntimeException(ex);
@@ -501,6 +539,7 @@ public class DudgeBean implements DudgeLocal, DudgeRemote {
         }
     }
     
+    @Override
     public void resubmitSolutions(int contestId, int problemId) {
         List<Solution> sols = (List<Solution>) em.createQuery(
                 "SELECT s FROM Solution s WHERE s.contestId = :contestId"
@@ -512,6 +551,7 @@ public class DudgeBean implements DudgeLocal, DudgeRemote {
         }
     }
     
+    @Override
     public void modifySolution(Solution solution) {
         Solution merged = em.merge(solution);
 
@@ -524,6 +564,7 @@ public class DudgeBean implements DudgeLocal, DudgeRemote {
         em.flush();
     }
     
+    @Override
     public void saveSolution(Solution solution) {
         
         Solution dbs;
@@ -565,11 +606,13 @@ public class DudgeBean implements DudgeLocal, DudgeRemote {
         em.flush();
     }
     
+    @Override
     public Test getTest(int testId) {
         return (Test) em.createNamedQuery("Test.findByTestId").
                 setParameter("testId", testId).getSingleResult();
     }
     
+    @Override
     public Test addTest(Test test) {
         Problem problem = em.find(Problem.class, test.getProblem().getProblemId());
         problem.getTests().add(test);
@@ -581,6 +624,7 @@ public class DudgeBean implements DudgeLocal, DudgeRemote {
         return test;
     }
     
+    @Override
     public void modifyTest(Test test) {
         Test merged = em.merge(test);
 
@@ -591,6 +635,7 @@ public class DudgeBean implements DudgeLocal, DudgeRemote {
         em.refresh(merged.getProblem());
     }
     
+    @Override
     public void deleteTest(int testId) {
         
         Problem problem = em.find(Test.class, testId).getProblem();
@@ -624,14 +669,17 @@ public class DudgeBean implements DudgeLocal, DudgeRemote {
         em.flush();
     }
     
+    @Override
     public int getMinimumPasswordLength() {
         return minimumPasswordLength;
     }
     
+    @Override
     public int getMaximumPasswordLength() {
         return maximumPasswordLength;
     }
     
+    @Override
     public List<GlobalMonitorRecord> getGlobalMonitorRecords(Contest contest, Date when) {
         LinkedList<GlobalMonitorRecord> rows = new LinkedList<GlobalMonitorRecord>();
         
@@ -655,6 +703,7 @@ public class DudgeBean implements DudgeLocal, DudgeRemote {
         return rows;
     }
     
+    @Override
     public List<AcmMonitorRecord> getAcmMonitorRecords(Contest contest, Date when) {
         LinkedList<AcmMonitorRecord> rows = new LinkedList<AcmMonitorRecord>();
         
@@ -678,6 +727,7 @@ public class DudgeBean implements DudgeLocal, DudgeRemote {
         return rows;
     }
     
+    @Override
     public List<SchoolMonitorRecord> getSchoolMonitorRecords(Contest contest, Date when) {
         LinkedList<SchoolMonitorRecord> rows = new LinkedList<SchoolMonitorRecord>();
         
@@ -701,6 +751,7 @@ public class DudgeBean implements DudgeLocal, DudgeRemote {
         return rows;
     }
     
+    @Override
     public URI getBugTrackingPath() {
         Param uriParam = em.find(Param.class, "bug_tracking_uri");
         URI bugURI = URI.create("https://www.glint.ru/dev/dudge/");

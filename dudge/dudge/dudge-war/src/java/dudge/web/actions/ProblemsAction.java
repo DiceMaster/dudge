@@ -7,40 +7,36 @@
 package dudge.web.actions;
 
 import dudge.DudgeLocal;
+import dudge.PermissionCheckerRemote;
 import dudge.db.Contest;
 import dudge.db.ContestProblem;
-import dudge.PermissionCheckerRemote;
 import dudge.db.Problem;
 import dudge.db.Test;
-
 import dudge.web.AuthenticationObject;
 import dudge.web.forms.ProblemsForm;
 import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Collections;
-import java.util.LinkedList;
-
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import java.util.List;
 import java.util.Date;
 import java.util.Iterator;
-import java.io.IOException;
-import java.util.ArrayList;
-
+import java.util.LinkedList;
+import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.naming.Context;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import json.JSONArray;
+import json.JSONException;
+import json.JSONObject;
 import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
 import org.apache.struts.actions.DispatchAction;
-
-import json.JSONObject;
-import json.JSONArray;
-import json.JSONException;
 import org.apache.struts.upload.FormFile;
 
 /**
@@ -49,7 +45,7 @@ import org.apache.struts.upload.FormFile;
  */
 public class ProblemsAction extends DispatchAction {
 	
-	protected static Logger logger = Logger.getLogger(Problem.class.toString());
+	protected static final Logger logger = Logger.getLogger(Problem.class.toString());
 	
 	/** Creates a new instance of ProblemsAction */
 	public ProblemsAction() {
@@ -170,7 +166,8 @@ public class ProblemsAction extends DispatchAction {
 			return;
 		}
 		
-		for (Iterator<Problem> iter = selectedProblems.iterator() ; iter.hasNext() ; ) {
+                Iterator<Problem> iter = selectedProblems.iterator();
+		while (iter.hasNext()) {
 			ja.put(this.getProblemJSONView(iter.next() , ao));
 		}
 		try {
@@ -299,9 +296,7 @@ public class ProblemsAction extends DispatchAction {
 			return mapping.findForward("importError");
 		}
 
-		Problem problem = lookupDudgeBean().getProblem(pf.getProblemId());
-
-		problem = new Problem(
+		Problem problem = new Problem(
 				importedProblem.getTitle(),
 				importedProblem.getDescription(),
 				(int)importedProblem.getLimits().getMemory(),
@@ -492,14 +487,12 @@ public class ProblemsAction extends DispatchAction {
 		List<Test> tests = new LinkedList<Test>( lookupDudgeBean().getProblem(problemId).getTests() );
 		Collections.sort(tests);
 
-		Iterator<dudge.problemc.binding.Problem.Tests.Test> problemTestIterator;
-		Iterator<Test> testsIterator;
+		
 
 		// замена существующих тестов на новые
-		for (testsIterator = tests.iterator(),
-			problemTestIterator = problem.getTests().getTest().iterator()
-			; testsIterator.hasNext() && problemTestIterator.hasNext()
-			; ) {
+                Iterator<Test> testsIterator = tests.iterator();
+                Iterator<dudge.problemc.binding.Problem.Tests.Test> problemTestIterator = problem.getTests().getTest().iterator();
+		while (testsIterator.hasNext() && problemTestIterator.hasNext()) {
 			Test nextTest = testsIterator.next();
 			dudge.problemc.binding.Problem.Tests.Test problemTest = problemTestIterator.next();
 
@@ -511,12 +504,12 @@ public class ProblemsAction extends DispatchAction {
 		}
 
 		// удаление лишних тестов
-		for (; testsIterator.hasNext(); ) {
+		while (testsIterator.hasNext()) {
 			lookupDudgeBean().deleteTest(testsIterator.next().getTestId());
 		}
 
 		// добавление новых тестов
-		for (; problemTestIterator.hasNext(); ) {
+		while (problemTestIterator.hasNext()) {
 			dudge.problemc.binding.Problem.Tests.Test problemTest = problemTestIterator.next();
 			int numberOfNewTest  = lookupDudgeBean().getProblem(problemId).getTests().size() + 1;
 
@@ -560,7 +553,8 @@ public class ProblemsAction extends DispatchAction {
 			return;
 		}
 		
-		for (Iterator<Test> iter = tests.iterator() ; iter.hasNext() ; ) {
+                Iterator<Test> iter = tests.iterator();
+		while (iter.hasNext()) {
 			ja.put(this.getTestJSONView(iter.next()));
 		}
 		try {
@@ -576,7 +570,6 @@ public class ProblemsAction extends DispatchAction {
 			response.getWriter().print(jo);
 		} catch (IOException ex) {
 			ex.printStackTrace();
-			return;
 		}
 	}
 	
@@ -697,7 +690,6 @@ public class ProblemsAction extends DispatchAction {
 			response.getWriter().print(jo);
 		} catch (IOException ex) {
 			ex.printStackTrace();
-			return;
 		}
 	}
 	
@@ -759,7 +751,7 @@ public class ProblemsAction extends DispatchAction {
 				json.put("deletable" , false);
 			}
 		} catch (JSONException Je ) {
-			this.logger.severe("Truble in creating JSON view of Problem object.");
+			logger.severe("Truble in creating JSON view of Problem object.");
 		}
 		return json;
 	}
@@ -780,7 +772,7 @@ public class ProblemsAction extends DispatchAction {
 			json.put("output" , "");
 			
 		} catch (JSONException Je ) {
-			this.logger.severe("Truble in creating JSON view of User object.");
+			logger.severe("Truble in creating JSON view of User object.");
 		}
 		return json;
 	}

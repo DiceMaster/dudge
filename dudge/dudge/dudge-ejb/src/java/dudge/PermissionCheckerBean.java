@@ -4,21 +4,19 @@
 
 package dudge;
 
-import dudge.db.RoleType;
-import dudge.db.Solution;
 import dudge.db.Contest;
 import dudge.db.ContestProblem;
 import dudge.db.Language;
 import dudge.db.Problem;
-import dudge.db.User;
+import dudge.db.RoleType;
+import dudge.db.Solution;
 import dudge.db.Test;
+import dudge.db.User;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
-
+import java.util.logging.Logger;
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
-import java.util.logging.Logger;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 
