@@ -1,3 +1,6 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+    "http://www.w3.org/TR/html4/loose.dtd">
+<html>
 <%-- the static segment can be included to JSP using the <%@include ...%> directive, e.g:
 <%@include file="/WEB-INF/jspf/header.jspf" %>
 
@@ -9,10 +12,10 @@ Use the <include-prelude> or <include-coda> elements in <jsp-config> section, e.
 <include-prelude>/WEB-INF/jspf/header.jspf</include-prelude>
 </jsp-property-group>
 </jsp-config>
+
 --%>
-
 <%@page pageEncoding="UTF-8" contentType="text/html; charset=UTF-8"%>
-
+<!-- 7 -->
 <%@taglib uri="http://jakarta.apache.org/struts/tags-bean" prefix="bean" %>
 <%@taglib uri="http://jakarta.apache.org/struts/tags-html" prefix="html" %>
 <%@taglib uri="http://jakarta.apache.org/struts/tags-logic" prefix="logic" %>
@@ -21,24 +24,24 @@ The taglib directive below imports the JSTL library. If you uncomment it,
 you must also add the JSTL library to the project. The Add Library... action
 on Libraries node in Projects view can be used to add the JSTL 1.1 library.
 --%>
-
+<!-- 6 -->
 <%@taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
 <%@taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn"%>
-
+<!-- 5 -->
 <jsp:useBean id="autentificationObject" class="dudge.web.AuthenticationObject" />
 <jsp:useBean id="permissionCheckerRemote" class="dudge.PermissionCheckerBean" />
-
+<!-- 4 -->
 <c:set var="autentificationObject" value="${autentificationObject.extract(pageContext.request)}" />
 <c:set var="permissionCheckerRemote" value="${autentificationObject.permissionChecker}" />
 <% dudge.DudgeLocal dudgeLocal = dudge.web.ServiceLocator.getInstance().lookupDudge();
     pageContext.setAttribute("dudgeLocal", dudgeLocal);%>
-
+<!-- 3 -->
 <c:set var="contestId" value="${contestsForm.contestId}" scope="session"/>
-
+<!-- 2 />
 <c:if test="${contestId == null}">
     <c:set var="contestId" value="${dudgeLocal.defaultContest.contestId}" scope="session"/>
 </c:if>
-
+<!-- 1 -->
 <c:forEach items="${dudgeLocal.contests}" var="con">
     <c:if test="${con.contestId == contestId}">
         <c:set var="menuContestProblems" value="${con.contestProblems}" /> 
@@ -46,11 +49,7 @@ on Libraries node in Projects view can be used to add the JSTL 1.1 library.
         <c:set var="contest" value="${con}" />
     </c:if>  
 </c:forEach>
-
-
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
-    "http://www.w3.org/TR/html4/loose.dtd">
-<html>
+<!-- 0 -->
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
         <link rel="stylesheet" type="text/css" href="/dudge/ext/resources/css/ext-all.css" />

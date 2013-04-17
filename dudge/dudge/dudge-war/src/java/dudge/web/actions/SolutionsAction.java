@@ -151,7 +151,7 @@ public class SolutionsAction extends DispatchAction {
 			ActionMapping mapping,
 			ActionForm af,
 			HttpServletRequest request,
-			HttpServletResponse response) {
+			HttpServletResponse response) throws IOException {
 		
 		SolutionsForm sf = (SolutionsForm) af;
 		DudgeLocal dudgeBean = lookupDudgeBean();
@@ -194,8 +194,16 @@ public class SolutionsAction extends DispatchAction {
 		
 		solution = dudgeBean.submitSolution(solution);
 		sf.setSolutionId(Integer.toString(solution.getSolutionId()));
-		
-		return mapping.findForward("submitSuccess");
+
+                String url="solutions.do?reqCode=view"+
+                        "&contestId="+Integer.toString(contest.getContestId())+
+                        "&solutionId="+Integer.toString(solution.getSolutionId());
+                
+                response.sendRedirect(url);
+                
+                logger.info("Redirecting to "+url);
+                
+		return null; // response is complete // mapping.findForward("submitSuccess");
 	}
 
 	/**
@@ -230,7 +238,7 @@ public class SolutionsAction extends DispatchAction {
             }    
             try {
                 jo.put("status", status);
-                jo.put("testNumber", testNumber);
+                jo.put("currentTestNumber", testNumber);
                 jo.put("statusMessage", solution.getStatusMessage());
             } catch (JSONException ex) {
                 ex.printStackTrace();
