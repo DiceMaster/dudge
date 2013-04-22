@@ -112,6 +112,7 @@ checking_result check_solution_as_user(
 	pid_t sol_pid;
 	
 	int opipe[2]; pipe(opipe);
+	int epipe[2]; pipe(epipe);
 	
 	switch( sol_pid = fork() )
 	{
@@ -130,7 +131,14 @@ checking_result check_solution_as_user(
 		close(opipe[0]);
 		if( dup2(opipe[1], 1) == -1 )
 		{
-			syslog(LOG_CRIT, "dup2() failed (errno=%d): %s", errno, strerror(errno));
+			syslog(LOG_CRIT, "stdout dup2() failed (errno=%d): %s", errno, strerror(errno));
+			_exit(DTEST_INTERNAL_ERROR);
+		}
+
+		close(epipe[0]);
+		if( dup2(epipe[1], 2) == -1 )
+		{
+			syslog(LOG_CRIT, "stderr dup2() failed (errno=%d): %s", errno, strerror(errno));
 			_exit(DTEST_INTERNAL_ERROR);
 		}
 		
@@ -192,11 +200,11 @@ checking_result check_solution_as_user(
 		
 		proglim.rlim_cur = limits.mem_bytes;
 		proglim.rlim_max = int(limits.mem_bytes * 1);
-		setrlimit(RLIMIT_STACK, &proglim);		
+		setrlimit(RLIMIT_STACK, &proglim);
 		
 		proglim.rlim_cur = limits.proc_num;
 		proglim.rlim_max = limits.proc_num;
-		setrlimit(RLIMIT_NPROC, &proglim);
+		//setrlimit(RLIMIT_NPROC, &proglim);
 		
 		//Запускаем решение.
 		
@@ -214,15 +222,18 @@ checking_result check_solution_as_user(
 		
 		execvp(args[0], &(args[0]));
 		syslog(LOG_CRIT, "execvp() is returned (errno=%d): %s", errno, strerror(errno));
+		syslog(LOG_CRIT, "execvp() 0='%s' 1='%s'", args[0], args[1]?args[1]:"");
 		_exit(DTEST_INTERNAL_ERROR);
 	break;
 	} // switch fork()
 
 	close(opipe[1]);
+	close(epipe[1]);
 
 	pid_t killer_pid = kill_after(sol_pid, limits.timeout_msec);
 
 	int readed_bytes = 0;
+	int readed_ebytes = 0;
 	bool is_out_limit = false;
 	char buf[out_buf_size + 1];
 	
@@ -230,19 +241,30 @@ checking_result check_solution_as_user(
 //		syslog(LOG_ERR, "Output limit = %d", limits.out_bytes);
 	
 	ssize_t len = 0;
-	while((len = read(opipe[0], buf, out_buf_size)) > 0)
-	{
-		if( readed_bytes + len > limits.out_bytes )
-		{
+	bool ok=true;
+	while(ok) {
+	    ok=false;
+	    if((len = read(opipe[0], buf, out_buf_size)) > 0) {
+		ok=true;
+		if( readed_bytes + len > limits.out_bytes ) {
 			kill(sol_pid, SIGKILL);
 			is_out_limit = true;
-			break;
 		}
-		
-		readed_bytes += len;
-		
-		// Пишем полученные от решения байты в выходной поток.
-		output.write(buf, len);
+		else {
+			readed_bytes += len;
+			// Пишем полученные от решения байты в выходной поток.
+			output.write(buf, len);
+		}
+	    }
+
+	    if((len = read(epipe[0], buf, out_buf_size)) > 0) {
+		ok=true;
+		buf[len]=0; syslog(LOG_WARNING, "stderr: %s", buf);
+		if( readed_ebytes < limits.out_bytes ) {
+			readed_ebytes += len;
+			error_stream.write(buf, len);
+		}
+	    }
 	}
 	
 	rusage ru;
@@ -252,9 +274,7 @@ checking_result check_solution_as_user(
 	
 	waitpid(killer_pid, &killer_ex_st, 0);
 	
-	bool is_sol_timeout = false;
-	if(killer_ex_st != 0)
-		is_sol_timeout = true;
+	bool is_sol_timeout = (killer_ex_st == 1);
 	
 	if(is_sol_timeout)
 	{
@@ -268,6 +288,7 @@ checking_result check_solution_as_user(
 	}
 	else if( WIFEXITED(sol_ex_st) )
 	{
+		syslog(LOG_INFO,"exited with code=%d",WEXITSTATUS(sol_ex_st));
 		if( WEXITSTATUS(sol_ex_st) == 0)
 		{
 			//Задача выполнилась успешно.
@@ -286,6 +307,7 @@ checking_result check_solution_as_user(
 	}
 	else if( WIFSIGNALED(sol_ex_st) )
 	{
+		syslog(LOG_INFO,"terminated by signal %d",WTERMSIG(sol_ex_st));
 		if( (ru.ru_stime.tv_sec * 1000 +
 			ru.ru_stime.tv_usec / 1000 +
 			ru.ru_utime.tv_sec * 1000 +
@@ -358,23 +380,43 @@ bool route_to_stdin(istream& data)
 pid_t kill_after(pid_t sol_pid, int interval_msec)
 {
 	pid_t pid;
+	int ret;
+	
 	switch(pid = fork())
 	{
 		case -1:
+			ret=errno;
+			syslog(LOG_ERR, "fork is failed, errno=%d",ret);
 			return -1;
 		break;
 		case 0:
 			timespec ts;
+			int ret;
+			
 			ts.tv_sec = interval_msec / 1000;
 			ts.tv_nsec = (interval_msec % 1000) * 1000000;
+			syslog(LOG_INFO, "Wait for %d msecs ...",interval_msec);
 			
 			nanosleep(&ts, NULL);
-			if( kill(sol_pid, SIGKILL) == 0)
-			{
-				//Решение превысило таймаут.
-				_exit(1);
-			}
-			_exit(0);
+			_exit(2);
+			
+			if(kill(sol_pid, 0)==0) {
+			    // Решение превысило таймаут
+			    if( (ret=kill(sol_pid, SIGKILL))!=0) ret=errno;
+			    syslog(LOG_INFO, "Timeout detected, solution terminated by SIGKILL, errno=%d",ret);
+			    _exit(1);
+			    }
+			ret=errno;
+			if(ret==ESRCH) {
+			    syslog(LOG_INFO,"Solution is finished before timeout, none todo");
+			    _exit(0);
+			    }
+			
+			syslog(LOG_ERR, "Kill for pid=%d is failed, errno=%d",pid,ret);
+			_exit(2); // timeout detection mashinery is failed
+		break;
+		default:
+			//syslog(LOG_INFO, "fork succesful with pid=%d",pid);
 		break;
 	}
 
