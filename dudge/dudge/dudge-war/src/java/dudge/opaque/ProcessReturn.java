@@ -61,7 +61,7 @@ public class ProcessReturn {
     public ProcessReturn() {
         this.css = null;
         this.xhtml = null;
-        this.progressInfo = null;
+        this.progressInfo = "";
         this.questionEnd = false;
     }
 

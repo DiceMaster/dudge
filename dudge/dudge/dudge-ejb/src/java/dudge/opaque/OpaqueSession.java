@@ -2,7 +2,7 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package dudge;
+package dudge.opaque;
 
 /**
  *
@@ -12,6 +12,9 @@ public class OpaqueSession {
 
     private int problemid;
     private int solutionid;
+    private String originalsession;
+    private int steps;
+    
     private String behaviour; // ожидаемое поведение
     private String locale;  // язык надписей
     private Boolean display_readonly; // формировать html-фрагмент для r/o-режима
@@ -23,6 +26,7 @@ public class OpaqueSession {
     
     public OpaqueSession(int problemid) {
         this.problemid = problemid;
+        this.steps=1;
         this.solutionid=-1;
         this.behaviour="unknown";
         this.locale="ru";
@@ -47,6 +51,24 @@ public class OpaqueSession {
     public void setSolutionId(int solutionid) {
         this.solutionid=solutionid;
     }
+
+    public String getOriginalSession() {
+        return originalsession;
+    }
+    
+    public void setOriginalSession(String originalSession) {
+        this.originalsession=originalSession;
+    }
+
+    public int getSteps() {
+        return steps;
+    }
+    
+    public void nextStep() {
+        this.steps++;
+    }
+
+    
     
     public String getBehaviour() {
         return behaviour;

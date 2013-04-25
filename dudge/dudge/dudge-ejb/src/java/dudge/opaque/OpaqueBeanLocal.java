@@ -2,7 +2,7 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package dudge;
+package dudge.opaque;
 
 import javax.ejb.Local;
 
@@ -43,4 +43,16 @@ public interface OpaqueBeanLocal {
      * @return
      */
     void dropSession(String questionSession);
+
+    /**
+     *
+     * @return
+     */
+    OpaqueOriginalSession getOriginalSession(String questionSession);
+
+    /**
+     *
+     * @return
+     */
+    void saveAsOriginalSession(String questionSession);
 }

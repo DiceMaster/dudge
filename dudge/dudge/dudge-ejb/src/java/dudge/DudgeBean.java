@@ -15,6 +15,7 @@ import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.annotation.Resource;
+import javax.ejb.EJBException;
 import javax.ejb.Stateless;
 import javax.jms.*;
 import javax.jms.Queue;
@@ -567,6 +568,7 @@ public class DudgeBean implements DudgeLocal, DudgeRemote {
     @Override
     public void saveSolution(Solution solution) {
         
+        try {
         Solution dbs;
         if (this.getSolution(solution.getSolutionId()) != null) {
             dbs = this.getSolution(solution.getSolutionId());
@@ -604,6 +606,11 @@ public class DudgeBean implements DudgeLocal, DudgeRemote {
             }
         }
         em.flush();
+        }
+        catch(Throwable e) {
+            logger.log(Level.SEVERE,"Save solution failed: ",e);
+            throw new EJBException(e.getMessage()); // FIXME: заменить на exception про то, что запись solution не удалась
+        }
     }
     
     @Override

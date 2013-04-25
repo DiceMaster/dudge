@@ -17,6 +17,7 @@
     <class>dudge.db.Solution</class>
     <class>dudge.db.Test</class>
     <class>dudge.db.User</class>
+    <class>dudge.opaque.OpaqueOriginalSession</class>
     <exclude-unlisted-classes>true</exclude-unlisted-classes>
     <properties>
       <!-- <property name="hibernate.dialect" value="org.hibernate.dialect.PostgreSQLDialect"/>
