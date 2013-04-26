@@ -227,6 +227,7 @@ public class OpaqueQuestionEngine {
 
         Boolean isFinish="1".equals(param.get("-finish")); // 1 - goto finish state
         logger.info("isFinish="+isFinish+" -finish='"+param.get("-finish")+"'");
+        Boolean isIntermediaStep=false;
 
 
         OpaqueBeanLocal opaqueBean=lookupOpaqueBean();
@@ -264,34 +265,44 @@ public class OpaqueQuestionEngine {
             logger.info("Slave mode detected: cur="+questionSession+" orig="+originalsessionid);
 
         if(isSlaveMode && !isFinish) {
-            OpaqueOriginalSession originalsession=opaqueBean.getOriginalSession(originalsessionid);
-            if(originalsession==null) {
+            int originalsolutionid;
+            OpaqueSession originalsession2=opaqueBean.getSession(originalsessionid);
+            
+            if(originalsession2==null) {
+                OpaqueOriginalSession originalsession=opaqueBean.getOriginalSession(originalsessionid);
+                if(originalsession==null) {
                     logger.warning("Undefined original session in slave mode, aborted");
                     // FIXME: нужно заполнить ответ подобающим образом
                     return val;                
+                }
+                originalsolutionid=originalsession.getSolutionId();
+                isIntermediaStep=session.getSteps()<originalsession.getSteps();
+            }
+            else {
+                originalsolutionid=originalsession2.getSolutionId();
+                isIntermediaStep=session.getSteps()<originalsession2.getSteps();                
             }
 
-            int originalsolutionid=originalsession.getSolutionId();
             if(originalsolutionid==-1) {
                     logger.warning("Undefined original solutionid in slave mode, aborted");
                     // FIXME: нужно заполнить ответ подобающим образом
                     return val;
-            }
+            }            
             session.setSolutionId(originalsolutionid);
-            
-            if(session.getSteps()<originalsession.getSteps()) {
+            if(isIntermediaStep) {
                 logger.info("Intermedia step in slave mode");
                 val.setProgressInfo("Answer saved"); // специальное значение
-                return val;
             }
         }
 
         logger.info("isSolution="+session.isSolution());
         Boolean needNewSolution;
         if(session.isSolution()) {
-            
+
             Solution solution=dudgeBean.getSolution(session.getSolutionId());
-            needNewSolution=checkSolutionStatus(dudgeBean,solution,src,val);
+            if(!isIntermediaStep)
+                 needNewSolution=checkSolutionStatus(dudgeBean,solution,src,val);
+            else needNewSolution=false;
 
             if(!needNewSolution && src.isEmpty()) { // restore source code of solution
                 src=solution.getSourceCode();
@@ -377,15 +388,18 @@ public class OpaqueQuestionEngine {
 
         String roHtml;
         
-        if(isReadOnly) roHtml="disabled";
+        if(isReadOnly) roHtml="readonly='readonly'";
         else roHtml="";
         
         src=stringToHTMLString(src);
         String resultHtml;
-        resultHtml="<h1>"+title+"</h1>"+desc+
+        resultHtml="<div class='qtext'>"+
+                "<h1>"+title+"</h1>"+desc+"</div>"+
+                "<div class='ablock'><div class='answer'>"+
                 "<br/><select "+roHtml+" name='%%IDPREFIX%%prglang'>"+langHtml+"</select>"+
-                "<br/><textarea "+roHtml+" rows='30' cols='100%' name='%%IDPREFIX%%result'>"+
-                src+"</textarea>";
+                "<br/><textarea class='qtype_opaque_monospaced qtype_opaque_response' "+roHtml+
+                        " rows='30' cols='60' name='%%IDPREFIX%%result'>"+
+                        src+"</textarea>";
         if(session.getSolutionId()!=-1)
                 resultHtml+="<input type='hidden' name='%%IDPREFIX%%solutionid' value='"+session.getSolutionId()+"' />";
         if(originalsessionid!=null)
@@ -400,8 +414,10 @@ public class OpaqueQuestionEngine {
                 //"<input type='submit' name='%%IDPREFIX%%omact_tryagain' value='%%lTRYAGAIN%%'/>"+
                 "<input type='submit' name='%%IDPREFIX%%omact_enteranswer' value='%%lENTERANSWER%%'/>"+
                 //"<input type='button' onClick='' name='%%IDPREFIX%%omact_clear' value='%%lCLEAR%%'/>"+
-                "";
+                "";            
         }
+        resultHtml+="</div></div>"; // end of answer&ablock
+                
         return resultHtml;
     }
     
@@ -410,7 +426,7 @@ public class OpaqueQuestionEngine {
                                 String src,
                                 ProcessReturn val) {
             String oldSrc=solution.getSourceCode();
-            String oldLangid=solution.getLanguage().getLanguageId();
+            //String oldLangid=solution.getLanguage().getLanguageId();
             boolean needNewSolution;
 
             logger.info("Old source code: "+oldSrc);
@@ -446,13 +462,13 @@ public class OpaqueQuestionEngine {
                     res.setActionSummary(status+" "+solution.getStatusMessage());
 
                     val.setResults(res); // результаты должны быть в ответе только в итоговом ответе
-                    logger.info("Solution finished, status= "+status);
+                    logger.info("Solution "+solution.getSolutionId()+" finished, status= "+status);
                 } else { // Solution в процессе обработки
                     // пока нет оценки, отображается только progressInfo
                     //res.setActionSummary(solution.getStatusMessage());
                     //status+"<br/>"+solution.getStatusMessage()
                     val.setProgressInfo("Answer saved"); // специальное значение
-                    logger.info("Solution in progress, status="+status);
+                    logger.info("Solution "+solution.getSolutionId()+" in progress, status="+status);
                 }
             }
             
