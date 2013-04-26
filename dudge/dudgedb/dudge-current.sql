@@ -1456,6 +1456,22 @@ ALTER TABLE ONLY tests
     ADD CONSTRAINT fk_test_inputs_1 FOREIGN KEY (problem_id) REFERENCES problems(problem_id) ON UPDATE CASCADE ON DELETE CASCADE;
 
 
+	CREATE TABLE opaque_sessions (
+	    osession_id bigint NOT NULL,
+	    solution_id integer,
+	    created timestamp with time zone DEFAULT now() NOT NULL,
+	    originalsession_id bigint,
+	    steps integer
+	);
+
+	ALTER TABLE ONLY opaque_sessions
+	    ADD CONSTRAINT opaque_sessions_pkey PRIMARY KEY (osession_id);
+
+	ALTER TABLE ONLY opaque_sessions
+	    ADD CONSTRAINT opaque_sessions_solution_id_fkey FOREIGN KEY (solution_id)
+	    REFERENCES solutions(solution_id);
+
+
 --
 -- TOC entry 1912 (class 0 OID 0)
 -- Dependencies: 3

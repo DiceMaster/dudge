@@ -18,7 +18,7 @@ VALUES ('fpc', 'Object Pascal (FPC)', 'Free Pascal Compiler', '.pas',
 
 INSERT INTO languages (language_id, title, description, file_extension, compilation_cmd, execution_cmd)
 VALUES ('csharp', 'C#', 'Microsoft Visual C# 2010 Express', '.cs',
-'csc.exe /out:${PROG.EXENAME} /target:winexe /main:DudgeProgram /nologo C:\dudgestuff\ndudge\dudgedb\csharplauncher\launcher.cs ${PROG.SRCNAME}',
+'csc.exe /out:${PROG.EXENAME} /target:winexe /main:DudgeProgram /nologo C:\\dudgestuff\\ndudge\\dudgedb\\csharplauncher\\launcher.cs ${PROG.SRCNAME}',
 '${PROG.TESTDIR}/${PROG.EXENAME}');
 
 
@@ -29,4 +29,4 @@ INSERT INTO params (pname, pvalue)
 VALUES ('default_contest', (SELECT last_value FROM contests_contest_id_seq));
 
 INSERT INTO params (pname, pvalue)
-VALUES ('version', '4');
+VALUES ('version', '5');
