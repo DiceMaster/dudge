@@ -387,16 +387,17 @@ public class OpaqueQuestionEngine {
 	//problem.getCreateTime();
 
         String roHtml;
+        String disHtml;
         
-        if(isReadOnly) roHtml="readonly='readonly'";
-        else roHtml="";
+        if(isReadOnly) { roHtml="readonly='readonly'"; disHtml="disabled='disabled'"; }
+        else { roHtml=""; disHtml=""; }
         
         src=stringToHTMLString(src);
         String resultHtml;
         resultHtml="<div class='qtext'>"+
                 "<h1>"+title+"</h1>"+desc+"</div>"+
                 "<div class='ablock'><div class='answer'>"+
-                "<br/><select "+roHtml+" name='%%IDPREFIX%%prglang'>"+langHtml+"</select>"+
+                "<br/><select "+disHtml+" name='%%IDPREFIX%%prglang'>"+langHtml+"</select>"+
                 "<br/><textarea class='qtype_opaque_monospaced qtype_opaque_response' "+roHtml+
                         " rows='30' cols='60' name='%%IDPREFIX%%result'>"+
                         src+"</textarea>";
