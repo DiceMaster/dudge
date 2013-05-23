@@ -55,9 +55,9 @@ on Libraries node in Projects view can be used to add the JSTL 1.1 library.
         <link rel="stylesheet" type="text/css" href="/dudge/ext/resources/css/ext-all.css" />
 
         <script type="text/javascript" src="/dudge/ext/adapter/ext/ext-base.js"></script>
-        <script type="text/javascript" src="/dudge/ext/ext-all-debug.js"></script>
+        <script type="text/javascript" src="/dudge/ext/ext-all.js"></script>
 
-        <script type="text/javascript" src="/dudge/scripts/Header.js"></script>
+        <!-- <script type="text/javascript" src="/dudge/scripts/Header.js"></script> -->
 
         <title>Dudge</title>
 

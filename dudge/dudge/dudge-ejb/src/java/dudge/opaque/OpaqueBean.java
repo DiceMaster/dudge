@@ -77,15 +77,17 @@ public class OpaqueBean implements OpaqueBeanLocal {
             throw new IllegalArgumentException("questionSession is invalid");
         }
         
+        if(val.getSolutionId()>0) {
+            OpaqueOriginalSession session=new OpaqueOriginalSession();
         
-        OpaqueOriginalSession session=new OpaqueOriginalSession();
-        
-        session.setSessionId(Long.parseLong(questionSession));
-        session.setSolutionId(val.getSolutionId());
-        session.setSteps(val.getSteps());
+            session.setSessionId(Long.parseLong(questionSession));
+            session.setSolutionId(val.getSolutionId());
+            session.setSteps(val.getSteps());
 
-        em.persist(session);
-        em.flush();
+            em.persist(session);
+            em.flush();
+        }
+        else this.logger.warning("Session without solution id, saving skipped");
     }
 
 }
