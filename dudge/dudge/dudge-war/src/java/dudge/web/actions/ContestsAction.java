@@ -349,9 +349,17 @@ public class ContestsAction extends DispatchAction {
 			return;
 		}
 
-		// Если соревнование открытое, то пользователь сразу добавляется в него.
-		if (contest.isOpen()) {
+                // Если соревнование уже закончилось,
+		// то нет смысла обрабатывать заявку.
+		if (contest.isFinished()) {
+                    return;
+                }
+
+		// Если соревнование открытое и на него еще идет регистрация, 
+                // то пользователь сразу добавляется в него.
+		if (contest.isOpen() && contest.isPending()) {
 			Role r = new Role(contest, dudgeBean.getUser(login), RoleType.USER);
+                        logger.warning("User "+login+" is joined to contest "+Integer.toString(contest.getContestId())+" by his application");
 			contest.getRoles().add(r);
 			dudgeBean.modifyContest(contest);
 			return;

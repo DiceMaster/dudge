@@ -182,7 +182,10 @@ public class DudgeBean implements DudgeLocal, DudgeRemote {
     
     @Override
     public void joinAllOpenContests(String login) {
+        /* нет смысла регистрировать участие во всех открытых соревнованиях
+         * более удачный вариант - авторегистрация в открытом соревновании при отправке первого решения
         User user = this.getUser(login);
+        
         
         for (Contest contest : this.getContests()) {
             if (!contest.isOpen()) {
@@ -191,11 +194,12 @@ public class DudgeBean implements DudgeLocal, DudgeRemote {
             
             if (this.haveNoRoles(login, contest.getContestId())) {
                 Role role = new Role(contest, user, RoleType.USER);
-                em.merge(role);
-                //contest.getRoles().add(role);
+                logger.warning("User "+login+" joining to contest "+Integer.toString(contest.getContestId()));                
+                contest.getRoles().add(em.merge(role));
                 em.flush();
             }
         }
+        */ 
     }
     
     @Override
@@ -303,7 +307,7 @@ public class DudgeBean implements DudgeLocal, DudgeRemote {
             c.setTime(contest.getEndTime());
             c.add(java.util.Calendar.DAY_OF_MONTH, 7);
             
-            if (contest.isFinished() && c.before(java.util.Calendar.getInstance())) {
+            if (contest.isFinished() && c.after(java.util.Calendar.getInstance())) {
                 recentlyFinishedContests.add(contest);
             }
         }
@@ -499,6 +503,12 @@ public class DudgeBean implements DudgeLocal, DudgeRemote {
                 && this.haveNoRoles(user.getLogin(), contest.getContestId())) {
             Role autoRegisteredUser = new Role(contest, user, RoleType.USER);
             contest.getRoles().add(em.merge(autoRegisteredUser));
+            if(this.haveNoRoles(user.getLogin(), contest.getContestId())) {
+                logger.log(Level.SEVERE, "Joining user {0} to contest is failed.", user.getLogin());
+            }
+            else {
+                logger.log(Level.INFO, "User "+user.getLogin()+" is joined to open contest "+Integer.toString(contest.getContestId()) +" by submission");
+            }
         }
         
         em.flush();
