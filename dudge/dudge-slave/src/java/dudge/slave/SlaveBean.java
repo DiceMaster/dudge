@@ -171,11 +171,17 @@ public class SlaveBean implements dudge.slave.SlaveLocal {
 
 			ByteArrayOutputStream outs = new ByteArrayOutputStream();
 			StringWriter errorStream = new StringWriter();
+                        
+                        // Фикс проблемы с зависанием при запуске теста
+                        String testInputData = test.getInputData();
+                        if (!testInputData.endsWith("\n")) {
+                            testInputData += "\n";
+                        }
 
 			CheckingResult res = launcher.checkSolution(
 					limits,
 					solutionExecutionCommand,
-					new ByteArrayInputStream(test.getInputData().getBytes()),
+					new ByteArrayInputStream(testInputData.getBytes()),
 					outs,
 					errorStream
 					);
