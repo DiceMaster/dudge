@@ -29,8 +29,6 @@ public class SlaveBeanNoEjb extends SlaveBean {
 		} catch (CloneNotSupportedException ex) {
 			throw new RuntimeException(ex);
 		}
-		
-		return;
 	}
 
 	/**
@@ -41,6 +39,7 @@ public class SlaveBeanNoEjb extends SlaveBean {
 		return savedSolution;
 	}
 
+        @Override
 	public void testSolution(Solution solution) throws SlaveException {
 		this.saveSolution(solution);
 		super.testSolution(solution);

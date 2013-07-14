@@ -13,6 +13,7 @@ import org.apache.struts.action.ActionForm;
  * @author Vladimir Shabanov
  */
 public class LoginForm extends ActionForm {
+        public static final long serialVersionUID = 1L;
 	
 	private String username = "";
 	private String password = "";

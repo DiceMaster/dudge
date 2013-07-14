@@ -6,15 +6,14 @@
 package dudge.web.forms;
 
 import javax.servlet.http.HttpServletRequest;
-import org.apache.struts.action.ActionErrors;
 import org.apache.struts.action.ActionMapping;
-import org.apache.struts.action.ActionMessage;
 
 /**
  *
  * @author olorin
  */
 public class LanguagesForm extends org.apache.struts.action.ActionForm {
+        public static final long serialVersionUID = 1L;
   
 	// Действие над текущим языком.
 	private boolean newLanguage = false;
@@ -31,6 +30,11 @@ public class LanguagesForm extends org.apache.struts.action.ActionForm {
 	public LanguagesForm() {
    }
 
+        /**
+         * 
+         * @param arg0
+         * @param arg1 
+         */
 	@Override
 	public void reset(ActionMapping arg0, HttpServletRequest arg1) {
 		super.reset(arg0, arg1);
@@ -43,7 +47,6 @@ public class LanguagesForm extends org.apache.struts.action.ActionForm {
 	}
 	
 	
-
 	public String getLanguageId() {
 		return languageId;
 	}

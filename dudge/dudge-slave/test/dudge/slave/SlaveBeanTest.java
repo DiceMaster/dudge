@@ -10,16 +10,15 @@ package dudge.slave;
 import dudge.db.Contest;
 import dudge.db.ContestType;
 import dudge.db.Run;
+import dudge.db.Test;
 import dudge.db.RunResultType;
 import dudge.db.SolutionStatus;
-import dudge.logic.AcmTraits;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Handler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import dudge.db.Solution;
-import java.util.Properties;
 
 import dudge.db.Language;
 import dudge.db.Problem;
@@ -35,7 +34,7 @@ public class SlaveBeanTest extends TestCase {
 	Contest cont;
 	Language lang;
 	Problem prob;
-	List<dudge.db.Test> tests;
+	List<Test> tests;
 	Solution sol;
 	int memoryLimit = 64 * 1024 * 1024;
 	
@@ -77,10 +76,10 @@ public class SlaveBeanTest extends TestCase {
 			);
 		lang.setExecutionCommand(quote + "${PROG.TESTDIR}/${PROG.EXENAME}" + quote);
 
-		tests = new ArrayList<dudge.db.Test>();
-		tests.add(new dudge.db.Test(1, "2 3\n", "5\n"));
+		tests = new ArrayList<>();
+		tests.add(new Test("2 3\n", "5\n"));
 	
-		prob = new Problem(42);
+                prob = new Problem("A + B", "Description", 10*1024*1024, 1000, 5000, 1024*1024);
 		prob.setTests(tests);
 		prob.setCpuTimeLimit(1000);
 		prob.setMemoryLimit(memoryLimit);
@@ -116,7 +115,7 @@ public class SlaveBeanTest extends TestCase {
 			"}\n"
 			);
 		
-		List<Run> runs = new ArrayList<Run>();
+		List<Run> runs = new ArrayList<>();
 		runs.add(new Run(sol, tests.get(0), RunResultType.SUCCESS));
 		
 		slave.testSolution(sol);
@@ -142,9 +141,9 @@ public class SlaveBeanTest extends TestCase {
 			);
 		
 		/* Второй тест. */
-		tests.add(new dudge.db.Test(2, "3 4\n", "7\n"));
+		tests.add(new Test("3 4\n", "7\n"));
 
-		List<Run> runs = new ArrayList<Run>();
+		List<Run> runs = new ArrayList<>();
 		runs.add(new Run(sol, tests.get(0), RunResultType.SUCCESS));
 		runs.add(new Run(sol, tests.get(1), RunResultType.WRONG_ANSWER));
 		
@@ -166,8 +165,6 @@ public class SlaveBeanTest extends TestCase {
 			"}\n"
 			);
 		
-		List<Run> runs = new ArrayList<Run>();
-		
 		sol.setStatus(SolutionStatus.COMPILATION_ERROR);
 		
 		slave.testSolution((Solution) sol.clone());
@@ -184,7 +181,7 @@ public class SlaveBeanTest extends TestCase {
 			"}\n"
 			);
 		
-		List<Run> runs = new ArrayList<Run>();
+		List<Run> runs = new ArrayList<>();
 		runs.add(new Run(sol, tests.get(0), RunResultType.TIME_LIMIT));
 		
 		slave.testSolution(sol);
@@ -205,7 +202,7 @@ public class SlaveBeanTest extends TestCase {
 			"}\n"
 			);
 		
-		List<Run> runs = new ArrayList<Run>();
+		List<Run> runs = new ArrayList<>();
 		runs.add(new Run(sol, tests.get(0), RunResultType.OUTPUT_LIMIT));
 			
 		slave.testSolution(sol);
@@ -232,7 +229,7 @@ public class SlaveBeanTest extends TestCase {
 		/* Уменьшение значения лимита памяти для выполняемой задачи. */
 		prob.setMemoryLimit(1024);
 		
-		List<Run> runs = new ArrayList<Run>();
+		List<Run> runs = new ArrayList<>();
 		runs.add(new Run(sol, tests.get(0), RunResultType.MEMORY_LIMIT));
 		
 		slave.testSolution(sol);

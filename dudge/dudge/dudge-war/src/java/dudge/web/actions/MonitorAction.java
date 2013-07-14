@@ -41,21 +41,33 @@ import org.apache.struts.actions.DispatchAction;
  */
 public class MonitorAction extends DispatchAction {
 
-	protected static Logger logger = Logger.getLogger(ContestsAction.class.toString());
+	protected static final Logger logger = Logger.getLogger(ContestsAction.class.toString());
 
 	public MonitorAction() {
 	}
 
+	/**
+         * 
+         * @return 
+         */
 	private DudgeLocal lookupDudgeBean() {
 		try {
 			Context c = new InitialContext();
 			return (DudgeLocal) c.lookup("java:comp/env/ejb/DudgeBean");
 		} catch(NamingException ne) {
-			Logger.getLogger(getClass().getName()).log(Level.SEVERE,"exception caught" ,ne);
+			Logger.getLogger(getClass().getName()).log(Level.SEVERE,"exception caught", ne);
 			throw new RuntimeException(ne);
 		}
 	}
 
+	/**
+         * 
+         * @param mapping
+         * @param af
+         * @param request
+         * @param response
+         * @return 
+         */
 	public ActionForward showStatus(
 			ActionMapping mapping,
 			ActionForm af,
@@ -65,6 +77,14 @@ public class MonitorAction extends DispatchAction {
 			return mapping.findForward("status");
 	}
 	
+	/**
+         * 
+         * @param mapping
+         * @param af
+         * @param request
+         * @param response
+         * @return 
+         */
 	public ActionForward view(
 			ActionMapping mapping,
 			ActionForm af,
@@ -99,12 +119,17 @@ public class MonitorAction extends DispatchAction {
 		//Редирект на страницу монитора.
 		return mapping.findForward("monitor" + traits.getMonitorSuffix());
 	}
-	
+        
 	/**
-	 * Метод для получения через AJAX данных монитора глобального соревнования.
+         * Метод для получения через AJAX данных монитора глобального соревнования.
 	 * Возвращает в response нужные данные.
 	 * Само соревнование задается через параметр contestId.
-	 */
+         * 
+         * @param mapping
+         * @param af
+         * @param request
+         * @param response 
+         */
 	public void getGlobalMonitorData(
 			ActionMapping mapping,
 			ActionForm af,
@@ -126,7 +151,7 @@ public class MonitorAction extends DispatchAction {
 		
 		DudgeLocal dudgeBean = lookupDudgeBean();
 		Contest contest = dudgeBean.getContest(contestId);
-		GlobalTraits traits = (GlobalTraits) contest.getTraits();
+		//GlobalTraits traits = (GlobalTraits) contest.getTraits();
 		
 		JSONArray jaRows = new JSONArray();
 		
@@ -182,15 +207,19 @@ public class MonitorAction extends DispatchAction {
 			response.getWriter().print(joRoot);
 		} catch (IOException ex) {
 			logger.log(Level.SEVERE, "Exception occured.", ex);
-			return;
 		}
 	}
-	
+        
 	/**
-	 * Метод для получения через AJAX данных монитора соревнования ACM.
+         * Метод для получения через AJAX данных монитора соревнования ACM.
 	 * Возвращает в response нужные данные.
 	 * Само соревнование задается через параметр contestId.
-	 */
+         * 
+         * @param mapping
+         * @param af
+         * @param request
+         * @param response 
+         */
 	public void getAcmMonitorData(
 			ActionMapping mapping,
 			ActionForm af,
@@ -212,7 +241,7 @@ public class MonitorAction extends DispatchAction {
 		
 		DudgeLocal dudgeBean = lookupDudgeBean();
 		Contest contest = dudgeBean.getContest(contestId);
-		AcmTraits traits = (AcmTraits) contest.getTraits();
+		//AcmTraits traits = (AcmTraits) contest.getTraits();
 		
 		JSONArray jaRows = new JSONArray();
 		
@@ -289,15 +318,19 @@ public class MonitorAction extends DispatchAction {
 			response.getWriter().print(joRoot);
 		} catch (IOException ex) {
 			logger.log(Level.SEVERE, "Exception occured.", ex);
-			return;
 		}
 	}
-
-        /**
-	 * Метод для получения через AJAX данных монитора школьного
+        
+	/**
+         * Метод для получения через AJAX данных монитора школьного
          * соревнования. Возвращает в response нужные данные.
 	 * Само соревнование задается через параметр contestId.
-	 */
+         * 
+         * @param mapping
+         * @param af
+         * @param request
+         * @param response 
+         */
 	public void getSchoolMonitorData(
 			ActionMapping mapping,
 			ActionForm af,
@@ -395,7 +428,6 @@ public class MonitorAction extends DispatchAction {
 			response.getWriter().print(joRoot);
 		} catch (IOException ex) {
 			logger.log(Level.SEVERE, "Exception occured.", ex);
-			return;
 		}
 	}
 }

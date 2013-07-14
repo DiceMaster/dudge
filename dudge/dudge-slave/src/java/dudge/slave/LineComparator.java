@@ -10,7 +10,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.util.Comparator;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
@@ -27,6 +27,7 @@ public class LineComparator implements OutputComparer {
 	 * @return true если фактический вывод эквивалентен эталонному выводу
 	 * (т.е. если тест пройдет), иначе false
 	 */
+        @Override
 	public boolean compare(InputStream referenceOutput, InputStream solutionOutput) throws IOException{
 		
 		BufferedReader refs = new BufferedReader(new InputStreamReader(referenceOutput));
@@ -45,7 +46,7 @@ public class LineComparator implements OutputComparer {
 
 			if(!ref.equals(sol))
 			{
-				logger.info(ref + " || " + sol);
+				logger.log(Level.INFO, "{0} || {1}", new Object[]{ref, sol});
 				return false;
 			}
 		}

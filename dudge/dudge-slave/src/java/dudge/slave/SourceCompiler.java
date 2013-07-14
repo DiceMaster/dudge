@@ -6,7 +6,6 @@
 
 package dudge.slave;
 
-import dudge.slave.*;
 import dudge.util.Substitution;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -15,6 +14,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
@@ -37,15 +37,19 @@ public class SourceCompiler {
 	private StringBuffer outputBuffer = new StringBuffer();
 	private int compilationTime = 0; //milliseconds
 	
+	/**
+         * 
+         */
 	private class ProcessWaiterThread implements Runnable
 	{
 		private Process process;
-		
+
 		public ProcessWaiterThread(Process process)
 		{
 			this.process = process;
 		}
-		
+
+                @Override
 		public void run()
 		{
 			try
@@ -76,10 +80,10 @@ public class SourceCompiler {
 			this.outputBuffer = outBuffer;
 		}
 		
+                @Override
 		public void run()
 		{
-			BufferedReader compilerOutput = new BufferedReader(
-					new InputStreamReader(inputStream));
+			BufferedReader compilerOutput = new BufferedReader(new InputStreamReader(inputStream));
 			
 			try
 			{
@@ -96,6 +100,15 @@ public class SourceCompiler {
 		}
 	}
 
+        
+	/**
+         * 
+         * @param sourceCode
+         * @param dstDir
+         * @param solutionPrefix
+         * @param solutionExtension
+         * @param compilationCommand 
+         */
 	public SourceCompiler(
 			String sourceCode,
 			File dstDir,
@@ -111,14 +124,14 @@ public class SourceCompiler {
 		
 		this.compiledFile = new File(
 				dstDir.getPath()
-				+ dstDir.separator
+				+ File.separator
 				+ solutionPrefix
 				//+ executableExtension
 				).getAbsoluteFile();
 		
 		this.sourceFile = new File(
 				dstDir.getPath()
-				+ dstDir.separator
+				+ File.separator
 				+ solutionPrefix
 				+ solutionExtension
 				).getAbsoluteFile();
@@ -128,6 +141,7 @@ public class SourceCompiler {
 	
 	/**
 	 * Метод компиляции решения задачи.
+         * 
 	 * @return true если компиляция прошла успешно,
 	 * false - если в исходном коде решения были ошибки.
 	 * @throw IOException при невозможности найти
@@ -141,15 +155,13 @@ public class SourceCompiler {
 
 		try
 		{
-			BufferedWriter bwr = new BufferedWriter(
-					new FileWriter(sourceFile));
-			bwr.write(sourceCode + "\n");
-			bwr.close();
+                    try (BufferedWriter bwr = new BufferedWriter(new FileWriter(sourceFile))) {
+                        bwr.write(sourceCode + "\n");
+                    }
 		}
 		catch(IOException ex)
 		{
-			logger.severe("Unable to create file with source code.\n"
-					+ ex.getMessage());
+			logger.log(Level.SEVERE, "Unable to create file with source code.\n{0}", ex.getMessage());
 			throw ex;
 		}
 		
@@ -160,7 +172,7 @@ public class SourceCompiler {
 		sub.set("PATH.SEPAR", File.separator);
 		
 		String decodedCommand = sub.decodeString(compilationCommand);
-		logger.finest("Compilation command: " + decodedCommand);
+		logger.log(Level.FINEST, "Compilation command: {0}", decodedCommand);
 		
 		long compilerStarted = System.currentTimeMillis();
 		compilationTime = 0;
@@ -206,32 +218,45 @@ public class SourceCompiler {
 
 		if(compilerExitCode != 0)
 		{
-			logger.finer("Compilation failed due to errors in source code. Error:\n"
-					+ outputBuffer.toString());
+			logger.log(Level.FINER, "Compilation failed due to errors in source code. Error:\n{0}", outputBuffer.toString());
 			return false;
 		}
 		
 		logger.finest("Compilation successful.");
 		return true;
 	}
-	
+        
+	/**
+         * 
+         * @return 
+         */
 	public int getCompilationTime()
 	{
 		return compilationTime;
 	}	
 
+	/**
+         * 
+         * @return 
+         */
 	public File getSourceFile() {
 		return sourceFile;
 	}
 
+	/**
+         * 
+         * @return 
+         */
 	public File getCompiledFile() {
 		return compiledFile;
 	}
 
+	/**
+         * 
+         * @return 
+         */
 	public String getOutput() {
 		String outs = outputBuffer.toString();
-		if(outs == null)
-			return "";
 		return outs;
 	}
 }

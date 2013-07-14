@@ -10,11 +10,6 @@
 package dudge.web;
 
 import java.io.*;
-import java.net.*;
-import java.util.*;
-import java.text.*;
-import javax.servlet.*;
-import javax.servlet.http.*;
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
 import javax.servlet.FilterConfig;
@@ -33,6 +28,7 @@ public class WebUnicodeFilter implements Filter {
 	public WebUnicodeFilter() {
 	}
 
+        @Override
 	public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
 		request.setCharacterEncoding(defaultEncoding);
 		response.setCharacterEncoding(defaultEncoding);
@@ -44,6 +40,7 @@ public class WebUnicodeFilter implements Filter {
 	 * Destroy method for this filter
 	 *
 	 */
+        @Override
 	public void destroy() {
 	}
 
@@ -51,6 +48,7 @@ public class WebUnicodeFilter implements Filter {
 	 * Init method for this filter
 	 *
 	 */
+        @Override
 	public void init(FilterConfig filterConfig) {
 	}
 }

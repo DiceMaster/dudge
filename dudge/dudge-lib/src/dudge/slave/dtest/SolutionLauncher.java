@@ -8,15 +8,10 @@ package dudge.slave.dtest;
 
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.io.Reader;
 import java.io.Writer;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
-import dudge.slave.dtest.CheckingLimits;
 
 /**
  * Класс, содержащий методы для создания и удаления

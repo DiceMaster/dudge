@@ -7,24 +7,16 @@ package dudge;
  */
 
 import dudge.db.Contest;
-import dudge.db.ContestProblem;
 import dudge.db.ContestType;
 import dudge.db.Language;
 import dudge.db.Problem;
-import dudge.db.Role;
 import dudge.db.User;
-import java.security.AccessControlException;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Date;
-import java.util.Hashtable;
-import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.naming.Context;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
-import junit.framework.JUnit4TestAdapter;
 import junit.framework.TestCase;
 import org.junit.After;
 import static org.junit.Assert.*;
@@ -65,11 +57,13 @@ public class DudgeBeanTest extends TestCase {
 	}
 	
 	@Before
+        @Override
 	public void setUp() throws Exception {
 		dudge = lookupDudgeBean();
 	}
 	
 	@After
+        @Override
 	public void tearDown() throws Exception {
 		dudge = null;
 	}
@@ -103,13 +97,17 @@ public class DudgeBeanTest extends TestCase {
 	@org.junit.Test
 	public void testLanguageAddGet() {
 		try {
-			Language lang = new Language(
-					Integer.toString( new java.util.Random(
-					new java.util.Date().getTime()).nextInt(100000) ),
-					"Foo Language",
-					"Super Foo Language",
-					".foo"
-					);
+
+                        int languageID = new java.util.Random(new java.util.Date().getTime()).nextInt(100000);
+                        
+                        Language lang = new Language(
+                                Integer.toString(languageID), // id
+                                "Foo Language", // name
+                                "Super Foo Language", // description
+                                ".foo", // file extension
+                                "compile", // compilation command
+                                "exec" // execution command
+                                );
 			
 			Language nlang = dudge.addLanguage(lang);
 			
@@ -128,34 +126,28 @@ public class DudgeBeanTest extends TestCase {
 	@org.junit.Test
 	public void testContestAddGetModify() {
 		try {
-			Contest contest = new Contest(
-					ContestType.ACM,
-					new Date(),
-					3600,
-					new ArrayList<String>(),
-					new ArrayList<Role>(),
-					new ArrayList<ContestProblem>()
-					);
+                        Contest contest = new Contest(
+                                "New Contest", // caption
+                                "It will be great", // description
+                                "No rules", // rules
+                                ContestType.ACM, // contest type
+                                new Date(), // startTime
+                                3600 // duration
+                                );
 			
 			Contest ncontest = dudge.addContest(contest);
 			
-			assertEquals(contestID, ncontest.getContestId());
-			assertEquals(contest.getType(),
-					ncontest.getType());
-			assertEquals(contest.getLanguageIds(),
-					ncontest.getLanguageIds());
+
+			assertEquals(contest.getType(), ncontest.getType());
+			assertEquals(contest.getRules(), ncontest.getRules());
 			
-			assertEquals(contest.getContestProblems(),
-					ncontest.getContestProblems());
+			assertEquals(contest.getContestProblems(), ncontest.getContestProblems());
 			
-			//assertEquals(contest.getStartTime(),
-			//ncontest.getStartTime());
-			assertEquals(contest.getDuration(),
-					ncontest.getDuration());
+			assertEquals(contest.getStartTime(), ncontest.getStartTime());
+			assertEquals(contest.getDuration(), ncontest.getDuration());
 			
 			// Проверяем что список всех соревнований содержит новосозданное.
-			assertTrue("Created contest doesn't exist in contest list.",
-					dudge.getContests().contains(ncontest));
+			assertTrue("Created contest doesn't exist in contest list.", dudge.getContests().contains(ncontest));
 		} catch (Exception ex) {
 			fail("Caught exception: " + ex + ": \n" + ex.getMessage());
 		}
@@ -171,7 +163,7 @@ public class DudgeBeanTest extends TestCase {
 			
 			nprob.setTitle("bar");
 			dudge.modifyProblem(nprob);
-			prob = dudge.getProblem(id);
+			prob = dudge.getProblem(nprob.getProblemId());
 			assertEquals("Modification failed.", nprob.getTitle(), prob.getTitle());
 		} catch (Exception ex) {
 			fail("Caught exception: " + ex + ": \n" + ex.getMessage());

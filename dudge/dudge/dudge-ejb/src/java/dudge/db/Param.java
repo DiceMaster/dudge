@@ -23,6 +23,7 @@ import javax.persistence.*;
 	@NamedQuery(name = "Param.findByName", query = "SELECT p FROM Param p WHERE p.name = :name")
 })
 public class Param implements Serializable {
+    	public static final long serialVersionUID = 1L;
 	
 	@Id
 	@Column(name = "pname", nullable = false)

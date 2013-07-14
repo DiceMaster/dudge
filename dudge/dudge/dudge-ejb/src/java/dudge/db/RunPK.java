@@ -18,6 +18,7 @@ import javax.persistence.Column;
  * @author Michael Antonov
  */
 public class RunPK implements Serializable {
+    	public static final long serialVersionUID = 1L;
 
 	@Column(name = "solution_id", nullable=false)
 	private int solutionId;

@@ -20,6 +20,7 @@ import javax.persistence.Column;
  */
 
 public class ContestProblemPK implements Serializable {
+    	public static final long serialVersionUID = 1L;
 	
 	@Column(name = "contest_id", nullable=false)
 	private int contestId;

@@ -1,6 +1,5 @@
 /*
  * ContestsForm.java
- *
  * Created on June 10, 2007, 11:46 PM
  */
 
@@ -22,6 +21,7 @@ import org.apache.struts.action.ActionMapping;
  * @author Vladimir Shabanov
  */
 public class ContestsForm extends ActionForm {
+        public static final long serialVersionUID = 1L;
 				
 	private List<ContestType> contestTypes = Collections.synchronizedList(new ArrayList<ContestType>());
 	private List<RoleType> roleTypes = Collections.synchronizedList(new ArrayList<RoleType>());
@@ -58,12 +58,18 @@ public class ContestsForm extends ActionForm {
 	private String userRoles;
 
 	/**
-	 *	 * Creates a new instance of ContestsForm
+	 * Creates a new instance of ContestsForm
 	 */
 	public ContestsForm() {
 		
 	}
 
+	/**
+         * 
+         * @param mapping
+         * @param request 
+         */
+        @Override
 	public void reset(ActionMapping mapping, HttpServletRequest request) {
 		
 		open = false;

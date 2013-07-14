@@ -31,6 +31,7 @@ name = "tests",
 	"WHERE t.testNumber = :testNumber AND t.problem.problemId = :problemId")
 })
 public class Test implements Serializable, Comparable {
+    	public static final long serialVersionUID = 1L;
 	
 	@SequenceGenerator(name="TestIdGen", sequenceName="tests_test_id_seq", allocationSize=1)
 	@GeneratedValue(strategy=GenerationType.SEQUENCE, generator="TestIdGen")
@@ -53,7 +54,7 @@ public class Test implements Serializable, Comparable {
 	@ManyToOne
 	private Problem problem;
 	
-	protected static Logger logger = Logger.getLogger(User.class.toString());
+	protected static final Logger logger = Logger.getLogger(User.class.toString());
 	
 	/** Creates a new instance of Tests */
 	public Test() {
@@ -139,6 +140,13 @@ public class Test implements Serializable, Comparable {
 		if (this.testId != other.testId) return false;
 		return true;
 	}
+
+	@Override
+	public int hashCode() {
+		int hash = 0;
+		hash += this.testId;
+		return hash;
+	}
 	
 	/**
 	 * Returns a string representation of the object.  This implementation constructs
@@ -150,13 +158,14 @@ public class Test implements Serializable, Comparable {
 		return "dudgedb.Test[testsPK=" + testId + "]";
 	}
 	
+        @Override
 	public int compareTo(Object o) {
 		if(!(o instanceof Test))
 			throw new IllegalArgumentException("o is not instance of db.Test");
 		Test other = (Test) o;
 		
 		if(this.getTestId() != other.getTestId()) {
-			return new Integer(this.getTestId()).compareTo(
+			return Integer.valueOf(this.getTestId()).compareTo(
 					new Integer(other.getTestId())
 					);
 		}

@@ -40,7 +40,7 @@ import org.apache.struts.actions.DispatchAction;
  */
 public class UsersAction extends DispatchAction {
 
-    protected static Logger logger = Logger.getLogger(Problem.class.toString());
+    protected static final Logger logger = Logger.getLogger(Problem.class.toString());
 
     /**
      * Creates a new instance of RegistrationAction
@@ -48,6 +48,10 @@ public class UsersAction extends DispatchAction {
     public UsersAction() {
     }
 
+    /**
+     * 
+     * @return 
+     */
     private DudgeLocal lookupDudgeBean() {
         try {
             Context c = new InitialContext();
@@ -58,17 +62,31 @@ public class UsersAction extends DispatchAction {
         }
     }
 
+    /**
+     * 
+     * @param mapping
+     * @param af
+     * @param request
+     * @param response
+     * @return 
+     */
     public ActionForward list(
             ActionMapping mapping,
             ActionForm af,
             HttpServletRequest request,
             HttpServletResponse response) {
-        DudgeLocal dudgeBean = lookupDudgeBean();
-        UsersForm rf = (UsersForm) af;
 
         return mapping.findForward("users");
     }
 
+    /**
+     * 
+     * @param mapping
+     * @param af
+     * @param request
+     * @param response
+     * @return 
+     */
     public ActionForward view(
             ActionMapping mapping,
             ActionForm af,
@@ -117,6 +135,14 @@ public class UsersAction extends DispatchAction {
         return mapping.findForward("viewUser");
     }
 
+    /**
+     * 
+     * @param mapping
+     * @param af
+     * @param request
+     * @param response
+     * @return 
+     */
     public ActionForward edit(
             ActionMapping mapping,
             ActionForm af,
@@ -165,6 +191,14 @@ public class UsersAction extends DispatchAction {
         return mapping.findForward("editUser");
     }
 
+    /**
+     * 
+     * @param mapping
+     * @param af
+     * @param request
+     * @param response
+     * @return 
+     */
     public ActionForward register(
             ActionMapping mapping,
             ActionForm af,
@@ -182,6 +216,14 @@ public class UsersAction extends DispatchAction {
         return mapping.findForward("editUser");
     }
 
+    /**
+     * 
+     * @param mapping
+     * @param af
+     * @param request
+     * @param response
+     * @return 
+     */
     public ActionForward submitRegister(
             ActionMapping mapping,
             ActionForm af,
@@ -291,6 +333,14 @@ public class UsersAction extends DispatchAction {
         return mapping.findForward("registrationSuccess");
     }
 
+    /**
+     * 
+     * @param mapping
+     * @param af
+     * @param request
+     * @param response
+     * @return 
+     */
     public ActionForward submitEdit(
             ActionMapping mapping,
             ActionForm af,
@@ -400,7 +450,6 @@ public class UsersAction extends DispatchAction {
             response.getWriter().print(jo);
         } catch (IOException ex) {
             ex.printStackTrace();
-            return;
         }
     }
 
@@ -445,11 +494,18 @@ public class UsersAction extends DispatchAction {
             json.put("regdate", sdf.format(user.getRegDate()));
             json.put("organization", user.getOrganization());
         } catch (JSONException Je) {
-            this.logger.severe("Truble in creating JSON view of User object.");
+            logger.severe("Trouble while creating JSON view of User object.");
         }
         return json;
     }
 
+    /**
+     * 
+     * @param mapping
+     * @param af
+     * @param request
+     * @param response 
+     */
     public void changePassword(ActionMapping mapping,
             ActionForm af,
             HttpServletRequest request,
@@ -478,9 +534,9 @@ public class UsersAction extends DispatchAction {
         User currentUser = dudgeBean.getUser(ao.getUsername());
 
         // DBG
-        this.logger.severe(oldPassword);
-        this.logger.severe(newPassword);
-        this.logger.severe(currentUser.getPwdHash());
+        logger.severe(oldPassword);
+        logger.severe(newPassword);
+        logger.severe(currentUser.getPwdHash());
 
 
         if (!dudgeBean.calcHash(oldPassword).equals(currentUser.getPwdHash())) {
@@ -489,7 +545,7 @@ public class UsersAction extends DispatchAction {
                 ja.put(record);
                 jo.put("password", ja);
             } catch (JSONException Je) {
-                this.logger.severe("Truble in creating JSON view of status for password changing operation.");
+                logger.severe("Trouble while creating JSON view of status for password changing operation.");
                 return;
             }
             try {
@@ -512,14 +568,13 @@ public class UsersAction extends DispatchAction {
             ja.put(record);
             jo.put("password", ja);
         } catch (JSONException Je) {
-            this.logger.severe("Truble in creating JSON view of status for password changing operation.");
+            logger.severe("Trouble while creating JSON view of status for password changing operation.");
             return;
         }
         try {
             response.getWriter().print(jo);
         } catch (IOException ex) {
             ex.printStackTrace();
-            return;
         }
     }
 }

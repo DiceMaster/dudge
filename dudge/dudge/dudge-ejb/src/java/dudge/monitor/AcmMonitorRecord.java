@@ -12,21 +12,21 @@ import dudge.db.ContestProblem;
 import dudge.db.Solution;
 import dudge.db.SolutionStatus;
 import dudge.db.User;
-import dudge.logic.AcmTraits;
 import java.io.Serializable;
 import java.util.Date;
-import java.util.Hashtable;
+import java.util.HashMap;
 import java.util.Map;
 	
 public class AcmMonitorRecord implements Comparable, Serializable {
+    	public static final long serialVersionUID = 1L;
 
 	// Штрафное время за неудачный сабмит, в миллисекундах.
-	final int submitPenaltyTime = 20 * 60 * 1000;
+	final static int submitPenaltyTime = 20 * 60 * 1000;
 	
 	private int place = 0;
 	private String user;
-	private Map<String, Integer> problemsTries = new Hashtable<String, Integer>();
-	private Map<String, Boolean> problemsSolved = new Hashtable<String, Boolean>();
+	private Map<String, Integer> problemsTries = new HashMap<>();
+	private Map<String, Boolean> problemsSolved = new HashMap<>();
 	private long time;
 
 	public AcmMonitorRecord(DudgeLocal dudgeBean, Contest contest, User user, Date when) {
@@ -46,8 +46,6 @@ public class AcmMonitorRecord implements Comparable, Serializable {
 			// Полное время в миллисекундах на решение задачи,
 			// учитывая 20 минутный штраф за каждое непрошедшее ее отправление.
 			long problemTime = 0;
-
-			AcmTraits traits = (AcmTraits) contest.getTraits();
 			
 			// Проходим по всем решениям пользователем задачи соревнования.
 			for(Solution solution : dudgeBean.getSolutions(
@@ -96,7 +94,7 @@ public class AcmMonitorRecord implements Comparable, Serializable {
 			if(problemsSolved.get(pm)) {
 				// Если задача решена, то прибавляем ее штрафное время
 				// к общему по пользователю.
-				time = getTime() + problemTime;
+				time = time + problemTime;
 			}
 		} // for contestProblem
 
@@ -109,6 +107,7 @@ public class AcmMonitorRecord implements Comparable, Serializable {
 	 * @return -1 если эта запись стоит на месте, более низком,
 	 * чем посланная, 1 - если на более высоком, 0 если записи равны.
 	 */
+        @Override
 	public int compareTo(Object o) {
 		if(!(o instanceof AcmMonitorRecord))
 			throw new RuntimeException("o must be of class AcmMonitorRecord");

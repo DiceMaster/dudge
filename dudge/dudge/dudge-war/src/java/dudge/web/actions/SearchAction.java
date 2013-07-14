@@ -82,7 +82,6 @@ public class SearchAction extends DispatchAction {
 			response.getWriter().print(jo);
 		} catch (IOException ex) {
 			ex.printStackTrace();
-			return;
 		}		
 	}
 

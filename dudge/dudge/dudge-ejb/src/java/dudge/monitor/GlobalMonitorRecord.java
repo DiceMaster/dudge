@@ -12,14 +12,14 @@ import dudge.db.ContestProblem;
 import dudge.db.Solution;
 import dudge.db.SolutionStatus;
 import dudge.db.User;
-import dudge.logic.GlobalTraits;
 import java.io.Serializable;
 import java.util.Date;
 
 public class GlobalMonitorRecord implements Comparable, Serializable {
+    	public static final long serialVersionUID = 1L;
 
 	// Штраф за неудачный сабмит, в очках рейтинга.
-	final int submitPenaltyTime = 20 * 60 * 1000;
+	final static int submitPenaltyTime = 20 * 60 * 1000;
 	
 	private int place = 0;
 	private String user;
@@ -32,7 +32,6 @@ public class GlobalMonitorRecord implements Comparable, Serializable {
 		rating = 0;
 
 		for(ContestProblem contestProblem: contest.getContestProblems()) {
-			GlobalTraits traits = (GlobalTraits) contest.getTraits();
 			
 			// Проходим по всем решениям пользователем задачи соревнования.
 			for(Solution solution : dudgeBean.getSolutions(
@@ -80,6 +79,7 @@ public class GlobalMonitorRecord implements Comparable, Serializable {
 	 * @return -1 если эта запись стоит на месте, более низком,
 	 * чем посланная, 1 - если на более высоком, 0 если записи равны.
 	 */
+        @Override
 	public int compareTo(Object o) {
 		if(!(o instanceof GlobalMonitorRecord))
 			throw new RuntimeException("o must be of class AcmMonitorRecord");

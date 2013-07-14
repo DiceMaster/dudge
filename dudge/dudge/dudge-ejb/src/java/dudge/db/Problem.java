@@ -39,6 +39,7 @@ and solutions.solution_id = sols.solution_id) */
 	query = "SELECT COUNT(s) FROM Solution s WHERE s.problem.problemId = :problemId")
 })
 public class Problem implements Serializable {
+    	public static final long serialVersionUID = 1L;
 	
 	@SequenceGenerator(name="ProblemIdGen", sequenceName="problems_problem_id_seq", allocationSize=1)
 	@GeneratedValue(strategy=GenerationType.SEQUENCE, generator="ProblemIdGen")
@@ -88,7 +89,7 @@ public class Problem implements Serializable {
 	@OneToMany(cascade = CascadeType.ALL, mappedBy = "problem")
 	private Collection<Complaint> complaints;
 
-	protected static Logger logger = Logger.getLogger(Problem.class.toString());
+	protected static final Logger logger = Logger.getLogger(Problem.class.toString());
 	
 	/** Creates a new instance of Problem */
 	public Problem() {
@@ -111,7 +112,7 @@ public class Problem implements Serializable {
 		this.realTimeLimit = realTimeLimit;
 		this.outputLimit = outputLimit;
 		
-		this.tests = new ArrayList<Test>();
+		this.tests = new ArrayList<>();
 	}
 	
 	/**

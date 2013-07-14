@@ -22,9 +22,10 @@ public class SearcherBean implements SearcherLocal {
 		em.flush();
 	}
 	
+        @Override
 	public List<User> searchUsers(String query, int limit) {
 		if(query.length() == 0)
-			return new ArrayList<User>();
+			return new ArrayList<>();
 		
 		return
 		em.createNativeQuery(
@@ -39,9 +40,10 @@ public class SearcherBean implements SearcherLocal {
 		.getResultList();
 	}
 
+        @Override
 	public List<Problem> searchProblems(String query, int limit) {
 		if(query.length() == 0)
-			return new ArrayList<Problem>();
+			return new ArrayList<>();
 		
 		return
 		em.createNativeQuery(

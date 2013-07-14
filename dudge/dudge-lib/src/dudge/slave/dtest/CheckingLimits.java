@@ -7,8 +7,9 @@ import java.io.Serializable;
  *  Класс ограничений на среду выполнения задачи.
  *  @author Vladimir Shabanov
  */
-public class CheckingLimits implements Serializable, Cloneable
-{
+public class CheckingLimits implements Serializable, Cloneable {
+    	public static final long serialVersionUID = 1L;
+    
 	public int memoryLimit = 64 * 1024 * 1024; // bytes
 	public int cpuTimeLimit = 1000; // milliseconds
 	public int realTimeLimit = 10000; // milliseconds
@@ -18,6 +19,7 @@ public class CheckingLimits implements Serializable, Cloneable
 	public CheckingLimits() {
 	}
 	
+        @Override
 	public boolean equals(Object otherObject)
 	{
 		if (otherObject == null)
@@ -42,9 +44,10 @@ public class CheckingLimits implements Serializable, Cloneable
 			processLimit == other.processLimit;
 	}
 
+        @Override
 	public String toString()
 	{
-		StringBuffer result = new StringBuffer(getClass().getName());
+		StringBuilder result = new StringBuilder(getClass().getName());
 		
 		result.append("[memoryLimit=").append(memoryLimit).
 				append(",cputimeLimit=").append(cpuTimeLimit).
@@ -56,12 +59,14 @@ public class CheckingLimits implements Serializable, Cloneable
 		return result.toString();
 	}
 
+        @Override
 	public int hashCode()
 	{
 		return 3 * memoryLimit + 5 * cpuTimeLimit + 7 * processLimit +
 				11 * realTimeLimit + 13 * outputLimit;
 	}
 
+        @Override
 	protected Object clone() throws CloneNotSupportedException
 	{
 		CheckingLimits cloned = (CheckingLimits) super.clone();

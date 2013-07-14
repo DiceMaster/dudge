@@ -5,7 +5,6 @@
 package dudge.web.actions;
 
 import dudge.DudgeLocal;
-import dudge.db.Contest;
 import dudge.db.Language;
 import dudge.PermissionCheckerRemote;
 import dudge.web.AuthenticationObject;
@@ -35,12 +34,16 @@ import org.apache.struts.actions.DispatchAction;
  */
 public class LanguagesAction extends DispatchAction {
 
-	protected static Logger logger = Logger.getLogger(LanguagesAction.class.toString());
+	protected static final Logger logger = Logger.getLogger(LanguagesAction.class.toString());
 
 	/** Creates a new instance of ContestsAction */
 	public LanguagesAction() {
 	}
 
+	/**
+         * 
+         * @return 
+         */
 	private DudgeLocal lookupDudgeBean() {
 		try {
 			Context c = new InitialContext();
@@ -53,21 +56,30 @@ public class LanguagesAction extends DispatchAction {
 
 	/**
 	 * Метод для перехода на страницу списка языков программирования.
-	 */
+         * 
+         * @param mapping
+         * @param af
+         * @param request
+         * @param response
+         * @return 
+         */
 	public ActionForward list(
 			ActionMapping mapping,
 			ActionForm af,
 			HttpServletRequest request,
 			HttpServletResponse response) {
-		LanguagesForm lf = (LanguagesForm) af;
 
 		return mapping.findForward("languages");
 	}
 
 	/**
-	 * Метод, возвращающий асинхронному запросу клиента данные о языках программирования
-	 * в формате JSON. 
-	 */
+	 * Метод, возвращающий асинхронному запросу клиента данные о языках программирования в формате JSON.
+         * 
+         * @param mapping
+         * @param af
+         * @param request
+         * @param response 
+         */
 	public void getLanguagesList(
 			ActionMapping mapping,
 			ActionForm af,
@@ -107,8 +119,14 @@ public class LanguagesAction extends DispatchAction {
 	}
 
 	/**
-	 * Метод для перехода на страницу просмотра контеста.  
-	 */
+	 * Метод для перехода на страницу просмотра контеста.
+         * 
+         * @param mapping
+         * @param af
+         * @param request
+         * @param response
+         * @return 
+         */
 	public ActionForward view(
 			ActionMapping mapping,
 			ActionForm af,
@@ -136,6 +154,14 @@ public class LanguagesAction extends DispatchAction {
 
 	}
 
+	/**
+         * 
+         * @param mapping
+         * @param af
+         * @param request
+         * @param response
+         * @return 
+         */
 	public ActionForward edit(
 			ActionMapping mapping,
 			ActionForm af,
@@ -169,6 +195,14 @@ public class LanguagesAction extends DispatchAction {
 		return mapping.findForward("editLanguage");
 	}
 
+	/**
+         * 
+         * @param mapping
+         * @param af
+         * @param request
+         * @param response
+         * @return 
+         */
 	public ActionForward create(
 			ActionMapping mapping,
 			ActionForm af,
@@ -193,6 +227,14 @@ public class LanguagesAction extends DispatchAction {
 		return mapping.findForward("editLanguage");
 	}
 
+	/**
+         * 
+         * @param mapping
+         * @param af
+         * @param request
+         * @param response
+         * @return 
+         */
 	public ActionForward submitCreate(
 			ActionMapping mapping,
 			ActionForm af,
@@ -217,7 +259,6 @@ public class LanguagesAction extends DispatchAction {
 		addingLanguage.setDescription(lf.getDescription());
 
 		addingLanguage.setFileExtension(lf.getFileExtension());
-		;
 		addingLanguage.setCompilationCommand(lf.getCompilationCommand());
 		addingLanguage.setExecutionCommand(lf.getExecutionCommand());
 
@@ -234,6 +275,14 @@ public class LanguagesAction extends DispatchAction {
 		return forward;
 	}
 
+	/**
+         * 
+         * @param mapping
+         * @param af
+         * @param request
+         * @param response
+         * @return 
+         */
 	public ActionForward submitEdit(
 			ActionMapping mapping,
 			ActionForm af,
@@ -269,6 +318,13 @@ public class LanguagesAction extends DispatchAction {
 		return forward;
 	}
 
+	/**
+         * 
+         * @param mapping
+         * @param af
+         * @param request
+         * @param response 
+         */
 	public void delete(ActionMapping mapping,
 			ActionForm af,
 			HttpServletRequest request,
@@ -290,7 +346,11 @@ public class LanguagesAction extends DispatchAction {
 	/**
 	 * Метод возвращает представления объекта Language в формата JSON - это нужно
 	 * для его отображение на стороне клиента через JavaScript/AJAX.
-	 */
+         * 
+         * @param language
+         * @param ao
+         * @return 
+         */
 	private JSONObject getLanguageJSONView(Language language, AuthenticationObject ao) {
 
 		JSONObject json = new JSONObject();

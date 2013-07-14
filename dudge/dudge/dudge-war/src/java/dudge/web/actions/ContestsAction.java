@@ -66,9 +66,7 @@ public class ContestsAction extends DispatchAction {
 			ActionForm af,
 			HttpServletRequest request,
 			HttpServletResponse response) {
-
-		ContestsForm cf = (ContestsForm) af;
-
+            
 		return mapping.findForward("contests");
 	}
 
@@ -579,7 +577,7 @@ public class ContestsAction extends DispatchAction {
 			HttpServletRequest request,
 			HttpServletResponse response) {
 		AuthenticationObject ao = AuthenticationObject.extract(request);
-		ContestsForm cf = (ContestsForm) af;
+                
 		int contestId = Integer.parseInt((String) request.getParameter("contestId"));
 
 		// Проверяем право пользователя на удаление задачи из системы.
@@ -599,9 +597,7 @@ public class ContestsAction extends DispatchAction {
 			ActionForm af,
 			HttpServletRequest request,
 			HttpServletResponse response) {
-
-		ContestsForm cf = (ContestsForm) af;
-
+            
 		return mapping.findForward("contestProblems");
 	}
 
@@ -616,7 +612,7 @@ public class ContestsAction extends DispatchAction {
 		DudgeLocal dudgeBean = lookupDudgeBean();
 		
 		//FIXME: Проверять здесь права.
-		AuthenticationObject ao = AuthenticationObject.extract(request);
+		//AuthenticationObject ao = AuthenticationObject.extract(request);
 
 		int contestId;
 		// Получаем идентификатор соревнования.
@@ -642,7 +638,7 @@ public class ContestsAction extends DispatchAction {
 	private Collection<Role> decodeRolesFromJSON(String jsonEncodedRoles, Contest contest) {
 
 		JSONArray jsonRoles;
-		Set<Role> roles = new TreeSet<Role>(new Comparator<Role>() {
+		Set<Role> roles = new TreeSet<>(new Comparator<Role>() {
 
                                         @Override
 					public int compare(Role a, Role b) {
@@ -696,7 +692,7 @@ public class ContestsAction extends DispatchAction {
 		Collection<Application> applications = null;
 		try {
 			jsonApplications = new JSONArray(jsonEncodedApplications);
-			applications = new ArrayList<Application>();
+			applications = new ArrayList<>();
 			DudgeLocal dudgeBean = lookupDudgeBean();
 			for (int i = 0; i < jsonApplications.length(); i++) {
 				String login = jsonApplications.getJSONObject(i).getString("login");
@@ -728,12 +724,10 @@ public class ContestsAction extends DispatchAction {
 		Collection<ContestProblem> problems = null;
 		try {
 			jsonProblems = new JSONArray(jsonEncodedProblems);
-			problems =
-					new ArrayList<ContestProblem>();
+			problems = new ArrayList<>();
 			DudgeLocal dudgeBean = lookupDudgeBean();
 
-			for (int i = 0; i <
-					jsonProblems.length(); i++) {
+			for (int i = 0; i < jsonProblems.length(); i++) {
 				int problemId = Integer.parseInt(jsonProblems.getJSONObject(i).getString("problemId"));
 				Problem problem = dudgeBean.getProblem(problemId);
 
@@ -768,8 +762,7 @@ public class ContestsAction extends DispatchAction {
 
 		try {
 			jsonLanguages = new JSONArray(jsonEncodedLanguages);
-			languages =
-					new ArrayList<ContestLanguage>();
+			languages = new ArrayList<>();
 
 			// Заново создаем список языков, разрешенных в данном соревновании, по полученным от пользователя данным.
 			for (int i = 0; i <

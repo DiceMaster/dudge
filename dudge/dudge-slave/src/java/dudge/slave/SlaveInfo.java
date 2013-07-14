@@ -12,7 +12,6 @@ package dudge.slave;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.List;
 
 /**
@@ -34,5 +33,4 @@ public class SlaveInfo implements Serializable {
 	public List<String> getSupportedLanguages() {
 		return supportedLanguages;
 	}
-	
 }

@@ -27,7 +27,11 @@ import org.apache.struts.actions.DispatchAction;
  * @author Mikhail
  */
 public class ReportsAction extends DispatchAction {
-
+ 
+    /**
+     * 
+     * @return 
+     */
     private ReportingLocal lookupReportingBean() {
         try {
             Context c = new InitialContext();
@@ -46,12 +50,18 @@ public class ReportsAction extends DispatchAction {
             ActionForm af,
             HttpServletRequest request,
             HttpServletResponse response) {
-        ReportingLocal reportingBean = lookupReportingBean();
-        ReportsForm rf = (ReportsForm) af;
 
         return mapping.findForward("reports");
     }
-
+        
+    /**
+     * 
+     * @param mapping
+     * @param af
+     * @param request
+     * @param response
+     * @return 
+     */
     public ActionForward printCurrentContestProtocol(
             ActionMapping mapping,
             ActionForm af,
@@ -88,12 +98,20 @@ public class ReportsAction extends DispatchAction {
         }
         return mapping.findForward("reports");
     }
-    
-        public ActionForward printCurrentContestParticipants(
-            ActionMapping mapping,
-            ActionForm af,
-            HttpServletRequest request,
-            HttpServletResponse response) {
+            
+    /**
+     * 
+     * @param mapping
+     * @param af
+     * @param request
+     * @param response
+     * @return 
+     */
+    public ActionForward printCurrentContestParticipants(
+        ActionMapping mapping,
+        ActionForm af,
+        HttpServletRequest request,
+        HttpServletResponse response) {
         FileInputStream in = null;
         try {
             ReportingLocal reportingBean = lookupReportingBean();

@@ -24,6 +24,8 @@ import javax.persistence.*;
 })
 @IdClass(dudge.db.ContestLanguagePK.class)
 public class ContestLanguage implements Serializable {
+    	public static final long serialVersionUID = 1L;
+        
 	@Id
 	@Column(name = "contest_id", nullable=false, insertable=false, updatable=false)
 	private int contestId;

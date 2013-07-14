@@ -7,17 +7,10 @@
 
 package dudge.slave;
 
-import dudge.slave.*;
 import java.io.ByteArrayInputStream;
 import junit.framework.*;
-import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.util.Comparator;
-import java.util.StringTokenizer;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  *

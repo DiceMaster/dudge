@@ -27,7 +27,7 @@ import org.apache.struts.actions.DispatchAction;
  */
 public class AnnounceAction extends DispatchAction {
 
-    protected static Logger logger = Logger.getLogger(AnnounceAction.class.toString());
+    protected static final Logger logger = Logger.getLogger(AnnounceAction.class.toString());
 
     public AnnounceAction() {
     }
@@ -62,8 +62,6 @@ public class AnnounceAction extends DispatchAction {
         Collections.sort(recentlyFinishedContests);
         anf.setRecentlyFinishedContests(recentlyFinishedContests);
         
-        af = anf;
-
         return mapping.findForward("announce");
     }
 }

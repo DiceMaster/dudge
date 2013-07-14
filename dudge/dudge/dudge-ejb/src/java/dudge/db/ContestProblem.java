@@ -30,7 +30,7 @@ import javax.persistence.*;
 })
 @IdClass(dudge.db.ContestProblemPK.class)
 public class ContestProblem implements Serializable, Comparable<ContestProblem> {
-	
+	public static final long serialVersionUID = 1L;
 		
 	@Id
 	@Column(name = "contest_id", nullable=false, insertable=false, updatable=false)
@@ -67,7 +67,7 @@ public class ContestProblem implements Serializable, Comparable<ContestProblem> 
 	 *Creates a new instance of this class
 	 *@param ContestProblensPK the  ContestProblensPK of the ContestProblems
 	 */
-	public ContestProblem(Contest contest , Problem problem) {
+	public ContestProblem(Contest contest, Problem problem) {
 		this.problem = problem;
 		this.contest = contest;
 		this.contestId = contest.getContestId();
@@ -185,7 +185,7 @@ public class ContestProblem implements Serializable, Comparable<ContestProblem> 
 	 *
 	 * @param problem the new problem
 	 */
-	public void setProblem(Problem problems) {
+	public void setProblem(Problem problem) {
 		this.problem = problem;
 	}
 	
@@ -223,6 +223,7 @@ public class ContestProblem implements Serializable, Comparable<ContestProblem> 
 		return true;
 	}
 
+        @Override
 	public int compareTo(ContestProblem cp)
 	{
 		if(this.problemOrder < cp.problemOrder)

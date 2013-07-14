@@ -25,6 +25,7 @@ import javax.persistence.*;
 })
 @IdClass(dudge.db.RunPK.class)
 public class Run implements Serializable, Comparable {
+    	public static final long serialVersionUID = 1L;
 	
 	@Id
 	@Column(name = "solution_id", nullable=false, insertable=false, updatable=false)
@@ -79,9 +80,10 @@ public class Run implements Serializable, Comparable {
 		this.test = test;
 		this.solutionId = solution.getSolutionId();
 		this.testId = test.getTestId();
-		this.setResultType(resultType);
+		this.resultType = resultType.toString();
 	}
 	
+        @Override
 	public int compareTo(Object o) {
 		if(!(o instanceof Run))
 			throw new IllegalArgumentException("o is not instance of db.Run");

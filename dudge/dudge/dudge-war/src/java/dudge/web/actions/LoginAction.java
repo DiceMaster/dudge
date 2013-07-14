@@ -33,6 +33,10 @@ public class LoginAction extends DispatchAction {
 	public LoginAction() {
 	}
 
+	/**
+         * 
+         * @return 
+         */
 	private DudgeLocal lookupDudgeBean() {
 		try {
 			Context c = new InitialContext();
@@ -44,6 +48,14 @@ public class LoginAction extends DispatchAction {
 		}
 	}
 
+	/**
+         * 
+         * @param mapping
+         * @param af
+         * @param request
+         * @param response
+         * @return 
+         */
 	public ActionForward login(
 			ActionMapping mapping,
 			ActionForm af,
@@ -70,14 +82,21 @@ public class LoginAction extends DispatchAction {
 		return mapping.findForward("fail");
 	}
 
+	/**
+         * 
+         * @param mapping
+         * @param af
+         * @param request
+         * @param response
+         * @return 
+         */
 	public ActionForward logout(
 			ActionMapping mapping,
 			ActionForm af,
 			HttpServletRequest request,
 			HttpServletResponse response) {
-		LoginForm lf = (LoginForm) af;
 
-        AuthenticationCookies.removeCookies(response);
+		AuthenticationCookies.removeCookies(response);
 
 		ActionForward forward = new ActionForward();
 		forward.setPath(request.getHeader("referer"));

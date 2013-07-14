@@ -29,6 +29,7 @@ import javax.persistence.*;
 	@NamedQuery(name = "User.findByEmail", query = "SELECT u FROM User u WHERE u.email = :email")
 })
 public class User implements Serializable {
+    	public static final long serialVersionUID = 1L;
 	
 	@Id
 	@Column(name = "login", nullable = false, updatable=false)
@@ -80,11 +81,11 @@ public class User implements Serializable {
 	@OneToMany(cascade = CascadeType.ALL, mappedBy = "user")
 	private Collection<Role> rolesCollection;
 	
-	protected static Logger logger = Logger.getLogger(User.class.toString());
+	protected static final Logger logger = Logger.getLogger(User.class.toString());
 	
 	/** Creates a new instance of User */
 	public User() {
-		this.rolesCollection = new ArrayList<Role>();
+		this.rolesCollection = new ArrayList<>();
 	}
 	
 	/**

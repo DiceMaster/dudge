@@ -25,7 +25,7 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 @Stateless
 public class ReportingBean implements ReportingLocal {
 
-    protected Logger logger = Logger.getLogger(ReportingBean.class.toString());
+    protected static final Logger logger = Logger.getLogger(ReportingBean.class.toString());
     @PersistenceContext
     private EntityManager em;
 
@@ -58,7 +58,7 @@ public class ReportingBean implements ReportingLocal {
             setCellValue(row, 4, sdf.format(contest.getStartTime()));
 
             List<ContestProblem> contestProblems = contest.getContestProblems();
-            List<Problem> problems = new ArrayList<Problem>();
+            List<Problem> problems = new ArrayList<>();
 
             if (contestProblems != null && contestProblems.size() > 0) {
                 for (ContestProblem contestProblem : contestProblems) {
@@ -84,7 +84,7 @@ public class ReportingBean implements ReportingLocal {
                     }
                 }
 
-                Map<User, Map<Problem, String>> results = new HashMap<User, Map<Problem, String>>();
+                Map<User, Map<Problem, String>> results = new HashMap<>();
                 for (Role role : contest.getRoles()) {
                     if (RoleType.USER.equals(role.getRoleType())) {
                         results.put(role.getUser(), new HashMap<Problem, String>());
@@ -96,17 +96,17 @@ public class ReportingBean implements ReportingLocal {
 
                     List<Run> runs = (List<Run>) solution.getRuns();
                     Collections.sort(runs);
-                    String runsResult = "";
+                    StringBuilder runsResult = new StringBuilder();
                     for (Run run : runs) {
                         if (RunResultType.SUCCESS.equals(run.getResultType())) {
-                            runsResult += "+";
+                            runsResult.append("+");
                         } else {
-                            runsResult += "-";
+                            runsResult.append("-");
                         }
                     }
 
                     if (results.get(solution.getUser()) != null) {
-                        results.get(solution.getUser()).put(solution.getProblem(), runsResult);
+                        results.get(solution.getUser()).put(solution.getProblem(), runsResult.toString());
                     }
                 }
 
@@ -178,7 +178,7 @@ public class ReportingBean implements ReportingLocal {
             row.createCell(4);
             setCellValue(row, 4, sdf.format(contest.getStartTime()));
 
-            List<User> users = new ArrayList<User>();
+            List<User> users = new ArrayList<>();
             for (Role role : contest.getRoles()) {
                 if (RoleType.USER.equals(role.getRoleType())) {
                     users.add(role.getUser());
@@ -252,7 +252,6 @@ public class ReportingBean implements ReportingLocal {
 
             // If the old cell is null jump to next cell
             if (oldCell == null) {
-                newCell = null;
                 continue;
             }
 
@@ -294,6 +293,9 @@ public class ReportingBean implements ReportingLocal {
                 case Cell.CELL_TYPE_STRING:
                     newCell.setCellValue(oldCell.getRichStringCellValue());
                     break;
+                    
+                default:
+                    newCell.setCellValue(oldCell.getStringCellValue());
             }
         }
 

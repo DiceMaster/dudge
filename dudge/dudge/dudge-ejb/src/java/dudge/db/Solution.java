@@ -33,6 +33,7 @@ import javax.persistence.*;
 			" ORDER BY s.submitTime")
 })
 public class Solution implements Serializable, Cloneable {
+    	public static final long serialVersionUID = 1L;
 	
 	@SequenceGenerator(name="SolutionIdGen", sequenceName="solutions_solution_id_seq", allocationSize=1)
 	@GeneratedValue(strategy=GenerationType.SEQUENCE, generator="SolutionIdGen")
@@ -61,7 +62,7 @@ public class Solution implements Serializable, Cloneable {
 	private Language language;
 	
 	@OneToMany(cascade = CascadeType.ALL, mappedBy = "solution")
-	private Collection<Run> runs = new ArrayList<Run>();
+	private Collection<Run> runs = new ArrayList<>();
 	
 	@Column(name="status", length=255, nullable=false)
 	private String status = SolutionStatus.NEW.toString();
@@ -81,15 +82,16 @@ public class Solution implements Serializable, Cloneable {
 	public Solution() {
 	}
 	
+        @Override
 	public Object clone() throws CloneNotSupportedException {
 		return super.clone();
 	}
 
 	public RunResultType getLastRunResult() {
-		if(runs.size() == 0)
+		if(runs.isEmpty())
 			return null;
 		
-		List<Run> sortedRuns = new LinkedList<Run>(runs);
+		List<Run> sortedRuns = new LinkedList<>(runs);
 		Collections.sort(sortedRuns);
 		return sortedRuns.get(sortedRuns.size() - 1).getResultType();
 	}

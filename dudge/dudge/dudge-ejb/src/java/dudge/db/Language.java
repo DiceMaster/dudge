@@ -29,6 +29,7 @@ import javax.persistence.*;
 	@NamedQuery(name = "Language.findByFileExtension", query = "SELECT l FROM Language l WHERE l.fileExtension = :fileExtension")
 })
 public class Language implements Serializable {
+    	public static final long serialVersionUID = 1L;
 	
 	@Id
 	@Column(name = "language_id", nullable = false, updatable=false)
@@ -55,6 +56,7 @@ public class Language implements Serializable {
 	
 	/**
 	 * Creates a new instance of Language with the specified values.
+         * 
 	 * @param languageId the languageId of the Language
 	 */
 	public Language(String languageId) {
@@ -80,6 +82,7 @@ public class Language implements Serializable {
 	
 	/**
 	 * Gets the languageId of this Language.
+         * 
 	 * @return the languageId
 	 */
 	public String getLanguageId() {
@@ -88,6 +91,7 @@ public class Language implements Serializable {
 	
 	/**
 	 * Sets the languageId of this Language to the specified value.
+         * 
 	 * @param languageId the new languageId
 	 */
 	public void setLanguageId(String languageId) {
@@ -114,6 +118,7 @@ public class Language implements Serializable {
 	
 	/**
 	 * Gets the description of this Language.
+         * 
 	 * @return the description
 	 */
 	public String getDescription() {
@@ -122,6 +127,7 @@ public class Language implements Serializable {
 	
 	/**
 	 * Sets the description of this Language to the specified value.
+         * 
 	 * @param description the new description
 	 */
 	public void setDescription(String description) {
@@ -130,6 +136,7 @@ public class Language implements Serializable {
 	
 	/**
 	 * Gets the fileExtension of this Language.
+         * 
 	 * @return the fileExtension
 	 */
 	public String getFileExtension() {
@@ -138,31 +145,49 @@ public class Language implements Serializable {
 	
 	/**
 	 * Sets the fileExtension of this Language to the specified value.
+         * 
 	 * @param fileExtension the new fileExtension
 	 */
 	public void setFileExtension(String fileExtension) {
 		this.fileExtension = fileExtension;
 	}
 	
+	/**
+         * 
+         * @return 
+         */
 	public String getCompilationCommand() {
 		return compilationCommand;
 	}
 	
+	/**
+         * 
+         * @param compilationCommand 
+         */
 	public void setCompilationCommand(String compilationCommand) {
 		this.compilationCommand = compilationCommand;
 	}
 	
+	/**
+         * 
+         * @return 
+         */
 	public String getExecutionCommand() {
 		return executionCommand;
 	}
 	
+	/**
+         * 
+         * @param executionCommand 
+         */
 	public void setExecutionCommand(String executionCommand) {
 		this.executionCommand = executionCommand;
 	}
 	
 	/**
-	 * Returns a hash code value for the object.  This implementation computes
-	 * a hash code value based on the id fields in this object.
+	 * Returns a hash code value for the object. 
+         * This implementation computes a hash code value based on the id fields in this object.
+         * 
 	 * @return a hash code value for this object.
 	 */
 	@Override
@@ -176,6 +201,7 @@ public class Language implements Serializable {
 	 * Determines whether another object is equal to this Language.  The result is
 	 * <code>true</code> if and only if the argument is not null and is a Language object that
 	 * has the same id field values as this object.
+         * 
 	 * @param object the reference object with which to compare
 	 * @return <code>true</code> if this object is the same as the argument;
 	 * <code>false</code> otherwise.
@@ -194,6 +220,7 @@ public class Language implements Serializable {
 	/**
 	 * Returns a string representation of the object.  This implementation constructs
 	 * that representation based on the id fields.
+         * 
 	 * @return a string representation of the object.
 	 */
 	@Override
@@ -202,12 +229,12 @@ public class Language implements Serializable {
 	}
 	
 	/**
-	 * Converts a collection of dudge.db.Language objects to a collection of
-	 * String objects.
+	 * Converts a collection of dudge.db.Language objects to a collection of String objects.
+         * 
 	 * @return converted collection of String objects.
 	 */
 	static public Collection<String> convertCollection(Collection<Language> langs){
-		Collection<String> stringCollection = new ArrayList<String>();
+		Collection<String> stringCollection = new ArrayList<>();
 		
 		for(Language l : langs){
 			stringCollection.add(l.getName());

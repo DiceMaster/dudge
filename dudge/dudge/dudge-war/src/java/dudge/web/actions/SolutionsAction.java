@@ -48,6 +48,10 @@ public class SolutionsAction extends DispatchAction {
 	public SolutionsAction() {
 	}
 	
+	/**
+         * 
+         * @return 
+         */
 	private DudgeLocal lookupDudgeBean() {
 		try {
 			Context c = new InitialContext();
@@ -58,7 +62,15 @@ public class SolutionsAction extends DispatchAction {
 			throw new RuntimeException(ne);
 		}
 	}
-		
+
+	/**
+         * 
+         * @param mapping
+         * @param af
+         * @param request
+         * @param response
+         * @return 
+         */
 	public ActionForward view(
 			ActionMapping mapping,
 			ActionForm af,
@@ -74,7 +86,13 @@ public class SolutionsAction extends DispatchAction {
 			return mapping.findForward("loginRequired");
 		
 		User user = dudgeBean.getUser(ao.getUsername());
-		int solutionId = Integer.parseInt(request.getParameter("solutionId"));
+		int solutionId;
+		if (request.getParameter("solutionId") != null) {
+			solutionId = Integer.parseInt(request.getParameter("solutionId"));
+		} else {
+			solutionId = sf.getSolutionId();
+		}
+
 		// Проверяем право пользователя на просмотр решения.
 		if(!ao.getPermissionChecker().canViewSolution(user.getLogin(), solutionId)) {
 			return mapping.findForward("accessDenied");
@@ -106,6 +124,14 @@ public class SolutionsAction extends DispatchAction {
 		return mapping.findForward("viewSolution");
 	}
 	
+	/**
+         * 
+         * @param mapping
+         * @param af
+         * @param request
+         * @param response
+         * @return 
+         */
 	public ActionForward submit(
 			ActionMapping mapping,
 			ActionForm af,
@@ -147,6 +173,14 @@ public class SolutionsAction extends DispatchAction {
 		return mapping.findForward("submitSolution");
 	}
 
+	/**
+         * 
+         * @param mapping
+         * @param af
+         * @param request
+         * @param response
+         * @return 
+         */
 	public ActionForward submitSubmit(
 			ActionMapping mapping,
 			ActionForm af,
@@ -194,14 +228,18 @@ public class SolutionsAction extends DispatchAction {
 		
 		solution = dudgeBean.submitSolution(solution);
 		sf.setSolutionId(Integer.toString(solution.getSolutionId()));
-		
-		return mapping.findForward("submitSuccess");
+
+		return view(mapping, sf, request, response);
 	}
 
 	/**
-	 * Метод для получения через AJAX статуса решения,
-         * где идентификатор решения задачется параметром solutionId.
-	 */
+         * Метод для получения через AJAX статуса решения, где идентификатор решения задачется параметром solutionId.
+         * 
+         * @param mapping
+         * @param af
+         * @param request
+         * @param response 
+         */
 	public void getSolutionStatus(
 			ActionMapping mapping,
 			ActionForm af,
@@ -219,6 +257,7 @@ public class SolutionsAction extends DispatchAction {
                     testNumber = 0;
             }
             
+            String statusMessage;
             if (solution != null) {
                 if(solution.getStatus() != SolutionStatus.PROCESSED
                     || solution.getContest().getTraits().isRunAllTests()
@@ -227,11 +266,14 @@ public class SolutionsAction extends DispatchAction {
 		} else {
                     status = solution.getLastRunResult().toString();
 		}
-            }    
+                statusMessage = solution.getStatusMessage();
+            } else {
+                statusMessage = "Solution object is null";
+            }
             try {
                 jo.put("status", status);
                 jo.put("testNumber", testNumber);
-                jo.put("statusMessage", solution.getStatusMessage());
+                jo.put("statusMessage", statusMessage);
             } catch (JSONException ex) {
                 ex.printStackTrace();
                 return;
@@ -243,14 +285,17 @@ public class SolutionsAction extends DispatchAction {
             } catch (IOException ex) {
                     ex.printStackTrace();
                     logger.log(Level.SEVERE, "Exception occured.", ex);
-                    return;
             }
         }
         
-        /**
-	 * Метод для получения через AJAX списка из последних N отправленных
-	 * в систему решений, где n задачется параметром limit.
-	 */
+	/**
+         * Метод для получения через AJAX списка из последних N отправленных в систему решений, где n задачется параметром limit.
+         * 
+         * @param mapping
+         * @param af
+         * @param request
+         * @param response 
+         */
 	public void getLastSolutions(
 			ActionMapping mapping,
 			ActionForm af,

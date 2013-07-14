@@ -16,6 +16,7 @@ import javax.persistence.*;
 @Entity(name="New")
 @Table(name = "news")
 public class News implements Serializable {
+    	public static final long serialVersionUID = 1L;
 	
 	@SequenceGenerator(name="NewsIdGen", sequenceName="news_news_id_seq", allocationSize=1)
 	@GeneratedValue(strategy=GenerationType.SEQUENCE, generator="NewsIdGen")

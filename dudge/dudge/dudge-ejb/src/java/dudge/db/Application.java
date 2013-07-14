@@ -21,7 +21,8 @@ import javax.persistence.*;
 })
 @IdClass(dudge.db.ApplicationPK.class)
 public class Application implements Serializable {
-	
+	public static final long serialVersionUID = 1L;
+        
 	@Id
 	@Column(name = "contest_id", nullable=false, insertable=false, updatable=false)
 	private int contestId;
@@ -51,6 +52,11 @@ public class Application implements Serializable {
 	public Application() {
 	}
 
+        /**
+         * 
+         * @param contest
+         * @param owner 
+         */
 	public Application(Contest contest, User owner) {
 		this.contest = contest;
 		this.user = owner;

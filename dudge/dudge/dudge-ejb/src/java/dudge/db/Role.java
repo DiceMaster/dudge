@@ -30,7 +30,9 @@ import javax.persistence.*;
 			+ " AND r.roleType = :roleType")
 })
 @IdClass(dudge.db.RolePK.class)
-public class Role implements Serializable {	
+public class Role implements Serializable {
+    	public static final long serialVersionUID = 1L;
+    
 	@Id
 	@Column(name = "contest_id", nullable=false, insertable=false, updatable=false)
 	private int contestId;
@@ -51,7 +53,7 @@ public class Role implements Serializable {
 	@Column(name = "role_type", length=255, nullable = false)
 	private String roleType;
 	
-	protected static Logger logger = Logger.getLogger(User.class.toString());
+	protected static final Logger logger = Logger.getLogger(User.class.toString());
 	
 	/** Creates a new instance of Roles */
 	public Role() {

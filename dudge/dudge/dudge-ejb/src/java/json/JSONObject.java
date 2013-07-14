@@ -99,6 +99,7 @@ public class JSONObject {
          * so the clone method returns itself.
          * @return     NULL.
          */
+        @Override
         protected final Object clone() {
             return this;
         }
@@ -110,6 +111,7 @@ public class JSONObject {
          * @return true if the object parameter is the JSONObject.NULL object
          *  or null.
          */
+        @Override
         public boolean equals(Object object) {
             return object == null || object == this;
         }
@@ -119,6 +121,7 @@ public class JSONObject {
          * Get the "null" string value.
          * @return The string "null".
          */
+        @Override
         public String toString() {
             return "null";
         }
@@ -256,7 +259,7 @@ public class JSONObject {
     			Field field = c.getField(name);
     			Object value = field.get(object);
 	    		this.put(name, value);
-    		} catch (Exception e) {
+    		} catch (NoSuchFieldException | SecurityException | IllegalArgumentException | IllegalAccessException | JSONException e) {
     			/* forget about it */
     		}
     	}
@@ -818,7 +821,7 @@ public class JSONObject {
      * @throws JSONException If the key is null or if the number is invalid.
      */
     public JSONObject put(String key, double value) throws JSONException {
-        put(key, new Double(value));
+        put(key, Double.valueOf(value));
         return this;
     }
 
@@ -832,7 +835,7 @@ public class JSONObject {
      * @throws JSONException If the key is null.
      */
     public JSONObject put(String key, int value) throws JSONException {
-        put(key, new Integer(value));
+        put(key, Integer.valueOf(value));
         return this;
     }
 
@@ -846,7 +849,7 @@ public class JSONObject {
      * @throws JSONException If the key is null.
      */
     public JSONObject put(String key, long value) throws JSONException {
-        put(key, new Long(value));
+        put(key, Long.valueOf(value));
         return this;
     }
 
@@ -921,12 +924,12 @@ public class JSONObject {
             return "\"\"";
         }
 
-        char         b;
-        char         c = 0;
-        int          i;
-        int          len = string.length();
-        StringBuffer sb = new StringBuffer(len + 4);
-        String       t;
+        char          b;
+        char          c = 0;
+        int           i;
+        int           len = string.length();
+        StringBuilder sb = new StringBuilder(len + 4);
+        String        t;
 
         sb.append('"');
         for (i = 0; i < len; i += 1) {
@@ -963,7 +966,7 @@ public class JSONObject {
                 if (c < ' ' || (c >= '\u0080' && c < '\u00a0') || 
                 		       (c >= '\u2000' && c < '\u2100')) {
                     t = "000" + Integer.toHexString(c);
-                    sb.append("\\u" + t.substring(t.length() - 4));
+                    sb.append("\\u").append(t.substring(t.length() - 4));
                 } else {
                     sb.append(c);
                 }
@@ -1037,10 +1040,11 @@ public class JSONObject {
      *  with <code>{</code>&nbsp;<small>(left brace)</small> and ending
      *  with <code>}</code>&nbsp;<small>(right brace)</small>.
      */
+     @Override
     public String toString() {
         try {
-            Iterator     keys = keys();
-            StringBuffer sb = new StringBuffer("{");
+            Iterator      keys = keys();
+            StringBuilder sb = new StringBuilder("{");
 
             while (keys.hasNext()) {
                 if (sb.length() > 1) {
@@ -1095,10 +1099,10 @@ public class JSONObject {
         if (n == 0) {
             return "{}";
         }
-        Iterator     keys = keys();
-        StringBuffer sb = new StringBuffer("{");
-        int          newindent = indent + indentFactor;
-        Object       o;
+        Iterator      keys = keys();
+        StringBuilder sb = new StringBuilder("{");
+        int           newindent = indent + indentFactor;
+        Object        o;
         if (n == 1) {
             o = keys.next();
             sb.append(quote(o.toString()));
@@ -1150,7 +1154,7 @@ public class JSONObject {
      * @throws JSONException If the value is or contains an invalid number.
      */
     static String valueToString(Object value) throws JSONException {
-        if (value == null || value.equals(null)) {
+        if (value == null) {
             return "null";
         }
         if (value instanceof JSONString) {
@@ -1192,7 +1196,7 @@ public class JSONObject {
      */
      static String valueToString(Object value, int indentFactor, int indent)
             throws JSONException {
-        if (value == null || value.equals(null)) {
+        if (value == null) {
             return "null";
         }
         try {

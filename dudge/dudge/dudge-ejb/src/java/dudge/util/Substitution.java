@@ -39,12 +39,13 @@ public class Substitution {
 	public Substitution()
 	{
 		super();
-		substs = new HashMap<String, String>();
+		substs = new HashMap<>();
 	}
     
 	/**
 	 *  Adds new substitution to the object or
 	 *  sets it if substitution already exists
+         * 
 	 *  @param aSubst The new substitution
 	 *  @param aValue The value of substitution
 	 */
@@ -58,6 +59,7 @@ public class Substitution {
     
 	/**
 	 *  Returns value of the substitution
+         * 
 	 *  @param aSubst The substitution witch value will be returned
 	 *  @return The value of substitution
 	 */
@@ -76,6 +78,7 @@ public class Substitution {
     
 	/**
 	 *  Returns count of substitutions
+         * 
 	 *  @return The count of substitutions
 	 */
 	public int getSubstsCount()    
@@ -85,9 +88,11 @@ public class Substitution {
     
 	/**
 	 *  Compares two objects
+         * 
 	 *  @param otherObject The other object to compare
 	 *  @return True if substitutions are equaly, false else
 	 */
+        @Override
 	public boolean equals(Object otherObject)
 	{
 		if (otherObject == null)
@@ -112,6 +117,7 @@ public class Substitution {
     
 	/**
 	 *  Removes substitution from object
+         * 
 	 *  @param aSubst The substitution for remove
 	 */
 	public void remove(String aSubst)
@@ -121,14 +127,16 @@ public class Substitution {
     
 	/**
 	 *  Clones currnet object
+         * 
 	 *  @return The clone of current object
 	 */
+        @Override
 	public Object clone()
 		throws CloneNotSupportedException
 	{
 		Substitution cloned = (Substitution) super.clone();
 
-		cloned.substs = new HashMap<String, String>();
+		cloned.substs = new HashMap<>();
 
 		for (Map.Entry<String, String> i : substs.entrySet())
 		{
@@ -140,11 +148,13 @@ public class Substitution {
     
 	/**
 	 *  Converts object to string
+         * 
 	 *  @return The string with data from object
 	 */
+        @Override
 	public String toString()
 	{
-		StringBuffer result = new StringBuffer(getClass().getName());
+		StringBuilder result = new StringBuilder(getClass().getName());
         
 		int count = substs.size();
         
@@ -164,8 +174,10 @@ public class Substitution {
     
 	/**
 	 *  Returns hash code of object
+         * 
 	 *  @return Hash code of object
 	 */
+        @Override
 	public int hashCode()
 	{
 		long hashCode = 0;
@@ -179,12 +191,11 @@ public class Substitution {
 	}
     
 	/**
-	 *  Decodes string with substitution to the full
-	 *  string
+	 *  Decodes string with substitution to the full string
+         * 
 	 *  @return Decoded string
 	 *  @param aString The string with substitutions
-	 *  @throws java.lang.IllegalStateException Throws if graph of substitutions 
-	 contains cycles
+	 *  @throws java.lang.IllegalStateException Throws if graph of substitutions contains cycles
 	 */
 	public String decodeString(String aString)
 		throws IllegalStateException
@@ -203,24 +214,19 @@ public class Substitution {
 			throw new IllegalStateException("Detected cycles in graph.");
 		}
         
+                String[] lastSubst;
 		while (flag)
 		{
-			flag = false;
-
-			String[] lastSubst = getAllSubstitutions(result);
-
+			lastSubst = getAllSubstitutions(result);
 			for (Map.Entry<String, String> i : substs.entrySet())
 			{
-				String subst = "" + this.SUBST_CHAR +
-					this.SUBST_OPEN_BRACKET + i.getKey() + 
-					this.SUBST_CLOSE_BRACKET;
+				String subst = "" + SUBST_CHAR + SUBST_OPEN_BRACKET + i.getKey() + SUBST_CLOSE_BRACKET;
 
 				String value = i.getValue();
 
 				result = result.replace(subst, value);
 			} 
 			flag = !Arrays.equals(lastSubst, getAllSubstitutions(result));
-			lastSubst = getAllSubstitutions(result);
 		}
         
 		return result;
@@ -228,6 +234,7 @@ public class Substitution {
     
 	/**
 	 *  Encodes normal string to the format with substitutions
+         * 
 	 *  @param aString The wtring for coding
 	 *  @return The encoded string
 	 */
@@ -247,17 +254,13 @@ public class Substitution {
 			throw new IllegalStateException("Detected cycles in graph.");
 		}
         
+                String[] lastSubst;
 		while (flag)
 		{
-			flag = false;
-
-			String[] lastSubst = getAllSubstitutions(result);
-
+			lastSubst = getAllSubstitutions(result);
 			for (Map.Entry<String, String> i : substs.entrySet())
 			{
-				String subst = "" + this.SUBST_CHAR +
-					this.SUBST_OPEN_BRACKET + i.getKey() + 
-					this.SUBST_CLOSE_BRACKET;
+				String subst = "" + SUBST_CHAR + SUBST_OPEN_BRACKET + i.getKey() + SUBST_CLOSE_BRACKET;
 
 				String value = i.getValue();
                 
@@ -282,20 +285,22 @@ public class Substitution {
 				result = result.replace("<|" + value + "|>", subst);
 			} 
 			flag = !Arrays.equals(lastSubst, getAllSubstitutions(result));
-			lastSubst = getAllSubstitutions(result);
 		}
         
 		return result;
 	}
     
+	/**
+         * 
+         * @param aString
+         * @param position
+         * @return 
+         */
 	private boolean isInSubstitution(String aString, Integer position)
 	{
-		int indexOpen = aString.lastIndexOf("" + this.SUBST_CHAR +
-			this.SUBST_OPEN_BRACKET,
-			position);
+		int indexOpen = aString.lastIndexOf("" + SUBST_CHAR + SUBST_OPEN_BRACKET, position);
         
-		int indexClose = aString.indexOf(
-			this.SUBST_CLOSE_BRACKET, position);
+		int indexClose = aString.indexOf("" + SUBST_CLOSE_BRACKET, position);
 
 		if (indexOpen == -1)
 		{
@@ -306,6 +311,11 @@ public class Substitution {
             
 	}
     
+	/**
+         * 
+         * @param aString
+         * @return 
+         */
 	private boolean isSubstitutions(String aString)
 	{
 		if (aString == null)
@@ -313,7 +323,7 @@ public class Substitution {
 			return false;
 		}
         
-		int indexSubstChar = aString.indexOf(this.SUBST_CHAR);
+		int indexSubstChar = aString.indexOf("" + SUBST_CHAR);
 
 		if (indexSubstChar == -1)
 		{
@@ -325,13 +335,12 @@ public class Substitution {
 			return false;
 		}
         
-		if (aString.charAt(indexSubstChar + 1) != this.SUBST_OPEN_BRACKET)
+		if (aString.charAt(indexSubstChar + 1) != SUBST_OPEN_BRACKET)
 		{
 			return false;
 		}
         
-		int indexCloseBracket = aString.indexOf(this.SUBST_CLOSE_BRACKET,
-			indexSubstChar + 1);
+		int indexCloseBracket = aString.indexOf("" + SUBST_CLOSE_BRACKET, indexSubstChar + 1);
         
 		if (indexCloseBracket == -1)
 		{
@@ -341,6 +350,11 @@ public class Substitution {
 		return true;
 	}
     
+	/**
+         * 
+         * @param str
+         * @return 
+         */
 	private String[] getAllSubstitutions(String str)
 	{
 		if (str != null && !isSubstitutions(str))
@@ -348,29 +362,35 @@ public class Substitution {
 			return new String[0];
 		}
         
-		ArrayList<String> result = new ArrayList<String>();
+		ArrayList<String> result = new ArrayList<>();
         
-		String prefix = "" + this.SUBST_CHAR +
-			this.SUBST_OPEN_BRACKET;
+		String prefix = "" + SUBST_CHAR + SUBST_OPEN_BRACKET;
         
-		String suffix = "" + this.SUBST_CLOSE_BRACKET;
-        
-		int lastIndex = str.indexOf(prefix);
-        
-		while (lastIndex >= 0 && lastIndex + 2 < str.length())
-		{
-			int index = str.indexOf(suffix, lastIndex + 1);
+		String suffix = "" + SUBST_CLOSE_BRACKET;
 
-			if (index >= 0 && lastIndex + 2 != index)
-			{
-				result.add(str.substring(lastIndex + 2, index));
-			}
-			lastIndex = str.indexOf(prefix, index);
-		}
+                if (str != null) {
+                    int  lastIndex = str.indexOf(prefix);
+                    while (lastIndex >= 0 && lastIndex + 2 < str.length())
+                    {
+                            int index = str.indexOf(suffix, lastIndex + 1);
+
+                            if (index >= 0 && lastIndex + 2 != index)
+                            {
+                                    result.add(str.substring(lastIndex + 2, index));
+                            }
+                            lastIndex = str.indexOf(prefix, index);
+                    }
+                }
         
 		return (String[]) result.toArray(new String[result.size()]);
 	}
     
+	/**
+         * 
+         * @param array
+         * @param index
+         * @return 
+         */
 	private int evaluateColSum(boolean[][] array, int index)
 	{
 		int sum = 0;
@@ -385,6 +405,10 @@ public class Substitution {
 		return sum;
 	} 
     
+	/**
+         * 
+         * @return 
+         */
 	private boolean testGraphForCycles()
 	{
 		boolean[][] graph = generateGraph();
@@ -434,6 +458,10 @@ public class Substitution {
 		return flag;
 	}
     
+	/**
+         * 
+         * @return 
+         */
 	private boolean[][] generateGraph()
 	{
 		String[] allKeys = getAllKeys();
@@ -447,10 +475,9 @@ public class Substitution {
 			Arrays.fill(result[i], false);
 		}        
         
-		String prefix = "" + this.SUBST_CHAR +
-			this.SUBST_OPEN_BRACKET;
+		String prefix = "" + SUBST_CHAR + SUBST_OPEN_BRACKET;
         
-		String suffix = "" + this.SUBST_CLOSE_BRACKET;
+		String suffix = "" + SUBST_CLOSE_BRACKET;
         
 		int i = 0;
 
@@ -477,11 +504,15 @@ public class Substitution {
 		return result; 
 	}
     
+	/**
+         * 
+         * @return 
+         */
 	private String[] getAllKeys()
 	{
-		ArrayList<String> result = new ArrayList<String>();
+		ArrayList<String> result = new ArrayList<>();
         
-		ArrayList<String> temp = new ArrayList<String>();
+		ArrayList<String> temp = new ArrayList<>();
         
 		for (Map.Entry<String, String> subst : substs.entrySet())
 		{
@@ -491,7 +522,7 @@ public class Substitution {
         
 		Collections.sort(temp);
                 
-		if (temp.size() == 0)
+		if (temp.isEmpty())
 		{
 			return null;
 		}

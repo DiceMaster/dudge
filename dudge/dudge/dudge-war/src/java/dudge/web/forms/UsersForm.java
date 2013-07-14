@@ -15,6 +15,7 @@ import org.apache.struts.action.ActionMapping;
  * @version
  */
 public class UsersForm extends org.apache.struts.action.ActionForm {
+    public static final long serialVersionUID = 1L;
 
     // Действие над текущим пользователем.
     private boolean newUser = false;
@@ -89,6 +90,11 @@ public class UsersForm extends org.apache.struts.action.ActionForm {
         this.errorMessageKey = errorMessageKey;
     }
     
+    /**
+     * 
+     * @param mapping
+     * @param request 
+     */
     @Override
     public void reset(ActionMapping mapping, HttpServletRequest request) {
         // Выставляем дефолтные значения соотв. полей информации пользователя.

@@ -11,16 +11,13 @@ package dudge.web.actions;
 
 import java.io.IOException;
 import java.util.Locale;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import org.apache.struts.Globals;
 import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
 import org.apache.struts.actions.DispatchAction;
-import org.apache.struts.action.*;
 
 
 /**
@@ -29,11 +26,17 @@ import org.apache.struts.action.*;
  */
 public class LocalesAction extends DispatchAction {
 
-	protected static Logger logger = Logger.getLogger(LocalesAction.class.toString());
+	protected static final Logger logger = Logger.getLogger(LocalesAction.class.toString());
 
 	/**
-	 * Устанавливает нужную локаль для пользовательского интерфейса.
-	 */
+         * Устанавливает нужную локаль для пользовательского интерфейса.
+         * 
+         * @param mapping
+         * @param af
+         * @param request
+         * @param response
+         * @return 
+         */
 	public ActionForward setLocale(ActionMapping mapping, ActionForm af, HttpServletRequest request, HttpServletResponse response) {
 
 		String localeName = (String) request.getParameter("locale_name");

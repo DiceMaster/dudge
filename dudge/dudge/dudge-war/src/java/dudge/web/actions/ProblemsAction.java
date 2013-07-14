@@ -51,6 +51,10 @@ public class ProblemsAction extends DispatchAction {
 	public ProblemsAction() {
 	}
 	
+	/**
+         * 
+         * @return 
+         */
 	private DudgeLocal lookupDudgeBean() {
 		try {
 			Context c = new InitialContext();
@@ -61,6 +65,14 @@ public class ProblemsAction extends DispatchAction {
 		}
 	}
 	
+	/**
+         * 
+         * @param mapping
+         * @param af
+         * @param request
+         * @param response
+         * @return 
+         */
 	public ActionForward list(
 			ActionMapping mapping,
 			ActionForm af,
@@ -79,6 +91,14 @@ public class ProblemsAction extends DispatchAction {
 		return mapping.findForward("problems");
 	}
 	
+	/**
+         * 
+         * @param mapping
+         * @param af
+         * @param request
+         * @param response
+         * @return 
+         */
 	public ActionForward view(
 			ActionMapping mapping,
 			ActionForm af,
@@ -122,6 +142,13 @@ public class ProblemsAction extends DispatchAction {
 		return mapping.findForward("viewProblem");
 	}
 	
+	/**
+         * 
+         * @param mapping
+         * @param af
+         * @param request
+         * @param response 
+         */
 	public void getProblemList( ActionMapping mapping,
 			ActionForm af,
 			HttpServletRequest request,
@@ -140,7 +167,7 @@ public class ProblemsAction extends DispatchAction {
 		PermissionCheckerRemote pcb = ao.getPermissionChecker();
 		
 		// Отсеиваем из списка задач те, которые пользователь видеть в общем списке задач не должен.
-		List<Problem> selectedProblems = new ArrayList<Problem>();
+		List<Problem> selectedProblems = new ArrayList<>();
 		for (Problem problem: problems){
 			if(pcb.canViewProblem(ao.getUsername() , problem.getProblemId()))
 				selectedProblems.add(problem);
@@ -187,6 +214,14 @@ public class ProblemsAction extends DispatchAction {
 		
 	}
 	
+	/**
+         * 
+         * @param mapping
+         * @param af
+         * @param request
+         * @param response
+         * @return 
+         */
 	public ActionForward edit(
 			ActionMapping mapping,
 			ActionForm af,
@@ -225,6 +260,14 @@ public class ProblemsAction extends DispatchAction {
 		return mapping.findForward("editProblem");
 	}
 	
+	/**
+         * 
+         * @param mapping
+         * @param af
+         * @param request
+         * @param response
+         * @return 
+         */
 	public ActionForward create(
 			ActionMapping mapping,
 			ActionForm af,
@@ -261,6 +304,12 @@ public class ProblemsAction extends DispatchAction {
 		return mapping.findForward("editProblem");
 	}
 
+	/**
+         * 
+         * @param file
+         * @param request
+         * @return 
+         */
 	private dudge.problemc.binding.Problem importProblem(FormFile file, HttpServletRequest request)	{
 		
 		dudge.problemc.binding.Problem importedProblem;
@@ -270,9 +319,9 @@ public class ProblemsAction extends DispatchAction {
 						dudge.problemc.binding.Problem.class.getPackage().getName()
 						);
 			javax.xml.bind.Unmarshaller unmarshaller = jaxbCtx.createUnmarshaller();
-			ByteArrayInputStream inputStream = new ByteArrayInputStream(file.getFileData());
-			importedProblem = (dudge.problemc.binding.Problem) unmarshaller.unmarshal(inputStream);
-			inputStream.close();
+                    try (ByteArrayInputStream inputStream = new ByteArrayInputStream(file.getFileData())) {
+                        importedProblem = (dudge.problemc.binding.Problem) unmarshaller.unmarshal(inputStream);
+                    }
 		}
 		catch (Exception ex) {
 			request.setAttribute("exception", ex);
@@ -282,6 +331,14 @@ public class ProblemsAction extends DispatchAction {
 		return importedProblem;
 	}
 
+	/**
+         * 
+         * @param mapping
+         * @param af
+         * @param request
+         * @param response
+         * @return 
+         */
 	private ActionForward importCreate(
 			ActionMapping mapping,
 			ActionForm af,
@@ -334,6 +391,14 @@ public class ProblemsAction extends DispatchAction {
 		return forward;
 	}
 
+	/**
+         * 
+         * @param mapping
+         * @param af
+         * @param request
+         * @param response
+         * @return 
+         */
 	private ActionForward importEdit(
 			ActionMapping mapping,
 			ActionForm af,
@@ -378,6 +443,14 @@ public class ProblemsAction extends DispatchAction {
 		return forward;
 	}
 
+	/**
+         * 
+         * @param mapping
+         * @param af
+         * @param request
+         * @param response
+         * @return 
+         */
 	public ActionForward submitCreate(
 			ActionMapping mapping,
 			ActionForm af,
@@ -433,6 +506,14 @@ public class ProblemsAction extends DispatchAction {
 		return forward;
 	}
 	
+	/**
+         * 
+         * @param mapping
+         * @param af
+         * @param request
+         * @param response
+         * @return 
+         */
 	public ActionForward submitEdit(
 			ActionMapping mapping,
 			ActionForm af,
@@ -482,9 +563,13 @@ public class ProblemsAction extends DispatchAction {
 		return forward;
 	}
 
-
+	/**
+         * 
+         * @param problemId
+         * @param problem 
+         */
 	private void importTests(int problemId, dudge.problemc.binding.Problem problem) {
-		List<Test> tests = new LinkedList<Test>( lookupDudgeBean().getProblem(problemId).getTests() );
+		List<Test> tests = new LinkedList<>(lookupDudgeBean().getProblem(problemId).getTests());
 		Collections.sort(tests);
 
 		
@@ -521,7 +606,13 @@ public class ProblemsAction extends DispatchAction {
 		}
 	}
 
-
+	/**
+         * 
+         * @param mapping
+         * @param af
+         * @param request
+         * @param response 
+         */
 	public void getTestList(
 			ActionMapping mapping,
 			ActionForm af,
@@ -540,7 +631,7 @@ public class ProblemsAction extends DispatchAction {
 			return;
 		}
 		
-		List<Test> tests = new LinkedList<Test>( lookupDudgeBean().getProblem(pf.getProblemId()).getTests() );
+		List<Test> tests = new LinkedList<>(lookupDudgeBean().getProblem(pf.getProblemId()).getTests());
 		Collections.sort(tests);
 		
 		JSONArray ja = new JSONArray();
@@ -573,13 +664,20 @@ public class ProblemsAction extends DispatchAction {
 		}
 	}
 	
+	/**
+         * 
+         * @param mapping
+         * @param af
+         * @param request
+         * @param response 
+         */
 	public void deleteTest(
 			ActionMapping mapping,
 			ActionForm af,
 			HttpServletRequest request,
 			HttpServletResponse response) {
 		AuthenticationObject ao = AuthenticationObject.extract(request);
-		ProblemsForm pf = (ProblemsForm) af;
+
 		int testId = Integer.parseInt( (String) request.getParameter("testId"));
 		
 		// Проверяем право пользователя.
@@ -596,6 +694,13 @@ public class ProblemsAction extends DispatchAction {
 		lookupDudgeBean().deleteTest(testId);
 	}
 	
+	/**
+         * 
+         * @param mapping
+         * @param af
+         * @param request
+         * @param response 
+         */
 	public void addTest(
 			ActionMapping mapping,
 			ActionForm af,
@@ -626,12 +731,18 @@ public class ProblemsAction extends DispatchAction {
 		lookupDudgeBean().addTest(test);
 	}
 	
+	/**
+         * 
+         * @param mapping
+         * @param af
+         * @param request
+         * @param response 
+         */
 	public void getTest(
 			ActionMapping mapping,
 			ActionForm af,
 			HttpServletRequest request,
 			HttpServletResponse response) {
-		ProblemsForm pf = (ProblemsForm) af;
 		
 		int testId = Integer.parseInt( (String) request.getParameter("testId"));
 		Test test =  lookupDudgeBean().getTest(testId);
@@ -693,6 +804,13 @@ public class ProblemsAction extends DispatchAction {
 		}
 	}
 	
+	/**
+         * 
+         * @param mapping
+         * @param af
+         * @param request
+         * @param response 
+         */
 	public void commitTest(
 			ActionMapping mapping,
 			ActionForm af,
@@ -724,11 +842,15 @@ public class ProblemsAction extends DispatchAction {
 		
 		lookupDudgeBean().modifyTest(test);
 	}
-	
+
 	/**
-	 * Метод возвращает представления объекта в формата JSON - это нужно
+         * Метод возвращает представления объекта в формата JSON - это нужно
 	 * для его отображение на стороне клиента через JavaScript/AJAX.
-	 */
+         * 
+         * @param problem
+         * @param ao
+         * @return 
+         */
 	private JSONObject getProblemJSONView(Problem problem , AuthenticationObject ao) {
 		
 		JSONObject json = new JSONObject();
@@ -757,9 +879,12 @@ public class ProblemsAction extends DispatchAction {
 	}
 	
 	/**
-	 * Метод возвращает представления объекта в формата JSON - это нужно
+         * Метод возвращает представления объекта в формата JSON - это нужно
 	 * для его отображение на стороне клиента через JavaScript/AJAX.
-	 */
+         * 
+         * @param test
+         * @return 
+         */
 	private JSONObject getTestJSONView(Test test) {
 		
 		JSONObject json = new JSONObject();
@@ -777,13 +902,19 @@ public class ProblemsAction extends DispatchAction {
 		return json;
 	}
 	
+	/**
+         * 
+         * @param mapping
+         * @param af
+         * @param request
+         * @param response 
+         */
 	public void delete(
 			ActionMapping mapping,
 			ActionForm af,
 			HttpServletRequest request,
 			HttpServletResponse response) {
 		AuthenticationObject ao = AuthenticationObject.extract(request);
-		ProblemsForm pf = (ProblemsForm) af;
 		
 		int problemId = Integer.parseInt( (String) request.getParameter("problemId"));
 		Problem problem = lookupDudgeBean().getProblem(problemId);

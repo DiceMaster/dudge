@@ -14,6 +14,7 @@ import dudge.db.Test;
 import dudge.db.User;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
@@ -31,7 +32,7 @@ public class PermissionCheckerBean implements PermissionCheckerRemote {
 	@EJB
 	private DudgeLocal dudgeBean;
 	
-	protected Logger logger = Logger.getLogger(PermissionCheckerBean.class.toString());
+	protected static final Logger logger = Logger.getLogger(PermissionCheckerBean.class.toString());
 	
 	@PersistenceContext
 	private EntityManager em;
@@ -50,6 +51,7 @@ public class PermissionCheckerBean implements PermissionCheckerRemote {
 	 * @param principal  Имя пользователя, для которого проверяется право.
 	 * @param user Пользователь, данные которого запрашиваются.
 	 */
+        @Override
 	public boolean canGetUser(String principal, User user) {
 /*		if (principal == null)
 						return false;
@@ -68,11 +70,12 @@ public class PermissionCheckerBean implements PermissionCheckerRemote {
 	 * @param principal  Имя пользователя, для которого проверяется право.
 	 * @param user Имя пользователя, данные которого надо модифицировать.
 	 */
+        @Override
 	public boolean canModifyUser(String principal, String user) {
 		if(principal == null) return false;
 		User princ = dudgeBean.getUser(principal);
 		if(princ == null) {
-			logger.warning("Nonexistent user " + principal);
+			logger.log(Level.WARNING, "Nonexistent user {0}", principal);
 			return false;
 		}
 		
@@ -93,11 +96,12 @@ public class PermissionCheckerBean implements PermissionCheckerRemote {
 	 * @param principal имя пользователя, для которого проверяется право.
 	 * @param user имя пользователя, данные которого надо модифицировать.
 	 */
+        @Override
 	public boolean canDeepModifyUser(String principal, String user) {
 		if(principal == null) return false;
 		User princ = dudgeBean.getUser(principal);
 		if(princ == null) {
-			logger.warning("Nonexistent user " + principal);
+			logger.log(Level.WARNING, "Nonexistent user {0}", principal);
 			return false;
 		}
 		
@@ -115,12 +119,13 @@ public class PermissionCheckerBean implements PermissionCheckerRemote {
 	 * @param principal Имя пользователя, для которого проверяется право.
 	 * @param user Удаляемый пользователь.
 	 */
+        @Override
 	public boolean canDeleteUser(String principal) {
 		if(principal == null)
 			return false;
 		User princ = dudgeBean.getUser(principal);
 		if(princ == null) {
-			logger.warning("Nonexistent user " + principal);
+			logger.log(Level.WARNING, "Nonexistent user {0}", principal);
 			return false;
 		}
 		
@@ -139,12 +144,13 @@ public class PermissionCheckerBean implements PermissionCheckerRemote {
 	 * @param principal  Имя пользователя, для которого проверяется право.
 	 * @param language Язык, который запрашивается.
 	 */
+        @Override
 	public boolean canGetLanguage(String principal, Language language) {
 		if (principal == null)
 			return false;
 		User princ = dudgeBean.getUser(principal);
 		if(princ == null) {
-			logger.warning("Nonexistent user " + principal);
+			logger.log(Level.WARNING, "Nonexistent user {0}", principal);
 			return false;
 		}
 		
@@ -155,11 +161,12 @@ public class PermissionCheckerBean implements PermissionCheckerRemote {
 	 * true, если пользователь администратор, иначе false.
 	 * @param principal  Имя пользователя, для которого проверяется право.
 	 */
+        @Override
 	public boolean canAddLanguage(String principal) {
 		if(principal == null) return false;
 		User princ = dudgeBean.getUser(principal);
 		if(princ == null) {
-			logger.warning("Nonexistent user " + principal);
+			logger.log(Level.WARNING, "Nonexistent user {0}", principal);
 			return false;
 		}
 		if (
@@ -177,11 +184,12 @@ public class PermissionCheckerBean implements PermissionCheckerRemote {
 	 * @param principal Имя пользователя, для которого проверяется право.
 	 * @param language Язык, который модифицируется.
 	 */
+        @Override
 	public boolean canModifyLanguage(String principal) {
 		if(principal == null) return false;
 		User princ = dudgeBean.getUser(principal);
 		if(princ == null) {
-			logger.warning("Nonexistent user " + principal);
+			logger.log(Level.WARNING, "Nonexistent user {0}", principal);
 			return false;
 		}
 		
@@ -195,11 +203,12 @@ public class PermissionCheckerBean implements PermissionCheckerRemote {
 		return false;
 	}
 	
+        @Override
 	public boolean canDeleteLanguage(String principal){
 		if(principal == null) return false;
 		User princ = dudgeBean.getUser(principal);
 		if(princ == null) {
-			logger.warning("Nonexistent user " + principal);
+			logger.log(Level.WARNING, "Nonexistent user {0}", principal);
 			return false;
 		}
 		if(princ.isAdmin()) return true;
@@ -213,6 +222,7 @@ public class PermissionCheckerBean implements PermissionCheckerRemote {
 	 * @param contestId Идентификатор соревнования, к которому пользователь пытается присоединиться.
 	 * @return true.
 	 */
+        @Override
 	public boolean canJoinContest(String principal, int contestId) {
 		return true;
 		
@@ -234,6 +244,7 @@ public class PermissionCheckerBean implements PermissionCheckerRemote {
 	 * @param principal  Имя пользователя, для которого проверяется право.
 	 * @param contest Соревнование, которое надо получить.
 	 */
+        @Override
 	public boolean canViewContest(String principal, int contestId) {
 /*		if (principal == null)
 			return false;
@@ -251,11 +262,12 @@ public class PermissionCheckerBean implements PermissionCheckerRemote {
 	 * соревнования, иначе false.
 	 * @param principal Имя пользователя, для которого проверяется право.
 	 */
+        @Override
 	public boolean canAddContest(String principal) {
 		if(principal == null) return false;
 		User princ = dudgeBean.getUser(principal);
 		if(princ == null) {
-			logger.warning("Nonexistent user " + principal);
+			logger.log(Level.WARNING, "Nonexistent user {0}", principal);
 			return false;
 		}
 		if (
@@ -277,11 +289,12 @@ public class PermissionCheckerBean implements PermissionCheckerRemote {
 	 * @param principal имя пользователя, для которого проверяется право.
 	 * @param contestId идентификатор соревнования, которое изменяют.
 	 */
+        @Override
 	public boolean canModifyContest(String principal, int contestId) {
 		if(principal == null) return false;
 		User princ = dudgeBean.getUser(principal);
 		if(princ == null) {
-			logger.warning("Nonexistent user " + principal);
+			logger.log(Level.WARNING, "Nonexistent user {0}", principal);
 			return false;
 		}
 		if (
@@ -302,11 +315,12 @@ public class PermissionCheckerBean implements PermissionCheckerRemote {
 	 * @param principal Имя пользователя, для которого проверяется право.
 	 * @param contestId ID удаляемого соревнования.
 	 */
+        @Override
 	public boolean canDeleteContest(String principal, int contestId) {
 		if(principal == null) return false;
 		User princ = dudgeBean.getUser(principal);
 		if(princ == null) {
-			logger.warning("Nonexistent user " + principal);
+			logger.log(Level.WARNING, "Nonexistent user {0}", principal);
 			return false;
 		}
 		
@@ -327,6 +341,7 @@ public class PermissionCheckerBean implements PermissionCheckerRemote {
 	 * @param principal Имя пользователя, для которого проверяется право.
 	 * @param problemId Идентификатор задачи, которую запрашивают.
 	 */
+        @Override
 	public boolean canViewProblem(String principal, int problemId) {
 		// Если задача открытая, то ее может видеть любой пользователь.
 		if (!dudgeBean.getProblem(problemId).isHidden()) {
@@ -343,7 +358,7 @@ public class PermissionCheckerBean implements PermissionCheckerRemote {
 		 */
 
 		List<Contest> contests = dudgeBean.getContests();
-		List<Contest> selectedContests = new ArrayList<Contest>();
+		List<Contest> selectedContests = new ArrayList<>();
 
 		Problem problem = dudgeBean.getProblem(problemId);
 
@@ -404,12 +419,13 @@ public class PermissionCheckerBean implements PermissionCheckerRemote {
 	 * @return true, если пользователь администратор или имеет привелегию добавления задач,
 	 * иначе false.
 	 */
+        @Override
 	public boolean canAddProblem(String principal) {
 		if (principal == null)
 			return false;
 		User princ = dudgeBean.getUser(principal);
 		if(princ == null) {
-			logger.warning("Nonexistent user " + principal);
+			logger.log(Level.WARNING, "Nonexistent user {0}", principal);
 			return false;
 		}
 		
@@ -427,6 +443,7 @@ public class PermissionCheckerBean implements PermissionCheckerRemote {
 	 * @return true если задача не скрытая и пользователь имеет права админа или создателя задач.
 	 * Если задача скрытая, то true, если пользователь автор задачи, или администратор системы.
 	 */
+        @Override
 	public boolean canAddProblemToContest(String principal, int contestId, int problemId) {
 		User princ = dudgeBean.getUser(principal);
 		if (princ.isAdmin()) return true;
@@ -446,11 +463,12 @@ public class PermissionCheckerBean implements PermissionCheckerRemote {
 	 * @param principal имя пользователя, для которого проверяется право.
 	 * @param problem идентификатор задачи, которую изменяют.
 	 */
+        @Override
 	public boolean canModifyProblem(String principal, int problemId) {
 		if(principal == null) return false;
 		User princ = dudgeBean.getUser(principal);
 		if(princ == null) {
-			logger.warning("Nonexistent user " + principal);
+			logger.log(Level.WARNING, "Nonexistent user {0}", principal);
 			return false;
 		}
 		
@@ -472,6 +490,7 @@ public class PermissionCheckerBean implements PermissionCheckerRemote {
 	 * @param principal Имя пользователя, для которого проверяется право.
 	 * @param problemId ID удаляемой задачи.
 	 */
+        @Override
 	public boolean canDeleteProblem(String principal, int problemId) {
 		if(principal == null)
 			return false;
@@ -499,11 +518,12 @@ public class PermissionCheckerBean implements PermissionCheckerRemote {
 	 * @param principal Имя пользователя, для которого проверяется право.
 	 * @param solutionId идентификатор просматриваемого решения.
 	 */
+        @Override
 	public boolean canViewSolution(String principal, int solutionId) {
 		if(principal == null) return false;
 		User princ = dudgeBean.getUser(principal);
 		if(princ == null) {
-			logger.warning("Nonexistent user " + principal);
+			logger.log(Level.WARNING, "Nonexistent user {0}", principal);
 			return false;
 		}
 		
@@ -535,17 +555,18 @@ public class PermissionCheckerBean implements PermissionCheckerRemote {
 	 * @param principal имя пользователя, для которого проверяется право.
 	 * @param contestId идентификатор соревнования, куда отправляется решение.
 	 */
+        @Override
 	public boolean canSubmitSolution(String principal, int contestId) {
 		if(principal == null) return false;
 		User princ = dudgeBean.getUser(principal);
 		Contest contest = dudgeBean.getContest(contestId);
 		if(princ == null) {
-			logger.warning("Nonexistent user " + principal);
+			logger.log(Level.WARNING, "Nonexistent user {0}", principal);
 			return false;
 		}
 		
 		//Если пользователь является администратором системы
-		if(princ.isAdmin() ) return true;
+		if(princ.isAdmin()) return true;
 		
 		//Или если является админстратором соревнования
 		if(dudgeBean.isInRole(principal, contestId, RoleType.ADMINISTRATOR)) return true;
@@ -568,6 +589,7 @@ public class PermissionCheckerBean implements PermissionCheckerRemote {
 	 * @param contestId идентификатор соревнования, куда отправляется решение.
 	 * @param problemId идентификатор задачи, решение которой отправляется.
 	 */
+        @Override
 	public boolean canSubmitSolution(String principal, int contestId, int problemId) {
 		Contest contest = dudgeBean.getContest(contestId);
 		Problem problem = dudgeBean.getProblem(problemId);
@@ -589,19 +611,18 @@ public class PermissionCheckerBean implements PermissionCheckerRemote {
 	 * @param principal  Имя пользователя, для которого проверяется право.
 	 * @param solution Решение, которое модифицируют.
 	 */
+        @Override
 	public boolean canModifySolution(String principal, Solution solution) {
 		if(principal == null) return false;
 		User princ = dudgeBean.getUser(principal);
 		if(princ == null) {
-			logger.warning("Nonexistent user " + principal);
+			logger.log(Level.WARNING, "Nonexistent user {0}", principal);
 			return false;
 		}
-		if(
-				//Если пользователь является Администратором системы
-				princ.isAdmin()
-				) {
-			return true;
-		}
+		//Если пользователь является Администратором системы
+                if (princ.isAdmin()) {
+                    return true;
+                }
 		return false;
 	}
 	
@@ -610,20 +631,18 @@ public class PermissionCheckerBean implements PermissionCheckerRemote {
 	 * @param principal Имя пользователя, для которого проверяется право.
 	 * @param test Тест, который запрашивается.
 	 */
+        @Override
 	public boolean canGetTest(String principal, Test test) {
 		if(principal == null) return false;
 		User princ = dudgeBean.getUser(principal);
 		if(princ == null) {
-			logger.warning("Nonexistent user " + principal);
+			logger.log(Level.WARNING, "Nonexistent user {0}", principal);
 			return false;
 		}
-		if(
-				// Проверяем, что пользователь является администратором системы
-				princ.isAdmin()
-				||
-				// Проверяем, что пользователь является владельцем задачи
-				test.getProblem().getOwner().equals(princ)
-				) {
+                // Проверяем, что пользователь является администратором системы
+		if(princ.isAdmin() ||
+			// Проверяем, что пользователь является владельцем задачи
+			test.getProblem().getOwner().equals(princ)) {
 			return true;
 		}
 		return false;
@@ -634,20 +653,18 @@ public class PermissionCheckerBean implements PermissionCheckerRemote {
 	 * @param principal Имя пользователя, для которого проверяется право.
 	 * @param test Тест, который добавляется.
 	 */
+        @Override
 	public boolean canAddTest(String principal, Test test) {
 		if(principal == null) return false;
 		User princ = dudgeBean.getUser(principal);
 		if(princ == null) {
-			logger.warning("Nonexistent user " + principal);
+			logger.log(Level.WARNING, "Nonexistent user {0}", principal);
 			return false;
 		}
-		if(
-				// Проверяем, что пользователь является администратором системы
-				princ.isAdmin()
-				||
-				// Проверяем, что пользователь является владельцем задачи
-				test.getProblem().getOwner().equals(princ)
-				) {
+                // Проверяем, что пользователь является администратором системы
+		if(princ.isAdmin() ||
+			// Проверяем, что пользователь является владельцем задачи
+			test.getProblem().getOwner().equals(princ)) {
 			return true;
 		}
 		return false;
@@ -658,20 +675,18 @@ public class PermissionCheckerBean implements PermissionCheckerRemote {
 	 * @param principal Имя пользователя, для которого проверяется право.
 	 * @param test Тест, который модифицируется.
 	 */
+        @Override
 	public boolean canModifyTest(String principal, Test test) {
 		if(principal == null) return false;
 		User princ = dudgeBean.getUser(principal);
 		if(princ == null) {
-			logger.warning("Nonexistent user " + principal);
+			logger.log(Level.WARNING, "Nonexistent user {0}", principal);
 			return false;
 		}
-		if(
-				// Проверяем, что пользователь является администратором системы
-				princ.isAdmin()
-				||
-				// Проверяем, что пользователь является владельцем задачи
-				test.getProblem().getOwner().equals(princ)
-				) {
+                // Проверяем, что пользователь является администратором системы
+		if(princ.isAdmin() ||
+			// Проверяем, что пользователь является владельцем задачи
+			test.getProblem().getOwner().equals(princ)) {
 			return true;
 		}
 		return false;
@@ -682,20 +697,18 @@ public class PermissionCheckerBean implements PermissionCheckerRemote {
 	 * @param principal Имя пользователя, для которого проверяется право.
 	 * @param test Тест, который модифицируется.
 	 */
+        @Override
 	public boolean canDeleteTest(String principal, Test test) {
 		if(principal == null) return false;
 		User princ = dudgeBean.getUser(principal);
 		if(princ == null) {
-			logger.warning("Nonexistent user " + principal);
+			logger.log(Level.WARNING, "Nonexistent user {0}", principal);
 			return false;
 		}
-		if(
-				// Проверяем, что пользователь является администратором системы
-				princ.isAdmin()
-				||
-				// Проверяем, что пользователь является владельцем задачи
-				test.getProblem().getOwner().equals(princ)
-				) {
+                // Проверяем, что пользователь является администратором системы
+		if(princ.isAdmin() ||
+			// Проверяем, что пользователь является владельцем задачи
+			test.getProblem().getOwner().equals(princ)) {
 			return true;
 		}
 		return false;
@@ -707,6 +720,7 @@ public class PermissionCheckerBean implements PermissionCheckerRemote {
 	 * @param contestId Идентификатор соревнования, монитор которого просматривается.
 	 * @return true всегда.
 	 */
+        @Override
 	public boolean canViewMonitor(String principal, int contestId) {
 		return true;
 	}
@@ -719,11 +733,12 @@ public class PermissionCheckerBean implements PermissionCheckerRemote {
 	 * @return true если пользователь залогинен и не имеет ролей в данном соревновании,
 	 * иначе false.
 	 */
+        @Override
 	public boolean canSendApplication(String principal, int contestId) {
 		if(principal == null) return false;
 		User princ = dudgeBean.getUser(principal);
 		if(princ == null) {
-			logger.warning("Nonexistent user " + principal);
+			logger.log(Level.WARNING, "Nonexistent user {0}", principal);
 			return false;
 		}
 		
@@ -739,6 +754,7 @@ public class PermissionCheckerBean implements PermissionCheckerRemote {
 	 * @newsId идентификатор новости;
 	 * @return всегда true;
 	 */
+        @Override
 	public boolean canViewNews(String principal, int newsId) {
 		return (java.lang.Boolean)
 		em.createNativeQuery("SELECT can_view_news(:principal, :news_id)", java.lang.Boolean.class)

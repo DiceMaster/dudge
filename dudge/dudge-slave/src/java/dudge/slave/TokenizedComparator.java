@@ -11,9 +11,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.util.Comparator;
 import java.util.StringTokenizer;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
@@ -32,6 +30,7 @@ public class TokenizedComparator implements OutputComparer
 	 * @return true если фактический вывод эквивалентен эталонному выводу
 	 * (т.е. если тест пройдет), иначе false
 	 */
+        @Override
 	public boolean compare(InputStream referenceOutput, InputStream solutionOutput) throws IOException{
 		BufferedReader sols = new BufferedReader(new InputStreamReader(solutionOutput));
 		BufferedReader etas = new BufferedReader(new InputStreamReader(referenceOutput));

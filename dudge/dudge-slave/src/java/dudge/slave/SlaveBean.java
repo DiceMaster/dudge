@@ -26,19 +26,16 @@ import java.io.ByteArrayOutputStream;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.annotation.Resource;
 import javax.ejb.EJB;
-import javax.ejb.SessionContext;
 import javax.ejb.Stateless;
 import javax.ejb.TransactionAttribute;
 import javax.ejb.TransactionAttributeType;
@@ -83,7 +80,7 @@ public class SlaveBean implements dudge.slave.SlaveLocal {
 	@TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
 	protected void testSolutionInternal(Solution solution)
 	throws SlaveException {
-		logger.fine("Testing Solution " + solution.getSolutionId());
+		logger.log(Level.FINE, "Testing Solution {0}", solution.getSolutionId());
 
 		Properties props = new Properties();
 		props.setProperty("dtest.usePrivelegeDrop", Boolean.toString(launcherUsePrivilegeDrop));
@@ -96,7 +93,7 @@ public class SlaveBean implements dudge.slave.SlaveLocal {
 		ContestTraits traits = contest.getTraits();
 		Language lang = solution.getLanguage();
 		Problem problem = solution.getProblem();
-		List<Test> tests = new ArrayList<Test>(problem.getTests());
+		List<Test> tests = new ArrayList<>(problem.getTests());
 		Collections.sort(tests);
 
 
@@ -153,7 +150,7 @@ public class SlaveBean implements dudge.slave.SlaveLocal {
 		sub.set("PATH.SEPAR", File.separator);
 		
 		String solutionExecutionCommand = sub.decodeString(lang.getExecutionCommand());
-		logger.finer("Execution command: " + solutionExecutionCommand);
+		logger.log(Level.FINER, "Execution command: {0}", solutionExecutionCommand);
 
 		//String progFile = compiler.getProgramFilename();
 		//String progPath = testDir + File.separator + progFile;
@@ -231,7 +228,7 @@ public class SlaveBean implements dudge.slave.SlaveLocal {
 
 			solution.getRuns().add(run);
 
-			logger.finest("Result for test #" + i+1 + ":\n" + run);
+			logger.log(Level.FINEST, "Result for test #{0}{1}:\n{2}", new Object[]{i, 1, run});
 
 			if (run.getResultType() != RunResultType.SUCCESS
 					&& !traits.isRunAllTests()) {
@@ -241,7 +238,7 @@ public class SlaveBean implements dudge.slave.SlaveLocal {
 
 		solution.setStatus(SolutionStatus.PROCESSED);
 		this.saveSolution(solution);
-		logger.finest("Solution " + solution.getSolutionId() + " processed.");
+		logger.log(Level.FINEST, "Solution {0} processed.", solution.getSolutionId());
 	} // testSolutionInternal()
 	
 	/**
@@ -249,6 +246,7 @@ public class SlaveBean implements dudge.slave.SlaveLocal {
 	 * @param solution решение на проверку.
 	 */	
 	@TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
+        @Override
 	public void testSolution(Solution solution)
 	throws SlaveException {
 		try {

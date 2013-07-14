@@ -33,6 +33,7 @@ import javax.persistence.*;
 	@NamedQuery(name = "Contest.findByDuration", query = "SELECT c FROM Contest c WHERE c.duration = :duration")
 })
 public class Contest implements Serializable, Comparable<Contest> {
+    	public static final long serialVersionUID = 1L;
 	
 	@SequenceGenerator(name="ContestIdGen", sequenceName="contests_contest_id_seq", allocationSize=1)
 	@GeneratedValue(strategy=GenerationType.SEQUENCE, generator="ContestIdGen")
@@ -91,11 +92,11 @@ public class Contest implements Serializable, Comparable<Contest> {
 
 	/** Creates a new instance of Contest */
 	public Contest() {
-		this.contestProblems = new ArrayList<ContestProblem>();
-		this.contestLanguages = new ArrayList<ContestLanguage>();
-		this.roles = new ArrayList<Role>();
-		this.solutions = new ArrayList<Solution>();
-		this.applications = new ArrayList<Application>();
+		this.contestProblems = new ArrayList<>();
+		this.contestLanguages = new ArrayList<>();
+		this.roles = new ArrayList<>();
+		this.solutions = new ArrayList<>();
+		this.applications = new ArrayList<>();
 	}
 	
 	/**
@@ -132,7 +133,7 @@ public class Contest implements Serializable, Comparable<Contest> {
 	 * @return the contestId
 	 */
 	public int getContestId() {
-		return this.contestId;
+		return contestId;
 	}
 	
 	/**
@@ -164,7 +165,7 @@ public class Contest implements Serializable, Comparable<Contest> {
 	 * @return the startTime
 	 */
 	public Date getStartTime() {
-		return this.startTime;
+		return startTime;
 	}
 
 	/**
@@ -181,7 +182,7 @@ public class Contest implements Serializable, Comparable<Contest> {
 	 * если соревнование длится вечно.
 	 */
 	public Integer getDuration() {
-		return this.duration;
+		return duration;
 	}
 	
 	/**
@@ -199,11 +200,11 @@ public class Contest implements Serializable, Comparable<Contest> {
 	 * false - если нет.
 	 */
 	public boolean isInfinite() {
-		return this.duration == 0;
+		return duration == 0;
 	}
 			
 	public Date getEndTime() {
-		return new Date(this.getStartTime().getTime() + this.getDuration() * 1000 );
+		return new Date(this.getStartTime().getTime() + this.getDuration() * 1000);
 	}
 	
 	/**
@@ -212,7 +213,7 @@ public class Contest implements Serializable, Comparable<Contest> {
 	 * @return the solutions
 	 */
 	public Collection<Solution> getSolutions() {
-		return this.solutions;
+		return solutions;
 	}
 	
 	/**
@@ -230,7 +231,7 @@ public class Contest implements Serializable, Comparable<Contest> {
 	 * @return the roles
 	 */
 	public Collection<Role> getRoles() {
-		return this.roles;
+		return roles;
 	}
 	
 	/**
@@ -248,7 +249,7 @@ public class Contest implements Serializable, Comparable<Contest> {
 	 * @return the contestProblems
 	 */
 	public List<ContestProblem> getContestProblems() {
-		return this.contestProblems;
+		return contestProblems;
 	}
 	
 	/**
@@ -268,7 +269,7 @@ public class Contest implements Serializable, Comparable<Contest> {
 	@Override
 	public int hashCode() {
 		int hash = 0;
-		hash += this.contestId;
+		hash += contestId;
 		return hash;
 	}
 	
@@ -287,7 +288,7 @@ public class Contest implements Serializable, Comparable<Contest> {
 			return false;
 		}
 		Contest other = (Contest)object;
-		if (this.contestId != other.contestId) return false;
+		if (contestId != other.contestId) return false;
 		return true;
 	}
 	
@@ -299,9 +300,6 @@ public class Contest implements Serializable, Comparable<Contest> {
 	@Override
 	public String toString() {
 		return Integer.toString(contestId);
-	}
-	
-	protected void finalize() throws Throwable {
 	}
 	
 	public String getCaption() {
@@ -451,12 +449,13 @@ public class Contest implements Serializable, Comparable<Contest> {
 		return false;
 	}
 
+        @Override
         public int compareTo(Contest o) {
             
-            if (o.getStartTime().before(this.startTime))
+            if (o.getStartTime().before(startTime))
                 return -1;
             else
-                if (this.startTime.before(o.getStartTime()))
+                if (startTime.before(o.getStartTime()))
                     return 1;
                 else
                     return 0;

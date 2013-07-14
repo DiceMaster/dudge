@@ -22,6 +22,7 @@ import org.apache.struts.upload.FormFile;
  * @author Vladimir Shabanov
  */
 public class ProblemsForm extends ActionForm {
+        public static final long serialVersionUID = 1L;
 	
 	// Список задач, полученных от сервера.
 	private List<Problem> problems = Collections.synchronizedList(new ArrayList<Problem>());
@@ -58,6 +59,12 @@ public class ProblemsForm extends ActionForm {
 	public ProblemsForm() {
 	}
 	
+        /**
+         * 
+         * @param mapping
+         * @param request 
+         */
+        @Override
 	public void reset(ActionMapping mapping, HttpServletRequest request) {
 		problems.clear();
 		contestProblems.clear();

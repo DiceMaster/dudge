@@ -6,7 +6,6 @@
 
 package dudge.slave;
 
-import dudge.DudgeLocal;
 import dudge.DudgeRemote;
 import dudge.db.SolutionStatus;
 import dudge.db.Solution;
@@ -33,8 +32,8 @@ import javax.jms.ObjectMessage;
 	})
 public class SolutionsQueue implements MessageListener {
 
-	private Logger logger = Logger.getLogger(this.getClass().toString());
-
+	private static final Logger logger = Logger.getLogger(SolutionsQueue.class.toString());
+        
 	@EJB
 	private DudgeRemote dudgeBean;
 	
@@ -45,6 +44,7 @@ public class SolutionsQueue implements MessageListener {
 	public SolutionsQueue() {
 	}
 
+        @Override
 	public void onMessage(Message message) {		
 		Solution solution = null;
 		
@@ -57,7 +57,7 @@ public class SolutionsQueue implements MessageListener {
 				return;
 			}
 
-			logger.fine("Solution " + solution.getSolutionId() + " received.");
+			logger.log(Level.FINE, "Solution {0} received.", solution.getSolutionId());
 			
 			if(solution.getStatus() != SolutionStatus.NEW)
 				return;
@@ -75,13 +75,10 @@ public class SolutionsQueue implements MessageListener {
 				solution.setStatusMessage(sw.getBuffer().toString());
 				dudgeBean.saveSolution(solution);
 			}
-
-			return;
 		} catch (Throwable ex) {
 			logger.log(Level.SEVERE, "Internal slave error occured on solution "
 					+ (solution != null ? solution.getSolutionId() : "")
 					+ "Exception " + ex.getClass().getName(), ex);
-			return;
 		}
 	}
 	

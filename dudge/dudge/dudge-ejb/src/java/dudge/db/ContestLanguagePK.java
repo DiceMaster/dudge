@@ -19,6 +19,7 @@ import javax.persistence.Column;
  * @author Michael Antonov
  */
 public class ContestLanguagePK implements Serializable {
+    	public static final long serialVersionUID = 1L;
 	
 	@Column(name = "contest_id", nullable=false)
 	private int contestId;
@@ -39,8 +40,8 @@ public class ContestLanguagePK implements Serializable {
 	 * @param contestId the contest ID of the ContestProblemPK
 	 */
 	public ContestLanguagePK(int contestId, String languageId) {
-		this.setContestId(contestId);
-		this.setLanguageId(languageId);
+		this.contestId = contestId;
+		this.languageId = languageId;
 	}
 	
 	/**

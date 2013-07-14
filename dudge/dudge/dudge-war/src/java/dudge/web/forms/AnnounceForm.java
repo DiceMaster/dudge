@@ -16,6 +16,7 @@ import org.apache.struts.action.ActionForm;
  * @author Mikhail_Ivanov
  */
 public class AnnounceForm extends ActionForm {
+    public static final long serialVersionUID = 1L;
     
     private DudgeLocal dudgeBean;
 

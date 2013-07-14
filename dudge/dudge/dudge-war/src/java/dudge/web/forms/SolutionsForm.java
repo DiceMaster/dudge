@@ -8,9 +8,6 @@ package dudge.web.forms;
 
 import dudge.db.ContestLanguage;
 import dudge.db.ContestProblem;
-import dudge.db.Language;
-import dudge.db.RunResultType;
-import dudge.db.SolutionStatus;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -23,6 +20,7 @@ import org.apache.struts.action.ActionMapping;
  * @author Vladimir Shabanov
  */
 public class SolutionsForm extends ActionForm {
+        public static final long serialVersionUID = 1L;
 	
 	private List<ContestLanguage> contestLanguages = Collections.synchronizedList(new ArrayList<ContestLanguage>());
 	
@@ -52,6 +50,11 @@ public class SolutionsForm extends ActionForm {
 	public SolutionsForm() {
 	}
 
+        /**
+         * 
+         * @param mapping
+         * @param request 
+         */
 	@Override
 	public void reset(ActionMapping mapping, HttpServletRequest request)
 	{
@@ -105,7 +108,7 @@ public class SolutionsForm extends ActionForm {
 	}
 
 	public String getStatus() {
-		return status.toString();
+		return status;
 	}
 
 	public void setStatus(String status) {
