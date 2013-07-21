@@ -28,7 +28,7 @@ import javax.persistence.*;
 			query = "SELECT s FROM Solution s WHERE s.user.login = :login AND s.contest.contestId = :contestId AND s.problem.problemId = :problemId"
 			+ " ORDER BY s.submitTime")
 })
-public class Solution implements Serializable {
+public class Solution implements Serializable, Cloneable {
 
 	public static final long serialVersionUID = 1L;
 	@SequenceGenerator(name = "SolutionIdGen", sequenceName = "solutions_solution_id_seq", allocationSize = 1)
@@ -68,6 +68,11 @@ public class Solution implements Serializable {
 	 * Creates a new instance of Solution
 	 */
 	public Solution() {
+	}
+
+	@Override
+	public Object clone() throws CloneNotSupportedException {
+		return super.clone();
 	}
 	
 	public RunResultType getLastRunResult() {

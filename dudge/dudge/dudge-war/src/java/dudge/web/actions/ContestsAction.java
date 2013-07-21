@@ -535,7 +535,7 @@ public class ContestsAction extends DispatchAction {
 	private Collection<Role> decodeRolesFromJSON(String jsonEncodedRoles, Contest contest) {
 
 		JSONArray jsonRoles;
-		Collection roles = new TreeSet<>(new Comparator<Role>() {
+		Collection<Role> roles = new TreeSet<>(new Comparator<Role>() {
 			@Override
 			public int compare(Role a, Role b) {
 				if (!a.getUser().getLogin().equals(b.getUser().getLogin())) {
