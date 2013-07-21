@@ -2,7 +2,6 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-
 package dudge.db;
 
 import java.io.Serializable;
@@ -15,53 +14,46 @@ import javax.persistence.*;
  */
 @Entity(name = "Application")
 @Table(name = "applications")
-@NamedQueries( {
-	@NamedQuery(name="Application.findByContestId" , query="SELECT ap " +
-	"FROM Application ap WHERE ap.contest.contestId = :contestId")
+@NamedQueries({
+	@NamedQuery(name = "Application.findByContestId", query = "SELECT ap FROM Application ap WHERE ap.contest.contestId = :contestId")
 })
 @IdClass(dudge.db.ApplicationPK.class)
 public class Application implements Serializable {
+
 	public static final long serialVersionUID = 1L;
-        
 	@Id
-	@Column(name = "contest_id", nullable=false, insertable=false, updatable=false)
+	@Column(name = "contest_id", nullable = false, insertable = false, updatable = false)
 	private int contestId;
-	
-	@JoinColumn(name = "contest_id", referencedColumnName = "contest_id", nullable=false)
+	@JoinColumn(name = "contest_id", referencedColumnName = "contest_id", nullable = false)
 	@ManyToOne
 	private Contest contest;
-	
 	@Id
-	@Column(name = "owner", nullable=false, insertable=false, updatable=false)
+	@Column(name = "owner", nullable = false, insertable = false, updatable = false)
 	private String ownername;
-	
-	@JoinColumn(name = "owner", referencedColumnName = "login", nullable=false)
+	@JoinColumn(name = "owner", referencedColumnName = "login", nullable = false)
 	@ManyToOne
 	private User user;
-	
-	@Column(name = "filing_time", nullable=false)
+	@Column(name = "filing_time", nullable = false)
 	@Temporal(TemporalType.TIMESTAMP)
 	private Date filingTime;
-	
-	@Column(name="message" , nullable=false)
+	@Column(name = "message", nullable = false)
 	private String message;
-	
-	@Column(name="status" , nullable=false)
+	@Column(name = "status", nullable = false)
 	private String status;
-	
+
 	public Application() {
 	}
 
-        /**
-         * 
-         * @param contest
-         * @param owner 
-         */
+	/**
+	 *
+	 * @param contest
+	 * @param owner
+	 */
 	public Application(Contest contest, User owner) {
 		this.contest = contest;
 		this.user = owner;
 	}
-	
+
 	public Contest getContest() {
 		return contest;
 	}
@@ -133,15 +125,18 @@ public class Application implements Serializable {
 			return false;
 		}
 		Application other = (Application) object;
-				
-		if (this.contest == null || !this.contest.equals(other.contest)) return false;
-		if (this.user == null || !this.user.equals(other.user)) return false;
+
+		if (this.contest == null || !this.contest.equals(other.contest)) {
+			return false;
+		}
+		if (this.user == null || !this.user.equals(other.user)) {
+			return false;
+		}
 		return true;
 	}
 
 	@Override
 	public String toString() {
-		return "dudge.db.Application[owner=" + user + " contestId=" + contestId +"]";
+		return "dudge.db.Application[owner=" + user + " contestId=" + contestId + "]";
 	}
-
 }

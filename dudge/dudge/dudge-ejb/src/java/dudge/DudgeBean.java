@@ -22,1018 +22,954 @@ import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 
 /**
- * Класс основного Bean'а системы. Реализует локальный и/или удаленный
- * интерфейсы системы - содержит методы для работы с объектами системы и
- * выполнения действий в ней.
+ * Класс основного Bean'а системы. Реализует локальный и/или удаленный интерфейсы системы, содержит методы для работы с объектами системы и выполнения действий
+ * в ней.
  *
  * @author Vladimir Shabanov
  */
 @Stateless()
 public class DudgeBean implements DudgeLocal, DudgeRemote {
-    
-    @Resource(mappedName = "jms/solutionsQueueFactory")
-    private ConnectionFactory solutionsQueueFactory;
-    @Resource(mappedName = "jms/solutionsQueue")
-    private Queue solutionsQueue;
-    protected static final Logger logger = Logger.getLogger(DudgeBean.class.toString());
-    @PersistenceContext(unitName = "dudge-ejbPU")
-    private EntityManager em;
-    private final int minimumPasswordLength = 3;
-    private final int maximumPasswordLength = 128;
 
-    /**
-     * Creates a new instance of DudgeBean
-     */
-    public DudgeBean() {
-    }
+	protected static final Logger logger = Logger.getLogger(DudgeBean.class.toString());
+	@Resource(mappedName = "jms/solutionsQueueFactory")
+	private ConnectionFactory solutionsQueueFactory;
+	@Resource(mappedName = "jms/solutionsQueue")
+	private Queue solutionsQueue;
+	@PersistenceContext(unitName = "dudge-ejbPU")
+	private EntityManager em;
+	private final int minimumPasswordLength = 3;
+	private final int maximumPasswordLength = 128;
 
-    /*
-     * protected int getLastId(String seq) { return ((List<Long>)
-     * em.createNativeQuery("SELECT last_value FROM " + seq) .getSingleResult())
-     * .get(0).intValue(); }
-     */
-    
-    /**
-     * 
-     * @param password
-     * @return 
-     */
-    @Override
-    public String calcHash(String password) {
-        /*
-         * return ( (List<String>) em.createNativeQuery("SELECT MD5( ?1
-         * )").setParameter(1, password).getSingleResult() ).get(0);
-         */
-        
-        try {
-            byte[] bytes = password.getBytes("utf-8");
-            
-            java.security.MessageDigest algorithm =
-                    java.security.MessageDigest.getInstance("MD5");
-            
-            algorithm.reset();
-            algorithm.update(bytes);
-            byte messageDigest[] = algorithm.digest();
-            
-            StringBuilder hexString = new StringBuilder();
-            for (int i = 0; i < messageDigest.length; i++) {
-                String hex = Integer.toHexString(0xFF & messageDigest[i]);
-                if (hex.length() == 1) {
-                    hexString.append("0").append(hex);
-                } else {
-                    hexString.append(hex);
-                }
-            }
-            return hexString.toString();
-        } catch (java.security.NoSuchAlgorithmException nsae) {
-            logger.log(Level.SEVERE, "Unable to find hash algorithm.\n{0}", nsae.getMessage());
-            return null;
-        } catch (java.io.UnsupportedEncodingException uee) {
-            logger.log(Level.SEVERE, "Unsupported hash encoding.\n{0}", uee.getMessage());
-            return null;
-        }
-    }
-    
-    /**
-     * 
-     * @param login
-     * @param password
-     * @return 
-     */
-    @Override
-    public boolean authenticate(String login, String password) {
-        
-        if (login == null) {
-            throw new IllegalArgumentException("login is null.");
-        }
-        
-        if (password == null) {
-            throw new IllegalArgumentException("password is null.");
-        }
-        
-        User dbUser = em.find(User.class, login.toLowerCase());
+	/**
+	 * Creates a new instance of DudgeBean
+	 */
+	public DudgeBean() {
+	}
 
-        //Если пользователь не авторизован
-        if (dbUser == null) {
-            logger.log(Level.WARNING, "Authentication for user ''{0}'' failed - user does not exist.", login);
-            return false;
-        }
-        
-        if (!dbUser.getPwdHash().equals(calcHash(password))) {
-            logger.log(Level.WARNING, "Authentication for user ''{0}'' failed - incorrect password. ", login);// + calcHash(password) + " " + calcHash(password).length());
-            //this.logger.severe(dbUser.getPwdHash() + " " + dbUser.getPwdHash().length());
-            return false;
-        }
+	/**
+	 *
+	 * @param password
+	 * @return
+	 */
+	@Override
+	public String calcHash(String password) {
 
-        // Пользователь существует и пароль верен.
-        return true;
-    }
-    
-    /**
-     * 
-     * @param login
-     * @param contestId
-     * @param roleType
-     * @return 
-     */
-    @Override
-    public boolean isInRole(String login, int contestId, RoleType roleType) {
-        long count = 0;
-        if (login != null) {
-            count = (Long) em.createQuery(
-                "SELECT COUNT(r) FROM Role r WHERE"
-                + " r.contest.contestId = :contestId"
-                + " AND r.user.login = :username"
-                + " AND r.roleType = :roleType").setParameter("contestId", contestId).setParameter("username", login.toLowerCase()).setParameter("roleType", roleType.toString()).getResultList().get(0);
-        }
-        return count != 0;
-    }
-    
-    /**
-     * 
-     * @param login
-     * @param contestId
-     * @return 
-     */
-    @Override
-    public boolean haveNoRoles(String login, int contestId) {
-        long count = 0;
-        if (login != null) {
-            count = (Long) em.createQuery(
-                "SELECT COUNT(r) FROM Role r WHERE"
-                + " r.contest.contestId = :contestId"
-                + " AND r.user.login = :username").setParameter("contestId", contestId).setParameter("username", login.toLowerCase()).getResultList().get(0);
-        }
-        return count == 0;
-    }
-    
-    /**
-     * 
-     * @param login
-     * @return 
-     */
-    @Override
-    public User getUser(String login) {
-        
-        User dbuser = (User) em.find(User.class, login.toLowerCase());
-        
-        return dbuser;
-    }
-    
-    /**
-     * 
-     * @param login
-     * @param password
-     * @param email
-     * @return 
-     */
-    @Override
-    public User registerUser(
-            String login,
-            String password,
-            String email) {
-        
-        logger.finest("Attempting to register new user.");
+		try {
+			byte[] bytes = password.getBytes("utf-8");
 
-        /*
-         * if(password.length() < minimumPasswordLength || password.length() >
-         * maximumPasswordLength) {
-         *
-         * this.logger.finer("Password doesn't meet length " + "requirements for
-         * account \"" + login + "\""); throw new
-         * ArrayIndexOutOfBoundsException("Password doesn't meet length " +
-         * "requirements for account \"" + login + "\"");
-         *
-         * }
-         */
-        
-        User dbUser = new User(login.toLowerCase(), calcHash(password), email);
-        dbUser.setRolesCollection(new ArrayList<Role>());
-        
-        em.persist(dbUser);
-        em.flush();
-        return dbUser;
-    }
-    
-    /**
-     * 
-     * @param login 
-     */
-    @Override
-    public void joinAllOpenContests(String login) {
-        User user = this.getUser(login);
-        
-        for (Contest contest : this.getContests()) {
-            if (!contest.isOpen()) {
-                continue;
-            }
-            
-            if (this.haveNoRoles(login, contest.getContestId())) {
-                Role role = new Role(contest, user, RoleType.USER);
-                em.merge(role);
-                //contest.getRoles().add(role);
-                em.flush();
-            }
-        }
-    }
-    
-    /**
-     * 
-     * @param user 
-     */
-    @Override
-    public void modifyUser(User user) {
-        em.merge(user);
-    }
-    
-    /**
-     * 
-     * @param login 
-     */
-    @Override
-    public void deleteUser(String login) {
-        em.remove((User) em.find(User.class, login.toLowerCase()));
-    }
-    
-    /**
-     * 
-     * @param languageId
-     * @return 
-     */
-    @Override
-    public Language getLanguage(String languageId) {
-        return (Language) em.find(Language.class, languageId);
-    }
-    
-    /**
-     * 
-     * @return 
-     */
-    @Override
-    public List<Language> getLanguages() {
-        return (List<Language>) em.createNamedQuery("Language.getLanguages").getResultList();
-    }
-    
-    /**
-     * 
-     * @param language
-     * @return 
-     */
-    @Override
-    public Language addLanguage(Language language) {
-        em.persist(language);
-        em.flush();
-        return language;
-    }
-    
-    /**
-     * 
-     * @param language 
-     */
-    @Override
-    public void modifyLanguage(Language language) {
-        em.merge(language);
-    }
-    
-    /**
-     * 
-     * @param languageId 
-     */
-    @Override
-    public void deleteLanguage(String languageId) {
-        em.remove((Language) em.find(Language.class, languageId));
-    }
+			java.security.MessageDigest algorithm = java.security.MessageDigest.getInstance("MD5");
 
-    /**
-     * 
-     * @return 
-     */    
-    @Override
-    public Contest getDefaultContest() {
-        Param param = (Param) em.find(Param.class, "default_contest");
-        if (param == null) {
-            logger.severe("Database 'params' table doesn't contain 'default_contest'"
-                    + "parameter.");
-            throw new NullPointerException("Database 'params' table doesn't contain 'default_contest'"
-                    + "parameter.");
-        }
-        
-        return getContest(Integer.parseInt(param.getValue()));
-    }
-    
-    /**
-     * 
-     * @param contestId
-     * @return 
-     */
-    @Override
-    public Contest getContest(int contestId) {
-        Contest contest = (Contest) em.find(Contest.class, contestId);
-        
-        return contest;
-    }
-    
-    /**
-     * 
-     * @return 
-     */
-    @Override
-    public List<Contest> getContests() {
-        List<Contest> contests = (List<Contest>) em.createNamedQuery("Contest.getContests").getResultList();
-        
-        return contests;
-    }
-    
-    /**
-     * 
-     * @return 
-     */
-    @Override
-    public List<Contest> getPendingContests() {
-        List<Contest> contests = (List<Contest>) em.createNamedQuery("Contest.getPendingContests").getResultList();
-        
-        List<Contest> pendingContests = new ArrayList<>();
-        
-        for (Contest contest : contests) {
-            if (contest.isPending()) {
-                pendingContests.add(contest);
-            }
-        }
-        
-        return pendingContests;
-    }
-    
-    /**
-     * 
-     * @return 
-     */
-    @Override
-    public List<Contest> getActiveContests() {
-        List<Contest> contests = (List<Contest>) em.createNamedQuery("Contest.getActiveContests").getResultList();
-        
-        List<Contest> activeContests = new ArrayList<>();
-        
-        for (Contest contest : contests) {
-            if (contest.isInProgress()) {
-                activeContests.add(contest);
-            }
-        }
-        
-        return activeContests;
-    }
-    
-    /**
-     * 
-     * @return 
-     */
-    @Override
-    public List<Contest> getRecentlyFinishedContests() {
-        List<Contest> contests = (List<Contest>) em.createNamedQuery("Contest.getRecentlyFinishedContests").getResultList();
-        
-        List<Contest> recentlyFinishedContests = new ArrayList<>();
-        
-        for (Contest contest : contests) {
-            java.util.Calendar c = java.util.Calendar.getInstance();
-            c.setTime(contest.getEndTime());
-            c.add(java.util.Calendar.DAY_OF_MONTH, 7);
-            
-            if (contest.isFinished() && c.before(java.util.Calendar.getInstance())) {
-                recentlyFinishedContests.add(contest);
-            }
-        }
-        
-        return recentlyFinishedContests;
-    }
-    
-    /**
-     * 
-     * @param contest
-     * @return 
-     */
-    @Override
-    public Contest addContest(Contest contest) {
-        em.persist(contest);
-        em.flush();
-        return contest;
-    }
-    
-    /**
-     * 
-     * @param contest 
-     */
-    @Override
-    public void modifyContest(Contest contest) {
+			algorithm.reset();
+			algorithm.update(bytes);
+			byte messageDigest[] = algorithm.digest();
 
+			StringBuilder hexString = new StringBuilder();
+			for (int i = 0; i < messageDigest.length; i++) {
+				String hex = Integer.toHexString(0xFF & messageDigest[i]);
+				if (hex.length() == 1) {
+					hexString.append("0").append(hex);
+				} else {
+					hexString.append(hex);
+				}
+			}
+			return hexString.toString();
+		} catch (java.security.NoSuchAlgorithmException nsae) {
+			logger.log(Level.SEVERE, "Unable to find hash algorithm.\n{0}", nsae.getMessage());
+			return null;
+		} catch (java.io.UnsupportedEncodingException uee) {
+			logger.log(Level.SEVERE, "Unsupported hash encoding.\n{0}", uee.getMessage());
+			return null;
+		}
+	}
 
-        // ВНИМАНИЕ! Данный код написан с учетом того, что в спецификации EJB 3.0 
-        // не предусмотрено автоматическое каскадное удаление сущностей при @OneToMany-merge.
+	/**
+	 *
+	 * @param login
+	 * @param password
+	 * @return
+	 */
+	@Override
+	public boolean authenticate(String login, String password) {
 
-        // Получаем старые значения, сохраненные в коллекциях.
+		if (login == null) {
+			throw new IllegalArgumentException("login is null.");
+		}
 
-        List<Solution> oldSolutions = (List<Solution>) em.createNamedQuery("Solution.findByContestId").
-                setParameter("contestId", contest.getContestId()).getResultList();
-        List<Role> oldRoles = (List<Role>) em.createNamedQuery("Role.findByContestId").
-                setParameter("contestId", contest.getContestId()).getResultList();
-        List<ContestProblem> oldContestProblems = (List<ContestProblem>) em.createNamedQuery("ContestProblem.findByContestId").
-                setParameter("contestId", contest.getContestId()).getResultList();
-        List<ContestLanguage> oldContestLanguages = (List<ContestLanguage>) em.createNamedQuery("ContestLanguage.findByContestId").
-                setParameter("contestId", contest.getContestId()).getResultList();
+		if (password == null) {
+			throw new IllegalArgumentException("password is null.");
+		}
 
-        // Если некоторая сущность более не присутствует в БД, она удаляется.
-        List<Solution> newSolutions = (List<Solution>) contest.getSolutions();
-        for (Iterator<Solution> iter = oldSolutions.iterator(); iter.hasNext();) {
-            Solution s = iter.next();
-            if (!newSolutions.contains(s)) {
-                iter.remove();
-                em.remove(s);
-            }
-        }
+		User dbUser = em.find(User.class, login.toLowerCase());
 
-        // Если некоторая сущность более не присутствует в БД, она удаляется.
-        List<Role> newRoles = (List<Role>) contest.getRoles();
-        for (Iterator<Role> iter = oldRoles.iterator(); iter.hasNext();) {
-            Role r = iter.next();
-            if (!newRoles.contains(r)) {
-                iter.remove();
-                em.remove(r);
-            }
-        }
+		//Если пользователь не авторизован
+		if (dbUser == null) {
+			logger.log(Level.WARNING, "Authentication for user ''{0}'' failed - user does not exist.", login);
+			return false;
+		}
 
-        // Если некоторая сущность более не присутствует в БД, она удаляется.
-        List<ContestLanguage> newContestLanguages = (List<ContestLanguage>) contest.getContestLanguages();
-        for (Iterator<ContestLanguage> iter = oldContestLanguages.iterator(); iter.hasNext();) {
-            ContestLanguage cl = iter.next();
-            if (!newContestLanguages.contains(cl)) {
-                iter.remove();
-                em.remove(cl);
-            }
-        }
+		if (!dbUser.getPwdHash().equals(calcHash(password))) {
+			logger.log(Level.WARNING, "Authentication for user ''{0}'' failed - incorrect password. ", login);
+			return false;
+		}
 
-        // Если некоторая сущность более не присутствует в БД, она удаляется.
-        List<ContestProblem> newContestProblems = (List<ContestProblem>) contest.getContestProblems();
-        for (Iterator<ContestProblem> iter = oldContestProblems.iterator(); iter.hasNext();) {
-            ContestProblem cp = iter.next();
-            if (!newContestProblems.contains(cp)) {
-                iter.remove();
-                em.remove(cp);
-            }
-        }
-        
-        em.merge(contest);
-    }
-    
-    /**
-     * 
-     * @param contestId 
-     */
-    @Override
-    public void deleteContest(int contestId) {
-        em.remove((Contest) em.find(Contest.class, contestId));
-    }
-    
-    /**
-     * 
-     * @param problemId
-     * @return 
-     */
-    @Override
-    public Problem getProblem(int problemId) {
-        return (Problem) em.find(Problem.class, problemId);
-    }
-    
-    /**
-     * 
-     * @return 
-     */
-    @Override
-    public long getProblemsCount() {
-        return (Long) em.createQuery("SELECT COUNT(p) FROM Problem p").getSingleResult();
-    }
-    
-    /**
-     * 
-     * @return 
-     */
-    @Override
-    public List<Problem> getProblems() {
-        return (List<Problem>) em.createNamedQuery("Problem.getProblems").getResultList();
-    }
-    
-    /**
-     * 
-     * @param start
-     * @param limit
-     * @return 
-     */
-    @Override
-    public List<Problem> getProblems(int start, int limit) {
-        return (List<Problem>) em.createQuery(
-                "SELECT p FROM Problem p ORDER BY p.problemId").setFirstResult(start).setMaxResults(limit).getResultList();
-    }
-    
-    /**
-     * 
-     * @return 
-     */
-    @Override
-    public List<User> getUsers() {
-        return (List<User>) em.createNamedQuery("User.getUsers").getResultList();
-    }
-    
-    /**
-     * 
-     * @param problem
-     * @return 
-     */
-    @Override
-    public Problem addProblem(Problem problem) {
-        
-        em.persist(problem);
-        em.flush();
-        return problem;
-    }
-    
-    /**
-     * 
-     * @param problem 
-     */
-    @Override
-    public void modifyProblem(Problem problem) {
-        em.merge(problem);
-    }
-    
-    /**
-     * 
-     * @param problemId 
-     */
-    @Override
-    public void deleteProblem(int problemId) {
-        em.remove((Problem) em.find(Problem.class, problemId));
-    }
-    
-    /**
-     * 
-     * @param solutionId
-     * @return 
-     */
-    @Override
-    public Solution getSolution(int solutionId) {
-        return (Solution) em.find(Solution.class, solutionId);
-    }
-    
-    /**
-     * 
-     * @param solutionId
-     * @return 
-     */
-    @Override
-    public Solution getSolutionEager(int solutionId) {
-        //Logger.getLogger(this.getClass().getName()).info("Trying to get solution " + solutionId);
-        Solution solution = getSolution(solutionId);
-        if (solution == null) {
-            return null;
-        }
+		// Пользователь существует и пароль верен.
+		return true;
+	}
 
-        // Инстанциируем отложенную загрузку для того, чтобы раб мог
-        // получать коллекции.
-        solution.getRuns().size();
-        solution.getContest().getContestProblems().size();
-        solution.getContest().getContestLanguages().size();
-        solution.getProblem().getTests().size();
-        
-        return solution;
-    }
-    
-    /**
-     * 
-     * @param login
-     * @param contestId
-     * @param problemId
-     * @return 
-     */
-    @Override
-    public List<Solution> getSolutions(String login, int contestId, int problemId) {
-        List<Solution> lcpSolutions = (List<Solution>) em.createNamedQuery(
-                "Solution.findByUserContestProblem").setParameter("login", login.toLowerCase()).setParameter("contestId", contestId).setParameter("problemId", problemId).getResultList();
+	/**
+	 *
+	 * @param login
+	 * @param contestId
+	 * @param roleType
+	 * @return
+	 */
+	@Override
+	public boolean isInRole(String login, int contestId, RoleType roleType) {
+		long count = 0;
+		if (login != null) {
+			count = (Long) em.createQuery(
+					"SELECT COUNT(r) FROM Role r WHERE r.contest.contestId = :contestId AND r.user.login = :username AND r.roleType = :roleType")
+					.setParameter("contestId", contestId).setParameter("username", login.toLowerCase()).setParameter("roleType", roleType.toString())
+					.getResultList().get(0);
+		}
+		return count != 0;
+	}
 
-        // Удаляем из полученного списка решений те, которые не попадают
-        // в интервал проведения соревнования.
-        List<Solution> solutions = new ArrayList<>();
-        for (Solution solution : lcpSolutions) {
-            Date endTime = new Date(
-                    solution.getContest().getStartTime().getTime()
-                    + solution.getContest().getDuration() * (long) 1000);
-            if ((solution.getSubmitTime().after(solution.getContest().getStartTime()))
-                    && (solution.getSubmitTime().before(endTime)
-                    || solution.getContest().getDuration() == 0)) {
-                solutions.add(solution);
-            }
-        }
-        
-        return solutions;
-    }
-    
-    /**
-     * 
-     * @return 
-     */
-    @Override
-    public List<Solution> getPendingSolutions() {
-        return (List<Solution>) em.createNamedQuery(
-                "Solution.getPendingSolutions").getResultList();
-    }
-    
-    /**
-     * 
-     * @param count
-     * @return 
-     */
-    @Override
-    public List<Solution> getLastSolutions(int count) {
-        return (List<Solution>) em.createNamedQuery(
-                "Solution.getLastSolutions").setMaxResults(count).getResultList();
-    }
-    
-    /**
-     * 
-     * @param solution
-     * @return 
-     */
-    @Override
-    public Solution submitSolution(Solution solution) {
-        solution.setStatus(SolutionStatus.NEW);
-        solution.setSubmitTime(new Date());
-        
-        User user = this.getUser(solution.getUser().getLogin());
-        
-        Contest contest = this.getContest(solution.getContest().getContestId());
-        contest.getSolutions().add(solution);
-        
-        if (contest.isOpen()
-                && this.haveNoRoles(user.getLogin(), contest.getContestId())) {
-            Role autoRegisteredUser = new Role(contest, user, RoleType.USER);
-            contest.getRoles().add(em.merge(autoRegisteredUser));
-        }
-        
-        em.flush();
-        
-        try {
-            sendJMSMessageToSolutionsQueue(this.getSolutionEager(solution.getSolutionId()));
-            logger.log(Level.INFO, "Solution {0} submitted to JMS queue.", solution.getSolutionId());
-        } catch (JMSException | NamingException ex) {
-            logger.log(Level.SEVERE, "Exception thrown when sending solution message.", ex);
-            throw new RuntimeException(ex);
-        }
-        
-        return solution;
-    }
-    
-    /**
-     * 
-     * @param solutionId 
-     */
-    @Override
-    public void resubmitSolution(int solutionId) {
-        Solution solution = this.getSolution(solutionId);
-        solution.setStatus(SolutionStatus.NEW);
+	/**
+	 *
+	 * @param login
+	 * @param contestId
+	 * @return
+	 */
+	@Override
+	public boolean haveNoRoles(String login, int contestId) {
+		long count = 0;
+		if (login != null) {
+			count = (Long) em.createQuery(
+					"SELECT COUNT(r) FROM Role r WHERE r.contest.contestId = :contestId AND r.user.login = :username")
+					.setParameter("contestId", contestId).setParameter("username", login.toLowerCase()).getResultList().get(0);
+		}
+		return count == 0;
+	}
 
-        // Удаляем все запуски на тестах для данного решения.
-        for (Run run : solution.getRuns()) {
-            em.remove(run);
-        }
-        solution.getRuns().clear();
-        
-        try {
-            sendJMSMessageToSolutionsQueue(this.getSolutionEager(solution.getSolutionId()));
-            logger.log(Level.INFO, "Solution {0} submitted to JMS queue.", solution.getSolutionId());
-        } catch (JMSException | NamingException ex) {
-            logger.log(Level.SEVERE, "Exception thrown when sending solution message.", ex);
-            throw new RuntimeException(ex);
-        }
-    }
-    
-    /**
-     * 
-     * @param contestId
-     * @param problemId 
-     */
-    @Override
-    public void resubmitSolutions(int contestId, int problemId) {
-        List<Solution> sols = (List<Solution>) em.createQuery(
-                "SELECT s FROM Solution s WHERE s.contestId = :contestId"
-                + " AND s.problemId = :problemId"
-                + " AND s.status = 'PROCESSED'").setParameter("contestId", contestId).setParameter("problemId", problemId).getResultList();
-        
-        for (Solution sol : sols) {
-            this.resubmitSolution(sol.getSolutionId());
-        }
-    }
-    
-    /**
-     * 
-     * @param solution 
-     */
-    @Override
-    public void modifySolution(Solution solution) {
-        Solution merged = em.merge(solution);
+	/**
+	 *
+	 * @param login
+	 * @return
+	 */
+	@Override
+	public User getUser(String login) {
+		User dbuser = (User) em.find(User.class, login.toLowerCase());
+		return dbuser;
+	}
 
-        // Если решение прошло все тесты, то помечаем задачу
-        // как здоровую.
-        if (merged.isAllTestsPassed()) {
-            merged.getProblem().setHealthy(true);
-        }
-        
-        em.flush();
-    }
-    
-    /**
-     * 
-     * @param solution 
-     */
-    @Override
-    public void saveSolution(Solution solution) {
-        
-        Solution dbs;
-        if (this.getSolution(solution.getSolutionId()) != null) {
-            dbs = this.getSolution(solution.getSolutionId());
-            
-            dbs.setStatus(solution.getStatus());
-            dbs.setStatusMessage(solution.getStatusMessage());
-            dbs.setCompilationTime(solution.getCompilationTime());
-            
-            dbs.setStatus(solution.getStatus());
-            dbs.setStatusMessage(solution.getStatusMessage());
-            dbs.setCompilationTime(solution.getCompilationTime());
-            
-            for (Run run : dbs.getRuns()) {
-                em.remove(run);
-            }
-            dbs.getRuns().clear();
-            
-            if (solution.getRuns() != null) {
-                for (Run run : solution.getRuns()) {
-                    dbs.getRuns().add(em.merge(run));
-                }
-            }
-            
-        } else {
-            dbs = solution;
-        }
+	/**
+	 *
+	 * @param login
+	 * @param password
+	 * @param email
+	 * @return
+	 */
+	@Override
+	public User registerUser(String login, String password, String email) {
+		logger.finest("Attempting to register new user.");
 
-        // Если решение прошло все тесты, то помечаем задачу
-        // как здоровую.
-        if (dbs.isAllTestsPassed()) {
-            if (dbs.getProblem() != null) {
-                dbs.getProblem().setHealthy(true);
-            } else {
-                dbs.setProblem(solution.getProblem());
-            }
-        }
-        em.flush();
-    }
-    
-    /**
-     * 
-     * @param testId
-     * @return 
-     */
-    @Override
-    public Test getTest(int testId) {
-        return (Test) em.createNamedQuery("Test.findByTestId").
-                setParameter("testId", testId).getSingleResult();
-    }
-    
-    /**
-     * 
-     * @param test
-     * @return 
-     */
-    @Override
-    public Test addTest(Test test) {
-        Problem problem = em.find(Problem.class, test.getProblem().getProblemId());
-        problem.getTests().add(test);
+		User dbUser = new User(login.toLowerCase(), calcHash(password), email);
+		dbUser.setRolesCollection(new ArrayList<Role>());
 
-        // Помечаем задачу как нездоровую.
-        problem.setHealthy(false);
-        em.flush();
-        
-        return test;
-    }
-    
-    /**
-     * 
-     * @param test 
-     */
-    @Override
-    public void modifyTest(Test test) {
-        Test merged = em.merge(test);
+		em.persist(dbUser);
+		em.flush();
+		return dbUser;
+	}
 
-        // Помечаем задачу как нездоровую.
-        merged.getProblem().setHealthy(false);
-        
-        em.flush();
-        em.refresh(merged.getProblem());
-    }
-    
-    /**
-     * 
-     * @param testId 
-     */
-    @Override
-    public void deleteTest(int testId) {
-        
-        Problem problem = em.find(Test.class, testId).getProblem();
-        int problemId = problem.getProblemId();
-        int testNumber = em.find(Test.class, testId).getTestNumber();
-        
-        em.remove(em.find(Test.class, testId));
-        
-        problem.setTests((List<Test>) em.createNamedQuery("Test.findByProblemId").
-                setParameter("problemId", problemId).getResultList());
-        
-        Collections.sort((List<Test>) problem.getTests());
-        //problem.getTests().remove( em.find(Test.class , testId));
-        //em.merge(problem);
-		/*
-         * for (Test test : problem.getTests()) { if (test.getTestNumber() >
-         * testNumber) test.setTestNumber(test.getTestNumber() - 1); }
-         */
-        int testCount = problem.getTests().size();
-        for (int i = testNumber + 1; i <= testCount + 1; i++) {
-            int index = ((List<Test>) problem.getTests()).indexOf(
-                    (Test) em.createNamedQuery("Test.findByNumberAndProblemId").
-                    setParameter("testNumber", i).setParameter("problemId", problemId).
-                    getSingleResult());
-            ((List<Test>) problem.getTests()).get(index).setTestNumber(i - 1);
-            
-        }
-        
-        em.merge(problem);
-        
-        em.flush();
-    }
-    
-    /**
-     * 
-     * @return 
-     */
-    @Override
-    public int getMinimumPasswordLength() {
-        return minimumPasswordLength;
-    }
-    
-    /**
-     * 
-     * @return 
-     */
-    @Override
-    public int getMaximumPasswordLength() {
-        return maximumPasswordLength;
-    }
-    
-    /**
-     * 
-     * @param contest
-     * @param when
-     * @return 
-     */
-    @Override
-    public List<GlobalMonitorRecord> getGlobalMonitorRecords(Contest contest, Date when) {
-        LinkedList<GlobalMonitorRecord> rows = new LinkedList<>();
-        
-        for (Role role : contest.getRoles()) {
-            // Показываем в мониторе только пользователей, которые являются
-            // обычными участниками соревнования.
-            if (role.getRoleType() != RoleType.USER) {
-                continue;
-            }
-            
-            rows.add(new GlobalMonitorRecord(this, contest, role.getUser(), when));
-        }
-        
-        Collections.sort(rows);
-        Collections.reverse(rows);
-        
-        for (int i = 0; i < rows.size(); ++i) {
-            rows.get(i).setPlace(i + 1);
-        }
-        
-        return rows;
-    }
-    
-    /**
-     * 
-     * @param contest
-     * @param when
-     * @return 
-     */
-    @Override
-    public List<AcmMonitorRecord> getAcmMonitorRecords(Contest contest, Date when) {
-        LinkedList<AcmMonitorRecord> rows = new LinkedList<>();
-        
-        for (Role role : contest.getRoles()) {
-            // Показываем в мониторе только пользователей, которые являются
-            // обычными участниками соревнования.
-            if (role.getRoleType() != RoleType.USER) {
-                continue;
-            }
-            
-            rows.add(new AcmMonitorRecord(this, contest, role.getUser(), when));
-        }
-        
-        Collections.sort(rows);
-        Collections.reverse(rows);
-        
-        for (int i = 0; i < rows.size(); ++i) {
-            rows.get(i).setPlace(i + 1);
-        }
-        
-        return rows;
-    }
-    
-    /**
-     * 
-     * @param contest
-     * @param when
-     * @return 
-     */
-    @Override
-    public List<SchoolMonitorRecord> getSchoolMonitorRecords(Contest contest, Date when) {
-        LinkedList<SchoolMonitorRecord> rows = new LinkedList<>();
-        
-        for (Role role : contest.getRoles()) {
-            // Показываем в мониторе только пользователей, которые являются
-            // обычными участниками соревнования.
-            if (role.getRoleType() != RoleType.USER) {
-                continue;
-            }
-            
-            rows.add(new SchoolMonitorRecord(this, contest, role.getUser(), when));
-        }
-        
-        Collections.sort(rows);
-        Collections.reverse(rows);
-        
-        for (int i = 0; i < rows.size(); ++i) {
-            rows.get(i).setPlace(i + 1);
-        }
-        
-        return rows;
-    }
-    
-    /**
-     * 
-     * @return 
-     */
-    @Override
-    public URI getBugTrackingPath() {
-        Param uriParam = em.find(Param.class, "bug_tracking_uri");
-        URI bugURI = URI.create("https://www.glint.ru/dev/dudge/");
-        
-        try {
-            if (uriParam != null) {
-                bugURI = URI.create(uriParam.getValue());
-            }
-        } catch (IllegalArgumentException ex) {
-            logger.log(Level.WARNING, "Wrong bugtracking URI parameter in database.", ex);
-        }
-        
-        return bugURI;
-    }
-    
-    /**
-     * 
-     * @param session
-     * @param messageData
-     * @return
-     * @throws JMSException 
-     */
-    private Message createJMSMessageForSolutionsQueue(Session session, Object messageData) throws JMSException {
-        ObjectMessage message = session.createObjectMessage((Solution) messageData);
-        return message;
-    }
-    
-    /**
-     * 
-     * @param messageData
-     * @throws NamingException
-     * @throws JMSException 
-     */
-    private void sendJMSMessageToSolutionsQueue(Object messageData) throws NamingException, JMSException {
-        Connection connection = null;
-        Session session = null;
-        try {
-            connection = solutionsQueueFactory.createConnection();
-            session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-            MessageProducer messageProducer = session.createProducer(solutionsQueue);
-            messageProducer.send(createJMSMessageForSolutionsQueue(session, messageData));
-        } finally {
-            if (session != null) {
-                session.close();
-            }
-            if (connection != null) {
-                connection.close();
-            }
-        }
-    }
+	/**
+	 *
+	 * @param login
+	 */
+	@Override
+	public void joinAllOpenContests(String login) {
+		User user = this.getUser(login);
+
+		for (Contest contest : this.getContests()) {
+			if (!contest.isOpen()) {
+				continue;
+			}
+
+			if (this.haveNoRoles(login, contest.getContestId())) {
+				Role role = new Role(contest, user, RoleType.USER);
+				em.merge(role);
+				em.flush();
+			}
+		}
+	}
+
+	/**
+	 *
+	 * @param user
+	 */
+	@Override
+	public void modifyUser(User user) {
+		em.merge(user);
+	}
+
+	/**
+	 *
+	 * @param login
+	 */
+	@Override
+	public void deleteUser(String login) {
+		em.remove((User) em.find(User.class, login.toLowerCase()));
+	}
+
+	/**
+	 *
+	 * @param languageId
+	 * @return
+	 */
+	@Override
+	public Language getLanguage(String languageId) {
+		return (Language) em.find(Language.class, languageId);
+	}
+
+	/**
+	 *
+	 * @return
+	 */
+	@Override
+	public List<Language> getLanguages() {
+		return (List<Language>) em.createNamedQuery("Language.getLanguages").getResultList();
+	}
+
+	/**
+	 *
+	 * @param language
+	 * @return
+	 */
+	@Override
+	public Language addLanguage(Language language) {
+		em.persist(language);
+		em.flush();
+		return language;
+	}
+
+	/**
+	 *
+	 * @param language
+	 */
+	@Override
+	public void modifyLanguage(Language language) {
+		em.merge(language);
+	}
+
+	/**
+	 *
+	 * @param languageId
+	 */
+	@Override
+	public void deleteLanguage(String languageId) {
+		em.remove((Language) em.find(Language.class, languageId));
+	}
+
+	/**
+	 *
+	 * @return
+	 */
+	@Override
+	public Contest getDefaultContest() {
+		Param param = (Param) em.find(Param.class, "default_contest");
+		if (param == null) {
+			logger.severe("Database 'params' table doesn't contain 'default_contest' parameter.");
+			throw new NullPointerException("Database 'params' table doesn't contain 'default_contest' parameter.");
+		}
+
+		return getContest(Integer.parseInt(param.getValue()));
+	}
+
+	/**
+	 *
+	 * @param contestId
+	 * @return
+	 */
+	@Override
+	public Contest getContest(int contestId) {
+		Contest contest = (Contest) em.find(Contest.class, contestId);
+
+		return contest;
+	}
+
+	/**
+	 *
+	 * @return
+	 */
+	@Override
+	public List<Contest> getContests() {
+		List<Contest> contests = (List<Contest>) em.createNamedQuery("Contest.getContests").getResultList();
+
+		return contests;
+	}
+
+	/**
+	 *
+	 * @return
+	 */
+	@Override
+	public List<Contest> getPendingContests() {
+		List<Contest> contests = (List<Contest>) em.createNamedQuery("Contest.getPendingContests").getResultList();
+
+		List<Contest> pendingContests = new ArrayList<>();
+
+		for (Contest contest : contests) {
+			if (contest.isPending()) {
+				pendingContests.add(contest);
+			}
+		}
+
+		return pendingContests;
+	}
+
+	/**
+	 *
+	 * @return
+	 */
+	@Override
+	public List<Contest> getActiveContests() {
+		List<Contest> contests = (List<Contest>) em.createNamedQuery("Contest.getActiveContests").getResultList();
+
+		List<Contest> activeContests = new ArrayList<>();
+
+		for (Contest contest : contests) {
+			if (contest.isInProgress()) {
+				activeContests.add(contest);
+			}
+		}
+
+		return activeContests;
+	}
+
+	/**
+	 *
+	 * @return
+	 */
+	@Override
+	public List<Contest> getRecentlyFinishedContests() {
+		List<Contest> contests = (List<Contest>) em.createNamedQuery("Contest.getRecentlyFinishedContests").getResultList();
+
+		List<Contest> recentlyFinishedContests = new ArrayList<>();
+
+		for (Contest contest : contests) {
+			java.util.Calendar c = java.util.Calendar.getInstance();
+			c.setTime(contest.getEndTime());
+			c.add(java.util.Calendar.DAY_OF_MONTH, 7);
+
+			if (contest.isFinished() && c.before(java.util.Calendar.getInstance())) {
+				recentlyFinishedContests.add(contest);
+			}
+		}
+
+		return recentlyFinishedContests;
+	}
+
+	/**
+	 *
+	 * @param contest
+	 * @return
+	 */
+	@Override
+	public Contest addContest(Contest contest) {
+		em.persist(contest);
+		em.flush();
+		return contest;
+	}
+
+	/**
+	 * ВНИМАНИЕ! Данный код написан с учетом того, что в спецификации EJB 3.0 не предусмотрено автоматическое каскадное удаление сущностей при
+	 *
+	 * @OneToMany-merge.
+	 *
+	 * @param contest
+	 */
+	@Override
+	public void modifyContest(Contest contest) {
+		// Получаем старые значения, сохраненные в коллекциях.
+
+		List<Solution> oldSolutions = (List<Solution>) em.createNamedQuery("Solution.findByContestId")
+				.setParameter("contestId", contest.getContestId()).getResultList();
+		List<Role> oldRoles = (List<Role>) em.createNamedQuery("Role.findByContestId")
+				.setParameter("contestId", contest.getContestId()).getResultList();
+		List<ContestProblem> oldContestProblems = (List<ContestProblem>) em.createNamedQuery("ContestProblem.findByContestId")
+				.setParameter("contestId", contest.getContestId()).getResultList();
+		List<ContestLanguage> oldContestLanguages = (List<ContestLanguage>) em.createNamedQuery("ContestLanguage.findByContestId")
+				.setParameter("contestId", contest.getContestId()).getResultList();
+
+		// Если некоторая сущность более не присутствует в БД, она удаляется.
+		List<Solution> newSolutions = (List<Solution>) contest.getSolutions();
+		for (Iterator<Solution> iter = oldSolutions.iterator(); iter.hasNext();) {
+			Solution s = iter.next();
+			if (!newSolutions.contains(s)) {
+				iter.remove();
+				em.remove(s);
+			}
+		}
+
+		// Если некоторая сущность более не присутствует в БД, она удаляется.
+		List<Role> newRoles = (List<Role>) contest.getRoles();
+		for (Iterator<Role> iter = oldRoles.iterator(); iter.hasNext();) {
+			Role r = iter.next();
+			if (!newRoles.contains(r)) {
+				iter.remove();
+				em.remove(r);
+			}
+		}
+
+		// Если некоторая сущность более не присутствует в БД, она удаляется.
+		List<ContestLanguage> newContestLanguages = (List<ContestLanguage>) contest.getContestLanguages();
+		for (Iterator<ContestLanguage> iter = oldContestLanguages.iterator(); iter.hasNext();) {
+			ContestLanguage cl = iter.next();
+			if (!newContestLanguages.contains(cl)) {
+				iter.remove();
+				em.remove(cl);
+			}
+		}
+
+		// Если некоторая сущность более не присутствует в БД, она удаляется.
+		List<ContestProblem> newContestProblems = (List<ContestProblem>) contest.getContestProblems();
+		for (Iterator<ContestProblem> iter = oldContestProblems.iterator(); iter.hasNext();) {
+			ContestProblem cp = iter.next();
+			if (!newContestProblems.contains(cp)) {
+				iter.remove();
+				em.remove(cp);
+			}
+		}
+
+		em.merge(contest);
+	}
+
+	/**
+	 *
+	 * @param contestId
+	 */
+	@Override
+	public void deleteContest(int contestId) {
+		em.remove((Contest) em.find(Contest.class, contestId));
+	}
+
+	/**
+	 *
+	 * @param problemId
+	 * @return
+	 */
+	@Override
+	public Problem getProblem(int problemId) {
+		return (Problem) em.find(Problem.class, problemId);
+	}
+
+	/**
+	 *
+	 * @return
+	 */
+	@Override
+	public long getProblemsCount() {
+		return (Long) em.createQuery("SELECT COUNT(p) FROM Problem p").getSingleResult();
+	}
+
+	/**
+	 *
+	 * @return
+	 */
+	@Override
+	public List<Problem> getProblems() {
+		return (List<Problem>) em.createNamedQuery("Problem.getProblems").getResultList();
+	}
+
+	/**
+	 *
+	 * @param start
+	 * @param limit
+	 * @return
+	 */
+	@Override
+	public List<Problem> getProblems(int start, int limit) {
+		return (List<Problem>) em.createQuery("SELECT p FROM Problem p ORDER BY p.problemId")
+				.setFirstResult(start).setMaxResults(limit).getResultList();
+	}
+
+	/**
+	 *
+	 * @return
+	 */
+	@Override
+	public List<User> getUsers() {
+		return (List<User>) em.createNamedQuery("User.getUsers").getResultList();
+	}
+
+	/**
+	 *
+	 * @param problem
+	 * @return
+	 */
+	@Override
+	public Problem addProblem(Problem problem) {
+		em.persist(problem);
+		em.flush();
+		return problem;
+	}
+
+	/**
+	 *
+	 * @param problem
+	 */
+	@Override
+	public void modifyProblem(Problem problem) {
+		em.merge(problem);
+	}
+
+	/**
+	 *
+	 * @param problemId
+	 */
+	@Override
+	public void deleteProblem(int problemId) {
+		em.remove((Problem) em.find(Problem.class, problemId));
+	}
+
+	/**
+	 *
+	 * @param solutionId
+	 * @return
+	 */
+	@Override
+	public Solution getSolution(int solutionId) {
+		return (Solution) em.find(Solution.class, solutionId);
+	}
+
+	/**
+	 *
+	 * @param solutionId
+	 * @return
+	 */
+	@Override
+	public Solution getSolutionEager(int solutionId) {
+		Solution solution = getSolution(solutionId);
+		if (solution == null) {
+			return null;
+		}
+
+		// Инстанциируем отложенную загрузку для того, чтобы раб мог получать коллекции.
+		solution.getRuns().size();
+		solution.getContest().getContestProblems().size();
+		solution.getContest().getContestLanguages().size();
+		solution.getProblem().getTests().size();
+
+		return solution;
+	}
+
+	/**
+	 *
+	 * @param login
+	 * @param contestId
+	 * @param problemId
+	 * @return
+	 */
+	@Override
+	public List<Solution> getSolutions(String login, int contestId, int problemId) {
+		List<Solution> lcpSolutions = (List<Solution>) em.createNamedQuery("Solution.findByUserContestProblem")
+				.setParameter("login", login.toLowerCase()).setParameter("contestId", contestId).setParameter("problemId", problemId).getResultList();
+
+		// Удаляем из полученного списка решений те, которые не попадают в интервал проведения соревнования.
+		List<Solution> solutions = new ArrayList<>();
+		for (Solution solution : lcpSolutions) {
+			Date endTime = new Date(
+					solution.getContest().getStartTime().getTime()
+					+ solution.getContest().getDuration() * (long) 1000);
+			if ((solution.getSubmitTime().after(solution.getContest().getStartTime()))
+					&& (solution.getSubmitTime().before(endTime)
+					|| solution.getContest().getDuration() == 0)) {
+				solutions.add(solution);
+			}
+		}
+
+		return solutions;
+	}
+
+	/**
+	 *
+	 * @return
+	 */
+	@Override
+	public List<Solution> getPendingSolutions() {
+		return (List<Solution>) em.createNamedQuery("Solution.getPendingSolutions").getResultList();
+	}
+
+	/**
+	 *
+	 * @param count
+	 * @return
+	 */
+	@Override
+	public List<Solution> getLastSolutions(int count) {
+		return (List<Solution>) em.createNamedQuery("Solution.getLastSolutions").setMaxResults(count).getResultList();
+	}
+
+	/**
+	 *
+	 * @param solution
+	 * @return
+	 */
+	@Override
+	public Solution submitSolution(Solution solution) {
+		solution.setStatus(SolutionStatus.NEW);
+		solution.setSubmitTime(new Date());
+
+		User user = this.getUser(solution.getUser().getLogin());
+
+		Contest contest = this.getContest(solution.getContest().getContestId());
+		contest.getSolutions().add(solution);
+
+		if (contest.isOpen() && this.haveNoRoles(user.getLogin(), contest.getContestId())) {
+			Role autoRegisteredUser = new Role(contest, user, RoleType.USER);
+			contest.getRoles().add(em.merge(autoRegisteredUser));
+		}
+
+		em.flush();
+
+		try {
+			sendJMSMessageToSolutionsQueue(this.getSolutionEager(solution.getSolutionId()));
+			logger.log(Level.INFO, "Solution {0} submitted to JMS queue.", solution.getSolutionId());
+		} catch (JMSException | NamingException ex) {
+			logger.log(Level.SEVERE, "Exception thrown when sending solution message.", ex);
+			throw new RuntimeException(ex);
+		}
+
+		return solution;
+	}
+
+	/**
+	 *
+	 * @param solutionId
+	 */
+	@Override
+	public void resubmitSolution(int solutionId) {
+		Solution solution = this.getSolution(solutionId);
+		solution.setStatus(SolutionStatus.NEW);
+
+		// Удаляем все запуски на тестах для данного решения.
+		for (Run run : solution.getRuns()) {
+			em.remove(run);
+		}
+		solution.getRuns().clear();
+
+		try {
+			sendJMSMessageToSolutionsQueue(this.getSolutionEager(solution.getSolutionId()));
+			logger.log(Level.INFO, "Solution {0} submitted to JMS queue.", solution.getSolutionId());
+		} catch (JMSException | NamingException ex) {
+			logger.log(Level.SEVERE, "Exception thrown when sending solution message.", ex);
+			throw new RuntimeException(ex);
+		}
+	}
+
+	/**
+	 *
+	 * @param contestId
+	 * @param problemId
+	 */
+	@Override
+	public void resubmitSolutions(int contestId, int problemId) {
+		List<Solution> sols = (List<Solution>) em.createQuery(
+				"SELECT s FROM Solution s WHERE s.contestId = :contestId AND s.problemId = :problemId AND s.status = 'PROCESSED'")
+				.setParameter("contestId", contestId).setParameter("problemId", problemId).getResultList();
+
+		for (Solution sol : sols) {
+			this.resubmitSolution(sol.getSolutionId());
+		}
+	}
+
+	/**
+	 *
+	 * @param solution
+	 */
+	@Override
+	public void modifySolution(Solution solution) {
+		Solution merged = em.merge(solution);
+
+		// Если решение прошло все тесты, то помечаем задачу как здоровую.
+		if (merged.isAllTestsPassed()) {
+			merged.getProblem().setHealthy(true);
+		}
+
+		em.flush();
+	}
+
+	/**
+	 *
+	 * @param solution
+	 */
+	@Override
+	public void saveSolution(Solution solution) {
+
+		Solution dbs;
+		if (this.getSolution(solution.getSolutionId()) != null) {
+			dbs = this.getSolution(solution.getSolutionId());
+
+			dbs.setStatus(solution.getStatus());
+			dbs.setStatusMessage(solution.getStatusMessage());
+			dbs.setCompilationTime(solution.getCompilationTime());
+
+			dbs.setStatus(solution.getStatus());
+			dbs.setStatusMessage(solution.getStatusMessage());
+			dbs.setCompilationTime(solution.getCompilationTime());
+
+			for (Run run : dbs.getRuns()) {
+				em.remove(run);
+			}
+			dbs.getRuns().clear();
+
+			if (solution.getRuns() != null) {
+				for (Run run : solution.getRuns()) {
+					dbs.getRuns().add(em.merge(run));
+				}
+			}
+
+		} else {
+			dbs = solution;
+		}
+
+		// Если решение прошло все тесты, то помечаем задачу как здоровую.
+		if (dbs.isAllTestsPassed()) {
+			if (dbs.getProblem() != null) {
+				dbs.getProblem().setHealthy(true);
+			} else {
+				dbs.setProblem(solution.getProblem());
+			}
+		}
+		em.flush();
+	}
+
+	/**
+	 *
+	 * @param testId
+	 * @return
+	 */
+	@Override
+	public Test getTest(int testId) {
+		return (Test) em.createNamedQuery("Test.findByTestId").setParameter("testId", testId).getSingleResult();
+	}
+
+	/**
+	 *
+	 * @param test
+	 * @return
+	 */
+	@Override
+	public Test addTest(Test test) {
+		Problem problem = em.find(Problem.class, test.getProblem().getProblemId());
+		problem.getTests().add(test);
+
+		// Помечаем задачу как нездоровую.
+		problem.setHealthy(false);
+		em.flush();
+
+		return test;
+	}
+
+	/**
+	 *
+	 * @param test
+	 */
+	@Override
+	public void modifyTest(Test test) {
+		Test merged = em.merge(test);
+
+		// Помечаем задачу как нездоровую.
+		merged.getProblem().setHealthy(false);
+
+		em.flush();
+		em.refresh(merged.getProblem());
+	}
+
+	/**
+	 *
+	 * @param testId
+	 */
+	@Override
+	public void deleteTest(int testId) {
+
+		Problem problem = em.find(Test.class, testId).getProblem();
+		int problemId = problem.getProblemId();
+		int testNumber = em.find(Test.class, testId).getTestNumber();
+		em.remove(em.find(Test.class, testId));
+
+		problem.setTests((List<Test>) em.createNamedQuery("Test.findByProblemId").setParameter("problemId", problemId).getResultList());
+		Collections.sort((List<Test>) problem.getTests());
+
+		int testCount = problem.getTests().size();
+		for (int i = testNumber + 1; i <= testCount + 1; i++) {
+			int index = ((List<Test>) problem.getTests()).indexOf((Test) em.createNamedQuery("Test.findByNumberAndProblemId")
+					.setParameter("testNumber", i).setParameter("problemId", problemId).getSingleResult());
+			((List<Test>) problem.getTests()).get(index).setTestNumber(i - 1);
+		}
+
+		em.merge(problem);
+		em.flush();
+	}
+
+	/**
+	 *
+	 * @return
+	 */
+	@Override
+	public int getMinimumPasswordLength() {
+		return minimumPasswordLength;
+	}
+
+	/**
+	 *
+	 * @return
+	 */
+	@Override
+	public int getMaximumPasswordLength() {
+		return maximumPasswordLength;
+	}
+
+	/**
+	 *
+	 * @param contest
+	 * @param when
+	 * @return
+	 */
+	@Override
+	public List<GlobalMonitorRecord> getGlobalMonitorRecords(Contest contest, Date when) {
+		LinkedList<GlobalMonitorRecord> rows = new LinkedList<>();
+
+		for (Role role : contest.getRoles()) {
+			// Показываем в мониторе только пользователей, которые являются обычными участниками соревнования.
+			if (role.getRoleType() != RoleType.USER) {
+				continue;
+			}
+
+			rows.add(new GlobalMonitorRecord(this, contest, role.getUser(), when));
+		}
+
+		Collections.sort(rows);
+		Collections.reverse(rows);
+
+		for (int i = 0; i < rows.size(); ++i) {
+			rows.get(i).setPlace(i + 1);
+		}
+
+		return rows;
+	}
+
+	/**
+	 *
+	 * @param contest
+	 * @param when
+	 * @return
+	 */
+	@Override
+	public List<AcmMonitorRecord> getAcmMonitorRecords(Contest contest, Date when) {
+		LinkedList<AcmMonitorRecord> rows = new LinkedList<>();
+
+		for (Role role : contest.getRoles()) {
+			// Показываем в мониторе только пользователей, которые являются обычными участниками соревнования.
+			if (role.getRoleType() != RoleType.USER) {
+				continue;
+			}
+
+			rows.add(new AcmMonitorRecord(this, contest, role.getUser(), when));
+		}
+
+		Collections.sort(rows);
+		Collections.reverse(rows);
+
+		for (int i = 0; i < rows.size(); ++i) {
+			rows.get(i).setPlace(i + 1);
+		}
+
+		return rows;
+	}
+
+	/**
+	 *
+	 * @param contest
+	 * @param when
+	 * @return
+	 */
+	@Override
+	public List<SchoolMonitorRecord> getSchoolMonitorRecords(Contest contest, Date when) {
+		LinkedList<SchoolMonitorRecord> rows = new LinkedList<>();
+
+		for (Role role : contest.getRoles()) {
+			// Показываем в мониторе только пользователей, которые являются обычными участниками соревнования.
+			if (role.getRoleType() != RoleType.USER) {
+				continue;
+			}
+
+			rows.add(new SchoolMonitorRecord(this, contest, role.getUser(), when));
+		}
+
+		Collections.sort(rows);
+		Collections.reverse(rows);
+
+		for (int i = 0; i < rows.size(); ++i) {
+			rows.get(i).setPlace(i + 1);
+		}
+
+		return rows;
+	}
+
+	/**
+	 *
+	 * @return
+	 */
+	@Override
+	public URI getBugTrackingPath() {
+		Param uriParam = em.find(Param.class, "bug_tracking_uri");
+		URI bugURI = URI.create("https://www.glint.ru/dev/dudge/");
+
+		try {
+			if (uriParam != null) {
+				bugURI = URI.create(uriParam.getValue());
+			}
+		} catch (IllegalArgumentException ex) {
+			logger.log(Level.WARNING, "Wrong bugtracking URI parameter in database.", ex);
+		}
+
+		return bugURI;
+	}
+
+	/**
+	 *
+	 * @param session
+	 * @param messageData
+	 * @return
+	 * @throws JMSException
+	 */
+	private Message createJMSMessageForSolutionsQueue(Session session, Object messageData) throws JMSException {
+		ObjectMessage message = session.createObjectMessage((Solution) messageData);
+		return message;
+	}
+
+	/**
+	 *
+	 * @param messageData
+	 * @throws NamingException
+	 * @throws JMSException
+	 */
+	private void sendJMSMessageToSolutionsQueue(Object messageData) throws NamingException, JMSException {
+		Connection connection = null;
+		Session session = null;
+		try {
+			connection = solutionsQueueFactory.createConnection();
+			session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+			MessageProducer messageProducer = session.createProducer(solutionsQueue);
+			messageProducer.send(createJMSMessageForSolutionsQueue(session, messageData));
+		} finally {
+			if (session != null) {
+				session.close();
+			}
+			if (connection != null) {
+				connection.close();
+			}
+		}
+	}
 }

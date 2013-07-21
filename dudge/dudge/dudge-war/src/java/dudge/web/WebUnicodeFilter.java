@@ -6,7 +6,6 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-
 package dudge.web;
 
 import java.io.*;
@@ -28,11 +27,10 @@ public class WebUnicodeFilter implements Filter {
 	public WebUnicodeFilter() {
 	}
 
-        @Override
+	@Override
 	public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
 		request.setCharacterEncoding(defaultEncoding);
 		response.setCharacterEncoding(defaultEncoding);
-
 		chain.doFilter(request, response);
 	}
 
@@ -40,7 +38,7 @@ public class WebUnicodeFilter implements Filter {
 	 * Destroy method for this filter
 	 *
 	 */
-        @Override
+	@Override
 	public void destroy() {
 	}
 
@@ -48,7 +46,7 @@ public class WebUnicodeFilter implements Filter {
 	 * Init method for this filter
 	 *
 	 */
-        @Override
+	@Override
 	public void init(FilterConfig filterConfig) {
 	}
 }

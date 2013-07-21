@@ -6,7 +6,6 @@
  * To change this template, choose Tools | Template Manager
  * and open the template in the editor.
  */
-
 package dudge.stats;
 
 /**
@@ -15,7 +14,7 @@ package dudge.stats;
  * @author Michael Antonov
  */
 public class LanguageStats {
-	
+
 	private Integer languageId;
 	private Integer allAttempts;
 	private Integer compabilityErrorAttempts;
@@ -23,8 +22,10 @@ public class LanguageStats {
 	private Integer timeLimitAttempts;
 	private Integer memoryLimitAttempts;
 	private Integer acceptedAttempts;
-	
-	/** Creates a new instance of LanguageStats */
+
+	/**
+	 * Creates a new instance of LanguageStats
+	 */
 	public LanguageStats() {
 	}
 
@@ -83,5 +84,4 @@ public class LanguageStats {
 	public void setAcceptedAttempts(Integer acceptedAttempts) {
 		this.acceptedAttempts = acceptedAttempts;
 	}
-	
 }

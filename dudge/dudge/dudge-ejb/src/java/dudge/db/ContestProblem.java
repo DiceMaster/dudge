@@ -6,7 +6,6 @@
  * To change this template, choose Tools | Template Manager
  * and open the template in the editor.
  */
-
 package dudge.db;
 
 import java.io.Serializable;
@@ -20,52 +19,45 @@ import javax.persistence.*;
  */
 @Entity(name = "ContestProblem")
 @Table(name = "contest_problems")
-//@IdClass(ContestProblemPK.class) - осталось от старой версии
-@NamedQueries( {
+@NamedQueries({
 	@NamedQuery(name = "ContestProblem.findByContestId", query = "SELECT c FROM ContestProblem c WHERE c.contest.contestId = :contestId"),
-	@NamedQuery(name = "ContestProblem.findBy" +
-	"ProblemId", query = "SELECT c FROM ContestProblem c WHERE c.problem.problemId = :problemId"),
-			@NamedQuery(name = "ContestProblem.findByProblemOrder", query = "SELECT c FROM ContestProblem c WHERE c.problemOrder = :problemOrder"),
+	@NamedQuery(name = "ContestProblem.findBy ProblemId", query = "SELECT c FROM ContestProblem c WHERE c.problem.problemId = :problemId"),
+	@NamedQuery(name = "ContestProblem.findByProblemOrder", query = "SELECT c FROM ContestProblem c WHERE c.problemOrder = :problemOrder"),
 	@NamedQuery(name = "ContestProblem.findByProblemMark", query = "SELECT c FROM ContestProblem c WHERE c.problemMark = :problemMark")
 })
 @IdClass(dudge.db.ContestProblemPK.class)
 public class ContestProblem implements Serializable, Comparable<ContestProblem> {
+
 	public static final long serialVersionUID = 1L;
-		
 	@Id
-	@Column(name = "contest_id", nullable=false, insertable=false, updatable=false)
+	@Column(name = "contest_id", nullable = false, insertable = false, updatable = false)
 	private int contestId;
-	
-	@JoinColumn(name = "contest_id", referencedColumnName = "contest_id", nullable=false)
+	@JoinColumn(name = "contest_id", referencedColumnName = "contest_id", nullable = false)
 	@ManyToOne
 	private Contest contest;
-	
 	@Id
-	@Column(name = "problem_id", nullable=false, insertable=false, updatable=false)
+	@Column(name = "problem_id", nullable = false, insertable = false, updatable = false)
 	private int problemId;
-	
-	@JoinColumn(name = "problem_id", referencedColumnName = "problem_id", nullable=false)
+	@JoinColumn(name = "problem_id", referencedColumnName = "problem_id", nullable = false)
 	@ManyToOne
 	private Problem problem;
-	
 	@Column(name = "problem_order", nullable = false)
 	private int problemOrder;
-	
 	@Column(name = "problem_mark", nullable = false)
 	private String problemMark;
-
-        @Column(name = "problem_cost", nullable = false)
+	@Column(name = "problem_cost", nullable = false)
 	private int problemCost;
-	
+
 	/**
 	 * Creates a new instance of ContestProblem
 	 */
-	public ContestProblem(){
+	public ContestProblem() {
 	}
-	
+
 	/**
-	 *Creates a new instance of this class
-	 *@param ContestProblensPK the  ContestProblensPK of the ContestProblems
+	 * Creates a new instance of this class
+	 *
+	 * @param ContestProblensPK the ContestProblensPK of the ContestProblems
 	 */
 	public ContestProblem(Contest contest, Problem problem) {
 		this.problem = problem;
@@ -73,7 +65,7 @@ public class ContestProblem implements Serializable, Comparable<ContestProblem> 
 		this.contestId = contest.getContestId();
 		this.problemId = problem.getProblemId();
 	}
-	
+
 	/**
 	 * Creates a new instance of ContestProblem with the specified values.
 	 *
@@ -82,19 +74,16 @@ public class ContestProblem implements Serializable, Comparable<ContestProblem> 
 	 * @param problemOrder the problemOrder of the ContestProblem
 	 * @param problemMark the problemMark of the ContestProblem
 	 */
-	public ContestProblem(Contest contest, Problem problem,
-                int problemOrder, String problemMark, int problemCost) {
-		
+	public ContestProblem(Contest contest, Problem problem, int problemOrder, String problemMark, int problemCost) {
 		this.contest = contest;
 		this.problem = problem;
 		this.problemOrder = problemOrder;
 		this.problemMark = problemMark;
-                this.problemCost = problemCost;
+		this.problemCost = problemCost;
 		this.contestId = contest.getContestId();
 		this.problemId = problem.getProblemId();
 	}
-	
-		
+
 	/**
 	 * Gets the problemOrder of this ContestProblem.
 	 *
@@ -103,7 +92,7 @@ public class ContestProblem implements Serializable, Comparable<ContestProblem> 
 	public int getProblemOrder() {
 		return this.problemOrder;
 	}
-	
+
 	/**
 	 * Sets the problemOrder of this ContestProblem to the specified value.
 	 *
@@ -112,7 +101,7 @@ public class ContestProblem implements Serializable, Comparable<ContestProblem> 
 	public void setProblemOrder(int problemOrder) {
 		this.problemOrder = problemOrder;
 	}
-	
+
 	/**
 	 * Gets the problemMark of this ContestProblem.
 	 *
@@ -121,7 +110,7 @@ public class ContestProblem implements Serializable, Comparable<ContestProblem> 
 	public String getProblemMark() {
 		return this.problemMark;
 	}
-	
+
 	/**
 	 * Sets the problemMark of this ContestProblem to the specified value.
 	 *
@@ -131,7 +120,7 @@ public class ContestProblem implements Serializable, Comparable<ContestProblem> 
 		this.problemMark = problemMark;
 	}
 
-        /**
+	/**
 	 * Gets the problemCost of this ContestProblem.
 	 *
 	 * @return the problemCost
@@ -148,7 +137,7 @@ public class ContestProblem implements Serializable, Comparable<ContestProblem> 
 	public void setProblemCost(int problemCost) {
 		this.problemCost = problemCost;
 	}
-	
+
 	/**
 	 * Gets the contest of this ContestProblem.
 	 *
@@ -158,7 +147,7 @@ public class ContestProblem implements Serializable, Comparable<ContestProblem> 
 	public Contest getContest() {
 		return this.contest;
 	}
-	
+
 	/**
 	 * Sets the contest of this ContestProblem to the specified value.
 	 *
@@ -168,7 +157,7 @@ public class ContestProblem implements Serializable, Comparable<ContestProblem> 
 	public void setContest(Contest contest) {
 		this.contest = contest;
 	}
-	
+
 	/**
 	 * Gets the problem of this ContestProblem.
 	 *
@@ -178,7 +167,7 @@ public class ContestProblem implements Serializable, Comparable<ContestProblem> 
 	public Problem getProblem() {
 		return this.problem;
 	}
-	
+
 	/**
 	 * Sets the problem of this ContestProblem to the specified value.
 	 *
@@ -188,10 +177,10 @@ public class ContestProblem implements Serializable, Comparable<ContestProblem> 
 	public void setProblem(Problem problem) {
 		this.problem = problem;
 	}
-	
+
 	/**
-	 * Returns a hash code value for the object.  This implementation computes
-	 * a hash code value based on the id fields in this object.
+	 * Returns a hash code value for the object. This implementation computes a hash code value based on the id fields in this object.
+	 *
 	 * @return a hash code value for this object.
 	 */
 	@Override
@@ -201,15 +190,13 @@ public class ContestProblem implements Serializable, Comparable<ContestProblem> 
 		hash += (this.problem != null ? this.problem.hashCode() : 0);
 		return hash;
 	}
-	
+
 	/**
-	 * Determines whether another object is equal to this ContestProblem.  The result is
-	 * <code>true</code> if and only if the argument is not null and is a ContestProblem object that
-	 * has the same id field values as this object.
+	 * Determines whether another object is equal to this ContestProblem. The result is
+	 * <code>true</code> if and only if the argument is not null and is a ContestProblem object that has the same id field values as this object.
 	 *
 	 * @param object the reference object with which to compare
-	 * @return <code>true</code> if this object is the same as the argument;
-	 * <code>false</code> otherwise.
+	 * @return <code>true</code> if this object is the same as the argument; <code>false</code> otherwise.
 	 */
 	@Override
 	public boolean equals(Object object) {
@@ -217,26 +204,32 @@ public class ContestProblem implements Serializable, Comparable<ContestProblem> 
 		if (!(object instanceof ContestProblem)) {
 			return false;
 		}
-		ContestProblem other = (ContestProblem)object;
-		if(this.contest == null || !this.getContest().equals(other.getContest())) return false;
-		if(this.problem == null || !this.getProblem().equals(other.getProblem())) return false;
+		ContestProblem other = (ContestProblem) object;
+		if (this.contest == null || !this.getContest().equals(other.getContest())) {
+			return false;
+		}
+		if (this.problem == null || !this.getProblem().equals(other.getProblem())) {
+			return false;
+		}
 		return true;
 	}
 
-        @Override
-	public int compareTo(ContestProblem cp)
-	{
-		if(this.problemOrder < cp.problemOrder)
+	@Override
+	public int compareTo(ContestProblem cp) {
+		if (this.problemOrder < cp.problemOrder) {
 			return -1;
+		}
 
-		if(this.problemOrder > cp.problemOrder)
+		if (this.problemOrder > cp.problemOrder) {
 			return 1;
+		}
 
 		return 0;
 	}
+
 	/**
-	 * Returns a string representation of the object.  This implementation constructs
-	 * that representation based on the id fields.
+	 * Returns a string representation of the object. This implementation constructs that representation based on the id fields.
+	 *
 	 * @return a string representation of the object.
 	 */
 	@Override

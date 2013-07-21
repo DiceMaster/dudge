@@ -6,20 +6,22 @@
  * To change this template, choose Tools | Template Manager
  * and open the template in the editor.
  */
-
 package dudge.stats;
 
 /**
  * Inform. class, encapsulated the statistics at any Contest.
+ *
  * @author Michael Antonov
  */
 public class ContestStats {
-	
+
 	private Integer contestId;
 	private Integer allAttempts;
 	private Integer successfullyAttempts;
-			
-	/** Creates a new instance of ContestStats */
+
+	/**
+	 * Creates a new instance of ContestStats
+	 */
 	public ContestStats() {
 	}
 
@@ -46,5 +48,4 @@ public class ContestStats {
 	public void setContestId(Integer contestId) {
 		this.contestId = contestId;
 	}
-	
 }

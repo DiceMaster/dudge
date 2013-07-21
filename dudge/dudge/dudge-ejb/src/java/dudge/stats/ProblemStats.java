@@ -6,7 +6,6 @@
  * To change this template, choose Tools | Template Manager
  * and open the template in the editor.
  */
-
 package dudge.stats;
 
 /**
@@ -15,14 +14,16 @@ package dudge.stats;
  * @author Michael Antonov
  */
 public class ProblemStats {
-	
+
 	private Integer problemId;
 	private Integer allAttempts;
 	private Integer allSuccessfullyAttempts;
 	private Integer averageAttempts; // В день
 	private Integer averageSuccessfullyAttempts; // В день
-	
-	/** Creates a new instance of ProblemStats */
+
+	/**
+	 * Creates a new instance of ProblemStats
+	 */
 	public ProblemStats() {
 	}
 
@@ -65,5 +66,4 @@ public class ProblemStats {
 	public void setAverageSuccessfullyAttempts(Integer averageSuccessfullyAttempts) {
 		this.averageSuccessfullyAttempts = averageSuccessfullyAttempts;
 	}
-	
 }

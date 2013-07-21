@@ -2,7 +2,6 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-
 package dudge.db;
 
 import java.io.Serializable;
@@ -12,12 +11,11 @@ import javax.persistence.Column;
  *
  * @author Michael Antonov
  */
-public class ApplicationPK implements Serializable{
-    	public static final long serialVersionUID = 1L;
+public class ApplicationPK implements Serializable {
 
+	public static final long serialVersionUID = 1L;
 	@Column(name = "contest_id", nullable = false)
 	private int contestId;
-	
 	@Column(name = "owner", nullable = false)
 	private String ownername;
 
@@ -36,7 +34,7 @@ public class ApplicationPK implements Serializable{
 		if (this.contestId != other.contestId) {
 			return false;
 		}
-		if (this.ownername == null || !this.ownername.equals(other.ownername)){
+		if (this.ownername == null || !this.ownername.equals(other.ownername)) {
 			return false;
 		}
 		return true;
@@ -70,5 +68,4 @@ public class ApplicationPK implements Serializable{
 	public void setOwnername(String ownername) {
 		this.ownername = ownername;
 	}
-
 }

@@ -2,7 +2,6 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-
 package dudge.db;
 
 import java.io.Serializable;
@@ -13,30 +12,26 @@ import javax.persistence.*;
  *
  * @author olorin
  */
-@Entity(name="Complaint")
+@Entity(name = "Complaint")
 @Table(name = "complaints")
 public class Complaint implements Serializable {
-    	public static final long serialVersionUID = 1L;
-	
-	@SequenceGenerator(name="CompliantIdGen", sequenceName="complaints_compliant_id_seq", allocationSize=1)
-	@GeneratedValue(strategy=GenerationType.SEQUENCE, generator="ComplaintIdGen")
+
+	public static final long serialVersionUID = 1L;
+	@SequenceGenerator(name = "CompliantIdGen", sequenceName = "complaints_compliant_id_seq", allocationSize = 1)
+	@GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "ComplaintIdGen")
 	@Id
 	@Column(name = "complaint_id", nullable = false)
 	private int complaintId;
-	
 	@JoinColumn(name = "owner", referencedColumnName = "login")
 	@ManyToOne
 	private User user;
-	
 	@JoinColumn(name = "problem_id", referencedColumnName = "problem_id")
 	@ManyToOne
 	private Problem problem;
-	
-	@Column(name = "filing_time", nullable=false)
+	@Column(name = "filing_time", nullable = false)
 	@Temporal(TemporalType.TIMESTAMP)
-	private Date filingTime; 
-	
-	@Column(name="message" , nullable=false)
+	private Date filingTime;
+	@Column(name = "message", nullable = false)
 	private String message;
 
 	public Complaint() {
@@ -82,7 +77,6 @@ public class Complaint implements Serializable {
 		this.problem = problem;
 	}
 
-		
 	@Override
 	public int hashCode() {
 		int hash = 0;
@@ -107,6 +101,4 @@ public class Complaint implements Serializable {
 	public String toString() {
 		return "dudge.db.Complaint[id=" + complaintId + "]";
 	}
-
-	
 }

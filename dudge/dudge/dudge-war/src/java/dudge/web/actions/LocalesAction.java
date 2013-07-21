@@ -6,7 +6,6 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-
 package dudge.web.actions;
 
 import java.io.IOException;
@@ -19,7 +18,6 @@ import org.apache.struts.action.ActionForward;
 import org.apache.struts.action.ActionMapping;
 import org.apache.struts.actions.DispatchAction;
 
-
 /**
  *
  * @author Michael Antonov
@@ -29,20 +27,19 @@ public class LocalesAction extends DispatchAction {
 	protected static final Logger logger = Logger.getLogger(LocalesAction.class.toString());
 
 	/**
-         * Устанавливает нужную локаль для пользовательского интерфейса.
-         * 
-         * @param mapping
-         * @param af
-         * @param request
-         * @param response
-         * @return 
-         */
+	 * Устанавливает нужную локаль для пользовательского интерфейса.
+	 *
+	 * @param mapping
+	 * @param af
+	 * @param request
+	 * @param response
+	 * @return
+	 */
 	public ActionForward setLocale(ActionMapping mapping, ActionForm af, HttpServletRequest request, HttpServletResponse response) {
 
 		String localeName = (String) request.getParameter("locale_name");
 		Locale locale = new Locale(localeName);
-		this.setLocale(request, locale);
-
+		setLocale(request, locale);
 
 		final String referrer = request.getHeader("referer");
 		if (referrer != null && referrer.length() > 0) {
@@ -60,8 +57,8 @@ public class LocalesAction extends DispatchAction {
 		}
 
 		/*ActionForward forward = new ActionForward();
-		forward.setPath(request.getHeader("referer"));
-		forward.setRedirect(true);
-		return forward;*/
+		 forward.setPath(request.getHeader("referer"));
+		 forward.setRedirect(true);
+		 return forward;*/
 	}
 }

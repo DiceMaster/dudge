@@ -2,7 +2,6 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-
 package dudge.db;
 
 import java.io.Serializable;
@@ -13,28 +12,25 @@ import javax.persistence.*;
  *
  * @author olorin
  */
-@Entity(name="New")
+@Entity(name = "New")
 @Table(name = "news")
 public class News implements Serializable {
-    	public static final long serialVersionUID = 1L;
-	
-	@SequenceGenerator(name="NewsIdGen", sequenceName="news_news_id_seq", allocationSize=1)
-	@GeneratedValue(strategy=GenerationType.SEQUENCE, generator="NewsIdGen")
+
+	public static final long serialVersionUID = 1L;
+	@SequenceGenerator(name = "NewsIdGen", sequenceName = "news_news_id_seq", allocationSize = 1)
+	@GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "NewsIdGen")
 	@Id
 	@Column(name = "news_id", nullable = false)
 	private int newsId;
-	
 	@JoinColumn(name = "author", referencedColumnName = "login")
 	@ManyToOne
 	private User author;
-	
-	@Column(name = "adding_time", nullable=false)
+	@Column(name = "adding_time", nullable = false)
 	@Temporal(TemporalType.TIMESTAMP)
-	private Date addingTime; 
-	
-	@Column(name="message" , nullable=false)
+	private Date addingTime;
+	@Column(name = "message", nullable = false)
 	private String message;
-		
+
 	@Override
 	public int hashCode() {
 		int hash = 0;
@@ -94,5 +90,4 @@ public class News implements Serializable {
 	public String toString() {
 		return "dudge.db.New[id=" + newsId + "]";
 	}
-
 }

@@ -3,7 +3,6 @@
  *
  * Created on June 10, 2007, 10:31 PM
  */
-
 package dudge.web.actions;
 
 import dudge.DudgeLocal;
@@ -25,46 +24,44 @@ import org.apache.struts.actions.DispatchAction;
 
 /**
  * Экшн для обработки входа и выхода пользователей системы.
+ *
  * @author Vladimir Shabanov
  */
 public class LoginAction extends DispatchAction {
 
-	/** Creates a new instance of LoginAction */
+	protected static final Logger logger = Logger.getLogger(LoginAction.class.toString());
+
+	/**
+	 * Creates a new instance of LoginAction
+	 */
 	public LoginAction() {
 	}
 
 	/**
-         * 
-         * @return 
-         */
+	 *
+	 * @return
+	 */
 	private DudgeLocal lookupDudgeBean() {
 		try {
 			Context c = new InitialContext();
 			return (DudgeLocal) c.lookup("java:comp/env/ejb/DudgeBean");
-		}
-		catch(NamingException ne) {
-			Logger.getLogger(getClass().getName()).log(Level.SEVERE,"exception caught" ,ne);
+		} catch (NamingException ne) {
+			logger.log(Level.SEVERE, "exception caught", ne);
 			throw new RuntimeException(ne);
 		}
 	}
 
 	/**
-         * 
-         * @param mapping
-         * @param af
-         * @param request
-         * @param response
-         * @return 
-         */
-	public ActionForward login(
-			ActionMapping mapping,
-			ActionForm af,
-			HttpServletRequest request,
-			HttpServletResponse response) {
+	 *
+	 * @param mapping
+	 * @param af
+	 * @param request
+	 * @param response
+	 * @return
+	 */
+	public ActionForward login(ActionMapping mapping, ActionForm af, HttpServletRequest request, HttpServletResponse response) {
 		LoginForm lf = (LoginForm) af;
-		if(lookupDudgeBean()
-			.authenticate(lf.getUsername(), lf.getPassword()) )
-		{
+		if (lookupDudgeBean().authenticate(lf.getUsername(), lf.getPassword())) {
 			lf.setPassword("");
 			Calendar calendar = Calendar.getInstance();
 			calendar.add(Calendar.HOUR, 6);
@@ -75,7 +72,7 @@ public class LoginAction extends DispatchAction {
 			ActionForward forward = new ActionForward();
 			forward.setPath(request.getHeader("referer"));
 			forward.setRedirect(true);
-                        
+
 			return forward;
 		}
 
@@ -83,18 +80,14 @@ public class LoginAction extends DispatchAction {
 	}
 
 	/**
-         * 
-         * @param mapping
-         * @param af
-         * @param request
-         * @param response
-         * @return 
-         */
-	public ActionForward logout(
-			ActionMapping mapping,
-			ActionForm af,
-			HttpServletRequest request,
-			HttpServletResponse response) {
+	 *
+	 * @param mapping
+	 * @param af
+	 * @param request
+	 * @param response
+	 * @return
+	 */
+	public ActionForward logout(ActionMapping mapping, ActionForm af, HttpServletRequest request, HttpServletResponse response) {
 
 		AuthenticationCookies.removeCookies(response);
 
@@ -102,6 +95,5 @@ public class LoginAction extends DispatchAction {
 		forward.setPath(request.getHeader("referer"));
 		forward.setRedirect(true);
 		return forward;
-	}	
-	
+	}
 }

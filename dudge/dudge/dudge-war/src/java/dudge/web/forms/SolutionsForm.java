@@ -3,7 +3,6 @@
  *
  * Created on June 12, 2007, 9:10 PM
  */
-
 package dudge.web.forms;
 
 import dudge.db.ContestLanguage;
@@ -20,44 +19,37 @@ import org.apache.struts.action.ActionMapping;
  * @author Vladimir Shabanov
  */
 public class SolutionsForm extends ActionForm {
-        public static final long serialVersionUID = 1L;
-	
+
+	public static final long serialVersionUID = 1L;
 	private List<ContestLanguage> contestLanguages = Collections.synchronizedList(new ArrayList<ContestLanguage>());
-	
 	private List<ContestProblem> contestProblems = Collections.synchronizedList(new ArrayList<ContestProblem>());
-	
 	// Идентификатор решения.
 	private int solutionId;
-	
 	// Идентификатор языка решения.
 	private String languageId;
-	
 	// Идентификатор задачи решения.
 	private int problemId;
-	
 	// Исходник решения.
 	private String sourceCode;
-	
 	// Статус решения.
 	private String status;
-	
 	// Сообщение к статусу решения.
 	private String statusMessage;
-	
 	private int currentTestNumber;
-	
-	/** Creates a new instance of SolutionsForm */
+
+	/**
+	 * Creates a new instance of SolutionsForm
+	 */
 	public SolutionsForm() {
 	}
 
-        /**
-         * 
-         * @param mapping
-         * @param request 
-         */
+	/**
+	 *
+	 * @param mapping
+	 * @param request
+	 */
 	@Override
-	public void reset(ActionMapping mapping, HttpServletRequest request)
-	{
+	public void reset(ActionMapping mapping, HttpServletRequest request) {
 		contestLanguages.clear();
 		contestProblems.clear();
 		solutionId = 0;
@@ -66,7 +58,7 @@ public class SolutionsForm extends ActionForm {
 		status = null;
 		statusMessage = "";
 	}
-	
+
 	public String getLanguageId() {
 		return languageId;
 	}
@@ -93,12 +85,12 @@ public class SolutionsForm extends ActionForm {
 
 	public List<ContestLanguage> getContestLanguages() {
 		return contestLanguages;
-	}	
+	}
 
 	public List<ContestProblem> getContestProblems() {
 		return contestProblems;
-	}	
-	
+	}
+
 	public int getSolutionId() {
 		return solutionId;
 	}

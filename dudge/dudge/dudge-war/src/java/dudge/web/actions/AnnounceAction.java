@@ -27,41 +27,37 @@ import org.apache.struts.actions.DispatchAction;
  */
 public class AnnounceAction extends DispatchAction {
 
-    protected static final Logger logger = Logger.getLogger(AnnounceAction.class.toString());
+	protected static final Logger logger = Logger.getLogger(AnnounceAction.class.toString());
 
-    public AnnounceAction() {
-    }
+	public AnnounceAction() {
+	}
 
-    private DudgeLocal lookupDudgeBean() {
-        try {
-            Context c = new InitialContext();
-            return (DudgeLocal) c.lookup("java:comp/env/ejb/DudgeBean");
-        } catch (NamingException ne) {
-            Logger.getLogger(getClass().getName()).log(Level.ALL, "exception caught", ne);
-            throw new RuntimeException(ne);
-        }
-    }
+	private DudgeLocal lookupDudgeBean() {
+		try {
+			Context c = new InitialContext();
+			return (DudgeLocal) c.lookup("java:comp/env/ejb/DudgeBean");
+		} catch (NamingException ne) {
+			logger.log(Level.ALL, "exception caught", ne);
+			throw new RuntimeException(ne);
+		}
+	}
 
-    public ActionForward makeAnnounce(ActionMapping mapping,
-            ActionForm af,
-            HttpServletRequest request,
-            HttpServletResponse response) {
+	public ActionForward makeAnnounce(ActionMapping mapping, ActionForm af, HttpServletRequest request, HttpServletResponse response) {
+		DudgeLocal dudgeBean = lookupDudgeBean();
+		AnnounceForm anf = (AnnounceForm) af;
 
-        DudgeLocal dudgeBean = lookupDudgeBean();
-        AnnounceForm anf = (AnnounceForm) af;
+		anf.setDudgeBean(dudgeBean);
 
-        anf.setDudgeBean(dudgeBean);
+		List<Contest> activeContests = dudgeBean.getActiveContests();
+		Collections.sort(activeContests);
+		anf.setActiveContests(activeContests);
+		List<Contest> pendingContests = dudgeBean.getPendingContests();
+		Collections.sort(pendingContests);
+		anf.setPendingContests(pendingContests);
+		List<Contest> recentlyFinishedContests = dudgeBean.getRecentlyFinishedContests();
+		Collections.sort(recentlyFinishedContests);
+		anf.setRecentlyFinishedContests(recentlyFinishedContests);
 
-        List<Contest> activeContests = dudgeBean.getActiveContests();
-        Collections.sort(activeContests);
-        anf.setActiveContests(activeContests);
-        List<Contest> pendingContests = dudgeBean.getPendingContests();
-        Collections.sort(pendingContests);
-        anf.setPendingContests(pendingContests);
-        List<Contest> recentlyFinishedContests = dudgeBean.getRecentlyFinishedContests();
-        Collections.sort(recentlyFinishedContests);
-        anf.setRecentlyFinishedContests(recentlyFinishedContests);
-        
-        return mapping.findForward("announce");
-    }
+		return mapping.findForward("announce");
+	}
 }

@@ -6,7 +6,6 @@
  * To change this template, choose Tools | Template Manager
  * and open the template in the editor.
  */
-
 package dudge.db;
 
 import java.io.Serializable;
@@ -18,22 +17,20 @@ import javax.persistence.Column;
  *
  * @author Michael Antonov
  */
-
 public class ContestProblemPK implements Serializable {
-    	public static final long serialVersionUID = 1L;
-	
-	@Column(name = "contest_id", nullable=false)
+
+	public static final long serialVersionUID = 1L;
+	@Column(name = "contest_id", nullable = false)
 	private int contestId;
-	
-	@Column(name = "problem_id", nullable=false)
+	@Column(name = "problem_id", nullable = false)
 	private int problemId;
-	
+
 	/**
 	 * Creates a new instance of ContestProblemPK
 	 */
 	public ContestProblemPK() {
 	}
-	
+
 	/**
 	 * Creates a new instance of ContestProblemPK with the specified values.
 	 *
@@ -44,7 +41,7 @@ public class ContestProblemPK implements Serializable {
 		this.contestId = contestId;
 		this.problemId = problemId;
 	}
-	
+
 	/**
 	 * Gets the contestId of this ContestProblemPK.
 	 *
@@ -53,7 +50,7 @@ public class ContestProblemPK implements Serializable {
 	public int getContestId() {
 		return this.contestId;
 	}
-	
+
 	/**
 	 * Sets the contest of this ContestProblemPK to the specified value.
 	 *
@@ -62,7 +59,7 @@ public class ContestProblemPK implements Serializable {
 	public void setContest(int contestId) {
 		this.contestId = contestId;
 	}
-	
+
 	/**
 	 * Gets the problemId of this ContestProblemPK.
 	 *
@@ -71,7 +68,7 @@ public class ContestProblemPK implements Serializable {
 	public int getProblemId() {
 		return this.problemId;
 	}
-	
+
 	/**
 	 * Sets the problem of this ContestProblemPK to the specified value.
 	 *
@@ -80,10 +77,10 @@ public class ContestProblemPK implements Serializable {
 	public void setProblem(int problemId) {
 		this.problemId = problemId;
 	}
-	
+
 	/**
-	 * Returns a hash code value for the object.  This implementation computes
-	 * a hash code value based on the id fields in this object.
+	 * Returns a hash code value for the object. This implementation computes a hash code value based on the id fields in this object.
+	 *
 	 * @return a hash code value for this object.
 	 */
 	@Override
@@ -93,15 +90,13 @@ public class ContestProblemPK implements Serializable {
 		hash += contestId;
 		return hash;
 	}
-	
+
 	/**
-	 * Determines whether another object is equal to this ContestProblemPK.  The result is
-	 * <code>true</code> if and only if the argument is not null and is a ContestProblemPK object that
-	 * has the same id field values as this object.
+	 * Determines whether another object is equal to this ContestProblemPK. The result is
+	 * <code>true</code> if and only if the argument is not null and is a ContestProblemPK object that has the same id field values as this object.
 	 *
 	 * @param object the reference object with which to compare
-	 * @return <code>true</code> if this object is the same as the argument;
-	 * <code>false</code> otherwise.
+	 * @return <code>true</code> if this object is the same as the argument; <code>false</code> otherwise.
 	 */
 	@Override
 	public boolean equals(Object object) {
@@ -109,15 +104,19 @@ public class ContestProblemPK implements Serializable {
 		if (!(object instanceof ContestProblemPK)) {
 			return false;
 		}
-		ContestProblemPK other = (ContestProblemPK)object;
-		if (this.problemId != other.problemId) return false;
-		if (this.contestId != other.contestId) return false;
+		ContestProblemPK other = (ContestProblemPK) object;
+		if (this.problemId != other.problemId) {
+			return false;
+		}
+		if (this.contestId != other.contestId) {
+			return false;
+		}
 		return true;
 	}
-	
+
 	/**
-	 * Returns a string representation of the object.  This implementation constructs
-	 * that representation based on the id fields.
+	 * Returns a string representation of the object. This implementation constructs that representation based on the id fields.
+	 *
 	 * @return a string representation of the object.
 	 */
 	@Override

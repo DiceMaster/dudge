@@ -6,7 +6,6 @@
  * To change this template, choose Tools | Template Manager
  * and open the template in the editor.
  */
-
 package dudge.db;
 
 import java.io.Serializable;
@@ -17,51 +16,45 @@ import javax.persistence.*;
  *
  * @author Michael Antonov
  */
-@Entity(name="Run")
+@Entity(name = "Run")
 @Table(name = "runs")
-@NamedQueries( {
+@NamedQueries({
 	@NamedQuery(name = "Run.findBySolutionId", query = "SELECT r FROM Run r WHERE r.solution.solutionId = :solutionId"),
 	@NamedQuery(name = "Run.findByTestId", query = "SELECT r FROM Run r WHERE r.test.testId = :testId")
 })
 @IdClass(dudge.db.RunPK.class)
 public class Run implements Serializable, Comparable {
-    	public static final long serialVersionUID = 1L;
-	
+
+	public static final long serialVersionUID = 1L;
 	@Id
-	@Column(name = "solution_id", nullable=false, insertable=false, updatable=false)
+	@Column(name = "solution_id", nullable = false, insertable = false, updatable = false)
 	private int solutionId;
-	
 	@JoinColumn(name = "solution_id", referencedColumnName = "solution_id", nullable = false)
 	@ManyToOne
 	private Solution solution;
-	
 	@Id
-	@Column(name = "test_id", nullable=false, insertable=false, updatable=false)
+	@Column(name = "test_id", nullable = false, insertable = false, updatable = false)
 	private int testId;
-	
 	@JoinColumn(name = "test_id", referencedColumnName = "test_id", nullable = false)
 	@ManyToOne
 	private Test test;
-	
 	@Column(name = "run_number", nullable = false)
 	private int runNumber;
-	
-	@Column(name = "result_type", length=255, nullable = false)
+	@Column(name = "result_type", length = 255, nullable = false)
 	private String resultType = RunResultType.SUCCESS.toString();
-	
 	@Column(name = "memory", nullable = false)
 	private int memory;
-	
 	@Column(name = "cpu_time", nullable = false)
 	private int cpuTime;
-	
 	@Column(name = "real_time", nullable = false)
 	private int realTime;
-	
-	/** Creates a new instance of Runs */
+
+	/**
+	 * Creates a new instance of Runs
+	 */
 	public Run() {
 	}
-	
+
 	/**
 	 * Creates a new instance of Runs with the specified values.
 	 */
@@ -71,7 +64,7 @@ public class Run implements Serializable, Comparable {
 		this.solutionId = solution.getSolutionId();
 		this.testId = test.getTestId();
 	}
-	
+
 	/**
 	 * Creates a new instance of Runs with the specified values.
 	 */
@@ -82,19 +75,21 @@ public class Run implements Serializable, Comparable {
 		this.testId = test.getTestId();
 		this.resultType = resultType.toString();
 	}
-	
-        @Override
+
+	@Override
 	public int compareTo(Object o) {
-		if(!(o instanceof Run))
+		if (!(o instanceof Run)) {
 			throw new IllegalArgumentException("o is not instance of db.Run");
+		}
 		Run other = (Run) o;
-		
-		if(this.getRunNumber() == other.getRunNumber())
+
+		if (this.getRunNumber() == other.getRunNumber()) {
 			return 0;
-		
+		}
+
 		return (this.getRunNumber() < other.getRunNumber()) ? -1 : 1;
 	}
-	
+
 	/**
 	 * Gets the solution of this Runs.
 	 *
@@ -103,7 +98,7 @@ public class Run implements Serializable, Comparable {
 	public Solution getSolution() {
 		return this.solution;
 	}
-	
+
 	/**
 	 * Sets the solution of this Runs to the specified value.
 	 *
@@ -112,26 +107,26 @@ public class Run implements Serializable, Comparable {
 	public void setSolution(Solution solution) {
 		this.solution = solution;
 	}
-	
+
 	public Test getTest() {
 		return test;
 	}
-	
+
 	public void setTest(Test test) {
 		this.test = test;
 	}
-	
+
 	public int getRunNumber() {
 		return runNumber;
 	}
-	
+
 	public void setRunNumber(int runNumber) {
 		this.runNumber = runNumber;
 	}
-	
+
 	/**
-	 * Returns a hash code value for the object.  This implementation computes
-	 * a hash code value based on the id fields in this object.
+	 * Returns a hash code value for the object. This implementation computes a hash code value based on the id fields in this object.
+	 *
 	 * @return a hash code value for this object.
 	 */
 	@Override
@@ -141,14 +136,13 @@ public class Run implements Serializable, Comparable {
 		hash += this.getTest().hashCode();
 		return hash;
 	}
-	
+
 	/**
-	 * Determines whether another object is equal to this Runs.  The result is
-	 * <code>true</code> if and only if the argument is not null and is a Runs object that
-	 * has the same id field values as this object.
+	 * Determines whether another object is equal to this Runs. The result is
+	 * <code>true</code> if and only if the argument is not null and is a Runs object that has the same id field values as this object.
+	 *
 	 * @param object the reference object with which to compare
-	 * @return <code>true</code> if this object is the same as the argument;
-	 * <code>false</code> otherwise.
+	 * @return <code>true</code> if this object is the same as the argument; <code>false</code> otherwise.
 	 */
 	@Override
 	public boolean equals(Object object) {
@@ -156,50 +150,54 @@ public class Run implements Serializable, Comparable {
 		if (!(object instanceof Run)) {
 			return false;
 		}
-		Run other = (Run)object;
-		if (this.solution == null || !this.solution.equals(other.solution)) return false;
-		if (this.test == null || !this.getTest().equals(other.getTest())) return false;
+		Run other = (Run) object;
+		if (this.solution == null || !this.solution.equals(other.solution)) {
+			return false;
+		}
+		if (this.test == null || !this.getTest().equals(other.getTest())) {
+			return false;
+		}
 		return true;
 	}
-	
+
 	/**
-	 * Returns a string representation of the object.  This implementation constructs
-	 * that representation based on the id fields.
+	 * Returns a string representation of the object. This implementation constructs that representation based on the id fields.
+	 *
 	 * @return a string representation of the object.
 	 */
 	@Override
 	public String toString() {
 		return "dudge.db.Run[testNumber=" + getTest().getTestId() + ", solutionId=" + solution.getSolutionId() + "]";
 	}
-	
+
 	public int getMemory() {
 		return memory;
 	}
-	
+
 	public void setMemory(int memory) {
 		this.memory = memory;
 	}
-	
+
 	public int getCpuTime() {
 		return cpuTime;
 	}
-	
+
 	public void setCpuTime(int cpuTime) {
 		this.cpuTime = cpuTime;
 	}
-	
+
 	public int getRealTime() {
 		return realTime;
 	}
-	
+
 	public void setRealTime(int realTime) {
 		this.realTime = realTime;
 	}
-	
+
 	public RunResultType getResultType() {
 		return RunResultType.valueOf(resultType);
 	}
-	
+
 	public void setResultType(RunResultType resultType) {
 		this.resultType = resultType.toString();
 	}

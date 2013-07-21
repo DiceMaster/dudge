@@ -2,7 +2,6 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-
 package dudge.problemc;
 
 import java.util.ArrayList;
@@ -19,138 +18,138 @@ import org.jdesktop.observablecollections.ObservableListListener;
  * @author Arengor
  */
 public class DudgeList<E> implements ObservableList<E> {
-	
+
 	private ObservableList<E> l = ObservableCollections.observableList(new ArrayList<E>());
 
 	public DudgeList() {
 	}
 
-        @Override
+	@Override
 	public void addObservableListListener(ObservableListListener arg0) {
 		l.addObservableListListener(arg0);
 	}
 
-        @Override
+	@Override
 	public void removeObservableListListener(ObservableListListener arg0) {
 		l.removeObservableListListener(arg0);
 	}
 
-        @Override
+	@Override
 	public boolean supportsElementPropertyChanged() {
 		return l.supportsElementPropertyChanged();
 	}
 
-        @Override
+	@Override
 	public int size() {
 		return l.size();
 	}
 
-        @Override
+	@Override
 	public boolean isEmpty() {
 		return l.isEmpty();
 	}
 
-        @Override
+	@Override
 	public boolean contains(Object o) {
 		return l.contains(o);
 	}
 
-        @Override
+	@Override
 	public Iterator<E> iterator() {
 		return l.iterator();
 	}
 
-        @Override
+	@Override
 	public Object[] toArray() {
 		return l.toArray();
 	}
 
-        @Override
+	@Override
 	public <T> T[] toArray(T[] a) {
 		return l.toArray(a);
 	}
 
-        @Override
+	@Override
 	public boolean add(E e) {
 		return l.add(e);
 	}
 
-        @Override
+	@Override
 	public boolean remove(Object o) {
 		return l.remove(o);
 	}
 
-        @Override
+	@Override
 	public boolean containsAll(Collection<?> c) {
 		return l.containsAll(c);
 	}
 
-        @Override
+	@Override
 	public boolean addAll(Collection<? extends E> c) {
 		return l.addAll(c);
 	}
 
-        @Override
+	@Override
 	public boolean addAll(int index, Collection<? extends E> c) {
 		return l.addAll(index, c);
 	}
 
-        @Override
+	@Override
 	public boolean removeAll(Collection<?> c) {
 		return l.removeAll(c);
 	}
 
-        @Override
+	@Override
 	public boolean retainAll(Collection<?> c) {
 		return l.retainAll(c);
 	}
 
-        @Override
+	@Override
 	public void clear() {
 		l.clear();
 	}
 
-        @Override
+	@Override
 	public E get(int index) {
 		return l.get(index);
 	}
 
-        @Override
+	@Override
 	public E set(int index, E element) {
 		return l.set(index, element);
 	}
 
-        @Override
+	@Override
 	public void add(int index, E element) {
 		l.add(index, element);
 	}
 
-        @Override
+	@Override
 	public E remove(int index) {
 		return l.remove(index);
 	}
 
-        @Override
+	@Override
 	public int indexOf(Object o) {
 		return l.indexOf(o);
 	}
 
-        @Override
+	@Override
 	public int lastIndexOf(Object o) {
 		return l.lastIndexOf(o);
 	}
 
-        @Override
+	@Override
 	public ListIterator<E> listIterator() {
 		return l.listIterator();
 	}
 
-        @Override
+	@Override
 	public ListIterator<E> listIterator(int index) {
 		return l.listIterator(index);
 	}
 
-        @Override
+	@Override
 	public List<E> subList(int fromIndex, int toIndex) {
 		return l.subList(fromIndex, toIndex);
 	}

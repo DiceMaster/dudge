@@ -6,7 +6,6 @@
  * To change this template, choose Tools | Template Manager
  * and open the template in the editor.
  */
-
 package dudge.slave;
 
 import java.io.Serializable;
@@ -15,17 +14,18 @@ import java.util.Arrays;
 import java.util.List;
 
 /**
- * Класс с информацией о проверяющей части.
- * Передается серверу системы при запросе очередной
- * задачи на компиляцию и проверку.
+ * Класс с информацией о проверяющей части. Передается серверу системы при запросе очередной задачи на компиляцию и проверку.
+ *
  * @author Vladimir Shabanov
  */
 public class SlaveInfo implements Serializable {
-	public static final long serialVersionUID = 1L;
 
+	public static final long serialVersionUID = 1L;
 	private List<String> supportedLanguages = new ArrayList();
-	
-	/** Creates a new instance of SlaveInfo */
+
+	/**
+	 * Creates a new instance of SlaveInfo
+	 */
 	public SlaveInfo(String[] languages) {
 		supportedLanguages.addAll(Arrays.asList(languages));
 	}

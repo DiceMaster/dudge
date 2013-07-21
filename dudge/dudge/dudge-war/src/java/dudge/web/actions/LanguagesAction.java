@@ -36,55 +36,48 @@ public class LanguagesAction extends DispatchAction {
 
 	protected static final Logger logger = Logger.getLogger(LanguagesAction.class.toString());
 
-	/** Creates a new instance of ContestsAction */
+	/**
+	 * Creates a new instance of ContestsAction
+	 */
 	public LanguagesAction() {
 	}
 
 	/**
-         * 
-         * @return 
-         */
+	 *
+	 * @return
+	 */
 	private DudgeLocal lookupDudgeBean() {
 		try {
 			Context c = new InitialContext();
 			return (DudgeLocal) c.lookup("java:comp/env/ejb/DudgeBean");
 		} catch (NamingException ne) {
-			Logger.getLogger(getClass().getName()).log(Level.SEVERE, "exception caught", ne);
+			logger.log(Level.SEVERE, "exception caught", ne);
 			throw new RuntimeException(ne);
 		}
 	}
 
 	/**
 	 * Метод для перехода на страницу списка языков программирования.
-         * 
-         * @param mapping
-         * @param af
-         * @param request
-         * @param response
-         * @return 
-         */
-	public ActionForward list(
-			ActionMapping mapping,
-			ActionForm af,
-			HttpServletRequest request,
-			HttpServletResponse response) {
-
+	 *
+	 * @param mapping
+	 * @param af
+	 * @param request
+	 * @param response
+	 * @return
+	 */
+	public ActionForward list(ActionMapping mapping, ActionForm af, HttpServletRequest request, HttpServletResponse response) {
 		return mapping.findForward("languages");
 	}
 
 	/**
 	 * Метод, возвращающий асинхронному запросу клиента данные о языках программирования в формате JSON.
-         * 
-         * @param mapping
-         * @param af
-         * @param request
-         * @param response 
-         */
-	public void getLanguagesList(
-			ActionMapping mapping,
-			ActionForm af,
-			HttpServletRequest request,
-			HttpServletResponse response) {
+	 *
+	 * @param mapping
+	 * @param af
+	 * @param request
+	 * @param response
+	 */
+	public void getLanguagesList(ActionMapping mapping, ActionForm af, HttpServletRequest request, HttpServletResponse response) {
 
 		List<Language> languages = lookupDudgeBean().getLanguages();
 
@@ -93,8 +86,8 @@ public class LanguagesAction extends DispatchAction {
 
 		try {
 			jo.put("totalCount", languages.size());
-		} catch (JSONException ex) {
-			ex.printStackTrace();
+		} catch (JSONException e) {
+			logger.log(Level.SEVERE, "exception caught", e);
 			return;
 		}
 
@@ -104,8 +97,8 @@ public class LanguagesAction extends DispatchAction {
 		}
 		try {
 			jo.put("languages", ja);
-		} catch (JSONException ex) {
-			ex.printStackTrace();
+		} catch (JSONException e) {
+			logger.log(Level.SEVERE, "exception caught", e);
 			return;
 		}
 
@@ -113,25 +106,21 @@ public class LanguagesAction extends DispatchAction {
 		response.setContentType("application/x-json");
 		try {
 			response.getWriter().print(jo);
-		} catch (IOException ex) {
-			ex.printStackTrace();
+		} catch (IOException e) {
+			logger.log(Level.SEVERE, "exception caught", e);
 		}
 	}
 
 	/**
 	 * Метод для перехода на страницу просмотра контеста.
-         * 
-         * @param mapping
-         * @param af
-         * @param request
-         * @param response
-         * @return 
-         */
-	public ActionForward view(
-			ActionMapping mapping,
-			ActionForm af,
-			HttpServletRequest request,
-			HttpServletResponse response) {
+	 *
+	 * @param mapping
+	 * @param af
+	 * @param request
+	 * @param response
+	 * @return
+	 */
+	public ActionForward view(ActionMapping mapping, ActionForm af, HttpServletRequest request, HttpServletResponse response) {
 		LanguagesForm lf = (LanguagesForm) af;
 
 		// Получаем идентификатор редактируемого языка, чтобы по нему найти объект нужного языка
@@ -151,22 +140,17 @@ public class LanguagesAction extends DispatchAction {
 		lf.setExecutionCommand(language.getExecutionCommand());
 
 		return mapping.findForward("viewLanguage");
-
 	}
 
 	/**
-         * 
-         * @param mapping
-         * @param af
-         * @param request
-         * @param response
-         * @return 
-         */
-	public ActionForward edit(
-			ActionMapping mapping,
-			ActionForm af,
-			HttpServletRequest request,
-			HttpServletResponse response) {
+	 *
+	 * @param mapping
+	 * @param af
+	 * @param request
+	 * @param response
+	 * @return
+	 */
+	public ActionForward edit(ActionMapping mapping, ActionForm af, HttpServletRequest request, HttpServletResponse response) {
 		LanguagesForm lf = (LanguagesForm) af;
 
 		// Находим язык с указанным логином.
@@ -196,18 +180,14 @@ public class LanguagesAction extends DispatchAction {
 	}
 
 	/**
-         * 
-         * @param mapping
-         * @param af
-         * @param request
-         * @param response
-         * @return 
-         */
-	public ActionForward create(
-			ActionMapping mapping,
-			ActionForm af,
-			HttpServletRequest request,
-			HttpServletResponse response) {
+	 *
+	 * @param mapping
+	 * @param af
+	 * @param request
+	 * @param response
+	 * @return
+	 */
+	public ActionForward create(ActionMapping mapping, ActionForm af, HttpServletRequest request, HttpServletResponse response) {
 
 		LanguagesForm lf = (LanguagesForm) af;
 
@@ -228,18 +208,14 @@ public class LanguagesAction extends DispatchAction {
 	}
 
 	/**
-         * 
-         * @param mapping
-         * @param af
-         * @param request
-         * @param response
-         * @return 
-         */
-	public ActionForward submitCreate(
-			ActionMapping mapping,
-			ActionForm af,
-			HttpServletRequest request,
-			HttpServletResponse response) {
+	 *
+	 * @param mapping
+	 * @param af
+	 * @param request
+	 * @param response
+	 * @return
+	 */
+	public ActionForward submitCreate(ActionMapping mapping, ActionForm af, HttpServletRequest request, HttpServletResponse response) {
 		LanguagesForm lf = (LanguagesForm) af;
 
 		DudgeLocal dudgeBean = lookupDudgeBean();
@@ -276,18 +252,14 @@ public class LanguagesAction extends DispatchAction {
 	}
 
 	/**
-         * 
-         * @param mapping
-         * @param af
-         * @param request
-         * @param response
-         * @return 
-         */
-	public ActionForward submitEdit(
-			ActionMapping mapping,
-			ActionForm af,
-			HttpServletRequest request,
-			HttpServletResponse response) {
+	 *
+	 * @param mapping
+	 * @param af
+	 * @param request
+	 * @param response
+	 * @return
+	 */
+	public ActionForward submitEdit(ActionMapping mapping, ActionForm af, HttpServletRequest request, HttpServletResponse response) {
 		LanguagesForm lf = (LanguagesForm) af;
 
 		DudgeLocal dudgeBean = lookupDudgeBean();
@@ -319,16 +291,13 @@ public class LanguagesAction extends DispatchAction {
 	}
 
 	/**
-         * 
-         * @param mapping
-         * @param af
-         * @param request
-         * @param response 
-         */
-	public void delete(ActionMapping mapping,
-			ActionForm af,
-			HttpServletRequest request,
-			HttpServletResponse response) {
+	 *
+	 * @param mapping
+	 * @param af
+	 * @param request
+	 * @param response
+	 */
+	public void delete(ActionMapping mapping, ActionForm af, HttpServletRequest request, HttpServletResponse response) {
 		String languageId = request.getParameter("id");
 
 		DudgeLocal dudgeBean = lookupDudgeBean();
@@ -344,13 +313,12 @@ public class LanguagesAction extends DispatchAction {
 	}
 
 	/**
-	 * Метод возвращает представления объекта Language в формата JSON - это нужно
-	 * для его отображение на стороне клиента через JavaScript/AJAX.
-         * 
-         * @param language
-         * @param ao
-         * @return 
-         */
+	 * Метод возвращает представления объекта Language в формата JSON - это нужно для его отображение на стороне клиента через JavaScript/AJAX.
+	 *
+	 * @param language
+	 * @param ao
+	 * @return
+	 */
 	private JSONObject getLanguageJSONView(Language language, AuthenticationObject ao) {
 
 		JSONObject json = new JSONObject();
@@ -362,15 +330,10 @@ public class LanguagesAction extends DispatchAction {
 			json.put("id", language.getLanguageId());
 			json.put("title", language.getName());
 			json.put("description", language.getDescription());
-
-			json.put("editable",
-					pcb.canModifyLanguage(ao.getUsername()));
-
-			json.put("deletable",
-					pcb.canDeleteLanguage(ao.getUsername()));
-
-		} catch (JSONException je) {
-			logger.log(Level.SEVERE, "Failed creation of JSON view of Language object.", je);
+			json.put("editable", pcb.canModifyLanguage(ao.getUsername()));
+			json.put("deletable", pcb.canDeleteLanguage(ao.getUsername()));
+		} catch (JSONException e) {
+			logger.log(Level.SEVERE, "Failed creation of JSON view of Language object.", e);
 		}
 		return json;
 	}

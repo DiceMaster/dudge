@@ -2,7 +2,6 @@
  * ContestsForm.java
  * Created on June 10, 2007, 11:46 PM
  */
-
 package dudge.web.forms;
 
 import dudge.db.ContestType;
@@ -21,39 +20,32 @@ import org.apache.struts.action.ActionMapping;
  * @author Vladimir Shabanov
  */
 public class ContestsForm extends ActionForm {
-        public static final long serialVersionUID = 1L;
-				
+
+	public static final long serialVersionUID = 1L;
 	private List<ContestType> contestTypes = Collections.synchronizedList(new ArrayList<ContestType>());
 	private List<RoleType> roleTypes = Collections.synchronizedList(new ArrayList<RoleType>());
-		
 	//  Действие над текущим соревнованием.
 	private boolean newContest = false;
-	
 	// Текущее редактируемое / создаваемое соревнование.
 	private int contestId;
-
 	// Технические параметры соревнования
 	private String caption;
 	private String description;
-        private String rules;
+	private String rules;
 	private String contestType;
-	
 	private String startDate;
 	private String startHour;
 	private String startMinute;
-	
 	private String durationHours;
 	private String durationMinutes;
 	private String freezeTime;
 	private boolean open;
-
 	// Пользователи и задачи, участвующие в контесте, 
 	// а так же разрешенные языки и поданные заявки.
 	private String encodedRoles;
 	private String encodedContestProblems;
 	private String encodedContestLanguages;
 	private String encodedApplications;
-
 	// Роли пользователей.
 	private String userRoles;
 
@@ -61,22 +53,20 @@ public class ContestsForm extends ActionForm {
 	 * Creates a new instance of ContestsForm
 	 */
 	public ContestsForm() {
-		
 	}
 
 	/**
-         * 
-         * @param mapping
-         * @param request 
-         */
-        @Override
+	 *
+	 * @param mapping
+	 * @param request
+	 */
+	@Override
 	public void reset(ActionMapping mapping, HttpServletRequest request) {
-		
+
 		open = false;
-		
 		caption = "";
 		description = "";
-                rules = "";
+		rules = "";
 		contestType = "";
 		startDate = new SimpleDateFormat("yyyy/MM/dd").format(new Date());
 		startHour = "12";
@@ -90,7 +80,7 @@ public class ContestsForm extends ActionForm {
 		encodedContestProblems = "";
 		encodedRoles = "";
 	}
-	
+
 	public int getContestId() {
 		return contestId;
 	}
@@ -99,7 +89,6 @@ public class ContestsForm extends ActionForm {
 		this.contestId = Integer.parseInt(contestId);
 	}
 
-	
 	public String getContestType() {
 		return contestType;
 	}
@@ -166,13 +155,13 @@ public class ContestsForm extends ActionForm {
 
 	public void setDescription(String description) {
 		this.description = description;
-	}	
+	}
 
-        public String getRules() {
+	public String getRules() {
 		return rules;
 	}
 
-        public void setRules(String rules) {
+	public void setRules(String rules) {
 		this.rules = rules;
 	}
 
@@ -183,7 +172,7 @@ public class ContestsForm extends ActionForm {
 	public void setRoleTypes(List<RoleType> roleTypes) {
 		this.roleTypes = roleTypes;
 	}
-	
+
 	public boolean isNewContest() {
 		return newContest;
 	}
@@ -237,7 +226,7 @@ public class ContestsForm extends ActionForm {
 	public void setFreezeTime(String freezeTime) {
 		this.freezeTime = freezeTime;
 	}
-	
+
 	public boolean isOpen() {
 		return open;
 	}
@@ -245,7 +234,7 @@ public class ContestsForm extends ActionForm {
 	public void setOpen(boolean open) {
 		this.open = open;
 	}
-	
+
 	public String getEncodedApplications() {
 		return encodedApplications;
 	}
