@@ -177,6 +177,10 @@ public class Contest implements Serializable, Comparable<Contest> {
 		return duration == 0;
 	}
 
+	/**
+	 *
+	 * @return
+	 */
 	public Date getEndTime() {
 		return new Date(Long.valueOf(getStartTime().getTime() + getDuration() * 1000));
 	}
@@ -277,26 +281,50 @@ public class Contest implements Serializable, Comparable<Contest> {
 		return Integer.toString(contestId);
 	}
 
+	/**
+	 *
+	 * @return
+	 */
 	public String getCaption() {
 		return caption;
 	}
 
+	/**
+	 *
+	 * @param caption
+	 */
 	public void setCaption(String caption) {
 		this.caption = caption;
 	}
 
+	/**
+	 *
+	 * @return
+	 */
 	public String getDescription() {
 		return description;
 	}
 
+	/**
+	 *
+	 * @param description
+	 */
 	public void setDescription(String description) {
 		this.description = description;
 	}
 
+	/**
+	 *
+	 * @return
+	 */
 	public String getRules() {
 		return rules;
 	}
 
+	/**
+	 *
+	 * @param rules
+	 */
 	public void setRules(String rules) {
 		this.rules = rules;
 	}
@@ -305,6 +333,10 @@ public class Contest implements Serializable, Comparable<Contest> {
 		return contestLanguages;
 	}
 
+	/**
+	 *
+	 * @param contestLanguages
+	 */
 	public void setContestLanguages(Collection<ContestLanguage> contestLanguages) {
 		this.contestLanguages = contestLanguages;
 	}
@@ -328,6 +360,10 @@ public class Contest implements Serializable, Comparable<Contest> {
 		this.freezeTime = freezeTime;
 	}
 
+	/**
+	 *
+	 * @return
+	 */
 	public ContestTraits getTraits() {
 		switch (this.getType()) {
 			case GLOBAL:
@@ -343,26 +379,50 @@ public class Contest implements Serializable, Comparable<Contest> {
 		return null;
 	}
 
+	/**
+	 *
+	 * @return
+	 */
 	public boolean isOpen() {
 		return open;
 	}
 
+	/**
+	 *
+	 * @param open
+	 */
 	public void setOpen(boolean open) {
 		this.open = open;
 	}
 
+	/**
+	 *
+	 * @return
+	 */
 	public Collection<Application> getApplications() {
 		return applications;
 	}
 
+	/**
+	 *
+	 * @param applications
+	 */
 	public void setApplications(Collection<Application> applications) {
 		this.applications = applications;
 	}
 
+	/**
+	 *
+	 * @param duration
+	 */
 	public void setDuration(int duration) {
 		this.duration = duration;
 	}
 
+	/**
+	 *
+	 * @param freezeTime
+	 */
 	public void setFreezeTime(int freezeTime) {
 		this.freezeTime = freezeTime;
 	}
@@ -414,6 +474,11 @@ public class Contest implements Serializable, Comparable<Contest> {
 		return false;
 	}
 
+	/**
+	 *
+	 * @param o
+	 * @return
+	 */
 	@Override
 	public int compareTo(Contest o) {
 

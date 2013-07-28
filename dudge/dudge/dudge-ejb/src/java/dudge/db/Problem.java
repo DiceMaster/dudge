@@ -3,8 +3,6 @@
  *
  * Created on 12 Апрель 2007 г., 19:36
  *
- * To change this template, choose Tools | Template Manager
- * and open the template in the editor.
  */
 package dudge.db;
 
@@ -35,7 +33,7 @@ import javax.persistence.*;
 public class Problem implements Serializable {
 
 	public static final long serialVersionUID = 1L;
-	protected static final Logger logger = Logger.getLogger(Problem.class.toString());
+	private static final Logger logger = Logger.getLogger(Problem.class.toString());
 	@SequenceGenerator(name = "ProblemIdGen", sequenceName = "problems_problem_id_seq", allocationSize = 1)
 	@GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "ProblemIdGen")
 	@Id
@@ -301,42 +299,73 @@ public class Problem implements Serializable {
 		return "dudge.db.Problem[problemId=" + problemId + "]";
 	}
 
+	/**
+	 * 
+	 * @return 
+	 */
 	public Date getCreateTime() {
 		return createTime;
 	}
-
+/**
+ * 
+ * @param createTime 
+ */
 	public void setCreateTime(Date createTime) {
 		this.createTime = createTime;
 	}
-
+/**
+ * 
+ * @return 
+ */
 	public boolean isHidden() {
 		return hidden;
 	}
-
+/**
+ * 
+ * @param isHidden 
+ */
 	public void setHidden(boolean isHidden) {
 		this.hidden = isHidden;
 	}
-
+/**
+ * 
+ * @return 
+ */
 	public boolean isHealthy() {
 		return healthy;
 	}
-
+/**
+ * 
+ * @param healthy 
+ */
 	public void setHealthy(boolean healthy) {
 		this.healthy = healthy;
 	}
-
+/**
+ * 
+ * @return 
+ */
 	public Collection<Complaint> getComplaints() {
 		return complaints;
 	}
-
+/**
+ * 
+ * @param complaints 
+ */
 	public void setComplaints(Collection<Complaint> complaints) {
 		this.complaints = complaints;
 	}
-
+/**
+ * 
+ * @return 
+ */
 	public String getAuthor() {
 		return author;
 	}
-
+/**
+ * 
+ * @param author 
+ */
 	public void setAuthor(String author) {
 		this.author = author;
 	}

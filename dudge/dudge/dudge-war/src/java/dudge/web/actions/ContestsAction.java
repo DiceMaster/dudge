@@ -5,8 +5,12 @@
  */
 package dudge.web.actions;
 
+import dudge.ContestLocal;
 import dudge.DudgeLocal;
+import dudge.LanguageLocal;
 import dudge.PermissionCheckerRemote;
+import dudge.ProblemLocal;
+import dudge.UserLocal;
 import dudge.db.Application;
 import dudge.db.ApplicationStatus;
 import dudge.db.Contest;
@@ -45,7 +49,7 @@ import org.apache.struts.actions.DispatchAction;
  */
 public class ContestsAction extends DispatchAction {
 
-	protected static final Logger logger = Logger.getLogger(ContestsAction.class.toString());
+	private static final Logger logger = Logger.getLogger(ContestsAction.class.toString());
 
 	/**
 	 * Creates a new instance of ContestsAction
@@ -56,9 +60,49 @@ public class ContestsAction extends DispatchAction {
 	private DudgeLocal lookupDudgeBean() {
 		try {
 			Context c = new InitialContext();
-			return (DudgeLocal) c.lookup("java:comp/env/ejb/DudgeBean");
+			return (DudgeLocal) c.lookup("java:global/dudge/dudge-ejb/DudgeBean");//java:comp/env/ejb/DudgeBean
 		} catch (NamingException ne) {
 			logger.log(Level.SEVERE, "exception caught", ne);
+			throw new RuntimeException(ne);
+		}
+	}
+
+	private UserLocal lookupUserBean() {
+		try {
+			Context c = new InitialContext();
+			return (UserLocal) c.lookup("java:global/dudge/dudge-ejb/UserBean");//java:comp/env/ejb/UserBean
+		} catch (NamingException ne) {
+			logger.log(Level.SEVERE, "exception caught", ne);
+			throw new RuntimeException(ne);
+		}
+	}
+
+	private ContestLocal lookupContestBean() {
+		try {
+			Context c = new InitialContext();
+			return (ContestLocal) c.lookup("java:global/dudge/dudge-ejb/ContestBean");//java:comp/env/ejb/ContestBean
+		} catch (NamingException ne) {
+			logger.log(Level.ALL, "exception caught", ne);
+			throw new RuntimeException(ne);
+		}
+	}
+
+	private LanguageLocal lookupLanguageBean() {
+		try {
+			Context c = new InitialContext();
+			return (LanguageLocal) c.lookup("java:global/dudge/dudge-ejb/LanguageBean");//java:comp/env/ejb/LanguageBean
+		} catch (NamingException ne) {
+			logger.log(Level.ALL, "exception caught", ne);
+			throw new RuntimeException(ne);
+		}
+	}
+
+	private ProblemLocal lookupProblemBean() {
+		try {
+			Context c = new InitialContext();
+			return (ProblemLocal) c.lookup("java:global/dudge/dudge-ejb/ProblemBean");//java:comp/env/ejb/ProblemBean
+		} catch (NamingException ne) {
+			logger.log(Level.ALL, "exception caught", ne);
 			throw new RuntimeException(ne);
 		}
 	}
@@ -71,7 +115,7 @@ public class ContestsAction extends DispatchAction {
 		ContestsForm cf = (ContestsForm) af;
 
 		int contestId = Integer.parseInt((String) request.getParameter("contestId"));
-		Contest contest = lookupDudgeBean().getContest(contestId);
+		Contest contest = lookupContestBean().getContest(contestId);
 
 		AuthenticationObject ao = AuthenticationObject.extract(request);
 
@@ -97,7 +141,7 @@ public class ContestsAction extends DispatchAction {
 
 	public void getContestList(ActionMapping mapping, ActionForm af, HttpServletRequest request, HttpServletResponse response) {
 
-		List<Contest> contests = lookupDudgeBean().getContests();
+		List<Contest> contests = lookupContestBean().getContests();
 
 		JSONArray ja = new JSONArray();
 		JSONObject jo = new JSONObject();
@@ -212,7 +256,7 @@ public class ContestsAction extends DispatchAction {
 		// Получаем идентификатор редактируемого контеста, чтобы по нему найти объект нужного контеста
 		// и выставить текущие значения как значения по умолчанию для полей на странице редактирования.
 		int contestId = Integer.parseInt((String) request.getParameter("contestId"));
-		Contest modifiedContest = lookupDudgeBean().getContest(contestId);
+		Contest modifiedContest = lookupContestBean().getContest(contestId);
 
 		cf.setContestId(Integer.toString(contestId));
 
@@ -264,39 +308,40 @@ public class ContestsAction extends DispatchAction {
 			return;
 		}
 
-		DudgeLocal dudgeBean = lookupDudgeBean();
+		ContestLocal contestBean = lookupContestBean();
+		UserLocal userBean = lookupUserBean();
 		int contestId = Integer.parseInt(request.getParameter("contestId"));
 		String message = request.getParameter("message");
-		Contest contest = dudgeBean.getContest(contestId);
+		Contest contest = contestBean.getContest(contestId);
 		String login = ao.getUsername();
 
 		// Если пользователь уже является участником этого контеста, 
 		// то нет смысла обрабатывать его заявку.
-		if (!dudgeBean.haveNoRoles(login, contestId)) {
+		if (!userBean.haveNoRoles(login, contestId)) {
 			return;
 		}
 
 		// Если соревнование открытое, то пользователь сразу добавляется в него.
 		if (contest.isOpen()) {
-			Role r = new Role(contest, dudgeBean.getUser(login), RoleType.USER);
+			Role r = new Role(contest, userBean.getUser(login), RoleType.USER);
 			contest.getRoles().add(r);
-			dudgeBean.modifyContest(contest);
+			contestBean.modifyContest(contest);
 			return;
 		}
 
-		Application ap = new Application(contest, dudgeBean.getUser(login));
+		Application ap = new Application(contest, userBean.getUser(login));
 		ap.setFilingTime(new Date());
 		ap.setMessage(message);
 		ap.setStatus(ApplicationStatus.NEW.toString());
 
 		contest.getApplications().add(ap);
-		dudgeBean.modifyContest(contest);
+		contestBean.modifyContest(contest);
 	}
 
 	public ActionForward submitCreate(ActionMapping mapping, ActionForm af, HttpServletRequest request, HttpServletResponse response) {
 
 		ContestsForm cf = (ContestsForm) af;
-		DudgeLocal dudgeBean = lookupDudgeBean();
+		UserLocal userBean = lookupUserBean();
 
 		AuthenticationObject ao = AuthenticationObject.extract(request);
 
@@ -352,13 +397,13 @@ public class ContestsAction extends DispatchAction {
 		}
 
 		// Добавляем в список ролей создателя контеста с правами администрирования.
-		Role creator = new Role(contest, dudgeBean.getUser(ao.getUsername()), RoleType.ADMINISTRATOR);
+		Role creator = new Role(contest, userBean.getUser(ao.getUsername()), RoleType.ADMINISTRATOR);
 
 		if (!contest.getRoles().contains(creator)) {
 			contest.getRoles().add(creator);
 		}
 
-		contest = dudgeBean.addContest(contest);
+		contest = lookupContestBean().addContest(contest);
 		cf.setContestId(String.valueOf(contest.getContestId()));
 
 		//Редирект на страницу новосозданного контеста.
@@ -371,11 +416,11 @@ public class ContestsAction extends DispatchAction {
 	public ActionForward submitEdit(ActionMapping mapping, ActionForm af, HttpServletRequest request, HttpServletResponse response) throws ParseException {
 
 		ContestsForm cf = (ContestsForm) af;
-		DudgeLocal dudgeBean = lookupDudgeBean();
+		ContestLocal contestBean = lookupContestBean();
 
 		// Получение контеста, который требуется отредактировать.
 		int contestId = Integer.parseInt(request.getParameter("contestId"));
-		Contest modifiedContest = dudgeBean.getContest(contestId);
+		Contest modifiedContest = contestBean.getContest(contestId);
 
 		cf.setContestId(Integer.toString(contestId));
 
@@ -410,13 +455,13 @@ public class ContestsAction extends DispatchAction {
 
 		// Устанавливаем значения коллекций (раскодированных из JSON данных).
 		List<ContestLanguage> allLanguages = (List<ContestLanguage>) this.decodeContestLanguagesFromJSON(
-				cf.getEncodedContestLanguages(), dudgeBean.getContest(contestId));
+				cf.getEncodedContestLanguages(), contestBean.getContest(contestId));
 		modifiedContest.setContestLanguages(allLanguages);
 
 		// При задании коллекции задач соревнования, удаляем из нее те скрытые задачи,
 		// добавлять которые создатель контеста не имеет прав.
 		List<ContestProblem> allContestProblems = (List<ContestProblem>) this.decodeContestProblemsFromJSON(
-				cf.getEncodedContestProblems(), dudgeBean.getContest(contestId));
+				cf.getEncodedContestProblems(), contestBean.getContest(contestId));
 
 		modifiedContest.setContestProblems(allContestProblems);
 
@@ -429,7 +474,7 @@ public class ContestsAction extends DispatchAction {
 				cf.getEncodedApplications(), modifiedContest);
 		modifiedContest.setApplications(allApplications);
 
-		dudgeBean.modifyContest(modifiedContest);
+		contestBean.modifyContest(modifiedContest);
 		cf.reset(mapping, request);
 
 		//Редирект на страницу отредактированного контеста.
@@ -446,7 +491,7 @@ public class ContestsAction extends DispatchAction {
 		// и выставить текущие значения как значения по умолчанию для полей на странице редактирования.
 
 		int contestId = Integer.parseInt((String) request.getParameter("contestId"));
-		Contest contest = lookupDudgeBean().getContest(contestId);
+		Contest contest = lookupContestBean().getContest(contestId);
 
 		AuthenticationObject ao = AuthenticationObject.extract(request);
 
@@ -493,7 +538,7 @@ public class ContestsAction extends DispatchAction {
 			return;
 		}
 
-		lookupDudgeBean().deleteContest(contestId);
+		lookupContestBean().deleteContest(contestId);
 	}
 
 	public ActionForward listOfProblems(ActionMapping mapping, ActionForm af, HttpServletRequest request, HttpServletResponse response) {
@@ -505,7 +550,7 @@ public class ContestsAction extends DispatchAction {
 		//  Получаем из запроса, какие данные требуются клиенту.
 		int problemId = Integer.parseInt(request.getParameter("problemId"));
 
-		DudgeLocal dudgeBean = lookupDudgeBean();
+		ContestLocal contestBean = lookupContestBean();
 
 		//FIXME: Проверять здесь права.
 		//AuthenticationObject ao = AuthenticationObject.extract(request);
@@ -518,12 +563,12 @@ public class ContestsAction extends DispatchAction {
 		} else // Если нам не послали идентификатор, то используем идентификатор
 		// текущего соревнования.
 		{
-			contestId = dudgeBean.getDefaultContest().getContestId();
+			contestId = contestBean.getDefaultContest().getContestId();
 		}
 
-		Contest currentContest = dudgeBean.getContest(contestId);
+		Contest currentContest = contestBean.getContest(contestId);
 
-		dudgeBean.resubmitSolutions(currentContest.getContestId(), problemId);
+		lookupDudgeBean().resubmitSolutions(currentContest.getContestId(), problemId);
 	}
 
 	////////////////////////////////////////////////////////////////////////////
@@ -556,11 +601,11 @@ public class ContestsAction extends DispatchAction {
 		try {
 			jsonRoles = new JSONArray(jsonEncodedRoles);
 
-			DudgeLocal dudgeBean = lookupDudgeBean();
+			UserLocal userBean = lookupUserBean();
 			for (int i = 0; i
 					< jsonRoles.length(); i++) {
 				String login = jsonRoles.getJSONObject(i).getString("login");
-				User user = dudgeBean.getUser(login);
+				User user = userBean.getUser(login);
 
 				if (user != null) {
 					Role currentRole = new Role(
@@ -589,10 +634,10 @@ public class ContestsAction extends DispatchAction {
 		try {
 			jsonApplications = new JSONArray(jsonEncodedApplications);
 			applications = new ArrayList<>();
-			DudgeLocal dudgeBean = lookupDudgeBean();
+			UserLocal userBean = lookupUserBean();
 			for (int i = 0; i < jsonApplications.length(); i++) {
 				String login = jsonApplications.getJSONObject(i).getString("login");
-				User user = dudgeBean.getUser(login);
+				User user = userBean.getUser(login);
 
 				if (user != null) {
 					Application currentApplication = new Application(contest, user);
@@ -621,11 +666,10 @@ public class ContestsAction extends DispatchAction {
 		try {
 			jsonProblems = new JSONArray(jsonEncodedProblems);
 			problems = new ArrayList<>();
-			DudgeLocal dudgeBean = lookupDudgeBean();
 
 			for (int i = 0; i < jsonProblems.length(); i++) {
 				int problemId = Integer.parseInt(jsonProblems.getJSONObject(i).getString("problemId"));
-				Problem problem = dudgeBean.getProblem(problemId);
+				Problem problem = lookupProblemBean().getProblem(problemId);
 
 				if (problem != null) {
 					ContestProblem currentProblem = new ContestProblem(contest, problem);
@@ -652,7 +696,6 @@ public class ContestsAction extends DispatchAction {
 	private Collection<ContestLanguage> decodeContestLanguagesFromJSON(String jsonEncodedLanguages, Contest contest) {
 
 		JSONArray jsonLanguages;
-		DudgeLocal dudgeBean = lookupDudgeBean();
 		Collection<ContestLanguage> languages = null;
 
 		try {
@@ -664,7 +707,7 @@ public class ContestsAction extends DispatchAction {
 					< jsonLanguages.length(); i++) {
 				if (jsonLanguages.getJSONObject(i).getBoolean("enabled") == true) {
 					String languageId = jsonLanguages.getJSONObject(i).getString("id");
-					Language language = dudgeBean.getLanguage(languageId);
+					Language language = lookupLanguageBean().getLanguage(languageId);
 					ContestLanguage conLan = new ContestLanguage(contest, language);
 					languages.add(conLan);
 				}
@@ -682,7 +725,7 @@ public class ContestsAction extends DispatchAction {
 	 * Метод возвращает список пользователей, допущенных под разными ролями к данному соревнованию, закодированный как JSON-String.
 	 */
 	private String encodeRolesToJSON(int contestId) {
-		List<Role> roles = (List<Role>) lookupDudgeBean().getContest(contestId).getRoles();
+		List<Role> roles = (List<Role>) lookupContestBean().getContest(contestId).getRoles();
 
 		JSONArray ja = new JSONArray();
 		JSONObject jo = new JSONObject();
@@ -707,7 +750,7 @@ public class ContestsAction extends DispatchAction {
 	 */
 	private String encodeApplicationsToJSON(int contestId) {
 
-		List<Application> applications = (List<Application>) lookupDudgeBean().getContest(contestId).getApplications();
+		List<Application> applications = (List<Application>) lookupContestBean().getContest(contestId).getApplications();
 
 		JSONArray ja = new JSONArray();
 		JSONObject jo = new JSONObject();
@@ -734,8 +777,8 @@ public class ContestsAction extends DispatchAction {
 	 */
 	private String encodeContestLanguagesToJSON(int contestId) {
 
-		DudgeLocal dudgeBean = lookupDudgeBean();
-		List<Language> languages = dudgeBean.getLanguages();
+		ContestLocal contestBean = lookupContestBean();
+		List<Language> languages = lookupLanguageBean().getLanguages();
 
 		JSONArray ja = new JSONArray();
 		JSONObject jo = new JSONObject();
@@ -773,9 +816,9 @@ public class ContestsAction extends DispatchAction {
 
 			for (Language language : languages) {
 				JSONObject languageView = new JSONObject();
-				ContestLanguage conLanguage = new ContestLanguage(dudgeBean.getContest(contestId), language);
+				ContestLanguage conLanguage = new ContestLanguage(contestBean.getContest(contestId), language);
 
-				if (dudgeBean.getContest(contestId).getContestLanguages().contains(conLanguage)) {
+				if (contestBean.getContest(contestId).getContestLanguages().contains(conLanguage)) {
 					languageView.put("enabled", true);
 				} else {
 					languageView.put("enabled", false);
@@ -800,7 +843,7 @@ public class ContestsAction extends DispatchAction {
 	 * Метод возвращает список задач данного соревнования, закодированный как JSON-String.
 	 */
 	private String encodeContestProblemsToJSON(int contestId) {
-		List<ContestProblem> problems = (List<ContestProblem>) lookupDudgeBean().getContest(contestId).getContestProblems();
+		List<ContestProblem> problems = (List<ContestProblem>) lookupContestBean().getContest(contestId).getContestProblems();
 
 		JSONArray ja = new JSONArray();
 		JSONObject jo = new JSONObject();

@@ -3,8 +3,6 @@
  *
  * Created on 12 Апрель 2007 г., 19:36
  *
- * To change this template, choose Tools | Template Manager
- * and open the template in the editor.
  */
 package dudge.db;
 
@@ -70,11 +68,19 @@ public class Solution implements Serializable, Cloneable {
 	public Solution() {
 	}
 
+	/**
+	 *
+	 * @return @throws CloneNotSupportedException
+	 */
 	@Override
 	public Object clone() throws CloneNotSupportedException {
 		return super.clone();
 	}
-	
+
+	/**
+	 *
+	 * @return
+	 */
 	public RunResultType getLastRunResult() {
 		if (runs.isEmpty()) {
 			return null;
@@ -120,10 +126,18 @@ public class Solution implements Serializable, Cloneable {
 		this.solutionId = solutionId;
 	}
 
+	/**
+	 *
+	 * @return
+	 */
 	public Date getSubmitTime() {
 		return submitTime;
 	}
 
+	/**
+	 *
+	 * @param submitTime
+	 */
 	public void setSubmitTime(Date submitTime) {
 		this.submitTime = submitTime;
 	}
@@ -218,10 +232,18 @@ public class Solution implements Serializable, Cloneable {
 		this.runs = runsCollection;
 	}
 
+	/**
+	 *
+	 * @return
+	 */
 	public SolutionStatus getStatus() {
 		return SolutionStatus.valueOf(status);
 	}
 
+	/**
+	 *
+	 * @param status
+	 */
 	public void setStatus(SolutionStatus status) {
 		this.status = status.toString();
 	}
@@ -268,26 +290,50 @@ public class Solution implements Serializable, Cloneable {
 		return "dudge.db.Solution[solutionId=" + solutionId + "]";
 	}
 
+	/**
+	 *
+	 * @return
+	 */
 	public String getSourceCode() {
 		return sourceCode;
 	}
 
+	/**
+	 *
+	 * @param sourceCode
+	 */
 	public void setSourceCode(String sourceCode) {
 		this.sourceCode = sourceCode;
 	}
 
+	/**
+	 *
+	 * @return
+	 */
 	public String getStatusMessage() {
 		return statusMessage;
 	}
 
+	/**
+	 *
+	 * @param statusMessage
+	 */
 	public void setStatusMessage(String statusMessage) {
 		this.statusMessage = statusMessage;
 	}
 
+	/**
+	 *
+	 * @return
+	 */
 	public Integer getCompilationTime() {
 		return compilationTime;
 	}
 
+	/**
+	 *
+	 * @param compilationTime
+	 */
 	public void setCompilationTime(Integer compilationTime) {
 		this.compilationTime = compilationTime;
 	}

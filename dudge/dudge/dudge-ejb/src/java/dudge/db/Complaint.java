@@ -1,7 +1,3 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package dudge.db;
 
 import java.io.Serializable;
@@ -37,46 +33,90 @@ public class Complaint implements Serializable {
 	public Complaint() {
 	}
 
+	/**
+	 *
+	 * @return
+	 */
 	public int getComplaintId() {
 		return complaintId;
 	}
 
+	/**
+	 *
+	 * @param complaintId
+	 */
 	public void setComplaintId(int complaintId) {
 		this.complaintId = complaintId;
 	}
 
+	/**
+	 *
+	 * @return
+	 */
 	public Date getFilingTime() {
 		return filingTime;
 	}
 
+	/**
+	 *
+	 * @param filingTime
+	 */
 	public void setFilingTime(Date filingTime) {
 		this.filingTime = filingTime;
 	}
 
+	/**
+	 *
+	 * @return
+	 */
 	public String getMessage() {
 		return message;
 	}
 
+	/**
+	 *
+	 * @param message
+	 */
 	public void setMessage(String message) {
 		this.message = message;
 	}
 
+	/**
+	 *
+	 * @return
+	 */
 	public User getOwner() {
 		return user;
 	}
 
+	/**
+	 *
+	 * @param owner
+	 */
 	public void setOwner(User owner) {
 		this.user = owner;
 	}
 
+	/**
+	 *
+	 * @return
+	 */
 	public Problem getProblem() {
 		return problem;
 	}
 
+	/**
+	 *
+	 * @param problem
+	 */
 	public void setProblem(Problem problem) {
 		this.problem = problem;
 	}
 
+	/**
+	 *
+	 * @return
+	 */
 	@Override
 	public int hashCode() {
 		int hash = 0;
@@ -84,6 +124,11 @@ public class Complaint implements Serializable {
 		return hash;
 	}
 
+	/**
+	 *
+	 * @param object
+	 * @return
+	 */
 	@Override
 	public boolean equals(Object object) {
 		// TODO: Warning - this method won't work in the case the id fields are not set
@@ -97,6 +142,10 @@ public class Complaint implements Serializable {
 		return true;
 	}
 
+	/**
+	 *
+	 * @return
+	 */
 	@Override
 	public String toString() {
 		return "dudge.db.Complaint[id=" + complaintId + "]";

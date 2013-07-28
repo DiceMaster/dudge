@@ -5,7 +5,7 @@
  */
 package dudge.monitor;
 
-import dudge.DudgeLocal;
+import dudge.SolutionLocal;
 import dudge.db.Contest;
 import dudge.db.ContestProblem;
 import dudge.db.Solution;
@@ -24,7 +24,14 @@ public class GlobalMonitorRecord implements Comparable, Serializable {
 	private int problemsSolved = 0;
 	private int rating = 0;
 
-	public GlobalMonitorRecord(DudgeLocal dudgeBean, Contest contest, User user, Date when) {
+	/**
+	 *
+	 * @param solutionBean
+	 * @param contest
+	 * @param user
+	 * @param when
+	 */
+	public GlobalMonitorRecord(SolutionLocal solutionBean, Contest contest, User user, Date when) {
 		this.user = user.getLogin();
 
 		rating = 0;
@@ -32,7 +39,7 @@ public class GlobalMonitorRecord implements Comparable, Serializable {
 		for (ContestProblem contestProblem : contest.getContestProblems()) {
 
 			// Проходим по всем решениям пользователем задачи соревнования.
-			for (Solution solution : dudgeBean.getSolutions(user.getLogin(), contest.getContestId(), contestProblem.getProblem().getProblemId())) {
+			for (Solution solution : solutionBean.getSolutions(user.getLogin(), contest.getContestId(), contestProblem.getProblem().getProblemId())) {
 				// Не учитываем решения, которые не были обработаны
 				// (в том числе не учитываем с ошибками компиляции).
 				if (solution.getStatus() != SolutionStatus.PROCESSED) {

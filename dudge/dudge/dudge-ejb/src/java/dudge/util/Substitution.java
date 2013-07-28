@@ -441,7 +441,7 @@ public class Substitution implements Cloneable {
 		Collections.sort(temp);
 
 		if (temp.isEmpty()) {
-			return null;
+			return new String[0];
 		}
 
 		String lastStr = "";

@@ -1,10 +1,6 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package dudge.web.actions;
 
-import dudge.DudgeLocal;
+import dudge.LanguageLocal;
 import dudge.db.Language;
 import dudge.PermissionCheckerRemote;
 import dudge.web.AuthenticationObject;
@@ -34,7 +30,7 @@ import org.apache.struts.actions.DispatchAction;
  */
 public class LanguagesAction extends DispatchAction {
 
-	protected static final Logger logger = Logger.getLogger(LanguagesAction.class.toString());
+	private static final Logger logger = Logger.getLogger(LanguagesAction.class.toString());
 
 	/**
 	 * Creates a new instance of ContestsAction
@@ -46,12 +42,12 @@ public class LanguagesAction extends DispatchAction {
 	 *
 	 * @return
 	 */
-	private DudgeLocal lookupDudgeBean() {
+	private LanguageLocal lookupLanguageBean() {
 		try {
 			Context c = new InitialContext();
-			return (DudgeLocal) c.lookup("java:comp/env/ejb/DudgeBean");
+			return (LanguageLocal) c.lookup("java:global/dudge/dudge-ejb/LanguageBean");//java:comp/env/ejb/LanguageBean
 		} catch (NamingException ne) {
-			logger.log(Level.SEVERE, "exception caught", ne);
+			logger.log(Level.ALL, "exception caught", ne);
 			throw new RuntimeException(ne);
 		}
 	}
@@ -79,7 +75,7 @@ public class LanguagesAction extends DispatchAction {
 	 */
 	public void getLanguagesList(ActionMapping mapping, ActionForm af, HttpServletRequest request, HttpServletResponse response) {
 
-		List<Language> languages = lookupDudgeBean().getLanguages();
+		List<Language> languages = lookupLanguageBean().getLanguages();
 
 		JSONArray ja = new JSONArray();
 		JSONObject jo = new JSONObject();
@@ -127,7 +123,7 @@ public class LanguagesAction extends DispatchAction {
 		// и выставить текущие значения как значения по умолчанию для полей на странице просмотра языка.
 
 		String languageId = request.getParameter("languageId");
-		Language language = lookupDudgeBean().getLanguage(languageId);
+		Language language = lookupLanguageBean().getLanguage(languageId);
 
 		lf.reset(mapping, request);
 
@@ -155,7 +151,7 @@ public class LanguagesAction extends DispatchAction {
 
 		// Находим язык с указанным логином.
 		String languageId = request.getParameter("languageId");
-		Language language = lookupDudgeBean().getLanguage(languageId);
+		Language language = lookupLanguageBean().getLanguage(languageId);
 		lf.reset(mapping, request);
 
 		AuthenticationObject ao = AuthenticationObject.extract(request);
@@ -218,8 +214,6 @@ public class LanguagesAction extends DispatchAction {
 	public ActionForward submitCreate(ActionMapping mapping, ActionForm af, HttpServletRequest request, HttpServletResponse response) {
 		LanguagesForm lf = (LanguagesForm) af;
 
-		DudgeLocal dudgeBean = lookupDudgeBean();
-
 		AuthenticationObject ao = AuthenticationObject.extract(request);
 
 		// Проверяем право пользователя.
@@ -240,7 +234,7 @@ public class LanguagesAction extends DispatchAction {
 
 		// Костыль, необходимо осуществлять валидацию по нормальному.
 		try {
-			dudgeBean.addLanguage(addingLanguage);
+			lookupLanguageBean().addLanguage(addingLanguage);
 		} catch (EntityExistsException ex) {
 			return mapping.findForward("accessDenied");
 		}
@@ -262,7 +256,7 @@ public class LanguagesAction extends DispatchAction {
 	public ActionForward submitEdit(ActionMapping mapping, ActionForm af, HttpServletRequest request, HttpServletResponse response) {
 		LanguagesForm lf = (LanguagesForm) af;
 
-		DudgeLocal dudgeBean = lookupDudgeBean();
+		LanguageLocal languageBean = lookupLanguageBean();
 
 		AuthenticationObject ao = AuthenticationObject.extract(request);
 
@@ -272,7 +266,7 @@ public class LanguagesAction extends DispatchAction {
 			return mapping.findForward("accessDenied");
 		}
 
-		Language modifiedLanguage = dudgeBean.getLanguage(lf.getLanguageId());
+		Language modifiedLanguage = languageBean.getLanguage(lf.getLanguageId());
 
 		modifiedLanguage.setName(lf.getTitle());
 		modifiedLanguage.setDescription(lf.getDescription());
@@ -281,7 +275,7 @@ public class LanguagesAction extends DispatchAction {
 		modifiedLanguage.setCompilationCommand(lf.getCompilationCommand());
 		modifiedLanguage.setExecutionCommand(lf.getExecutionCommand());
 
-		dudgeBean.modifyLanguage(modifiedLanguage);
+		languageBean.modifyLanguage(modifiedLanguage);
 
 		//Редирект на страницу отредактированного языка.
 		ActionForward forward = new ActionForward();
@@ -300,8 +294,6 @@ public class LanguagesAction extends DispatchAction {
 	public void delete(ActionMapping mapping, ActionForm af, HttpServletRequest request, HttpServletResponse response) {
 		String languageId = request.getParameter("id");
 
-		DudgeLocal dudgeBean = lookupDudgeBean();
-
 		AuthenticationObject ao = AuthenticationObject.extract(request);
 
 		// Проверяем право пользователя.
@@ -309,7 +301,8 @@ public class LanguagesAction extends DispatchAction {
 		if (!pcb.canDeleteLanguage(ao.getUsername())) {
 			return;
 		}
-		dudgeBean.deleteLanguage(languageId);
+
+		lookupLanguageBean().deleteLanguage(languageId);
 	}
 
 	/**

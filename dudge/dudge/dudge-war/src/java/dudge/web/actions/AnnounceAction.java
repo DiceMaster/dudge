@@ -1,10 +1,6 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package dudge.web.actions;
 
-import dudge.DudgeLocal;
+import dudge.ContestLocal;
 import dudge.db.Contest;
 import dudge.web.forms.AnnounceForm;
 import java.util.Collections;
@@ -27,15 +23,15 @@ import org.apache.struts.actions.DispatchAction;
  */
 public class AnnounceAction extends DispatchAction {
 
-	protected static final Logger logger = Logger.getLogger(AnnounceAction.class.toString());
+	private static final Logger logger = Logger.getLogger(AnnounceAction.class.toString());
 
 	public AnnounceAction() {
 	}
-
-	private DudgeLocal lookupDudgeBean() {
+	
+	private ContestLocal lookupContestBean() {
 		try {
 			Context c = new InitialContext();
-			return (DudgeLocal) c.lookup("java:comp/env/ejb/DudgeBean");
+			return (ContestLocal) c.lookup("java:global/dudge/dudge-ejb/ContestBean");//java:comp/env/ejb/ContestBean
 		} catch (NamingException ne) {
 			logger.log(Level.ALL, "exception caught", ne);
 			throw new RuntimeException(ne);
@@ -43,18 +39,18 @@ public class AnnounceAction extends DispatchAction {
 	}
 
 	public ActionForward makeAnnounce(ActionMapping mapping, ActionForm af, HttpServletRequest request, HttpServletResponse response) {
-		DudgeLocal dudgeBean = lookupDudgeBean();
+		ContestLocal contestBean = lookupContestBean();
 		AnnounceForm anf = (AnnounceForm) af;
 
-		anf.setDudgeBean(dudgeBean);
+		anf.setContestBean(contestBean);
 
-		List<Contest> activeContests = dudgeBean.getActiveContests();
+		List<Contest> activeContests = contestBean.getActiveContests();
 		Collections.sort(activeContests);
 		anf.setActiveContests(activeContests);
-		List<Contest> pendingContests = dudgeBean.getPendingContests();
+		List<Contest> pendingContests = contestBean.getPendingContests();
 		Collections.sort(pendingContests);
 		anf.setPendingContests(pendingContests);
-		List<Contest> recentlyFinishedContests = dudgeBean.getRecentlyFinishedContests();
+		List<Contest> recentlyFinishedContests = contestBean.getRecentlyFinishedContests();
 		Collections.sort(recentlyFinishedContests);
 		anf.setRecentlyFinishedContests(recentlyFinishedContests);
 

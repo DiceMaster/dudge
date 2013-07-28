@@ -5,7 +5,7 @@
  */
 package dudge.monitor;
 
-import dudge.DudgeLocal;
+import dudge.SolutionLocal;
 import dudge.db.Contest;
 import dudge.db.ContestProblem;
 import dudge.db.Solution;
@@ -27,7 +27,14 @@ public class AcmMonitorRecord implements Comparable, Serializable {
 	private Map<String, Boolean> problemsSolved = new HashMap<>();
 	private long time;
 
-	public AcmMonitorRecord(DudgeLocal dudgeBean, Contest contest, User user, Date when) {
+	/**
+	 *
+	 * @param solutionBean
+	 * @param contest
+	 * @param user
+	 * @param when
+	 */
+	public AcmMonitorRecord(SolutionLocal solutionBean, Contest contest, User user, Date when) {
 		this.user = user.getLogin();
 
 		// Штрафное время пользователя в данном соревновании.
@@ -46,7 +53,7 @@ public class AcmMonitorRecord implements Comparable, Serializable {
 			long problemTime = 0;
 
 			// Проходим по всем решениям пользователем задачи соревнования.
-			for (Solution solution : dudgeBean.getSolutions(user.getLogin(), contest.getContestId(), contestProblem.getProblem().getProblemId())) {
+			for (Solution solution : solutionBean.getSolutions(user.getLogin(), contest.getContestId(), contestProblem.getProblem().getProblemId())) {
 				// Не учитываем решения, которые не были обработаны
 				// (в том числе не учитываем с ошибками компиляции).
 				if (solution.getStatus() != SolutionStatus.PROCESSED) {
@@ -91,6 +98,7 @@ public class AcmMonitorRecord implements Comparable, Serializable {
 	 * Сравнивает эту запись с другой в том же соревновании. Сравнение происходит по количеству решенных задач, потом, в случае совпадения количеств, по
 	 * штрафному времени.
 	 *
+	 * @param o
 	 * @return -1 если эта запись стоит на месте, более низком, чем посланная, 1 - если на более высоком, 0 если записи равны.
 	 */
 	@Override

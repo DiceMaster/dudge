@@ -5,7 +5,7 @@
  */
 package dudge.monitor;
 
-import dudge.DudgeLocal;
+import dudge.SolutionLocal;
 import dudge.db.Contest;
 import dudge.db.ContestProblem;
 import dudge.db.Solution;
@@ -27,7 +27,14 @@ public class SchoolMonitorRecord implements Comparable, Serializable {
 	private Map<String, Boolean> problemsSolved = new HashMap<>();
 	private long time;
 
-	public SchoolMonitorRecord(DudgeLocal dudgeBean, Contest contest, User user, Date when) {
+	/**
+	 *
+	 * @param solutionBean
+	 * @param contest
+	 * @param user
+	 * @param when
+	 */
+	public SchoolMonitorRecord(SolutionLocal solutionBean, Contest contest, User user, Date when) {
 		this.user = user.getLogin();
 
 		// Штрафное время пользователя в данном соревновании.
@@ -46,7 +53,7 @@ public class SchoolMonitorRecord implements Comparable, Serializable {
 			long problemTime = 0;
 
 			// Проходим по всем решениям пользователем задачи соревнования.
-			for (Solution solution : dudgeBean.getSolutions(user.getLogin(), contest.getContestId(), contestProblem.getProblem().getProblemId())) {
+			for (Solution solution : solutionBean.getSolutions(user.getLogin(), contest.getContestId(), contestProblem.getProblem().getProblemId())) {
 				// Не учитываем решения, которые не были обработаны
 				// (в том числе не учитываем с ошибками компиляции).
 				if (solution.getStatus() != SolutionStatus.PROCESSED) {

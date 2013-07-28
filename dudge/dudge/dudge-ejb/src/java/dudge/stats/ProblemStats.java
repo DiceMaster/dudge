@@ -3,8 +3,6 @@
  *
  * Created on 5 Июнь 2007 г., 14:28
  *
- * To change this template, choose Tools | Template Manager
- * and open the template in the editor.
  */
 package dudge.stats;
 

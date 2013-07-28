@@ -68,142 +68,282 @@ public class ProblemsForm extends ActionForm {
 		file = null;
 	}
 
+	/**
+	 *
+	 * @return
+	 */
 	public List<Problem> getProblems() {
 		return problems;
 	}
 
+	/**
+	 *
+	 * @return
+	 */
 	public int getProblemId() {
 		return problemId;
 	}
 
+	/**
+	 *
+	 * @param problemId
+	 */
 	public void setProblemId(String problemId) {
 		this.setProblemId(Integer.parseInt(problemId));
 	}
 
+	/**
+	 *
+	 * @return
+	 */
 	public List<ContestProblem> getContestProblems() {
 		return contestProblems;
 	}
 
+	/**
+	 *
+	 * @param problemId
+	 */
 	public void setProblemId(int problemId) {
 		this.problemId = problemId;
 	}
 
+	/**
+	 *
+	 * @return
+	 */
 	public String getTitle() {
 		return title;
 	}
 
+	/**
+	 *
+	 * @param title
+	 */
 	public void setTitle(String title) {
 		this.title = title;
 	}
 
+	/**
+	 *
+	 * @return
+	 */
 	public String getDescription() {
 		return description;
 	}
 
+	/**
+	 *
+	 * @param description
+	 */
 	public void setDescription(String description) {
 		this.description = description;
 	}
 
+	/**
+	 *
+	 * @return
+	 */
 	public Date getCreateTime() {
 		return createTime;
 	}
 
+	/**
+	 *
+	 * @param createTime
+	 */
 	public void setCreateTime(Date createTime) {
 		this.createTime = createTime;
 	}
 
+	/**
+	 *
+	 * @return
+	 */
 	public int getMemoryLimit() {
 		return memoryLimit;
 	}
 
+	/**
+	 *
+	 * @param memoryLimit
+	 */
 	public void setMemoryLimit(int memoryLimit) {
 		this.memoryLimit = memoryLimit;
 	}
 
+	/**
+	 *
+	 * @return
+	 */
 	public int getCpuTimeLimit() {
 		return cpuTimeLimit;
 	}
 
+	/**
+	 *
+	 * @param cpuTimeLimit
+	 */
 	public void setCpuTimeLimit(int cpuTimeLimit) {
 		this.cpuTimeLimit = cpuTimeLimit;
 	}
 
+	/**
+	 *
+	 * @return
+	 */
 	public int getRealTimeLimit() {
 		return realTimeLimit;
 	}
 
+	/**
+	 *
+	 * @param realTimeLimit
+	 */
 	public void setRealTimeLimit(int realTimeLimit) {
 		this.realTimeLimit = realTimeLimit;
 	}
 
+	/**
+	 *
+	 * @return
+	 */
 	public int getOutputLimit() {
 		return outputLimit;
 	}
 
+	/**
+	 *
+	 * @param outputLimit
+	 */
 	public void setOutputLimit(int outputLimit) {
 		this.outputLimit = outputLimit;
 	}
 
+	/**
+	 *
+	 * @return
+	 */
 	public String getOwner() {
 		return owner;
 	}
 
+	/**
+	 *
+	 * @param owner
+	 */
 	public void setOwner(String owner) {
 		this.owner = owner;
 	}
 
+	/**
+	 *
+	 * @return
+	 */
 	public FormFile getFile() {
 		return file;
 	}
 
+	/**
+	 *
+	 * @param file
+	 */
 	public void setFile(FormFile file) {
 		this.file = file;
 	}
 
+	/**
+	 *
+	 * @return
+	 */
 	public boolean isNewProblem() {
 		return newProblem;
 	}
 
+	/**
+	 *
+	 * @param newProblem
+	 */
 	public void setNewProblem(boolean newProblem) {
 		this.newProblem = newProblem;
 	}
 
+	/**
+	 *
+	 * @return
+	 */
 	public boolean isCanEdit() {
 		return canEdit;
 	}
 
+	/**
+	 *
+	 * @param canEdit
+	 */
 	public void setCanEdit(boolean canEdit) {
 		this.canEdit = canEdit;
 	}
 
+	/**
+	 *
+	 * @return
+	 */
 	public boolean isHidden() {
 		return isHidden;
 	}
 
+	/**
+	 *
+	 * @param isHidden
+	 */
 	public void setHidden(boolean isHidden) {
 		this.isHidden = isHidden;
 	}
 
+	/**
+	 *
+	 * @return
+	 */
 	public String getExampleInputTest() {
 		return exampleInputTest;
 	}
 
+	/**
+	 *
+	 * @param exampleEInputTest
+	 */
 	public void setExampleInputTest(String exampleEInputTest) {
 		this.exampleInputTest = exampleEInputTest;
 	}
 
+	/**
+	 *
+	 * @return
+	 */
 	public String getExampleOutputTest() {
 		return exampleOutputTest;
 	}
 
+	/**
+	 *
+	 * @param exampleOutputTest
+	 */
 	public void setExampleOutputTest(String exampleOutputTest) {
 		this.exampleOutputTest = exampleOutputTest;
 	}
 
+	/**
+	 *
+	 * @return
+	 */
 	public String getAuthor() {
 		return author;
 	}
 
+	/**
+	 *
+	 * @param author
+	 */
 	public void setAuthor(String author) {
 		this.author = author;
 	}

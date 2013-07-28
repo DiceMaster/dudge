@@ -1,7 +1,3 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package dudge;
 
 import dudge.db.*;
@@ -21,13 +17,13 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 /**
  *
- * @author Mikhail
+ * @author Mikhail Ivanov
  */
 @Stateless
 public class ReportingBean implements ReportingLocal {
 
-	protected static final Logger logger = Logger.getLogger(ReportingBean.class.toString());
-	@PersistenceContext
+	private static final Logger logger = Logger.getLogger(ReportingBean.class.toString());
+	@PersistenceContext(unitName = "dudge-ejbPU")
 	private EntityManager em;
 
 	public void persist(Object object) {
@@ -37,6 +33,12 @@ public class ReportingBean implements ReportingLocal {
 	public ReportingBean() {
 	}
 
+	/**
+	 * 
+	 * @param contestId
+	 * @return
+	 * @throws IOException 
+	 */
 	@Override
 	public File printContestProtocol(int contestId) throws IOException {
 		if (contestId > 0) {
@@ -156,6 +158,12 @@ public class ReportingBean implements ReportingLocal {
 		return null;
 	}
 
+	/**
+	 * 
+	 * @param contestId
+	 * @return
+	 * @throws IOException 
+	 */
 	@Override
 	public File printContestParticipants(int contestId) throws IOException {
 
@@ -221,6 +229,12 @@ public class ReportingBean implements ReportingLocal {
 		return null;
 	}
 
+	/**
+	 * 
+	 * @param row
+	 * @param cellIndex
+	 * @param value 
+	 */
 	private void setCellValue(Row row, int cellIndex, Object value) {
 		if (value != null) {
 			Cell cell = row.getCell(cellIndex);
@@ -231,6 +245,13 @@ public class ReportingBean implements ReportingLocal {
 		}
 	}
 
+	/**
+	 * 
+	 * @param workbook
+	 * @param worksheet
+	 * @param sourceRowNum
+	 * @param destinationRowNum 
+	 */
 	private static void copyRow(Workbook workbook, Sheet worksheet, int sourceRowNum, int destinationRowNum) {
 		// Get the source / new row
 		Row newRow = worksheet.getRow(destinationRowNum);

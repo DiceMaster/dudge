@@ -3,8 +3,6 @@
  *
  * Created on 05.11.2007, 18:37:19
  *
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
  */
 package dudge.web;
 

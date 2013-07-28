@@ -47,42 +47,82 @@ public class UsersForm extends ActionForm {
 	private boolean hasEmailError = false;
 	private String errorMessageKey = "";
 
+	/**
+	 *
+	 * @return
+	 */
 	public boolean isHasEmailError() {
 		return hasEmailError;
 	}
 
+	/**
+	 *
+	 * @param hasEmailError
+	 */
 	public void setHasEmailError(boolean hasEmailError) {
 		this.hasEmailError = hasEmailError;
 	}
 
+	/**
+	 *
+	 * @return
+	 */
 	public boolean isHasLoginError() {
 		return hasLoginError;
 	}
 
+	/**
+	 *
+	 * @param hasLoginError
+	 */
 	public void setHasLoginError(boolean hasLoginError) {
 		this.hasLoginError = hasLoginError;
 	}
 
+	/**
+	 *
+	 * @return
+	 */
 	public boolean isHasPasswordError() {
 		return hasPasswordError;
 	}
 
+	/**
+	 *
+	 * @param hasPasswordError
+	 */
 	public void setHasPasswordError(boolean hasPasswordError) {
 		this.hasPasswordError = hasPasswordError;
 	}
 
+	/**
+	 *
+	 * @return
+	 */
 	public boolean isHasRealNameError() {
 		return hasRealNameError;
 	}
 
+	/**
+	 *
+	 * @param hasRealNameError
+	 */
 	public void setHasRealNameError(boolean hasRealNameError) {
 		this.hasRealNameError = hasRealNameError;
 	}
 
+	/**
+	 *
+	 * @return
+	 */
 	public String getErrorMessageKey() {
 		return errorMessageKey;
 	}
 
+	/**
+	 *
+	 * @param errorMessageKey
+	 */
 	public void setErrorMessageKey(String errorMessageKey) {
 		this.errorMessageKey = errorMessageKey;
 	}
@@ -113,154 +153,306 @@ public class UsersForm extends ActionForm {
 		setContestCreator(false);
 	}
 
+	/**
+	 *
+	 * @return
+	 */
 	public String getLogin() {
 		return login;
 	}
 
+	/**
+	 *
+	 * @param login
+	 */
 	public void setLogin(String login) {
 		this.login = login;
 	}
 
+	/**
+	 *
+	 * @return
+	 */
 	public String getPassword() {
 		return password;
 	}
 
+	/**
+	 *
+	 * @param password
+	 */
 	public void setPassword(String password) {
 		this.password = password;
 	}
 
+	/**
+	 *
+	 * @return
+	 */
 	public String getPasswordConfirm() {
 		return passwordConfirm;
 	}
 
+	/**
+	 *
+	 * @param passwordConfirm
+	 */
 	public void setPasswordConfirm(String passwordConfirm) {
 		this.passwordConfirm = passwordConfirm;
 	}
 
+	/**
+	 *
+	 * @return
+	 */
 	public String getEmail() {
 		return email;
 	}
 
+	/**
+	 *
+	 * @param email
+	 */
 	public void setEmail(String email) {
 		this.email = email;
 	}
 
+	/**
+	 *
+	 * @return
+	 */
 	public String getRealName() {
 		return realName;
 	}
 
+	/**
+	 *
+	 * @param realName
+	 */
 	public void setRealName(String realName) {
 		this.realName = realName;
 	}
 
+	/**
+	 *
+	 * @return
+	 */
 	public String getOrganization() {
 		return organization;
 	}
 
+	/**
+	 *
+	 * @param organization
+	 */
 	public void setOrganization(String organization) {
 		this.organization = organization;
 	}
 
+	/**
+	 *
+	 * @return
+	 */
 	public String getFaculty() {
 		return faculty;
 	}
 
+	/**
+	 *
+	 * @param faculty
+	 */
 	public void setFaculty(String faculty) {
 		this.faculty = faculty;
 	}
 
+	/**
+	 *
+	 * @return
+	 */
 	public String getCourse() {
 		return course;
 	}
 
+	/**
+	 *
+	 * @param course
+	 */
 	public void setCourse(String course) {
 		this.course = course;
 	}
 
+	/**
+	 *
+	 * @return
+	 */
 	public String getGroup() {
 		return group;
 	}
 
+	/**
+	 *
+	 * @param group
+	 */
 	public void setGroup(String group) {
 		this.group = group;
 	}
 
+	/**
+	 *
+	 * @return
+	 */
 	public String getAge() {
 		return age;
 	}
 
+	/**
+	 *
+	 * @param age
+	 */
 	public void setAge(String age) {
 		this.age = age;
 	}
 
+	/**
+	 *
+	 * @return
+	 */
 	public String getJabberId() {
 		return jabberId;
 	}
 
+	/**
+	 *
+	 * @param jabberId
+	 */
 	public void setJabberId(String jabberId) {
 		this.jabberId = jabberId;
 	}
 
+	/**
+	 *
+	 * @return
+	 */
 	public String getIcqNumber() {
 		return icqNumber;
 	}
 
+	/**
+	 *
+	 * @param icqNumber
+	 */
 	public void setIcqNumber(String icqNumber) {
 		this.icqNumber = icqNumber;
 	}
 
+	/**
+	 *
+	 * @return
+	 */
 	public Date getRegDate() {
 		return regDate;
 	}
 
+	/**
+	 *
+	 * @param regDate
+	 */
 	public void setRegDate(Date regDate) {
 		this.regDate = regDate;
 	}
 
+	/**
+	 *
+	 * @return
+	 */
 	public boolean isNewUser() {
 		return newUser;
 	}
 
+	/**
+	 *
+	 * @param newUser
+	 */
 	public void setNewUser(boolean newUser) {
 		this.newUser = newUser;
 	}
 
+	/**
+	 *
+	 * @return
+	 */
 	public boolean isAdmin() {
 		return isAdmin;
 	}
 
+	/**
+	 *
+	 * @param isAdmin
+	 */
 	public void setAdmin(boolean isAdmin) {
 		this.isAdmin = isAdmin;
 	}
 
+	/**
+	 *
+	 * @return
+	 */
 	public boolean isContestCreator() {
 		return isContestCreator;
 	}
 
+	/**
+	 *
+	 * @param isContestCreator
+	 */
 	public void setContestCreator(boolean isContestCreator) {
 		this.isContestCreator = isContestCreator;
 	}
 
+	/**
+	 *
+	 * @return
+	 */
 	public String getTotalProblemsSolved() {
 		return totalProblemsSolved;
 	}
 
+	/**
+	 *
+	 * @param totalProblemsSolved
+	 */
 	public void setTotalProblemsSolved(String totalProblemsSolved) {
 		this.totalProblemsSolved = totalProblemsSolved;
 	}
 
+	/**
+	 *
+	 * @return
+	 */
 	public String getTotalContestsMember() {
 		return totalContestsMember;
 	}
 
+	/**
+	 *
+	 * @param totalContestsMember
+	 */
 	public void setTotalContestsMember(String totalContestsMember) {
 		this.totalContestsMember = totalContestsMember;
 	}
 
+	/**
+	 *
+	 * @return
+	 */
 	public boolean isProblemCreator() {
 		return isProblemCreator;
 	}
 
+	/**
+	 *
+	 * @param isProblemCreator
+	 */
 	public void setProblemCreator(boolean isProblemCreator) {
 		this.isProblemCreator = isProblemCreator;
 	}

@@ -26,7 +26,7 @@
                             <label for="problem-select"><bean:message key="problem.problem"/></label>
                             <div class="x-form-element">
 
-                                <c:forEach items="${dudgeLocal.contests}" var="contest">
+                                <c:forEach items="${contestLocal.contests}" var="contest">
                                     <c:if test="${contest.contestId == contestId}">
                                         <c:choose>
                                             <c:when test="${contest.type == contestTypeGlobal}">

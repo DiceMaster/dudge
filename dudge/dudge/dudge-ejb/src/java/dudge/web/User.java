@@ -28,6 +28,10 @@ public class User implements Serializable {
 	public User() {
 	}
 
+	/**
+	 * 
+	 * @param user 
+	 */
 	public User(dudge.db.User user) {
 		this.login = user.getLogin();
 		this.email = user.getEmail();
@@ -140,66 +144,130 @@ public class User implements Serializable {
 		return "dudgedb.User[login=" + login + "]";
 	}
 
+	/**
+	 *
+	 * @return
+	 */
 	public boolean isAdmin() {
 		return isAdmin;
 	}
 
+	/**
+	 *
+	 * @param isAdmin
+	 */
 	public void setAdmin(boolean isAdmin) {
 		this.isAdmin = isAdmin;
 	}
 
+	/**
+	 *
+	 * @return
+	 */
 	public boolean canCreateContest() {
 		return canCreateContest;
 	}
 
+	/**
+	 *
+	 * @param canCreateContest
+	 */
 	public void setCreateContest(boolean canCreateContest) {
 		this.canCreateContest = canCreateContest;
 	}
 
+	/**
+	 *
+	 * @return
+	 */
 	public String getRealName() {
 		return realName;
 	}
 
+	/**
+	 *
+	 * @param realName
+	 */
 	public void setRealName(String realName) {
 		this.realName = realName;
 	}
 
+	/**
+	 *
+	 * @return
+	 */
 	public String getOrganization() {
 		return organization;
 	}
 
+	/**
+	 *
+	 * @param organization
+	 */
 	public void setOrganization(String organization) {
 		this.organization = organization;
 	}
 
+	/**
+	 *
+	 * @return
+	 */
 	public Date getRegDate() {
 		return regDate;
 	}
 
+	/**
+	 *
+	 * @param regDate
+	 */
 	public void setRegDate(Date regDate) {
 		this.regDate = regDate;
 	}
 
+	/**
+	 *
+	 * @return
+	 */
 	public String getJabberId() {
 		return jabberId;
 	}
 
+	/**
+	 *
+	 * @param jabberId
+	 */
 	public void setJabberId(String jabberId) {
 		this.jabberId = jabberId;
 	}
 
+	/**
+	 *
+	 * @return
+	 */
 	public Integer getIcqNumber() {
 		return icqNumber;
 	}
 
+	/**
+	 *
+	 * @param icqNumber
+	 */
 	public void setIcqNumber(Integer icqNumber) {
 		this.icqNumber = icqNumber;
 	}
 
+	/**
+	 *
+	 * @return
+	 */
 	public boolean canCreateProblem() {
 		return canCreateProblem;
 	}
 
+	/**
+	 *
+	 * @param canCreateProblem
+	 */
 	public void setCreateProblem(boolean canCreateProblem) {
 		this.canCreateProblem = canCreateProblem;
 	}

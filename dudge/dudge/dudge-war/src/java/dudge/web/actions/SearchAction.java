@@ -1,7 +1,3 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package dudge.web.actions;
 
 import dudge.SearcherLocal;
@@ -27,7 +23,7 @@ import org.apache.struts.action.ActionMapping;
  */
 public class SearchAction extends DispatchAction {
 
-	protected static final Logger logger = Logger.getLogger(SearchAction.class.toString());
+	private static final Logger logger = Logger.getLogger(SearchAction.class.toString());
 
 	public void search(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) throws Exception {
 

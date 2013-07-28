@@ -5,6 +5,7 @@
  */
 package dudge.web;
 
+import dudge.ContestLocal;
 import dudge.DudgeLocal;
 import dudge.PermissionCheckerRemote;
 import dudge.SearcherLocal;
@@ -139,27 +140,52 @@ public class ServiceLocator {
 		return (String) lookup(envName);
 	}
 
-	public DudgeLocal lookupDudge() {
+	/**
+	 *
+	 * @return
+	 */
+	public ContestLocal lookupContestBean() {
 		try {
-			return (DudgeLocal) lookup("java:comp/env/ejb/DudgeBean");
+			return (ContestLocal) lookup("java:global/dudge/dudge-ejb/ContestBean");//java:comp/env/ContestBean
 		} catch (NamingException ne) {
 			logger.log(Level.SEVERE, "exception caught", ne);
 			throw new RuntimeException(ne);
 		}
 	}
 
+	/**
+	 *
+	 * @return
+	 */
+	public DudgeLocal lookupDudgeBean() {
+		try {
+			return (DudgeLocal) lookup("java:global/dudge/dudge-ejb/DudgeBean");//java:comp/env/DudgeBean
+		} catch (NamingException ne) {
+			logger.log(Level.SEVERE, "exception caught", ne);
+			throw new RuntimeException(ne);
+		}
+	}
+
+	/**
+	 *
+	 * @return
+	 */
 	public PermissionCheckerRemote lookupPermissionChecker() {
 		try {
-			return (PermissionCheckerRemote) lookup("java:comp/env/PermissionCheckerBean");
+			return (PermissionCheckerRemote) lookup("java:global/dudge/dudge-ejb/PermissionCheckerBean");//java:comp/env/PermissionCheckerBean
 		} catch (NamingException ne) {
 			logger.log(Level.SEVERE, "exception caught", ne);
 			throw new RuntimeException(ne);
 		}
 	}
 
+	/**
+	 *
+	 * @return
+	 */
 	public SearcherLocal getSearcher() {
 		try {
-			return (SearcherLocal) lookup("java:comp/env/SearcherBean");
+			return (SearcherLocal) lookup("java:global/dudge/dudge-ejb/SearcherBean");//java:comp/env/SearcherBean
 		} catch (NamingException ne) {
 			logger.log(Level.SEVERE, "exception caught", ne);
 			throw new RuntimeException(ne);

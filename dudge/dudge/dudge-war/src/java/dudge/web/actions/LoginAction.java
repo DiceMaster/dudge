@@ -5,7 +5,7 @@
  */
 package dudge.web.actions;
 
-import dudge.DudgeLocal;
+import dudge.UserLocal;
 import dudge.web.AuthenticationCookies;
 import dudge.web.forms.LoginForm;
 import java.util.Calendar;
@@ -29,7 +29,7 @@ import org.apache.struts.actions.DispatchAction;
  */
 public class LoginAction extends DispatchAction {
 
-	protected static final Logger logger = Logger.getLogger(LoginAction.class.toString());
+	private static final Logger logger = Logger.getLogger(LoginAction.class.toString());
 
 	/**
 	 * Creates a new instance of LoginAction
@@ -41,10 +41,10 @@ public class LoginAction extends DispatchAction {
 	 *
 	 * @return
 	 */
-	private DudgeLocal lookupDudgeBean() {
+	private UserLocal lookupUserBean() {
 		try {
 			Context c = new InitialContext();
-			return (DudgeLocal) c.lookup("java:comp/env/ejb/DudgeBean");
+			return (UserLocal) c.lookup("java:global/dudge/dudge-ejb/UserBean");//java:comp/env/ejb/UserBean
 		} catch (NamingException ne) {
 			logger.log(Level.SEVERE, "exception caught", ne);
 			throw new RuntimeException(ne);
@@ -61,7 +61,7 @@ public class LoginAction extends DispatchAction {
 	 */
 	public ActionForward login(ActionMapping mapping, ActionForm af, HttpServletRequest request, HttpServletResponse response) {
 		LoginForm lf = (LoginForm) af;
-		if (lookupDudgeBean().authenticate(lf.getUsername(), lf.getPassword())) {
+		if (lookupUserBean().authenticate(lf.getUsername(), lf.getPassword())) {
 			lf.setPassword("");
 			Calendar calendar = Calendar.getInstance();
 			calendar.add(Calendar.HOUR, 6);

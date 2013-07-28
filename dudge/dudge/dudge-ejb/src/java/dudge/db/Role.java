@@ -3,8 +3,6 @@
  *
  * Created on 12 Апрель 2007 г., 19:36
  *
- * To change this template, choose Tools | Template Manager
- * and open the template in the editor.
  */
 package dudge.db;
 
@@ -30,7 +28,7 @@ import javax.persistence.*;
 public class Role implements Serializable {
 
 	public static final long serialVersionUID = 1L;
-	protected static final Logger logger = Logger.getLogger(User.class.toString());
+	private static final Logger logger = Logger.getLogger(Role.class.toString());
 	@Id
 	@Column(name = "contest_id", nullable = false, insertable = false, updatable = false)
 	private int contestId;

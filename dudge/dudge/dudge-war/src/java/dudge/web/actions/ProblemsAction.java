@@ -5,8 +5,11 @@
  */
 package dudge.web.actions;
 
-import dudge.DudgeLocal;
+import dudge.ContestLocal;
 import dudge.PermissionCheckerRemote;
+import dudge.ProblemLocal;
+import dudge.TestLocal;
+import dudge.UserLocal;
 import dudge.db.Contest;
 import dudge.db.ContestProblem;
 import dudge.db.Problem;
@@ -45,7 +48,7 @@ import org.apache.struts.upload.FormFile;
  */
 public class ProblemsAction extends DispatchAction {
 
-	protected static final Logger logger = Logger.getLogger(ProblemsAction.class.toString());
+	private static final Logger logger = Logger.getLogger(ProblemsAction.class.toString());
 
 	/**
 	 * Creates a new instance of ProblemsAction
@@ -57,12 +60,42 @@ public class ProblemsAction extends DispatchAction {
 	 *
 	 * @return
 	 */
-	private DudgeLocal lookupDudgeBean() {
+	private UserLocal lookupUserBean() {
 		try {
 			Context c = new InitialContext();
-			return (DudgeLocal) c.lookup("java:comp/env/ejb/DudgeBean");
+			return (UserLocal) c.lookup("java:global/dudge/dudge-ejb/UserBean");//java:comp/env/ejb/UserBean
 		} catch (NamingException ne) {
 			logger.log(Level.SEVERE, "exception caught", ne);
+			throw new RuntimeException(ne);
+		}
+	}
+
+	private ContestLocal lookupContestBean() {
+		try {
+			Context c = new InitialContext();
+			return (ContestLocal) c.lookup("java:global/dudge/dudge-ejb/ContestBean");//java:comp/env/ejb/ContestBean
+		} catch (NamingException ne) {
+			logger.log(Level.ALL, "exception caught", ne);
+			throw new RuntimeException(ne);
+		}
+	}
+
+	private ProblemLocal lookupProblemBean() {
+		try {
+			Context c = new InitialContext();
+			return (ProblemLocal) c.lookup("java:global/dudge/dudge-ejb/ProblemBean");//java:comp/env/ejb/ProblemBean
+		} catch (NamingException ne) {
+			logger.log(Level.ALL, "exception caught", ne);
+			throw new RuntimeException(ne);
+		}
+	}
+
+	private TestLocal lookupTestBean() {
+		try {
+			Context c = new InitialContext();
+			return (TestLocal) c.lookup("java:global/dudge/dudge-ejb/TestBean");//java:comp/env/ejb/TestBean
+		} catch (NamingException ne) {
+			logger.log(Level.ALL, "exception caught", ne);
 			throw new RuntimeException(ne);
 		}
 	}
@@ -82,9 +115,7 @@ public class ProblemsAction extends DispatchAction {
 		pf.getContestProblems().clear();
 
 		//TODO: Проверять права пользователя на получение списка задач и их "скрытность".
-
-		DudgeLocal dudgeBean = lookupDudgeBean();
-		pf.getProblems().addAll(dudgeBean.getProblems());
+		pf.getProblems().addAll(lookupProblemBean().getProblems());
 
 		return mapping.findForward("problems");
 	}
@@ -102,7 +133,7 @@ public class ProblemsAction extends DispatchAction {
 		ProblemsForm pf = (ProblemsForm) af;
 
 		int problemId = Integer.parseInt((String) request.getParameter("problemId"));
-		Problem problem = lookupDudgeBean().getProblem(problemId);
+		Problem problem = lookupProblemBean().getProblem(problemId);
 
 		AuthenticationObject ao = AuthenticationObject.extract(request);
 
@@ -145,9 +176,7 @@ public class ProblemsAction extends DispatchAction {
 		int start = Integer.parseInt((String) request.getParameter("start"));
 		int limit = Integer.parseInt((String) request.getParameter("limit"));
 
-		DudgeLocal dudgeBean = lookupDudgeBean();
-
-		List<Problem> problems = dudgeBean.getProblems();
+		List<Problem> problems = lookupProblemBean().getProblems();
 		AuthenticationObject ao = AuthenticationObject.extract(request);
 
 		// Проверяем право пользователя.
@@ -215,7 +244,7 @@ public class ProblemsAction extends DispatchAction {
 	public ActionForward edit(ActionMapping mapping, ActionForm af, HttpServletRequest request, HttpServletResponse response) {
 		ProblemsForm pf = (ProblemsForm) af;
 
-		Problem problem = lookupDudgeBean().getProblem(Integer.parseInt(request.getParameter("problemId")));
+		Problem problem = lookupProblemBean().getProblem(Integer.parseInt(request.getParameter("problemId")));
 
 		AuthenticationObject ao = AuthenticationObject.extract(request);
 
@@ -334,13 +363,13 @@ public class ProblemsAction extends DispatchAction {
 
 		AuthenticationObject ao = AuthenticationObject.extract(request);
 
-		problem.setOwner(lookupDudgeBean().getUser(ao.getUsername()));
+		problem.setOwner(lookupUserBean().getUser(ao.getUsername()));
 
 		Date date = new Date();
 		problem.setCreateTime(date);
 
 		try {
-			problem = lookupDudgeBean().addProblem(problem);
+			problem = lookupProblemBean().addProblem(problem);
 		} catch (Exception e) {
 			request.setAttribute("exception", e);
 			return mapping.findForward("importError");
@@ -371,7 +400,7 @@ public class ProblemsAction extends DispatchAction {
 			return mapping.findForward("importError");
 		}
 
-		Problem problem = lookupDudgeBean().getProblem(pf.getProblemId());
+		Problem problem = lookupProblemBean().getProblem(pf.getProblemId());
 
 		problem.setTitle(importedProblem.getTitle());
 		problem.setAuthor(importedProblem.getAuthor());
@@ -384,7 +413,7 @@ public class ProblemsAction extends DispatchAction {
 		problem.setHidden(pf.isHidden());
 
 		try {
-			lookupDudgeBean().modifyProblem(problem);
+			lookupProblemBean().modifyProblem(problem);
 		} catch (Exception e) {
 			request.setAttribute("exception", e);
 			return mapping.findForward("importError");
@@ -437,11 +466,11 @@ public class ProblemsAction extends DispatchAction {
 		problem.setHidden(pf.isHidden());
 
 		problem.setAuthor(pf.getAuthor());
-		problem.setOwner(lookupDudgeBean().getUser(ao.getUsername()));
+		problem.setOwner(lookupUserBean().getUser(ao.getUsername()));
 
 		problem.setCreateTime(date);
 		// Фиксируем изменения в БД.
-		problem = lookupDudgeBean().addProblem(problem);
+		problem = lookupProblemBean().addProblem(problem);
 
 		//Редирект на страницу новосозданной задачи.
 		ActionForward forward = new ActionForward();
@@ -462,7 +491,7 @@ public class ProblemsAction extends DispatchAction {
 
 		ProblemsForm pf = (ProblemsForm) af;
 		// Получение контеста, который требуется отредактировать.
-		Problem problem = lookupDudgeBean().getProblem(pf.getProblemId());
+		Problem problem = lookupProblemBean().getProblem(pf.getProblemId());
 
 		AuthenticationObject ao = AuthenticationObject.extract(request);
 
@@ -487,7 +516,7 @@ public class ProblemsAction extends DispatchAction {
 
 		problem.setHidden(pf.isHidden());
 
-		lookupDudgeBean().modifyProblem(problem);
+		lookupProblemBean().modifyProblem(problem);
 
 		pf.reset(mapping, request);
 
@@ -505,7 +534,10 @@ public class ProblemsAction extends DispatchAction {
 	 */
 	@SuppressWarnings("unchecked")
 	private void importTests(int problemId, dudge.problemc.binding.Problem problem) {
-		List<Test> tests = new LinkedList<>(lookupDudgeBean().getProblem(problemId).getTests());
+
+		ProblemLocal problemBean = lookupProblemBean();
+		TestLocal testBean = lookupTestBean();
+		List<Test> tests = new LinkedList<>(problemBean.getProblem(problemId).getTests());
 		Collections.sort(tests);
 
 		// замена существующих тестов на новые
@@ -519,24 +551,24 @@ public class ProblemsAction extends DispatchAction {
 			nextTest.setOutputData(problemTest.getOutput());
 			nextTest.setTestNumber(problemTest.getNumber());
 
-			lookupDudgeBean().modifyTest(nextTest);
+			testBean.modifyTest(nextTest);
 		}
 
 		// удаление лишних тестов
 		while (testsIterator.hasNext()) {
-			lookupDudgeBean().deleteTest(testsIterator.next().getTestId());
+			testBean.deleteTest(testsIterator.next().getTestId());
 		}
 
 		// добавление новых тестов
 		while (problemTestIterator.hasNext()) {
 			dudge.problemc.binding.Problem.Tests.Test problemTest = problemTestIterator.next();
-			int numberOfNewTest = lookupDudgeBean().getProblem(problemId).getTests().size() + 1;
+			int numberOfNewTest = problemBean.getProblem(problemId).getTests().size() + 1;
 
 			Test test = new Test(problemTest.getInput(), problemTest.getOutput());
-			test.setProblem(lookupDudgeBean().getProblem(problemId));
+			test.setProblem(problemBean.getProblem(problemId));
 			test.setTestNumber(numberOfNewTest);
 
-			lookupDudgeBean().addTest(test);
+			testBean.addTest(test);
 		}
 	}
 
@@ -559,7 +591,7 @@ public class ProblemsAction extends DispatchAction {
 			return;
 		}
 
-		List<Test> tests = new LinkedList<>(lookupDudgeBean().getProblem(pf.getProblemId()).getTests());
+		List<Test> tests = new LinkedList<>(lookupProblemBean().getProblem(pf.getProblemId()).getTests());
 		Collections.sort(tests);
 
 		JSONArray ja = new JSONArray();
@@ -609,7 +641,8 @@ public class ProblemsAction extends DispatchAction {
 		if (!pcb.canDeleteTest(ao.getUsername(), new Test())) {
 			return;
 		}
-		lookupDudgeBean().deleteTest(testId);
+
+		lookupTestBean().deleteTest(testId);
 	}
 
 	/**
@@ -620,14 +653,15 @@ public class ProblemsAction extends DispatchAction {
 	 * @param response
 	 */
 	public void addTest(ActionMapping mapping, ActionForm af, HttpServletRequest request, HttpServletResponse response) {
-		AuthenticationObject ao = AuthenticationObject.extract(request);
 
+		AuthenticationObject ao = AuthenticationObject.extract(request);
+		ProblemLocal problemBean = lookupProblemBean();
 		ProblemsForm pf = (ProblemsForm) af;
 
-		int numberOfNewTest = lookupDudgeBean().getProblem(pf.getProblemId()).getTests().size() + 1;
+		int numberOfNewTest = problemBean.getProblem(pf.getProblemId()).getTests().size() + 1;
 
 		Test test = new Test("", "");
-		test.setProblem(lookupDudgeBean().getProblem(pf.getProblemId()));
+		test.setProblem(problemBean.getProblem(pf.getProblemId()));
 		test.setTestNumber(numberOfNewTest);
 
 		// Проверяем права пользователя добавление нового теста для задачи.
@@ -636,7 +670,7 @@ public class ProblemsAction extends DispatchAction {
 			return;
 		}
 
-		lookupDudgeBean().addTest(test);
+		lookupTestBean().addTest(test);
 	}
 
 	/**
@@ -649,7 +683,7 @@ public class ProblemsAction extends DispatchAction {
 	public void getTest(ActionMapping mapping, ActionForm af, HttpServletRequest request, HttpServletResponse response) {
 
 		int testId = Integer.parseInt((String) request.getParameter("testId"));
-		Test test = lookupDudgeBean().getTest(testId);
+		Test test = lookupTestBean().getTest(testId);
 
 		AuthenticationObject ao = AuthenticationObject.extract(request);
 
@@ -718,7 +752,9 @@ public class ProblemsAction extends DispatchAction {
 		int testId = Integer.parseInt((String) request.getParameter("testId"));
 		int testType = Integer.parseInt((String) request.getParameter("testType"));
 		String data = (String) request.getParameter("data");
-		Test test = lookupDudgeBean().getTest(testId);
+		TestLocal testBean = lookupTestBean();
+
+		Test test = testBean.getTest(testId);
 
 		AuthenticationObject ao = AuthenticationObject.extract(request);
 
@@ -735,7 +771,7 @@ public class ProblemsAction extends DispatchAction {
 			test.setOutputData(data);
 		}
 
-		lookupDudgeBean().modifyTest(test);
+		testBean.modifyTest(test);
 	}
 
 	/**
@@ -802,9 +838,9 @@ public class ProblemsAction extends DispatchAction {
 	 */
 	public void delete(ActionMapping mapping, ActionForm af, HttpServletRequest request, HttpServletResponse response) {
 		AuthenticationObject ao = AuthenticationObject.extract(request);
-
+		ProblemLocal problemBean = lookupProblemBean();
 		int problemId = Integer.parseInt((String) request.getParameter("problemId"));
-		Problem problem = lookupDudgeBean().getProblem(problemId);
+		Problem problem = problemBean.getProblem(problemId);
 
 		// Проверяем право пользователя на удаление задачи из системы.
 		PermissionCheckerRemote pcb = ao.getPermissionChecker();
@@ -813,13 +849,13 @@ public class ProblemsAction extends DispatchAction {
 		}
 
 		// Задача не будет удалена, если она есть хотя бы в одном из соревнований, существующих в системе.
-		List<Contest> contests = lookupDudgeBean().getContests();
+		List<Contest> contests = lookupContestBean().getContests();
 		for (Contest contest : contests) {
 			if (contest.getContestProblems().contains(new ContestProblem(contest, problem))) {
 				return;
 			}
 		}
 
-		lookupDudgeBean().deleteProblem(problemId);
+		problemBean.deleteProblem(problemId);
 	}
 }

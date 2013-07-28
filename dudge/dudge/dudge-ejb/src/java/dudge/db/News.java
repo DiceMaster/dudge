@@ -1,7 +1,3 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package dudge.db;
 
 import java.io.Serializable;
@@ -31,6 +27,10 @@ public class News implements Serializable {
 	@Column(name = "message", nullable = false)
 	private String message;
 
+	/**
+	 *
+	 * @return
+	 */
 	@Override
 	public int hashCode() {
 		int hash = 0;
@@ -38,41 +38,81 @@ public class News implements Serializable {
 		return hash;
 	}
 
+	/**
+	 *
+	 * @return
+	 */
 	public Date getAddingTime() {
 		return addingTime;
 	}
 
+	/**
+	 *
+	 * @param addingTime
+	 */
 	public void setAddingTime(Date addingTime) {
 		this.addingTime = addingTime;
 	}
 
+	/**
+	 *
+	 * @return
+	 */
 	public String getMessage() {
 		return message;
 	}
 
+	/**
+	 *
+	 * @param message
+	 */
 	public void setMessage(String message) {
 		this.message = message;
 	}
 
+	/**
+	 *
+	 * @return
+	 */
 	public int getNewsId() {
 		return newsId;
 	}
 
+	/**
+	 *
+	 * @param newsId
+	 */
 	public void setNewsId(int newsId) {
 		this.newsId = newsId;
 	}
 
+	/**
+	 *
+	 * @return
+	 */
 	public User getAuthor() {
 		return author;
 	}
 
+	/**
+	 *
+	 * @param author
+	 */
 	public void setOwner(User author) {
 		this.author = author;
 	}
 
+	/**
+	 *
+	 */
 	public News() {
 	}
 
+	/**
+	 *
+	 * @param object
+	 * @return
+	 */
 	@Override
 	public boolean equals(Object object) {
 		// TODO: Warning - this method won't work in the case the id fields are not set
@@ -86,6 +126,10 @@ public class News implements Serializable {
 		return true;
 	}
 
+	/**
+	 *
+	 * @return
+	 */
 	@Override
 	public String toString() {
 		return "dudge.db.New[id=" + newsId + "]";

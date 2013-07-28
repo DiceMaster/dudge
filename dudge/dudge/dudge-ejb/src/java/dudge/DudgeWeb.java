@@ -9,21 +9,19 @@ import javax.jws.WebParam;
  *
  * @author Vladimir Shabanov
  */
-//@WebService(targetNamespace="http://dudge.glint.ru/dudge")
-//@Stateless()
 public class DudgeWeb {
-
+	
 	@EJB
-	private DudgeLocal dudgeBean;
+	private UserLocal userBean;
 
 	@WebMethod(operationName = "authenticate")
 	public boolean authenticate(@WebParam(name = "login") String login, @WebParam(name = "password") String password) {
-		return dudgeBean.authenticate(login, password);
+		return userBean.authenticate(login, password);
 	}
 
 	@WebMethod(operationName = "getUser")
 	public User getUser(@WebParam(name = "login") String login) {
-		return new User(dudgeBean.getUser(login));
+		return new User(userBean.getUser(login));
 	}
 
 	/*	@WebMethod(operationName = "registerUser")

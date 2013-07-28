@@ -30,10 +30,16 @@ import javax.persistence.PersistenceContext;
 @Stateless
 public class PermissionCheckerBean implements PermissionCheckerRemote {
 
-	protected static final Logger logger = Logger.getLogger(PermissionCheckerBean.class.toString());
+	private static final Logger logger = Logger.getLogger(PermissionCheckerBean.class.toString());
 	@EJB
-	private DudgeLocal dudgeBean;
-	@PersistenceContext
+	private ContestLocal contestBean;
+	@EJB
+	private ProblemLocal problemBean;
+	@EJB
+	private SolutionLocal solutionBean;
+	@EJB
+	private UserLocal userBean;
+	@PersistenceContext(unitName = "dudge-ejbPU")
 	private EntityManager em;
 
 	public void persist(Object object) {
@@ -76,7 +82,7 @@ public class PermissionCheckerBean implements PermissionCheckerRemote {
 		if (principal == null) {
 			return false;
 		}
-		User princ = dudgeBean.getUser(principal);
+		User princ = userBean.getUser(principal);
 		if (princ == null) {
 			logger.log(Level.WARNING, "Nonexistent user {0}", principal);
 			return false;
@@ -101,7 +107,7 @@ public class PermissionCheckerBean implements PermissionCheckerRemote {
 		if (principal == null) {
 			return false;
 		}
-		User princ = dudgeBean.getUser(principal);
+		User princ = userBean.getUser(principal);
 		if (princ == null) {
 			logger.log(Level.WARNING, "Nonexistent user {0}", principal);
 			return false;
@@ -126,7 +132,7 @@ public class PermissionCheckerBean implements PermissionCheckerRemote {
 		if (principal == null) {
 			return false;
 		}
-		User princ = dudgeBean.getUser(principal);
+		User princ = userBean.getUser(principal);
 		if (princ == null) {
 			logger.log(Level.WARNING, "Nonexistent user {0}", principal);
 			return false;
@@ -151,7 +157,7 @@ public class PermissionCheckerBean implements PermissionCheckerRemote {
 		if (principal == null) {
 			return false;
 		}
-		User princ = dudgeBean.getUser(principal);
+		User princ = userBean.getUser(principal);
 		if (princ == null) {
 			logger.log(Level.WARNING, "Nonexistent user {0}", principal);
 			return false;
@@ -170,7 +176,7 @@ public class PermissionCheckerBean implements PermissionCheckerRemote {
 		if (principal == null) {
 			return false;
 		}
-		User princ = dudgeBean.getUser(principal);
+		User princ = userBean.getUser(principal);
 		if (princ == null) {
 			logger.log(Level.WARNING, "Nonexistent user {0}", principal);
 			return false;
@@ -195,7 +201,7 @@ public class PermissionCheckerBean implements PermissionCheckerRemote {
 		if (principal == null) {
 			return false;
 		}
-		User princ = dudgeBean.getUser(principal);
+		User princ = userBean.getUser(principal);
 		if (princ == null) {
 			logger.log(Level.WARNING, "Nonexistent user {0}", principal);
 			return false;
@@ -209,12 +215,17 @@ public class PermissionCheckerBean implements PermissionCheckerRemote {
 		return false;
 	}
 
+	/**
+	 *
+	 * @param principal
+	 * @return
+	 */
 	@Override
 	public boolean canDeleteLanguage(String principal) {
 		if (principal == null) {
 			return false;
 		}
-		User princ = dudgeBean.getUser(principal);
+		User princ = userBean.getUser(principal);
 		if (princ == null) {
 			logger.log(Level.WARNING, "Nonexistent user {0}", principal);
 			return false;
@@ -281,7 +292,7 @@ public class PermissionCheckerBean implements PermissionCheckerRemote {
 		if (principal == null) {
 			return false;
 		}
-		User princ = dudgeBean.getUser(principal);
+		User princ = userBean.getUser(principal);
 		if (princ == null) {
 			logger.log(Level.WARNING, "Nonexistent user {0}", principal);
 			return false;
@@ -306,14 +317,14 @@ public class PermissionCheckerBean implements PermissionCheckerRemote {
 		if (principal == null) {
 			return false;
 		}
-		User princ = dudgeBean.getUser(principal);
+		User princ = userBean.getUser(principal);
 		if (princ == null) {
 			logger.log(Level.WARNING, "Nonexistent user {0}", principal);
 			return false;
 		}
 
 		// Проверяем, что пользователь является администратором системы или администратором соревнования
-		if (princ.isAdmin() || dudgeBean.isInRole(principal, contestId, RoleType.ADMINISTRATOR)) {
+		if (princ.isAdmin() || userBean.isInRole(principal, contestId, RoleType.ADMINISTRATOR)) {
 			return true;
 		}
 
@@ -331,14 +342,14 @@ public class PermissionCheckerBean implements PermissionCheckerRemote {
 		if (principal == null) {
 			return false;
 		}
-		User princ = dudgeBean.getUser(principal);
+		User princ = userBean.getUser(principal);
 		if (princ == null) {
 			logger.log(Level.WARNING, "Nonexistent user {0}", principal);
 			return false;
 		}
 
 		// Проверяем, что пользователь является администратором системы или администратором соревнования
-		if (princ.isAdmin() || dudgeBean.isInRole(principal, contestId, RoleType.ADMINISTRATOR)) {
+		if (princ.isAdmin() || userBean.isInRole(principal, contestId, RoleType.ADMINISTRATOR)) {
 			return true;
 		}
 
@@ -354,7 +365,7 @@ public class PermissionCheckerBean implements PermissionCheckerRemote {
 	@Override
 	public boolean canViewProblem(String principal, int problemId) {
 		// Если задача открытая, то ее может видеть любой пользователь.
-		if (!dudgeBean.getProblem(problemId).isHidden()) {
+		if (!problemBean.getProblem(problemId).isHidden()) {
 			return true;
 		}
 
@@ -367,10 +378,10 @@ public class PermissionCheckerBean implements PermissionCheckerRemote {
 		 *    тех соревнований, где используется эта задача, и которое уже началось.
 		 */
 
-		List<Contest> contests = dudgeBean.getContests();
+		List<Contest> contests = contestBean.getContests();
 		List<Contest> selectedContests = new ArrayList<>();
 
-		Problem problem = dudgeBean.getProblem(problemId);
+		Problem problem = problemBean.getProblem(problemId);
 
 		for (Contest contest : contests) {
 			if (contest.getContestProblems().contains(new ContestProblem(contest, problem))) {
@@ -388,26 +399,26 @@ public class PermissionCheckerBean implements PermissionCheckerRemote {
 			return false;
 		}
 
-		User princ = dudgeBean.getUser(principal);
+		User princ = userBean.getUser(principal);
 		if (princ == null) {
 			return false;
 		}
 		if (princ.isAdmin()) {
 			return true;
 		}
-		if (dudgeBean.getProblem(problemId).getOwner().equals(princ)) {
+		if (problemBean.getProblem(problemId).getOwner().equals(princ)) {
 			return true;
 		}
 
 		for (Contest contest : selectedContests) {
-			if (dudgeBean.isInRole(principal, contest.getContestId(), RoleType.ADMINISTRATOR)) {
+			if (userBean.isInRole(principal, contest.getContestId(), RoleType.ADMINISTRATOR)) {
 				return true;
 			}
 		}
 
 		for (Contest contest : selectedContests) {
-			if ((dudgeBean.isInRole(principal, contest.getContestId(), RoleType.USER)
-					|| dudgeBean.isInRole(principal, contest.getContestId(), RoleType.OBSERVER))
+			if ((userBean.isInRole(principal, contest.getContestId(), RoleType.USER)
+					|| userBean.isInRole(principal, contest.getContestId(), RoleType.OBSERVER))
 					&& (contest.isInProgress() || contest.isFinished())) {
 				return true;
 			}
@@ -432,7 +443,7 @@ public class PermissionCheckerBean implements PermissionCheckerRemote {
 		if (principal == null) {
 			return false;
 		}
-		User princ = dudgeBean.getUser(principal);
+		User princ = userBean.getUser(principal);
 		if (princ == null) {
 			logger.log(Level.WARNING, "Nonexistent user {0}", principal);
 			return false;
@@ -456,18 +467,17 @@ public class PermissionCheckerBean implements PermissionCheckerRemote {
 	 */
 	@Override
 	public boolean canAddProblemToContest(String principal, int contestId, int problemId) {
-		User princ = dudgeBean.getUser(principal);
+		User princ = userBean.getUser(principal);
 		if (princ.isAdmin()) {
 			return true;
 		}
 
-		if (!dudgeBean.getProblem(problemId).isHidden()) {
+		if (!problemBean.getProblem(problemId).isHidden()) {
 			if (princ.canCreateContest()) {
 				return true;
 			}
 		} else {
-			if (princ.canCreateContest()
-					&& dudgeBean.getProblem(problemId).getOwner().equals(princ)) {
+			if (princ.canCreateContest() && problemBean.getProblem(problemId).getOwner().equals(princ)) {
 				return true;
 			}
 		}
@@ -485,14 +495,14 @@ public class PermissionCheckerBean implements PermissionCheckerRemote {
 		if (principal == null) {
 			return false;
 		}
-		User princ = dudgeBean.getUser(principal);
+		User princ = userBean.getUser(principal);
 		if (princ == null) {
 			logger.log(Level.WARNING, "Nonexistent user {0}", principal);
 			return false;
 		}
 
 		// Проверяем, что пользователь является администратором системы или владельцем задачи
-		if (princ.isAdmin() || dudgeBean.getProblem(problemId).getOwner().equals(princ)) {
+		if (princ.isAdmin() || problemBean.getProblem(problemId).getOwner().equals(princ)) {
 			return true;
 		}
 		return false;
@@ -509,14 +519,14 @@ public class PermissionCheckerBean implements PermissionCheckerRemote {
 		if (principal == null) {
 			return false;
 		}
-		User princ = (dudgeBean.getUser(principal));
+		User princ = (userBean.getUser(principal));
 		if (princ == null) {
 			logger.log(Level.WARNING, "Nonexistent user {0}", principal);
 			return false;
 		}
 
 		// Проверяем, что пользователь является администратором системы или владельцем задачи
-		if (princ.isAdmin() || dudgeBean.getProblem(problemId).getOwner().equals(princ)) {
+		if (princ.isAdmin() || problemBean.getProblem(problemId).getOwner().equals(princ)) {
 			return true;
 		}
 
@@ -534,17 +544,17 @@ public class PermissionCheckerBean implements PermissionCheckerRemote {
 		if (principal == null) {
 			return false;
 		}
-		User princ = dudgeBean.getUser(principal);
+		User princ = userBean.getUser(principal);
 		if (princ == null) {
 			logger.log(Level.WARNING, "Nonexistent user {0}", principal);
 			return false;
 		}
 
-		Solution solution = dudgeBean.getSolution(solutionId);
+		Solution solution = solutionBean.getSolution(solutionId);
 
 		//Если пользователь является Администратором системы, админитратором данного соревнования или автором решения
 		if (princ.isAdmin()
-				|| dudgeBean.isInRole(principal, solution.getContest().getContestId(), RoleType.ADMINISTRATOR)
+				|| userBean.isInRole(principal, solution.getContest().getContestId(), RoleType.ADMINISTRATOR)
 				|| solution.getUser().equals(princ)) {
 			return true;
 		}
@@ -563,8 +573,8 @@ public class PermissionCheckerBean implements PermissionCheckerRemote {
 		if (principal == null) {
 			return false;
 		}
-		User princ = dudgeBean.getUser(principal);
-		Contest contest = dudgeBean.getContest(contestId);
+		User princ = userBean.getUser(principal);
+		Contest contest = contestBean.getContest(contestId);
 		if (princ == null) {
 			logger.log(Level.WARNING, "Nonexistent user {0}", principal);
 			return false;
@@ -576,12 +586,12 @@ public class PermissionCheckerBean implements PermissionCheckerRemote {
 		}
 
 		//Или если является админстратором соревнования
-		if (dudgeBean.isInRole(principal, contestId, RoleType.ADMINISTRATOR)) {
+		if (userBean.isInRole(principal, contestId, RoleType.ADMINISTRATOR)) {
 			return true;
 		}
 
 		//Или если пользователь является участником соревнования и это соревнование сейчас идет.
-		if (dudgeBean.isInRole(principal, contestId, RoleType.USER) && contest.isInProgress()) {
+		if (userBean.isInRole(principal, contestId, RoleType.USER) && contest.isInProgress()) {
 			return true;
 		}
 
@@ -601,12 +611,10 @@ public class PermissionCheckerBean implements PermissionCheckerRemote {
 	 */
 	@Override
 	public boolean canSubmitSolution(String principal, int contestId, int problemId) {
-		Contest contest = dudgeBean.getContest(contestId);
-		Problem problem = dudgeBean.getProblem(problemId);
+		Contest contest = contestBean.getContest(contestId);
+		Problem problem = problemBean.getProblem(problemId);
 
-		if (canSubmitSolution(principal, contestId)
-				&& contest != null
-				&& problem != null
+		if (canSubmitSolution(principal, contestId) && contest != null && problem != null
 				&& contest.getContestProblems().contains(new ContestProblem(contest, problem))) {
 			return true;
 		}
@@ -625,7 +633,7 @@ public class PermissionCheckerBean implements PermissionCheckerRemote {
 		if (principal == null) {
 			return false;
 		}
-		User princ = dudgeBean.getUser(principal);
+		User princ = userBean.getUser(principal);
 		if (princ == null) {
 			logger.log(Level.WARNING, "Nonexistent user {0}", principal);
 			return false;
@@ -648,7 +656,7 @@ public class PermissionCheckerBean implements PermissionCheckerRemote {
 		if (principal == null) {
 			return false;
 		}
-		User princ = dudgeBean.getUser(principal);
+		User princ = userBean.getUser(principal);
 		if (princ == null) {
 			logger.log(Level.WARNING, "Nonexistent user {0}", principal);
 			return false;
@@ -671,7 +679,7 @@ public class PermissionCheckerBean implements PermissionCheckerRemote {
 		if (principal == null) {
 			return false;
 		}
-		User princ = dudgeBean.getUser(principal);
+		User princ = userBean.getUser(principal);
 		if (princ == null) {
 			logger.log(Level.WARNING, "Nonexistent user {0}", principal);
 			return false;
@@ -694,7 +702,7 @@ public class PermissionCheckerBean implements PermissionCheckerRemote {
 		if (principal == null) {
 			return false;
 		}
-		User princ = dudgeBean.getUser(principal);
+		User princ = userBean.getUser(principal);
 		if (princ == null) {
 			logger.log(Level.WARNING, "Nonexistent user {0}", principal);
 			return false;
@@ -717,7 +725,7 @@ public class PermissionCheckerBean implements PermissionCheckerRemote {
 		if (principal == null) {
 			return false;
 		}
-		User princ = dudgeBean.getUser(principal);
+		User princ = userBean.getUser(principal);
 		if (princ == null) {
 			logger.log(Level.WARNING, "Nonexistent user {0}", principal);
 			return false;
@@ -753,13 +761,13 @@ public class PermissionCheckerBean implements PermissionCheckerRemote {
 		if (principal == null) {
 			return false;
 		}
-		User princ = dudgeBean.getUser(principal);
+		User princ = userBean.getUser(principal);
 		if (princ == null) {
 			logger.log(Level.WARNING, "Nonexistent user {0}", principal);
 			return false;
 		}
 
-		if (dudgeBean.haveNoRoles(principal, contestId)) {
+		if (userBean.haveNoRoles(principal, contestId)) {
 			return true;
 		}
 

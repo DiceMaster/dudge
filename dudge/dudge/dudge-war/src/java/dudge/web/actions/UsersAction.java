@@ -5,9 +5,8 @@
  */
 package dudge.web.actions;
 
-import dudge.DudgeLocal;
 import dudge.PermissionCheckerRemote;
-import dudge.db.Problem;
+import dudge.UserLocal;
 import dudge.db.User;
 import dudge.web.AuthenticationObject;
 import dudge.web.forms.UsersForm;
@@ -40,7 +39,7 @@ import org.apache.struts.actions.DispatchAction;
  */
 public class UsersAction extends DispatchAction {
 
-	protected static final Logger logger = Logger.getLogger(Problem.class.toString());
+	private static final Logger logger = Logger.getLogger(UsersAction.class.toString());
 
 	/**
 	 * Creates a new instance of RegistrationAction
@@ -52,10 +51,10 @@ public class UsersAction extends DispatchAction {
 	 *
 	 * @return
 	 */
-	private DudgeLocal lookupDudgeBean() {
+	private UserLocal lookupUserBean() {
 		try {
 			Context c = new InitialContext();
-			return (DudgeLocal) c.lookup("java:comp/env/ejb/DudgeBean");
+			return (UserLocal) c.lookup("java:global/dudge/dudge-ejb/UserBean");//java:comp/env/ejb/UserBean
 		} catch (NamingException ne) {
 			logger.log(Level.SEVERE, "exception caught", ne);
 			throw new RuntimeException(ne);
@@ -89,7 +88,7 @@ public class UsersAction extends DispatchAction {
 
 		AuthenticationObject ao = AuthenticationObject.extract(request);
 		// Находим пользователя с указанным логином.
-		User user = lookupDudgeBean().getUser(login);
+		User user = lookupUserBean().getUser(login);
 
 		// Проверяем право пользователя.
 		PermissionCheckerRemote pcb = ao.getPermissionChecker();
@@ -141,7 +140,7 @@ public class UsersAction extends DispatchAction {
 		uf.setHasEmailError(false);
 
 		// Находим пользователя с указанным логином.
-		User user = lookupDudgeBean().getUser(uf.getLogin());
+		User user = lookupUserBean().getUser(uf.getLogin());
 		uf.reset(mapping, request);
 
 		AuthenticationObject ao = AuthenticationObject.extract(request);
@@ -204,9 +203,11 @@ public class UsersAction extends DispatchAction {
 	 * @return
 	 */
 	public ActionForward submitRegister(ActionMapping mapping, ActionForm af, HttpServletRequest request, HttpServletResponse response) {
+
 		UsersForm uf = (UsersForm) af;
 		AuthenticationObject ao = AuthenticationObject.extract(request);
 		PermissionCheckerRemote pcb = ao.getPermissionChecker();
+		UserLocal userBean = lookupUserBean();
 
 		dudge.db.User user;
 
@@ -235,7 +236,7 @@ public class UsersAction extends DispatchAction {
 			uf.setErrorMessageKey("register.loginWrongSymbols");
 			return mapping.findForward("editUser");
 		}
-		if (lookupDudgeBean().getUser(uf.getLogin()) != null) {
+		if (userBean.getUser(uf.getLogin()) != null) {
 			uf.setHasLoginError(true);
 			uf.setErrorMessageKey("register.loginAlreadyExists");
 			return mapping.findForward("editUser");
@@ -266,7 +267,7 @@ public class UsersAction extends DispatchAction {
 		}
 
 		try {
-			user = lookupDudgeBean().registerUser(uf.getLogin(), uf.getPassword(), uf.getEmail());
+			user = userBean.registerUser(uf.getLogin(), uf.getPassword(), uf.getEmail());
 		} catch (EntityExistsException e) {
 			return mapping.findForward("accessDenied");
 		}
@@ -307,7 +308,7 @@ public class UsersAction extends DispatchAction {
 			user.setCreateProblem(uf.isProblemCreator());
 		}
 
-		lookupDudgeBean().modifyUser(user);
+		userBean.modifyUser(user);
 		return mapping.findForward("registrationSuccess");
 	}
 
@@ -320,11 +321,12 @@ public class UsersAction extends DispatchAction {
 	 * @return
 	 */
 	public ActionForward submitEdit(ActionMapping mapping, ActionForm af, HttpServletRequest request, HttpServletResponse response) {
+
 		UsersForm uf = (UsersForm) af;
-
-		User user = lookupDudgeBean().getUser(uf.getLogin());
-
 		AuthenticationObject ao = AuthenticationObject.extract(request);
+		UserLocal userBean = lookupUserBean();
+
+		User user = userBean.getUser(uf.getLogin());
 
 		// Проверяем право пользователя.
 		PermissionCheckerRemote pcb = ao.getPermissionChecker();
@@ -370,7 +372,7 @@ public class UsersAction extends DispatchAction {
 			user.setCreateProblem(uf.isProblemCreator());
 		}
 
-		lookupDudgeBean().modifyUser(user);
+		userBean.modifyUser(user);
 
 		// Редирект на страницу просмотра профиля отредактированного пользователя.
 		ActionForward forward = new ActionForward();
@@ -388,7 +390,7 @@ public class UsersAction extends DispatchAction {
 		int start = Integer.parseInt((String) request.getParameter("start"));
 		int limit = Integer.parseInt((String) request.getParameter("limit"));
 
-		List<User> users = lookupDudgeBean().getUsers();
+		List<User> users = lookupUserBean().getUsers();
 		List<User> selectedUsers;
 		try {
 			selectedUsers = users.subList(start, start + limit);
@@ -437,7 +439,7 @@ public class UsersAction extends DispatchAction {
 			return mapping.findForward("accessDenied");
 		}
 		String deletedUser = (String) request.getParameter("login");
-		lookupDudgeBean().deleteUser(deletedUser);
+		lookupUserBean().deleteUser(deletedUser);
 
 		return mapping.findForward("users");
 	}
@@ -475,7 +477,7 @@ public class UsersAction extends DispatchAction {
 		String newPassword = request.getParameter("newPassword");
 
 		AuthenticationObject ao = AuthenticationObject.extract(request);
-		DudgeLocal dudgeBean = lookupDudgeBean();
+		UserLocal userBean = lookupUserBean();
 
 		// Передаем клиенту информацию о результате смены пароля.
 		response.setContentType("application/x-json");
@@ -492,7 +494,7 @@ public class UsersAction extends DispatchAction {
 		}
 
 		// Проверяем, что старый пароль верен.
-		User currentUser = dudgeBean.getUser(ao.getUsername());
+		User currentUser = userBean.getUser(ao.getUsername());
 
 		// DBG
 		logger.severe(oldPassword);
@@ -500,7 +502,7 @@ public class UsersAction extends DispatchAction {
 		logger.severe(currentUser.getPwdHash());
 
 
-		if (!dudgeBean.calcHash(oldPassword).equals(currentUser.getPwdHash())) {
+		if (!userBean.calcHash(oldPassword).equals(currentUser.getPwdHash())) {
 			try {
 				record.put("result", "0");
 				ja.put(record);
@@ -518,8 +520,8 @@ public class UsersAction extends DispatchAction {
 			return;
 		}
 
-		currentUser.setPwdHash(dudgeBean.calcHash(newPassword));
-		dudgeBean.modifyUser(currentUser);
+		currentUser.setPwdHash(userBean.calcHash(newPassword));
+		userBean.modifyUser(currentUser);
 
 
 		// Отсылаем на сервер ответ о результате смены пароля.

@@ -3,8 +3,6 @@
  *
  * Created on 26 Сентябрь 2007 г., 19:36
  *
- * To change this template, choose Tools | Template Manager
- * and open the template in the editor.
  */
 package dudge.db;
 

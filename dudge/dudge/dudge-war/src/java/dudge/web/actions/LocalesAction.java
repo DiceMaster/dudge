@@ -3,8 +3,6 @@
  *
  * Created on 08.11.2007, 18:20:52
  *
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
  */
 package dudge.web.actions;
 
@@ -24,7 +22,7 @@ import org.apache.struts.actions.DispatchAction;
  */
 public class LocalesAction extends DispatchAction {
 
-	protected static final Logger logger = Logger.getLogger(LocalesAction.class.toString());
+	private static final Logger logger = Logger.getLogger(LocalesAction.class.toString());
 
 	/**
 	 * Устанавливает нужную локаль для пользовательского интерфейса.

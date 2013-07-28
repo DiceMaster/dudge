@@ -28,7 +28,7 @@ import javax.persistence.*;
 public class User implements Serializable {
 
 	public static final long serialVersionUID = 1L;
-	protected static final Logger logger = Logger.getLogger(User.class.toString());
+	private static final Logger logger = Logger.getLogger(User.class.toString());
 	@Id
 	@Column(name = "login", nullable = false, updatable = false)
 	private String login;
@@ -208,98 +208,194 @@ public class User implements Serializable {
 		return "dudgedb.User[login=" + login + "]";
 	}
 
+	/**
+	 *
+	 * @return
+	 */
 	public boolean isAdmin() {
 		return isAdmin;
 	}
 
+	/**
+	 *
+	 * @param isAdmin
+	 */
 	public void setAdmin(boolean isAdmin) {
 		this.isAdmin = isAdmin;
 	}
 
+	/**
+	 *
+	 * @return
+	 */
 	public boolean canCreateContest() {
 		return canCreateContest;
 	}
 
+	/**
+	 *
+	 * @param canCreateContest
+	 */
 	public void setCreateContest(boolean canCreateContest) {
 		this.canCreateContest = canCreateContest;
 	}
-	
+
+	/**
+	 *
+	 * @return
+	 */
 	public String getRealName() {
 		return realName;
 	}
 
+	/**
+	 *
+	 * @param realName
+	 */
 	public void setRealName(String realName) {
 		this.realName = realName;
 	}
 
+	/**
+	 *
+	 * @return
+	 */
 	public String getOrganization() {
 		return organization;
 	}
 
+	/**
+	 *
+	 * @param organization
+	 */
 	public void setOrganization(String organization) {
 		this.organization = organization;
 	}
 
+	/**
+	 *
+	 * @return
+	 */
 	public String getFaculty() {
 		return faculty;
 	}
 
+	/**
+	 *
+	 * @param faculty
+	 */
 	public void setFaculty(String faculty) {
 		this.faculty = faculty;
 	}
 
+	/**
+	 *
+	 * @return
+	 */
 	public Integer getCourse() {
 		return course;
 	}
 
+	/**
+	 *
+	 * @param course
+	 */
 	public void setCourse(Integer course) {
 		this.course = course;
 	}
 
+	/**
+	 *
+	 * @return
+	 */
 	public String getGroup() {
 		return group;
 	}
 
+	/**
+	 *
+	 * @param group
+	 */
 	public void setGroup(String group) {
 		this.group = group;
 	}
 
+	/**
+	 *
+	 * @return
+	 */
 	public Date getRegDate() {
 		return regDate;
 	}
 
+	/**
+	 *
+	 * @param regDate
+	 */
 	public void setRegDate(Date regDate) {
 		this.regDate = regDate;
 	}
 
+	/**
+	 *
+	 * @return
+	 */
 	public Integer getAge() {
 		return age;
 	}
 
+	/**
+	 *
+	 * @param age
+	 */
 	public void setAge(Integer age) {
 		this.age = age;
 	}
 
+	/**
+	 *
+	 * @return
+	 */
 	public String getJabberId() {
 		return jabberId;
 	}
 
+	/**
+	 *
+	 * @param jabberId
+	 */
 	public void setJabberId(String jabberId) {
 		this.jabberId = jabberId;
 	}
 
+	/**
+	 *
+	 * @return
+	 */
 	public Integer getIcqNumber() {
 		return icqNumber;
 	}
 
+	/**
+	 *
+	 * @param icqNumber
+	 */
 	public void setIcqNumber(Integer icqNumber) {
 		this.icqNumber = icqNumber;
 	}
 
+	/**
+	 *
+	 * @return
+	 */
 	public boolean canCreateProblem() {
 		return canCreateProblem;
 	}
 
+	/**
+	 *
+	 * @param canCreateProblem
+	 */
 	public void setCreateProblem(boolean canCreateProblem) {
 		this.canCreateProblem = canCreateProblem;
 	}

@@ -3,8 +3,6 @@
  *
  * Created on 12 Апрель 2007 г., 19:36
  *
- * To change this template, choose Tools | Template Manager
- * and open the template in the editor.
  */
 package dudge.db;
 
@@ -31,7 +29,7 @@ import javax.persistence.*;
 public class Test implements Serializable, Comparable {
 
 	public static final long serialVersionUID = 1L;
-	protected static final Logger logger = Logger.getLogger(User.class.toString());
+	private static final Logger logger = Logger.getLogger(Test.class.toString());
 	@SequenceGenerator(name = "TestIdGen", sequenceName = "tests_test_id_seq", allocationSize = 1)
 	@GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "TestIdGen")
 	@Id

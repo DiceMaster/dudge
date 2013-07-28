@@ -1,7 +1,3 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package dudge.db;
 
 import java.io.Serializable;
@@ -54,62 +50,122 @@ public class Application implements Serializable {
 		this.user = owner;
 	}
 
+	/**
+	 *
+	 * @return
+	 */
 	public Contest getContest() {
 		return contest;
 	}
 
+	/**
+	 *
+	 * @param contest
+	 */
 	public void setContest(Contest contest) {
 		this.contest = contest;
 	}
 
+	/**
+	 *
+	 * @return
+	 */
 	public int getContestId() {
 		return contestId;
 	}
 
+	/**
+	 *
+	 * @param contestId
+	 */
 	public void setContestId(int contestId) {
 		this.contestId = contestId;
 	}
 
+	/**
+	 *
+	 * @return
+	 */
 	public Date getFilingTime() {
 		return filingTime;
 	}
 
+	/**
+	 *
+	 * @param filingTime
+	 */
 	public void setFilingTime(Date filingTime) {
 		this.filingTime = filingTime;
 	}
 
+	/**
+	 *
+	 * @return
+	 */
 	public String getMessage() {
 		return message;
 	}
 
+	/**
+	 *
+	 * @param message
+	 */
 	public void setMessage(String message) {
 		this.message = message;
 	}
 
+	/**
+	 *
+	 * @return
+	 */
 	public User getOwner() {
 		return user;
 	}
 
+	/**
+	 *
+	 * @param owner
+	 */
 	public void setOwner(User owner) {
 		this.user = owner;
 	}
 
+	/**
+	 *
+	 * @return
+	 */
 	public String getOwnername() {
 		return ownername;
 	}
 
+	/**
+	 *
+	 * @param ownername
+	 */
 	public void setOwnername(String ownername) {
 		this.ownername = ownername;
 	}
 
+	/**
+	 *
+	 * @return
+	 */
 	public String getStatus() {
 		return status;
 	}
 
+	/**
+	 *
+	 * @param status
+	 */
 	public void setStatus(String status) {
 		this.status = status;
 	}
 
+	/**
+	 *
+	 * @return
+	 */
 	@Override
 	public int hashCode() {
 		int hash = 0;
@@ -118,6 +174,11 @@ public class Application implements Serializable {
 		return hash;
 	}
 
+	/**
+	 *
+	 * @param object
+	 * @return
+	 */
 	@Override
 	public boolean equals(Object object) {
 		// TODO: Warning - this method won't work in the case the id fields are not set
@@ -135,6 +196,10 @@ public class Application implements Serializable {
 		return true;
 	}
 
+	/**
+	 *
+	 * @return
+	 */
 	@Override
 	public String toString() {
 		return "dudge.db.Application[owner=" + user + " contestId=" + contestId + "]";

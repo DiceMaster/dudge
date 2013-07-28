@@ -1,7 +1,3 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package dudge.web.actions;
 
 import dudge.ReportingLocal;
@@ -27,7 +23,7 @@ import org.apache.struts.actions.DispatchAction;
  */
 public class ReportsAction extends DispatchAction {
 
-	protected static final Logger logger = Logger.getLogger(AnnounceAction.class.toString());
+	private static final Logger logger = Logger.getLogger(ReportsAction.class.toString());
 
 	/**
 	 *
@@ -36,7 +32,7 @@ public class ReportsAction extends DispatchAction {
 	private ReportingLocal lookupReportingBean() {
 		try {
 			Context c = new InitialContext();
-			return (ReportingLocal) c.lookup("java:comp/env/ReportingBean");
+			return (ReportingLocal) c.lookup("java:global/dudge/dudge-ejb/ReportingBean");//java:comp/env/ReportingBean
 		} catch (NamingException ne) {
 			logger.log(Level.SEVERE, "exception caught", ne);
 			throw new RuntimeException(ne);
@@ -65,7 +61,7 @@ public class ReportsAction extends DispatchAction {
 			File report = reportingBean.printContestProtocol(Integer.parseInt(request.getSession().getAttribute("contestId").toString()));
 			if (report != null) {
 				response.setContentType("application/x-msdownload");
-				response.setHeader("Content-Disposition", "attachment;" + " filename=" + new String(report.getName().getBytes(), "ISO-8859-1"));
+				response.setHeader("Content-Disposition", "attachment;" + " filename=" + new String(report.getName().getBytes("UTF-8"), "ISO-8859-1"));
 				OutputStream out = response.getOutputStream();
 				in = new FileInputStream(report);
 				byte[] buffer = new byte[4096];
@@ -105,7 +101,7 @@ public class ReportsAction extends DispatchAction {
 			File report = reportingBean.printContestParticipants(Integer.parseInt(request.getSession().getAttribute("contestId").toString()));
 			if (report != null) {
 				response.setContentType("application/x-msdownload");
-				response.setHeader("Content-Disposition", "attachment;" + " filename=" + new String(report.getName().getBytes(), "ISO-8859-1"));
+				response.setHeader("Content-Disposition", "attachment;" + " filename=" + new String(report.getName().getBytes("UTF-8"), "ISO-8859-1"));
 				OutputStream out = response.getOutputStream();
 				in = new FileInputStream(report);
 				byte[] buffer = new byte[4096];

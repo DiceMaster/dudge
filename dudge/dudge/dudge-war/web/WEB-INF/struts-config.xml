@@ -14,6 +14,7 @@
 		<form-bean name="problemsForm" type="dudge.web.forms.ProblemsForm"/>
 		<form-bean name="solutionsForm" type="dudge.web.forms.SolutionsForm"/>
 		<form-bean name="languagesForm" type="dudge.web.forms.LanguagesForm"/>
+		<form-bean name="reportsForm" type="dudge.web.forms.ReportsForm"/>
 	</form-beans>
 	
 	<global-exceptions>

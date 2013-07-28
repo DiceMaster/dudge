@@ -1,10 +1,5 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package dudge.web;
 
-import dudge.DudgeLocal;
 import dudge.PermissionCheckerRemote;
 import java.text.DateFormat;
 import java.text.ParseException;
@@ -64,8 +59,7 @@ public class AuthenticationObject {
 			Date currentDate = new Date();
 			if (currentDate.before(expirationDate)) {
 				ao.setUsername(userName);
-				DudgeLocal dudgeLocal = ServiceLocator.getInstance().lookupDudge();
-				dudgeLocal.joinAllOpenContests(userName);
+				ServiceLocator.getInstance().lookupDudgeBean().joinAllOpenContests(userName);
 			}
 		}
 

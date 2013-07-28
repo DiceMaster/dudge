@@ -30,16 +30,16 @@ on Libraries node in Projects view can be used to add the JSTL 1.1 library.
 
 <c:set var="autentificationObject" value="${autentificationObject.extract(pageContext.request)}" />
 <c:set var="permissionCheckerRemote" value="${autentificationObject.permissionChecker}" />
-<% dudge.DudgeLocal dudgeLocal = dudge.web.ServiceLocator.getInstance().lookupDudge();
-    pageContext.setAttribute("dudgeLocal", dudgeLocal);%>
+<% dudge.ContestLocal contestLocal = dudge.web.ServiceLocator.getInstance().lookupContestBean();
+    pageContext.setAttribute("contestLocal", contestLocal);%>
 
 <c:set var="contestId" value="${contestsForm.contestId}" scope="session"/>
 
 <c:if test="${contestId == null}">
-    <c:set var="contestId" value="${dudgeLocal.defaultContest.contestId}" scope="session"/>
+    <c:set var="contestId" value="${contestLocal.defaultContest.contestId}" scope="session"/>
 </c:if>
 
-<c:forEach items="${dudgeLocal.contests}" var="con">
+<c:forEach items="${contestLocal.contests}" var="con">
     <c:if test="${con.contestId == contestId}">
         <c:set var="menuContestProblems" value="${con.contestProblems}" /> 
         <c:set var="contestCaption" value="${con.caption}" /> 
