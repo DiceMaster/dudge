@@ -3,8 +3,6 @@
  *
  * Created on May 7, 2007, 8:48 PM
  *
- * To change this template, choose Tools | Template Manager
- * and open the template in the editor.
  */
 package dudge.slave;
 

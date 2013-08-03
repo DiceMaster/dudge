@@ -6,12 +6,7 @@
 package dudge.web.actions;
 
 import dudge.ContestLocal;
-import dudge.DudgeLocal;
-import dudge.LanguageLocal;
 import dudge.PermissionCheckerRemote;
-import dudge.ProblemLocal;
-import dudge.SolutionLocal;
-import dudge.UserLocal;
 import dudge.db.Contest;
 import dudge.db.Language;
 import dudge.db.Problem;
@@ -19,6 +14,7 @@ import dudge.db.Solution;
 import dudge.db.SolutionStatus;
 import dudge.db.User;
 import dudge.web.AuthenticationObject;
+import dudge.web.ServiceLocator;
 import dudge.web.forms.SolutionsForm;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
@@ -27,9 +23,6 @@ import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.naming.Context;
-import javax.naming.InitialContext;
-import javax.naming.NamingException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import json.JSONArray;
@@ -48,95 +41,12 @@ import org.apache.struts.actions.DispatchAction;
 public class SolutionsAction extends DispatchAction {
 
 	private static final Logger logger = Logger.getLogger(SolutionsAction.class.toString());
+	private ServiceLocator serviceLocator = ServiceLocator.getInstance();
 
 	/**
 	 * Creates a new instance of SolutionsAction
 	 */
 	public SolutionsAction() {
-	}
-
-	/**
-	 *
-	 * @return
-	 */
-	private DudgeLocal lookupDudgeBean() {
-		try {
-			Context c = new InitialContext();
-			return (DudgeLocal) c.lookup("java:global/dudge/dudge-ejb/DudgeBean");//java:comp/env/ejb/DudgeBean
-		} catch (NamingException ne) {
-			logger.log(Level.SEVERE, "exception caught", ne);
-			throw new RuntimeException(ne);
-		}
-	}
-
-	/**
-	 *
-	 * @return
-	 */
-	private UserLocal lookupUserBean() {
-		try {
-			Context c = new InitialContext();
-			return (UserLocal) c.lookup("java:global/dudge/dudge-ejb/UserBean");//java:comp/env/ejb/UserBean
-		} catch (NamingException ne) {
-			logger.log(Level.SEVERE, "exception caught", ne);
-			throw new RuntimeException(ne);
-		}
-	}
-
-	/**
-	 *
-	 * @return
-	 */
-	private ContestLocal lookupContestBean() {
-		try {
-			Context c = new InitialContext();
-			return (ContestLocal) c.lookup("java:global/dudge/dudge-ejb/ContestBean");//java:comp/env/ejb/ContestBean
-		} catch (NamingException ne) {
-			logger.log(Level.ALL, "exception caught", ne);
-			throw new RuntimeException(ne);
-		}
-	}
-
-	/**
-	 *
-	 * @return
-	 */
-	private LanguageLocal lookupLanguageBean() {
-		try {
-			Context c = new InitialContext();
-			return (LanguageLocal) c.lookup("java:global/dudge/dudge-ejb/LanguageBean");//java:comp/env/ejb/LanguageBean
-		} catch (NamingException ne) {
-			logger.log(Level.ALL, "exception caught", ne);
-			throw new RuntimeException(ne);
-		}
-	}
-
-	/**
-	 *
-	 * @return
-	 */
-	private ProblemLocal lookupProblemBean() {
-		try {
-			Context c = new InitialContext();
-			return (ProblemLocal) c.lookup("java:global/dudge/dudge-ejb/ProblemBean");//java:comp/env/ejb/ProblemBean
-		} catch (NamingException ne) {
-			logger.log(Level.ALL, "exception caught", ne);
-			throw new RuntimeException(ne);
-		}
-	}
-
-	/**
-	 *
-	 * @return
-	 */
-	private SolutionLocal lookupSolutionBean() {
-		try {
-			Context c = new InitialContext();
-			return (SolutionLocal) c.lookup("java:global/dudge/dudge-ejb/SolutionBean!dudge.SolutionLocal");//java:comp/env/ejb/SolutionBean
-		} catch (NamingException ne) {
-			logger.log(Level.ALL, "exception caught", ne);
-			throw new RuntimeException(ne);
-		}
 	}
 
 	/**
@@ -157,7 +67,7 @@ public class SolutionsAction extends DispatchAction {
 			return mapping.findForward("loginRequired");
 		}
 
-		User user = lookupUserBean().getUser(ao.getUsername());
+		User user = serviceLocator.lookupUserBean().getUser(ao.getUsername());
 		int solutionId;
 		if (request.getParameter("solutionId") != null) {
 			solutionId = Integer.parseInt(request.getParameter("solutionId"));
@@ -171,7 +81,7 @@ public class SolutionsAction extends DispatchAction {
 		}
 
 		// TODO: нельзя доверять тому, что солюшен с таким id существует
-		Solution solution = lookupSolutionBean().getSolution(solutionId);
+		Solution solution = serviceLocator.lookupSolutionBean().getSolution(solutionId);
 
 		sf.setSolutionId(Integer.toString(solution.getSolutionId()));
 
@@ -205,7 +115,7 @@ public class SolutionsAction extends DispatchAction {
 
 		SolutionsForm sf = (SolutionsForm) af;
 		sf.reset(mapping, request);
-		ContestLocal contestBean = lookupContestBean();
+		ContestLocal contestBean = serviceLocator.lookupContestBean();
 		AuthenticationObject ao = AuthenticationObject.extract(request);
 
 		int contestId;
@@ -245,7 +155,7 @@ public class SolutionsAction extends DispatchAction {
 	public ActionForward submitSubmit(ActionMapping mapping, ActionForm af, HttpServletRequest request, HttpServletResponse response) {
 
 		SolutionsForm sf = (SolutionsForm) af;
-		ContestLocal contestBean = lookupContestBean();
+		ContestLocal contestBean = serviceLocator.lookupContestBean();
 		AuthenticationObject ao = AuthenticationObject.extract(request);
 
 		if (ao.getUsername() == null) {
@@ -263,10 +173,10 @@ public class SolutionsAction extends DispatchAction {
 			contestId = contestBean.getDefaultContest().getContestId();
 		}
 
-		User user = lookupUserBean().getUser(ao.getUsername());
+		User user = serviceLocator.lookupUserBean().getUser(ao.getUsername());
 		Contest contest = contestBean.getContest(contestId);
-		Language language = lookupLanguageBean().getLanguage(sf.getLanguageId());
-		Problem problem = lookupProblemBean().getProblem(Integer.parseInt(sf.getProblemId()));
+		Language language = serviceLocator.lookupLanguageBean().getLanguage(sf.getLanguageId());
+		Problem problem = serviceLocator.lookupProblemBean().getProblem(Integer.parseInt(sf.getProblemId()));
 
 		// Проверяем право пользователя.
 		PermissionCheckerRemote pcb = ao.getPermissionChecker();
@@ -281,7 +191,7 @@ public class SolutionsAction extends DispatchAction {
 		solution.setProblem(problem);
 		solution.setSourceCode(sf.getSourceCode());
 
-		solution = lookupDudgeBean().submitSolution(solution);
+		solution = serviceLocator.lookupDudgeBean().submitSolution(solution);
 		sf.setSolutionId(Integer.toString(solution.getSolutionId()));
 
 		ActionForward viewRedirect = new ActionForward();
@@ -301,7 +211,7 @@ public class SolutionsAction extends DispatchAction {
 	@SuppressWarnings("unchecked")
 	public void getSolutionStatus(ActionMapping mapping, ActionForm af, HttpServletRequest request, HttpServletResponse response) {
 		int solutionId = Integer.parseInt((String) request.getParameter("solutionId"));
-		Solution solution = lookupSolutionBean().getSolution(solutionId);
+		Solution solution = serviceLocator.lookupSolutionBean().getSolution(solutionId);
 
 		JSONObject jo = new JSONObject();
 		String status = SolutionStatus.INTERNAL_ERROR.toString();
@@ -355,7 +265,7 @@ public class SolutionsAction extends DispatchAction {
 			limit = 20;
 		}
 
-		List<Solution> solutions = lookupSolutionBean().getLastSolutions(limit);
+		List<Solution> solutions = serviceLocator.lookupSolutionBean().getLastSolutions(limit);
 
 		JSONArray ja = new JSONArray();
 		JSONObject jo = new JSONObject();

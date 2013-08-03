@@ -1,7 +1,3 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package dudge.slave;
 
 import dudge.slave.dtest.OutputComparer;
@@ -18,7 +14,7 @@ import java.util.logging.Logger;
  */
 public class LineComparator implements OutputComparer {
 
-	private static final Logger logger = Logger.getLogger(TokenizedComparator.class.toString());
+	private static final Logger logger = Logger.getLogger(LineComparator.class.toString());
 
 	/**
 	 * Метод сравнения вывода решения с эталонным.
@@ -30,8 +26,8 @@ public class LineComparator implements OutputComparer {
 	@Override
 	public boolean compare(InputStream referenceOutput, InputStream solutionOutput) throws IOException {
 
-		BufferedReader refs = new BufferedReader(new InputStreamReader(referenceOutput));
-		BufferedReader sols = new BufferedReader(new InputStreamReader(solutionOutput));
+		BufferedReader refs = new BufferedReader(new InputStreamReader(referenceOutput, "UTF-8"));
+		BufferedReader sols = new BufferedReader(new InputStreamReader(solutionOutput, "UTF-8"));
 
 		String sol;
 		String ref;

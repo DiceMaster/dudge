@@ -21,6 +21,7 @@ import dudge.db.Solution;
 
 import dudge.db.Language;
 import dudge.db.Problem;
+import java.util.Locale;
 import junit.framework.TestCase;
 
 /**
@@ -58,7 +59,7 @@ public class SlaveBeanTest extends TestCase {
 		cont = new Contest();
 		cont.setType(ContestType.ACM);
 
-		String os_version = System.getProperty("os.name").toLowerCase();
+		String os_version = System.getProperty("os.name").toLowerCase(Locale.ENGLISH);
 		if (os_version.contains("windows")) {
 			quote = "\"";
 		} else {

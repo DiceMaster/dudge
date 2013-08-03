@@ -1,15 +1,13 @@
 package dudge.web.actions;
 
 import dudge.ReportingLocal;
+import dudge.web.ServiceLocator;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.naming.Context;
-import javax.naming.InitialContext;
-import javax.naming.NamingException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.apache.struts.action.ActionForm;
@@ -24,20 +22,7 @@ import org.apache.struts.actions.DispatchAction;
 public class ReportsAction extends DispatchAction {
 
 	private static final Logger logger = Logger.getLogger(ReportsAction.class.toString());
-
-	/**
-	 *
-	 * @return
-	 */
-	private ReportingLocal lookupReportingBean() {
-		try {
-			Context c = new InitialContext();
-			return (ReportingLocal) c.lookup("java:global/dudge/dudge-ejb/ReportingBean");//java:comp/env/ReportingBean
-		} catch (NamingException ne) {
-			logger.log(Level.SEVERE, "exception caught", ne);
-			throw new RuntimeException(ne);
-		}
-	}
+	private ServiceLocator serviceLocator = ServiceLocator.getInstance();
 
 	/**
 	 * Метод для перехода на страницу генерации отчётности
@@ -57,7 +42,7 @@ public class ReportsAction extends DispatchAction {
 	public ActionForward printCurrentContestProtocol(ActionMapping mapping, ActionForm af, HttpServletRequest request, HttpServletResponse response) {
 		FileInputStream in = null;
 		try {
-			ReportingLocal reportingBean = lookupReportingBean();
+			ReportingLocal reportingBean = serviceLocator.lookupReportingBean();
 			File report = reportingBean.printContestProtocol(Integer.parseInt(request.getSession().getAttribute("contestId").toString()));
 			if (report != null) {
 				response.setContentType("application/x-msdownload");
@@ -97,7 +82,7 @@ public class ReportsAction extends DispatchAction {
 	public ActionForward printCurrentContestParticipants(ActionMapping mapping, ActionForm af, HttpServletRequest request, HttpServletResponse response) {
 		FileInputStream in = null;
 		try {
-			ReportingLocal reportingBean = lookupReportingBean();
+			ReportingLocal reportingBean = serviceLocator.lookupReportingBean();
 			File report = reportingBean.printContestParticipants(Integer.parseInt(request.getSession().getAttribute("contestId").toString()));
 			if (report != null) {
 				response.setContentType("application/x-msdownload");

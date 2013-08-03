@@ -24,12 +24,13 @@ import org.apache.struts.action.ActionMapping;
 public class SearchAction extends DispatchAction {
 
 	private static final Logger logger = Logger.getLogger(SearchAction.class.toString());
+	private ServiceLocator serviceLocator = ServiceLocator.getInstance();
 
 	public void search(ActionMapping mapping, ActionForm form, HttpServletRequest request, HttpServletResponse response) throws Exception {
 
 		String query = request.getParameter("query");
 
-		SearcherLocal searcher = ServiceLocator.getInstance().getSearcher();
+		SearcherLocal searcher = serviceLocator.getSearcher();
 
 		List<User> users = searcher.searchUsers(query, 20);
 		List<Problem> problems = searcher.searchProblems(query, 20);

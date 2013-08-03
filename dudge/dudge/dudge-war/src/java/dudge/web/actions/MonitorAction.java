@@ -1,7 +1,6 @@
 package dudge.web.actions;
 
 import dudge.ContestLocal;
-import dudge.DudgeLocal;
 import dudge.db.Contest;
 import dudge.db.ContestProblem;
 import dudge.db.RoleType;
@@ -9,17 +8,14 @@ import dudge.logic.ContestTraits;
 import dudge.monitor.AcmMonitorRecord;
 import dudge.monitor.GlobalMonitorRecord;
 import dudge.PermissionCheckerRemote;
-import dudge.UserLocal;
 import dudge.monitor.SchoolMonitorRecord;
 import dudge.web.AuthenticationObject;
+import dudge.web.ServiceLocator;
 import java.io.IOException;
 import java.util.Date;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.naming.Context;
-import javax.naming.InitialContext;
-import javax.naming.NamingException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import json.JSONArray;
@@ -37,50 +33,9 @@ import org.apache.struts.actions.DispatchAction;
 public class MonitorAction extends DispatchAction {
 
 	private static final Logger logger = Logger.getLogger(MonitorAction.class.toString());
+	private ServiceLocator serviceLocator = ServiceLocator.getInstance();
 
 	public MonitorAction() {
-	}
-
-	/**
-	 *
-	 * @return
-	 */
-	private DudgeLocal lookupDudgeBean() {
-		try {
-			Context c = new InitialContext();
-			return (DudgeLocal) c.lookup("java:global/dudge/dudge-ejb/DudgeBean");//java:comp/env/ejb/DudgeBean
-		} catch (NamingException ne) {
-			logger.log(Level.SEVERE, "exception caught", ne);
-			throw new RuntimeException(ne);
-		}
-	}
-
-	/**
-	 *
-	 * @return
-	 */
-	private UserLocal lookupUserBean() {
-		try {
-			Context c = new InitialContext();
-			return (UserLocal) c.lookup("java:global/dudge/dudge-ejb/UserBean");//java:comp/env/ejb/UserBean
-		} catch (NamingException ne) {
-			logger.log(Level.SEVERE, "exception caught", ne);
-			throw new RuntimeException(ne);
-		}
-	}
-
-	/**
-	 *
-	 * @return
-	 */
-	private ContestLocal lookupContestBean() {
-		try {
-			Context c = new InitialContext();
-			return (ContestLocal) c.lookup("java:global/dudge/dudge-ejb/ContestBean");//java:comp/env/ejb/ContestBean
-		} catch (NamingException ne) {
-			logger.log(Level.ALL, "exception caught", ne);
-			throw new RuntimeException(ne);
-		}
 	}
 
 	/**
@@ -105,7 +60,7 @@ public class MonitorAction extends DispatchAction {
 	 */
 	public ActionForward view(ActionMapping mapping, ActionForm af, HttpServletRequest request, HttpServletResponse response) {
 
-		ContestLocal contestBean = lookupContestBean();
+		ContestLocal contestBean = serviceLocator.lookupContestBean();
 		AuthenticationObject ao = AuthenticationObject.extract(request);
 
 		int contestId;
@@ -152,15 +107,15 @@ public class MonitorAction extends DispatchAction {
 			return;
 		}
 
-		Contest contest = lookupContestBean().getContest(contestId);
+		Contest contest = serviceLocator.lookupContestBean().getContest(contestId);
 		//GlobalTraits traits = (GlobalTraits) contest.getTraits();
 
 		JSONArray jaRows = new JSONArray();
 
 		// Администраторы соревнования видят монитор размороженным.
-		boolean userIsContestAdmin = lookupUserBean().isInRole(ao.getUsername(), contest.getContestId(), RoleType.ADMINISTRATOR);
+		boolean userIsContestAdmin = serviceLocator.lookupUserBean().isInRole(ao.getUsername(), contest.getContestId(), RoleType.ADMINISTRATOR);
 
-		List<GlobalMonitorRecord> monitorRows = lookupDudgeBean().getGlobalMonitorRecords(
+		List<GlobalMonitorRecord> monitorRows = serviceLocator.lookupDudgeBean().getGlobalMonitorRecords(
 				contest, (userIsContestAdmin || contest.isInfinite()) ? null
 				: new Date(Long.valueOf(contest.getEndTime().getTime() - contest.getFreezeTime() * 1000)));
 
@@ -224,15 +179,15 @@ public class MonitorAction extends DispatchAction {
 			return;
 		}
 
-		Contest contest = lookupContestBean().getContest(contestId);
+		Contest contest = serviceLocator.lookupContestBean().getContest(contestId);
 		//AcmTraits traits = (AcmTraits) contest.getTraits();
 
 		JSONArray jaRows = new JSONArray();
 
 		// Администраторы соревнования видят монитор размороженным.
-		boolean userIsContestAdmin = lookupUserBean().isInRole(ao.getUsername(), contest.getContestId(), RoleType.ADMINISTRATOR);
+		boolean userIsContestAdmin = serviceLocator.lookupUserBean().isInRole(ao.getUsername(), contest.getContestId(), RoleType.ADMINISTRATOR);
 
-		List<AcmMonitorRecord> monitorRows = lookupDudgeBean().getAcmMonitorRecords(
+		List<AcmMonitorRecord> monitorRows = serviceLocator.lookupDudgeBean().getAcmMonitorRecords(
 				contest, (userIsContestAdmin || contest.isInfinite()) ? null
 				: new Date(Long.valueOf(contest.getEndTime().getTime() - contest.getFreezeTime() * 1000)));
 
@@ -319,14 +274,14 @@ public class MonitorAction extends DispatchAction {
 			return;
 		}
 
-		Contest contest = lookupContestBean().getContest(contestId);
+		Contest contest = serviceLocator.lookupContestBean().getContest(contestId);
 
 		JSONArray jaRows = new JSONArray();
 
 		// Администраторы соревнования видят монитор размороженным.
-		boolean userIsContestAdmin = lookupUserBean().isInRole(ao.getUsername(), contest.getContestId(), RoleType.ADMINISTRATOR);
+		boolean userIsContestAdmin = serviceLocator.lookupUserBean().isInRole(ao.getUsername(), contest.getContestId(), RoleType.ADMINISTRATOR);
 
-		List<SchoolMonitorRecord> monitorRows = lookupDudgeBean().getSchoolMonitorRecords(
+		List<SchoolMonitorRecord> monitorRows = serviceLocator.lookupDudgeBean().getSchoolMonitorRecords(
 				contest, (userIsContestAdmin || contest.isInfinite()) ? null
 				: new Date(Long.valueOf(contest.getEndTime().getTime() - contest.getFreezeTime() * 1000)));
 

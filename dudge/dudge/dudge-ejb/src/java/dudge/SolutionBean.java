@@ -30,7 +30,6 @@ public class SolutionBean implements SolutionLocal, SolutionRemote {
 	@Override
 	public Solution getSolution(int solutionId) {
 		Solution solution = em.find(Solution.class, solutionId);
-		solution.getRuns().size();
 		return solution;
 	}
 
@@ -42,10 +41,6 @@ public class SolutionBean implements SolutionLocal, SolutionRemote {
 	@Override
 	public Solution getSolutionEager(int solutionId) {
 		Solution solution = getSolution(solutionId);
-		if (solution == null) {
-			return null;
-		}
-
 		// Инстанциируем отложенную загрузку для того, чтобы раб мог получать коллекции.
 		solution.getRuns().size();
 		solution.getContest().getContestProblems().size();
@@ -73,8 +68,7 @@ public class SolutionBean implements SolutionLocal, SolutionRemote {
 		for (Solution solution : lcpSolutions) {
 			Date endTime = new Date(solution.getContest().getStartTime().getTime() + solution.getContest().getDuration() * (long) 1000);
 			if ((solution.getSubmitTime().after(solution.getContest().getStartTime()))
-					&& (solution.getSubmitTime().before(endTime)
-					|| solution.getContest().getDuration() == 0)) {
+					&& (solution.getSubmitTime().before(endTime) || solution.getContest().getDuration() == 0)) {
 				solutions.add(solution);
 			}
 		}
@@ -124,31 +118,25 @@ public class SolutionBean implements SolutionLocal, SolutionRemote {
 	@Override
 	public void saveSolution(Solution solution) {
 
-		Solution dbs;
-		if (this.getSolution(solution.getSolutionId()) != null) {
-			dbs = this.getSolution(solution.getSolutionId());
+		Solution dbs = getSolution(solution.getSolutionId());
 
-			dbs.setStatus(solution.getStatus());
-			dbs.setStatusMessage(solution.getStatusMessage());
-			dbs.setCompilationTime(solution.getCompilationTime());
+		dbs.setStatus(solution.getStatus());
+		dbs.setStatusMessage(solution.getStatusMessage());
+		dbs.setCompilationTime(solution.getCompilationTime());
 
-			dbs.setStatus(solution.getStatus());
-			dbs.setStatusMessage(solution.getStatusMessage());
-			dbs.setCompilationTime(solution.getCompilationTime());
+		dbs.setStatus(solution.getStatus());
+		dbs.setStatusMessage(solution.getStatusMessage());
+		dbs.setCompilationTime(solution.getCompilationTime());
 
-			for (Run run : dbs.getRuns()) {
-				em.remove(run);
+		for (Run run : dbs.getRuns()) {
+			em.remove(run);
+		}
+		dbs.getRuns().clear();
+
+		if (solution.getRuns() != null) {
+			for (Run run : solution.getRuns()) {
+				dbs.getRuns().add(em.merge(run));
 			}
-			dbs.getRuns().clear();
-
-			if (solution.getRuns() != null) {
-				for (Run run : solution.getRuns()) {
-					dbs.getRuns().add(em.merge(run));
-				}
-			}
-
-		} else {
-			dbs = solution;
 		}
 
 		// Если решение прошло все тесты, то помечаем задачу как здоровую.

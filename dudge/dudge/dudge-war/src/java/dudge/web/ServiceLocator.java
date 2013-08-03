@@ -7,8 +7,14 @@ package dudge.web;
 
 import dudge.ContestLocal;
 import dudge.DudgeLocal;
+import dudge.LanguageLocal;
 import dudge.PermissionCheckerRemote;
+import dudge.ProblemLocal;
+import dudge.ReportingLocal;
 import dudge.SearcherLocal;
+import dudge.SolutionLocal;
+import dudge.TestLocal;
+import dudge.UserLocal;
 import java.net.URL;
 import java.util.Collections;
 import java.util.HashMap;
@@ -45,15 +51,29 @@ public class ServiceLocator {
 		}
 	}
 
+	/**
+	 *
+	 * @throws NamingException
+	 */
 	private ServiceLocator() throws NamingException {
 		ic = new InitialContext();
 		cache = Collections.synchronizedMap(new HashMap<String, Object>());
 	}
 
+	/**
+	 *
+	 * @return
+	 */
 	public static ServiceLocator getInstance() {
 		return me;
 	}
 
+	/**
+	 *
+	 * @param jndiName
+	 * @return
+	 * @throws NamingException
+	 */
 	private Object lookup(String jndiName) throws NamingException {
 		Object cachedObj = cache.get(jndiName);
 		if (cachedObj == null) {
@@ -170,9 +190,86 @@ public class ServiceLocator {
 	 *
 	 * @return
 	 */
+	public LanguageLocal lookupLanguageBean() {
+		try {
+			return (LanguageLocal) lookup("java:global/dudge/dudge-ejb/LanguageBean");//java:comp/env/ejb/LanguageBean
+		} catch (NamingException ne) {
+			logger.log(Level.SEVERE, "exception caught", ne);
+			throw new RuntimeException(ne);
+		}
+	}
+
+	/**
+	 *
+	 * @return
+	 */
 	public PermissionCheckerRemote lookupPermissionChecker() {
 		try {
 			return (PermissionCheckerRemote) lookup("java:global/dudge/dudge-ejb/PermissionCheckerBean");//java:comp/env/PermissionCheckerBean
+		} catch (NamingException ne) {
+			logger.log(Level.SEVERE, "exception caught", ne);
+			throw new RuntimeException(ne);
+		}
+	}
+
+	/**
+	 *
+	 * @return
+	 */
+	public ProblemLocal lookupProblemBean() {
+		try {
+			return (ProblemLocal) lookup("java:global/dudge/dudge-ejb/ProblemBean");//java:comp/env/ejb/ProblemBean
+		} catch (NamingException ne) {
+			logger.log(Level.SEVERE, "exception caught", ne);
+			throw new RuntimeException(ne);
+		}
+	}
+
+	/**
+	 *
+	 * @return
+	 */
+	public SolutionLocal lookupSolutionBean() {
+		try {
+			return (SolutionLocal) lookup("java:global/dudge/dudge-ejb/SolutionBean!dudge.SolutionLocal");//java:comp/env/ejb/SolutionBean
+		} catch (NamingException ne) {
+			logger.log(Level.SEVERE, "exception caught", ne);
+			throw new RuntimeException(ne);
+		}
+	}
+
+	/*
+	 * @return
+	 */
+	public ReportingLocal lookupReportingBean() {
+		try {
+			return (ReportingLocal) lookup("java:global/dudge/dudge-ejb/ReportingBean");//java:comp/env/ReportingBean
+		} catch (NamingException ne) {
+			logger.log(Level.SEVERE, "exception caught", ne);
+			throw new RuntimeException(ne);
+		}
+	}
+
+	/**
+	 *
+	 * @return
+	 */
+	public TestLocal lookupTestBean() {
+		try {
+			return (TestLocal) lookup("java:global/dudge/dudge-ejb/TestBean");//java:comp/env/ejb/TestBean
+		} catch (NamingException ne) {
+			logger.log(Level.SEVERE, "exception caught", ne);
+			throw new RuntimeException(ne);
+		}
+	}
+
+	/**
+	 *
+	 * @return
+	 */
+	public UserLocal lookupUserBean() {
+		try {
+			return (UserLocal) lookup("java:global/dudge/dudge-ejb/UserBean");//java:comp/env/ejb/UserBean
 		} catch (NamingException ne) {
 			logger.log(Level.SEVERE, "exception caught", ne);
 			throw new RuntimeException(ne);

@@ -8,6 +8,9 @@ package dudge.slave.dtest;
  */
 public class CheckingResult {
 
+	/**
+	 * 
+	 */
 	public int returnedValue;
 	/**
 	 * resultType - результат запуска решения.
@@ -21,9 +24,18 @@ public class CheckingResult {
 	 * -1 - внутренняя ошибка.
 	 */
 	public byte resultType = -1;
+	/**
+	 *
+	 */
 	public long maxMemUsed = 0; // bytes
+	/**
+	 *
+	 */
 	public long cpuTimeUsed = 0; // milliseconds
 
+	/**
+	 *
+	 */
 	public CheckingResult() {
 	}
 }

@@ -6,10 +6,7 @@
 package dudge.web.actions;
 
 import dudge.ContestLocal;
-import dudge.DudgeLocal;
-import dudge.LanguageLocal;
 import dudge.PermissionCheckerRemote;
-import dudge.ProblemLocal;
 import dudge.UserLocal;
 import dudge.db.Application;
 import dudge.db.ApplicationStatus;
@@ -23,6 +20,7 @@ import dudge.db.Role;
 import dudge.db.RoleType;
 import dudge.db.User;
 import dudge.web.AuthenticationObject;
+import dudge.web.ServiceLocator;
 import dudge.web.forms.ContestsForm;
 import java.io.IOException;
 import java.text.ParseException;
@@ -30,9 +28,6 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.naming.Context;
-import javax.naming.InitialContext;
-import javax.naming.NamingException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import json.JSONArray;
@@ -50,6 +45,7 @@ import org.apache.struts.actions.DispatchAction;
 public class ContestsAction extends DispatchAction {
 
 	private static final Logger logger = Logger.getLogger(ContestsAction.class.toString());
+	private ServiceLocator serviceLocator = ServiceLocator.getInstance();
 
 	/**
 	 * Creates a new instance of ContestsAction
@@ -57,65 +53,23 @@ public class ContestsAction extends DispatchAction {
 	public ContestsAction() {
 	}
 
-	private DudgeLocal lookupDudgeBean() {
-		try {
-			Context c = new InitialContext();
-			return (DudgeLocal) c.lookup("java:global/dudge/dudge-ejb/DudgeBean");//java:comp/env/ejb/DudgeBean
-		} catch (NamingException ne) {
-			logger.log(Level.SEVERE, "exception caught", ne);
-			throw new RuntimeException(ne);
-		}
-	}
-
-	private UserLocal lookupUserBean() {
-		try {
-			Context c = new InitialContext();
-			return (UserLocal) c.lookup("java:global/dudge/dudge-ejb/UserBean");//java:comp/env/ejb/UserBean
-		} catch (NamingException ne) {
-			logger.log(Level.SEVERE, "exception caught", ne);
-			throw new RuntimeException(ne);
-		}
-	}
-
-	private ContestLocal lookupContestBean() {
-		try {
-			Context c = new InitialContext();
-			return (ContestLocal) c.lookup("java:global/dudge/dudge-ejb/ContestBean");//java:comp/env/ejb/ContestBean
-		} catch (NamingException ne) {
-			logger.log(Level.ALL, "exception caught", ne);
-			throw new RuntimeException(ne);
-		}
-	}
-
-	private LanguageLocal lookupLanguageBean() {
-		try {
-			Context c = new InitialContext();
-			return (LanguageLocal) c.lookup("java:global/dudge/dudge-ejb/LanguageBean");//java:comp/env/ejb/LanguageBean
-		} catch (NamingException ne) {
-			logger.log(Level.ALL, "exception caught", ne);
-			throw new RuntimeException(ne);
-		}
-	}
-
-	private ProblemLocal lookupProblemBean() {
-		try {
-			Context c = new InitialContext();
-			return (ProblemLocal) c.lookup("java:global/dudge/dudge-ejb/ProblemBean");//java:comp/env/ejb/ProblemBean
-		} catch (NamingException ne) {
-			logger.log(Level.ALL, "exception caught", ne);
-			throw new RuntimeException(ne);
-		}
-	}
-
 	public ActionForward list(ActionMapping mapping, ActionForm af, HttpServletRequest request, HttpServletResponse response) {
 		return mapping.findForward("contests");
 	}
 
+	/**
+	 *
+	 * @param mapping
+	 * @param af
+	 * @param request
+	 * @param response
+	 * @return
+	 */
 	public ActionForward rules(ActionMapping mapping, ActionForm af, HttpServletRequest request, HttpServletResponse response) {
 		ContestsForm cf = (ContestsForm) af;
 
 		int contestId = Integer.parseInt((String) request.getParameter("contestId"));
-		Contest contest = lookupContestBean().getContest(contestId);
+		Contest contest = serviceLocator.lookupContestBean().getContest(contestId);
 
 		AuthenticationObject ao = AuthenticationObject.extract(request);
 
@@ -139,9 +93,16 @@ public class ContestsAction extends DispatchAction {
 		return mapping.findForward("contestRules");
 	}
 
+	/**
+	 *
+	 * @param mapping
+	 * @param af
+	 * @param request
+	 * @param response
+	 */
 	public void getContestList(ActionMapping mapping, ActionForm af, HttpServletRequest request, HttpServletResponse response) {
 
-		List<Contest> contests = lookupContestBean().getContests();
+		List<Contest> contests = serviceLocator.lookupContestBean().getContests();
 
 		JSONArray ja = new JSONArray();
 		JSONObject jo = new JSONObject();
@@ -175,6 +136,10 @@ public class ContestsAction extends DispatchAction {
 
 	/**
 	 * Метод возвращает представления объекта в формата JSON - это нужно для его отображение на стороне клиента через JavaScript/AJAX.
+	 *
+	 * @param contest
+	 * @param ao
+	 * @return
 	 */
 	private JSONObject getContestJSONView(Contest contest, AuthenticationObject ao) {
 
@@ -203,6 +168,14 @@ public class ContestsAction extends DispatchAction {
 		return json;
 	}
 
+	/**
+	 *
+	 * @param mapping
+	 * @param af
+	 * @param request
+	 * @param response
+	 * @return
+	 */
 	public ActionForward create(ActionMapping mapping, ActionForm af, HttpServletRequest request, HttpServletResponse response) {
 
 		ContestsForm cf = (ContestsForm) af;
@@ -247,6 +220,14 @@ public class ContestsAction extends DispatchAction {
 		return mapping.findForward("createContest");
 	}
 
+	/**
+	 *
+	 * @param mapping
+	 * @param af
+	 * @param request
+	 * @param response
+	 * @return
+	 */
 	public ActionForward edit(ActionMapping mapping, ActionForm af, HttpServletRequest request, HttpServletResponse response) {
 
 		ContestsForm cf = (ContestsForm) af;
@@ -256,7 +237,7 @@ public class ContestsAction extends DispatchAction {
 		// Получаем идентификатор редактируемого контеста, чтобы по нему найти объект нужного контеста
 		// и выставить текущие значения как значения по умолчанию для полей на странице редактирования.
 		int contestId = Integer.parseInt((String) request.getParameter("contestId"));
-		Contest modifiedContest = lookupContestBean().getContest(contestId);
+		Contest modifiedContest = serviceLocator.lookupContestBean().getContest(contestId);
 
 		cf.setContestId(Integer.toString(contestId));
 
@@ -300,6 +281,13 @@ public class ContestsAction extends DispatchAction {
 		return mapping.findForward("editContest");
 	}
 
+	/**
+	 *
+	 * @param mapping
+	 * @param af
+	 * @param request
+	 * @param response
+	 */
 	public void sendApplication(ActionMapping mapping, ActionForm af, HttpServletRequest request, HttpServletResponse response) {
 		AuthenticationObject ao = AuthenticationObject.extract(request);
 
@@ -308,8 +296,8 @@ public class ContestsAction extends DispatchAction {
 			return;
 		}
 
-		ContestLocal contestBean = lookupContestBean();
-		UserLocal userBean = lookupUserBean();
+		ContestLocal contestBean = serviceLocator.lookupContestBean();
+		UserLocal userBean = serviceLocator.lookupUserBean();
 		int contestId = Integer.parseInt(request.getParameter("contestId"));
 		String message = request.getParameter("message");
 		Contest contest = contestBean.getContest(contestId);
@@ -338,10 +326,18 @@ public class ContestsAction extends DispatchAction {
 		contestBean.modifyContest(contest);
 	}
 
+	/**
+	 *
+	 * @param mapping
+	 * @param af
+	 * @param request
+	 * @param response
+	 * @return
+	 */
 	public ActionForward submitCreate(ActionMapping mapping, ActionForm af, HttpServletRequest request, HttpServletResponse response) {
 
 		ContestsForm cf = (ContestsForm) af;
-		UserLocal userBean = lookupUserBean();
+		UserLocal userBean = serviceLocator.lookupUserBean();
 
 		AuthenticationObject ao = AuthenticationObject.extract(request);
 
@@ -391,7 +387,7 @@ public class ContestsAction extends DispatchAction {
 		}
 
 		// При добавлении роли проверяем, что пользователь с таким логином существует в БД.
-		List<Role> allRoles = (List<Role>) this.decodeRolesFromJSON(cf.getEncodedRoles(), contest);
+		Collection<Role> allRoles = (Collection<Role>) decodeRolesFromJSON(cf.getEncodedRoles(), contest);
 		if (allRoles != null) {
 			contest.getRoles().addAll(allRoles);
 		}
@@ -403,7 +399,7 @@ public class ContestsAction extends DispatchAction {
 			contest.getRoles().add(creator);
 		}
 
-		contest = lookupContestBean().addContest(contest);
+		contest = serviceLocator.lookupContestBean().addContest(contest);
 		cf.setContestId(String.valueOf(contest.getContestId()));
 
 		//Редирект на страницу новосозданного контеста.
@@ -413,10 +409,19 @@ public class ContestsAction extends DispatchAction {
 		return forward;
 	}
 
+	/**
+	 *
+	 * @param mapping
+	 * @param af
+	 * @param request
+	 * @param response
+	 * @return
+	 * @throws ParseException
+	 */
 	public ActionForward submitEdit(ActionMapping mapping, ActionForm af, HttpServletRequest request, HttpServletResponse response) throws ParseException {
 
 		ContestsForm cf = (ContestsForm) af;
-		ContestLocal contestBean = lookupContestBean();
+		ContestLocal contestBean = serviceLocator.lookupContestBean();
 
 		// Получение контеста, который требуется отредактировать.
 		int contestId = Integer.parseInt(request.getParameter("contestId"));
@@ -466,12 +471,11 @@ public class ContestsAction extends DispatchAction {
 		modifiedContest.setContestProblems(allContestProblems);
 
 		// При добавлении роли проверяем, что пользователь с таким логином существует в БД.
-		List<Role> allRoles = (List<Role>) this.decodeRolesFromJSON(cf.getEncodedRoles(), modifiedContest);
+		Collection<Role> allRoles = (Collection<Role>) decodeRolesFromJSON(cf.getEncodedRoles(), modifiedContest);
 
 		modifiedContest.setRoles(allRoles);
 
-		List<Application> allApplications = (List<Application>) this.decodeApplicationsFromJSON(
-				cf.getEncodedApplications(), modifiedContest);
+		List<Application> allApplications = (List<Application>) this.decodeApplicationsFromJSON(cf.getEncodedApplications(), modifiedContest);
 		modifiedContest.setApplications(allApplications);
 
 		contestBean.modifyContest(modifiedContest);
@@ -484,6 +488,14 @@ public class ContestsAction extends DispatchAction {
 		return forward;
 	}
 
+	/**
+	 *
+	 * @param mapping
+	 * @param af
+	 * @param request
+	 * @param response
+	 * @return
+	 */
 	public ActionForward view(ActionMapping mapping, ActionForm af, HttpServletRequest request, HttpServletResponse response) {
 		ContestsForm cf = (ContestsForm) af;
 
@@ -491,7 +503,7 @@ public class ContestsAction extends DispatchAction {
 		// и выставить текущие значения как значения по умолчанию для полей на странице редактирования.
 
 		int contestId = Integer.parseInt((String) request.getParameter("contestId"));
-		Contest contest = lookupContestBean().getContest(contestId);
+		Contest contest = serviceLocator.lookupContestBean().getContest(contestId);
 
 		AuthenticationObject ao = AuthenticationObject.extract(request);
 
@@ -525,6 +537,13 @@ public class ContestsAction extends DispatchAction {
 		return mapping.findForward("viewContest");
 	}
 
+	/**
+	 *
+	 * @param mapping
+	 * @param af
+	 * @param request
+	 * @param response
+	 */
 	public void delete(ActionMapping mapping, ActionForm af, HttpServletRequest request, HttpServletResponse response) {
 		AuthenticationObject ao = AuthenticationObject.extract(request);
 
@@ -532,25 +551,38 @@ public class ContestsAction extends DispatchAction {
 
 		// Проверяем право пользователя на удаление задачи из системы.
 		PermissionCheckerRemote pcb = ao.getPermissionChecker();
-		if (!pcb.canDeleteContest(
-				ao.getUsername(),
-				contestId)) {
+		if (!pcb.canDeleteContest(ao.getUsername(), contestId)) {
 			return;
 		}
 
-		lookupContestBean().deleteContest(contestId);
+		serviceLocator.lookupContestBean().deleteContest(contestId);
 	}
 
+	/**
+	 *
+	 * @param mapping
+	 * @param af
+	 * @param request
+	 * @param response
+	 * @return
+	 */
 	public ActionForward listOfProblems(ActionMapping mapping, ActionForm af, HttpServletRequest request, HttpServletResponse response) {
 		return mapping.findForward("contestProblems");
 	}
 
-	// Перепроверяет все принадлежащие некоторому контесту решения определенной задачи.
+	/**
+	 * Перепроверяет все принадлежащие некоторому контесту решения определенной задачи.
+	 *
+	 * @param mapping
+	 * @param af
+	 * @param request
+	 * @param response
+	 */
 	public void resubmitAll(ActionMapping mapping, ActionForm af, HttpServletRequest request, HttpServletResponse response) {
 		//  Получаем из запроса, какие данные требуются клиенту.
 		int problemId = Integer.parseInt(request.getParameter("problemId"));
 
-		ContestLocal contestBean = lookupContestBean();
+		ContestLocal contestBean = serviceLocator.lookupContestBean();
 
 		//FIXME: Проверять здесь права.
 		//AuthenticationObject ao = AuthenticationObject.extract(request);
@@ -568,7 +600,7 @@ public class ContestsAction extends DispatchAction {
 
 		Contest currentContest = contestBean.getContest(contestId);
 
-		lookupDudgeBean().resubmitSolutions(currentContest.getContestId(), problemId);
+		serviceLocator.lookupDudgeBean().resubmitSolutions(currentContest.getContestId(), problemId);
 	}
 
 	////////////////////////////////////////////////////////////////////////////
@@ -576,6 +608,10 @@ public class ContestsAction extends DispatchAction {
 	////////////////////////////////////////////////////////////////////////////
 	/**
 	 * Метод возвращает коллекцию ролей данного соревнования, раскодированную из JSON-String.
+	 *
+	 * @param jsonEncodedRoles
+	 * @param contest
+	 * @return
 	 */
 	private Collection<Role> decodeRolesFromJSON(String jsonEncodedRoles, Contest contest) {
 
@@ -601,17 +637,13 @@ public class ContestsAction extends DispatchAction {
 		try {
 			jsonRoles = new JSONArray(jsonEncodedRoles);
 
-			UserLocal userBean = lookupUserBean();
-			for (int i = 0; i
-					< jsonRoles.length(); i++) {
+			UserLocal userBean = serviceLocator.lookupUserBean();
+			for (int i = 0; i < jsonRoles.length(); i++) {
 				String login = jsonRoles.getJSONObject(i).getString("login");
 				User user = userBean.getUser(login);
 
 				if (user != null) {
-					Role currentRole = new Role(
-							contest,
-							user,
-							RoleType.valueOf(jsonRoles.getJSONObject(i).getString("role")));
+					Role currentRole = new Role(contest, user, RoleType.valueOf(jsonRoles.getJSONObject(i).getString("role")));
 					roles.add(currentRole);
 				}
 
@@ -626,6 +658,11 @@ public class ContestsAction extends DispatchAction {
 
 	/**
 	 * Метод возвращает коллекцию обработанных заявок данного соревнования, раскодированную из JSON-String.
+	 *
+	 * @param jsonEncodedApplications
+	 * @param contest
+	 * @return
+	 * @throws ParseException
 	 */
 	private Collection<Application> decodeApplicationsFromJSON(String jsonEncodedApplications, Contest contest) throws ParseException {
 
@@ -634,7 +671,7 @@ public class ContestsAction extends DispatchAction {
 		try {
 			jsonApplications = new JSONArray(jsonEncodedApplications);
 			applications = new ArrayList<>();
-			UserLocal userBean = lookupUserBean();
+			UserLocal userBean = serviceLocator.lookupUserBean();
 			for (int i = 0; i < jsonApplications.length(); i++) {
 				String login = jsonApplications.getJSONObject(i).getString("login");
 				User user = userBean.getUser(login);
@@ -658,6 +695,10 @@ public class ContestsAction extends DispatchAction {
 
 	/**
 	 * Метод возвращает коллекцию включенных в соревнование задач , раскодированных из JSON-String.
+	 *
+	 * @param jsonEncodedProblems
+	 * @param contest
+	 * @return
 	 */
 	private Collection<ContestProblem> decodeContestProblemsFromJSON(String jsonEncodedProblems, Contest contest) {
 
@@ -669,7 +710,7 @@ public class ContestsAction extends DispatchAction {
 
 			for (int i = 0; i < jsonProblems.length(); i++) {
 				int problemId = Integer.parseInt(jsonProblems.getJSONObject(i).getString("problemId"));
-				Problem problem = lookupProblemBean().getProblem(problemId);
+				Problem problem = serviceLocator.lookupProblemBean().getProblem(problemId);
 
 				if (problem != null) {
 					ContestProblem currentProblem = new ContestProblem(contest, problem);
@@ -692,6 +733,10 @@ public class ContestsAction extends DispatchAction {
 
 	/**
 	 * Метод возвращает коллекцию поддерживаемых соревнованием языков, раскодированных из JSON-String.
+	 *
+	 * @param jsonEncodedLanguages
+	 * @param contest
+	 * @return
 	 */
 	private Collection<ContestLanguage> decodeContestLanguagesFromJSON(String jsonEncodedLanguages, Contest contest) {
 
@@ -707,7 +752,7 @@ public class ContestsAction extends DispatchAction {
 					< jsonLanguages.length(); i++) {
 				if (jsonLanguages.getJSONObject(i).getBoolean("enabled") == true) {
 					String languageId = jsonLanguages.getJSONObject(i).getString("id");
-					Language language = lookupLanguageBean().getLanguage(languageId);
+					Language language = serviceLocator.lookupLanguageBean().getLanguage(languageId);
 					ContestLanguage conLan = new ContestLanguage(contest, language);
 					languages.add(conLan);
 				}
@@ -723,9 +768,12 @@ public class ContestsAction extends DispatchAction {
 
 	/**
 	 * Метод возвращает список пользователей, допущенных под разными ролями к данному соревнованию, закодированный как JSON-String.
+	 *
+	 * @param contestId
+	 * @return
 	 */
 	private String encodeRolesToJSON(int contestId) {
-		List<Role> roles = (List<Role>) lookupContestBean().getContest(contestId).getRoles();
+		Collection<Role> roles = serviceLocator.lookupContestBean().getContest(contestId).getRoles();
 
 		JSONArray ja = new JSONArray();
 		JSONObject jo = new JSONObject();
@@ -747,10 +795,13 @@ public class ContestsAction extends DispatchAction {
 
 	/**
 	 * Метод возвращает список заявок, поданных в данное соревнование, закодированный как JSON-String.
+	 *
+	 * @param contestId
+	 * @return
 	 */
 	private String encodeApplicationsToJSON(int contestId) {
 
-		List<Application> applications = (List<Application>) lookupContestBean().getContest(contestId).getApplications();
+		List<Application> applications = (List<Application>) serviceLocator.lookupContestBean().getContest(contestId).getApplications();
 
 		JSONArray ja = new JSONArray();
 		JSONObject jo = new JSONObject();
@@ -774,11 +825,12 @@ public class ContestsAction extends DispatchAction {
 	 * Метод возвращает список языков, поддерживаемых данным контестов, закодированный как JSON-String.
 	 *
 	 * @param contestId - идентификатор контеста, или 0 - если вызывается для нового контеста.
+	 * @return
 	 */
 	private String encodeContestLanguagesToJSON(int contestId) {
 
-		ContestLocal contestBean = lookupContestBean();
-		List<Language> languages = lookupLanguageBean().getLanguages();
+		ContestLocal contestBean = serviceLocator.lookupContestBean();
+		List<Language> languages = serviceLocator.lookupLanguageBean().getLanguages();
 
 		JSONArray ja = new JSONArray();
 		JSONObject jo = new JSONObject();
@@ -841,9 +893,12 @@ public class ContestsAction extends DispatchAction {
 
 	/**
 	 * Метод возвращает список задач данного соревнования, закодированный как JSON-String.
+	 *
+	 * @param contestId
+	 * @return
 	 */
 	private String encodeContestProblemsToJSON(int contestId) {
-		List<ContestProblem> problems = (List<ContestProblem>) lookupContestBean().getContest(contestId).getContestProblems();
+		List<ContestProblem> problems = (List<ContestProblem>) serviceLocator.lookupContestBean().getContest(contestId).getContestProblems();
 
 		JSONArray ja = new JSONArray();
 		JSONObject jo = new JSONObject();
@@ -865,6 +920,9 @@ public class ContestsAction extends DispatchAction {
 
 	/**
 	 * Метод возвращает представления объекта в формата JSON - это нужно для его отображение на стороне клиента через JavaScript/AJAX.
+	 *
+	 * @param role
+	 * @return
 	 */
 	private JSONObject getRoleJsonView(Role role) {
 		JSONObject json = new JSONObject();
@@ -883,6 +941,9 @@ public class ContestsAction extends DispatchAction {
 
 	/**
 	 * Метод возвращает представления объекта в формата JSON - это нужно для его отображение на стороне клиента через JavaScript/AJAX.
+	 *
+	 * @param app
+	 * @return
 	 */
 	private JSONObject getApplicationJsonView(Application app) {
 		JSONObject json = new JSONObject();
@@ -903,6 +964,9 @@ public class ContestsAction extends DispatchAction {
 
 	/**
 	 * Метод возвращает представления объекта в формата JSON - это нужно для его отображение на стороне клиента через JavaScript/AJAX.
+	 *
+	 * @param problem
+	 * @return
 	 */
 	private JSONObject getContestProblemJsonView(ContestProblem problem) {
 		JSONObject json = new JSONObject();

@@ -4,15 +4,13 @@ import dudge.LanguageLocal;
 import dudge.db.Language;
 import dudge.PermissionCheckerRemote;
 import dudge.web.AuthenticationObject;
+import dudge.web.ServiceLocator;
 import dudge.web.forms.LanguagesForm;
 import java.io.IOException;
 import java.util.Iterator;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.naming.Context;
-import javax.naming.InitialContext;
-import javax.naming.NamingException;
 import javax.persistence.EntityExistsException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -31,25 +29,12 @@ import org.apache.struts.actions.DispatchAction;
 public class LanguagesAction extends DispatchAction {
 
 	private static final Logger logger = Logger.getLogger(LanguagesAction.class.toString());
+	private ServiceLocator serviceLocator = ServiceLocator.getInstance();
 
 	/**
 	 * Creates a new instance of ContestsAction
 	 */
 	public LanguagesAction() {
-	}
-
-	/**
-	 *
-	 * @return
-	 */
-	private LanguageLocal lookupLanguageBean() {
-		try {
-			Context c = new InitialContext();
-			return (LanguageLocal) c.lookup("java:global/dudge/dudge-ejb/LanguageBean");//java:comp/env/ejb/LanguageBean
-		} catch (NamingException ne) {
-			logger.log(Level.ALL, "exception caught", ne);
-			throw new RuntimeException(ne);
-		}
 	}
 
 	/**
@@ -75,7 +60,7 @@ public class LanguagesAction extends DispatchAction {
 	 */
 	public void getLanguagesList(ActionMapping mapping, ActionForm af, HttpServletRequest request, HttpServletResponse response) {
 
-		List<Language> languages = lookupLanguageBean().getLanguages();
+		List<Language> languages = serviceLocator.lookupLanguageBean().getLanguages();
 
 		JSONArray ja = new JSONArray();
 		JSONObject jo = new JSONObject();
@@ -123,7 +108,7 @@ public class LanguagesAction extends DispatchAction {
 		// и выставить текущие значения как значения по умолчанию для полей на странице просмотра языка.
 
 		String languageId = request.getParameter("languageId");
-		Language language = lookupLanguageBean().getLanguage(languageId);
+		Language language = serviceLocator.lookupLanguageBean().getLanguage(languageId);
 
 		lf.reset(mapping, request);
 
@@ -151,7 +136,7 @@ public class LanguagesAction extends DispatchAction {
 
 		// Находим язык с указанным логином.
 		String languageId = request.getParameter("languageId");
-		Language language = lookupLanguageBean().getLanguage(languageId);
+		Language language = serviceLocator.lookupLanguageBean().getLanguage(languageId);
 		lf.reset(mapping, request);
 
 		AuthenticationObject ao = AuthenticationObject.extract(request);
@@ -234,7 +219,7 @@ public class LanguagesAction extends DispatchAction {
 
 		// Костыль, необходимо осуществлять валидацию по нормальному.
 		try {
-			lookupLanguageBean().addLanguage(addingLanguage);
+			serviceLocator.lookupLanguageBean().addLanguage(addingLanguage);
 		} catch (EntityExistsException ex) {
 			return mapping.findForward("accessDenied");
 		}
@@ -256,7 +241,7 @@ public class LanguagesAction extends DispatchAction {
 	public ActionForward submitEdit(ActionMapping mapping, ActionForm af, HttpServletRequest request, HttpServletResponse response) {
 		LanguagesForm lf = (LanguagesForm) af;
 
-		LanguageLocal languageBean = lookupLanguageBean();
+		LanguageLocal languageBean = serviceLocator.lookupLanguageBean();
 
 		AuthenticationObject ao = AuthenticationObject.extract(request);
 
@@ -302,7 +287,7 @@ public class LanguagesAction extends DispatchAction {
 			return;
 		}
 
-		lookupLanguageBean().deleteLanguage(languageId);
+		serviceLocator.lookupLanguageBean().deleteLanguage(languageId);
 	}
 
 	/**

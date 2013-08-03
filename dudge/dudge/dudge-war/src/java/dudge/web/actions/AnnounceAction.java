@@ -2,14 +2,11 @@ package dudge.web.actions;
 
 import dudge.ContestLocal;
 import dudge.db.Contest;
+import dudge.web.ServiceLocator;
 import dudge.web.forms.AnnounceForm;
 import java.util.Collections;
 import java.util.List;
-import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.naming.Context;
-import javax.naming.InitialContext;
-import javax.naming.NamingException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.apache.struts.action.ActionForm;
@@ -24,22 +21,21 @@ import org.apache.struts.actions.DispatchAction;
 public class AnnounceAction extends DispatchAction {
 
 	private static final Logger logger = Logger.getLogger(AnnounceAction.class.toString());
+	private ServiceLocator serviceLocator = ServiceLocator.getInstance();
 
 	public AnnounceAction() {
 	}
-	
-	private ContestLocal lookupContestBean() {
-		try {
-			Context c = new InitialContext();
-			return (ContestLocal) c.lookup("java:global/dudge/dudge-ejb/ContestBean");//java:comp/env/ejb/ContestBean
-		} catch (NamingException ne) {
-			logger.log(Level.ALL, "exception caught", ne);
-			throw new RuntimeException(ne);
-		}
-	}
 
+	/**
+	 *
+	 * @param mapping
+	 * @param af
+	 * @param request
+	 * @param response
+	 * @return
+	 */
 	public ActionForward makeAnnounce(ActionMapping mapping, ActionForm af, HttpServletRequest request, HttpServletResponse response) {
-		ContestLocal contestBean = lookupContestBean();
+		ContestLocal contestBean = serviceLocator.lookupContestBean();
 		AnnounceForm anf = (AnnounceForm) af;
 
 		anf.setContestBean(contestBean);

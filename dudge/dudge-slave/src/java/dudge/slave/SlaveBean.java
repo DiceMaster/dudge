@@ -5,7 +5,7 @@
  */
 package dudge.slave;
 
-import dudge.DudgeRemote;
+import dudge.SolutionRemote;
 import dudge.db.SolutionStatus;
 import dudge.db.Language;
 import dudge.db.Problem;
@@ -27,6 +27,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -50,7 +51,7 @@ public class SlaveBean implements dudge.slave.SlaveLocal {
 	private static final Logger logger = Logger.getLogger(SlaveBean.class.toString());
 	private static final String solutionPrefix = "Solution";
 	@EJB
-	private DudgeRemote dudgeBean;
+	private SolutionRemote solutionBean;
 	@Resource
 	boolean launcherUsePrivilegeDrop = false;
 	@Resource
@@ -68,12 +69,21 @@ public class SlaveBean implements dudge.slave.SlaveLocal {
 	public SlaveBean() {
 	}
 
+	/**
+	 *
+	 * @param solution
+	 */
 	protected void saveSolution(Solution solution) {
-		dudgeBean.saveSolution(solution);
+		solutionBean.saveSolution(solution);
 	}
 
+	/**
+	 *
+	 * @param solution
+	 * @throws SlaveException
+	 */
 	@TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
-	protected void testSolutionInternal(Solution solution) throws SlaveException {
+	protected void testSolutionInternal(Solution solution) throws SlaveException, UnsupportedEncodingException {
 		logger.log(Level.FINE, "Testing Solution {0}", solution.getSolutionId());
 
 		Properties props = new Properties();
@@ -166,7 +176,7 @@ public class SlaveBean implements dudge.slave.SlaveLocal {
 			CheckingResult res = launcher.checkSolution(
 					limits,
 					solutionExecutionCommand,
-					new ByteArrayInputStream(testInputData.getBytes()),
+					new ByteArrayInputStream(testInputData.getBytes("UTF-8")),
 					outs,
 					errorStream);
 
@@ -199,7 +209,7 @@ public class SlaveBean implements dudge.slave.SlaveLocal {
 				try {
 					// Сравниваем ответ от решения и эталонный.
 					boolean comparationResult = comparator.compare(
-							new ByteArrayInputStream(test.getOutputData().getBytes()),
+							new ByteArrayInputStream(test.getOutputData().getBytes("UTF-8")),
 							new ByteArrayInputStream(outs.toByteArray()));
 
 					if (!comparationResult) {
@@ -248,7 +258,7 @@ public class SlaveBean implements dudge.slave.SlaveLocal {
 						+ "Try placing dtest-lib.jar into application server's 'lib' folder.\n\n");
 				ex.printStackTrace(new PrintWriter(sw));
 				solution.setStatusMessage(sw.getBuffer().toString());
-				dudgeBean.saveSolution(solution);
+				solutionBean.saveSolution(solution);
 			}
 			throw new SlaveException("Class is not defined. Most likely, it is SolutionLauncher in dtest-lib. "
 					+ "Try placing dtest-lib.jar into application server's 'lib' folder.", ex);
@@ -263,7 +273,7 @@ public class SlaveBean implements dudge.slave.SlaveLocal {
 						+ "java.library.path: " + System.getProperty("java.library.path") + "\n\n");
 				ex.printStackTrace(new PrintWriter(sw));
 				solution.setStatusMessage(sw.getBuffer().toString());
-				dudgeBean.saveSolution(solution);
+				solutionBean.saveSolution(solution);
 			}
 			throw new SlaveException("dtest.dll/libdtest.so is not found.\n Please place it in "
 					+ "java.library.path: " + System.getProperty("java.library.path"), ex);
@@ -276,7 +286,7 @@ public class SlaveBean implements dudge.slave.SlaveLocal {
 				StringWriter sw = new StringWriter();
 				ex.printStackTrace(new PrintWriter(sw));
 				solution.setStatusMessage(sw.getBuffer().toString());
-				dudgeBean.saveSolution(solution);
+				solutionBean.saveSolution(solution);
 			}
 			throw new SlaveException("Internal slave error occured on solution " + (solution != null ? solution.getSolutionId() : ""), ex);
 		}

@@ -4,6 +4,7 @@ import dudge.PermissionCheckerRemote;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.util.Date;
+import java.util.logging.Logger;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 
@@ -12,6 +13,9 @@ import javax.servlet.http.HttpServletRequest;
  * @author Arengor
  */
 public class AuthenticationObject {
+	
+	private static final Logger logger = Logger.getLogger(AuthenticationObject.class.toString());
+	private static ServiceLocator serviceLocator = ServiceLocator.getInstance();
 
 	/**
 	 * Получает AuthenticationObject из сессии.
@@ -59,7 +63,7 @@ public class AuthenticationObject {
 			Date currentDate = new Date();
 			if (currentDate.before(expirationDate)) {
 				ao.setUsername(userName);
-				ServiceLocator.getInstance().lookupDudgeBean().joinAllOpenContests(userName);
+				serviceLocator.lookupDudgeBean().joinAllOpenContests(userName);
 			}
 		}
 
@@ -83,6 +87,6 @@ public class AuthenticationObject {
 	}
 
 	public PermissionCheckerRemote getPermissionChecker() {
-		return ServiceLocator.getInstance().lookupPermissionChecker();
+		return serviceLocator.lookupPermissionChecker();
 	}
 }

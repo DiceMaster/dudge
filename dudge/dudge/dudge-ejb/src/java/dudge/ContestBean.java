@@ -7,6 +7,7 @@ import dudge.db.Param;
 import dudge.db.Role;
 import dudge.db.Solution;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.logging.Logger;
@@ -167,7 +168,7 @@ public class ContestBean implements ContestLocal {
 		}
 
 		// Если некоторая сущность более не присутствует в БД, она удаляется.
-		List<Role> newRoles = (List<Role>) contest.getRoles();
+		Collection<Role> newRoles = contest.getRoles();
 		for (Iterator<Role> iter = oldRoles.iterator(); iter.hasNext();) {
 			Role r = iter.next();
 			if (!newRoles.contains(r)) {

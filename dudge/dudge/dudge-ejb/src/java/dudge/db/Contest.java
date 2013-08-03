@@ -84,8 +84,7 @@ public class Contest implements Serializable, Comparable<Contest> {
 	 * @param type the type of the Contest
 	 * @param startTime the startTime of the Contest
 	 */
-	public Contest(String caption, String description, String rules,
-			ContestType type, Date startTime, int duration) {
+	public Contest(String caption, String description, String rules, ContestType type, Date startTime, int duration) {
 		this();
 		this.caption = caption;
 		this.description = description;

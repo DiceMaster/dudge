@@ -7,12 +7,12 @@ package dudge.slave;
 
 import dudge.util.Substitution;
 import java.io.BufferedReader;
-import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileWriter;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -72,15 +72,15 @@ public class SourceCompiler {
 
 		@Override
 		public void run() {
-			BufferedReader compilerOutput = new BufferedReader(new InputStreamReader(inputStream));
-
 			try {
+				BufferedReader compilerOutput = new BufferedReader(new InputStreamReader(inputStream, "UTF-8"));
 				String s;
 				while ((s = compilerOutput.readLine()) != null) {
 					outputBuffer.append(s);
 					outputBuffer.append("\n");
 				}
 			} catch (IOException ex) {
+				logger.log(Level.SEVERE, "Error occured", ex.getMessage());
 			}
 		}
 	}
@@ -126,13 +126,13 @@ public class SourceCompiler {
 	 * @throw IOException при невозможности найти или создать один из необходимых файлов.
 	 * @throw CompilerHangedException если компилятор повис.
 	 */
-	public synchronized boolean compile()
-			throws IOException, CompilerHangedException {
+	public synchronized boolean compile() throws IOException, CompilerHangedException {
+
 		Substitution sub = new Substitution();
 
 		try {
-			try (BufferedWriter bwr = new BufferedWriter(new FileWriter(sourceFile))) {
-				bwr.write(sourceCode + "\n");
+			try (OutputStreamWriter osw = new OutputStreamWriter(new FileOutputStream(sourceFile), "UTF-8")) {
+				osw.write(sourceCode + "\n");
 			}
 		} catch (IOException ex) {
 			logger.log(Level.SEVERE, "Unable to create file with source code.\n{0}", ex.getMessage());
@@ -151,10 +151,7 @@ public class SourceCompiler {
 		long compilerStarted = System.currentTimeMillis();
 		compilationTime = 0;
 
-		Process compilerProc = Runtime.getRuntime().exec(
-				decodedCommand,
-				null,
-				dstDir);
+		Process compilerProc = Runtime.getRuntime().exec(decodedCommand, null, dstDir);
 
 		outputBuffer.setLength(0);
 		new Thread(new OutputReaderThread(compilerProc.getErrorStream(), outputBuffer)).start();

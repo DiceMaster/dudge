@@ -104,7 +104,7 @@ public class SolutionLauncher {
 	 * @param errorStream поток отладочных данных.
 	 * @return результат проверки данного теста.
 	 */
-	public native CheckingResult checkSolution( CheckingLimits limits, String command, InputStream ins, OutputStream outs, Writer errorStream);
+	public native CheckingResult checkSolution(CheckingLimits limits, String command, InputStream ins, OutputStream outs, Writer errorStream);
 
 	/**
 	 * Генерирует случайное платформеннозависимое имя временной директории, создает ее, устанавливает на нее правильные права (для возможности компиляции) и

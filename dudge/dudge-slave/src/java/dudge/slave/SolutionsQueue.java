@@ -5,7 +5,7 @@
  */
 package dudge.slave;
 
-import dudge.DudgeRemote;
+import dudge.SolutionRemote;
 import dudge.db.SolutionStatus;
 import dudge.db.Solution;
 import java.io.PrintWriter;
@@ -33,7 +33,7 @@ public class SolutionsQueue implements MessageListener {
 
 	private static final Logger logger = Logger.getLogger(SolutionsQueue.class.toString());
 	@EJB
-	private DudgeRemote dudgeBean;
+	private SolutionRemote solutionBean;
 	@EJB
 	private SlaveLocal slaveBean;
 
@@ -73,7 +73,7 @@ public class SolutionsQueue implements MessageListener {
 				StringWriter sw = new StringWriter();
 				ex.printStackTrace(new PrintWriter(sw));
 				solution.setStatusMessage(sw.getBuffer().toString());
-				dudgeBean.saveSolution(solution);
+				solutionBean.saveSolution(solution);
 			}
 		} catch (Throwable ex) {
 			logger.log(Level.SEVERE, "Internal slave error occured on solution "

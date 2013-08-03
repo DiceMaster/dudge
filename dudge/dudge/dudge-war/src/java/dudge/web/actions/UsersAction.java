@@ -9,6 +9,7 @@ import dudge.PermissionCheckerRemote;
 import dudge.UserLocal;
 import dudge.db.User;
 import dudge.web.AuthenticationObject;
+import dudge.web.ServiceLocator;
 import dudge.web.forms.UsersForm;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
@@ -18,9 +19,6 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import javax.naming.Context;
-import javax.naming.InitialContext;
-import javax.naming.NamingException;
 import javax.persistence.EntityExistsException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -40,25 +38,12 @@ import org.apache.struts.actions.DispatchAction;
 public class UsersAction extends DispatchAction {
 
 	private static final Logger logger = Logger.getLogger(UsersAction.class.toString());
+	private ServiceLocator serviceLocator = ServiceLocator.getInstance();
 
 	/**
 	 * Creates a new instance of RegistrationAction
 	 */
 	public UsersAction() {
-	}
-
-	/**
-	 *
-	 * @return
-	 */
-	private UserLocal lookupUserBean() {
-		try {
-			Context c = new InitialContext();
-			return (UserLocal) c.lookup("java:global/dudge/dudge-ejb/UserBean");//java:comp/env/ejb/UserBean
-		} catch (NamingException ne) {
-			logger.log(Level.SEVERE, "exception caught", ne);
-			throw new RuntimeException(ne);
-		}
 	}
 
 	/**
@@ -88,7 +73,7 @@ public class UsersAction extends DispatchAction {
 
 		AuthenticationObject ao = AuthenticationObject.extract(request);
 		// Находим пользователя с указанным логином.
-		User user = lookupUserBean().getUser(login);
+		User user = serviceLocator.lookupUserBean().getUser(login);
 
 		// Проверяем право пользователя.
 		PermissionCheckerRemote pcb = ao.getPermissionChecker();
@@ -140,7 +125,7 @@ public class UsersAction extends DispatchAction {
 		uf.setHasEmailError(false);
 
 		// Находим пользователя с указанным логином.
-		User user = lookupUserBean().getUser(uf.getLogin());
+		User user = serviceLocator.lookupUserBean().getUser(uf.getLogin());
 		uf.reset(mapping, request);
 
 		AuthenticationObject ao = AuthenticationObject.extract(request);
@@ -207,7 +192,7 @@ public class UsersAction extends DispatchAction {
 		UsersForm uf = (UsersForm) af;
 		AuthenticationObject ao = AuthenticationObject.extract(request);
 		PermissionCheckerRemote pcb = ao.getPermissionChecker();
-		UserLocal userBean = lookupUserBean();
+		UserLocal userBean = serviceLocator.lookupUserBean();
 
 		dudge.db.User user;
 
@@ -324,7 +309,7 @@ public class UsersAction extends DispatchAction {
 
 		UsersForm uf = (UsersForm) af;
 		AuthenticationObject ao = AuthenticationObject.extract(request);
-		UserLocal userBean = lookupUserBean();
+		UserLocal userBean = serviceLocator.lookupUserBean();
 
 		User user = userBean.getUser(uf.getLogin());
 
@@ -390,7 +375,7 @@ public class UsersAction extends DispatchAction {
 		int start = Integer.parseInt((String) request.getParameter("start"));
 		int limit = Integer.parseInt((String) request.getParameter("limit"));
 
-		List<User> users = lookupUserBean().getUsers();
+		List<User> users = serviceLocator.lookupUserBean().getUsers();
 		List<User> selectedUsers;
 		try {
 			selectedUsers = users.subList(start, start + limit);
@@ -439,7 +424,7 @@ public class UsersAction extends DispatchAction {
 			return mapping.findForward("accessDenied");
 		}
 		String deletedUser = (String) request.getParameter("login");
-		lookupUserBean().deleteUser(deletedUser);
+		serviceLocator.lookupUserBean().deleteUser(deletedUser);
 
 		return mapping.findForward("users");
 	}
@@ -477,7 +462,7 @@ public class UsersAction extends DispatchAction {
 		String newPassword = request.getParameter("newPassword");
 
 		AuthenticationObject ao = AuthenticationObject.extract(request);
-		UserLocal userBean = lookupUserBean();
+		UserLocal userBean = serviceLocator.lookupUserBean();
 
 		// Передаем клиенту информацию о результате смены пароля.
 		response.setContentType("application/x-json");

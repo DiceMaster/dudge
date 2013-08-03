@@ -34,10 +34,10 @@ public class ReportingBean implements ReportingLocal {
 	}
 
 	/**
-	 * 
+	 *
 	 * @param contestId
 	 * @return
-	 * @throws IOException 
+	 * @throws IOException
 	 */
 	@Override
 	public File printContestProtocol(int contestId) throws IOException {
@@ -159,10 +159,10 @@ public class ReportingBean implements ReportingLocal {
 	}
 
 	/**
-	 * 
+	 *
 	 * @param contestId
 	 * @return
-	 * @throws IOException 
+	 * @throws IOException
 	 */
 	@Override
 	public File printContestParticipants(int contestId) throws IOException {
@@ -230,10 +230,10 @@ public class ReportingBean implements ReportingLocal {
 	}
 
 	/**
-	 * 
+	 *
 	 * @param row
 	 * @param cellIndex
-	 * @param value 
+	 * @param value
 	 */
 	private void setCellValue(Row row, int cellIndex, Object value) {
 		if (value != null) {
@@ -246,11 +246,11 @@ public class ReportingBean implements ReportingLocal {
 	}
 
 	/**
-	 * 
+	 *
 	 * @param workbook
 	 * @param worksheet
 	 * @param sourceRowNum
-	 * @param destinationRowNum 
+	 * @param destinationRowNum
 	 */
 	private static void copyRow(Workbook workbook, Sheet worksheet, int sourceRowNum, int destinationRowNum) {
 		// Get the source / new row
