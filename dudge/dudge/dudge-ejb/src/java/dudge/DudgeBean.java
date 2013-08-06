@@ -5,6 +5,7 @@
  */
 package dudge;
 
+import dudge.ifaces.SolutionRemote;
 import dudge.db.Contest;
 import dudge.db.Param;
 import dudge.db.Role;

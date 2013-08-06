@@ -5,8 +5,9 @@
         <data xmlns="http://www.netbeans.org/ns/j2ee-ejbjarproject/3">
             <name>dudge-slave</name>
             <minimum-ant-version>1.6</minimum-ant-version>
-            <included-library dirs="200">libs.junit_4.classpath</included-library>
             <included-library dirs="200">reference.dudge-lib.jar</included-library>
+            <included-library dirs="200">libs.junit_4.classpath</included-library>
+            <included-library dirs="200">reference.dudge-dtest.jar</included-library>
             <source-roots>
                 <root id="src.dir"/>
             </source-roots>

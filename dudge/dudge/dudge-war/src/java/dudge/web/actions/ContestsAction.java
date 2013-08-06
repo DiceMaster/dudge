@@ -5,8 +5,9 @@
  */
 package dudge.web.actions;
 
-import dudge.DudgeLocal;
+import dudge.ContestLocal;
 import dudge.PermissionCheckerRemote;
+import dudge.UserLocal;
 import dudge.db.Application;
 import dudge.db.ApplicationStatus;
 import dudge.db.Contest;
@@ -19,6 +20,7 @@ import dudge.db.Role;
 import dudge.db.RoleType;
 import dudge.db.User;
 import dudge.web.AuthenticationObject;
+import dudge.web.ServiceLocator;
 import dudge.web.forms.ContestsForm;
 import java.io.IOException;
 import java.text.ParseException;
@@ -26,9 +28,6 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.naming.Context;
-import javax.naming.InitialContext;
-import javax.naming.NamingException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import json.JSONArray;
@@ -45,87 +44,73 @@ import org.apache.struts.actions.DispatchAction;
  */
 public class ContestsAction extends DispatchAction {
 
-	protected static final Logger logger = Logger.getLogger(ContestsAction.class.toString());
+	private static final Logger logger = Logger.getLogger(ContestsAction.class.toString());
+	private ServiceLocator serviceLocator = ServiceLocator.getInstance();
 
-	/** Creates a new instance of ContestsAction */
+	/**
+	 * Creates a new instance of ContestsAction
+	 */
 	public ContestsAction() {
 	}
 
-	private DudgeLocal lookupDudgeBean() {
-		try {
-			Context c = new InitialContext();
-			return (DudgeLocal) c.lookup("java:comp/env/ejb/DudgeBean");
-		} catch (NamingException ne) {
-			Logger.getLogger(getClass().getName()).log(Level.SEVERE, "exception caught", ne);
-			throw new RuntimeException(ne);
-		}
-	}
-
-	public ActionForward list(
-			ActionMapping mapping,
-			ActionForm af,
-			HttpServletRequest request,
-			HttpServletResponse response) {
-
-		ContestsForm cf = (ContestsForm) af;
-
+	public ActionForward list(ActionMapping mapping, ActionForm af, HttpServletRequest request, HttpServletResponse response) {
 		return mapping.findForward("contests");
 	}
 
-	public ActionForward rules(
-			ActionMapping mapping,
-			ActionForm af,
-			HttpServletRequest request,
-			HttpServletResponse response) {
+	/**
+	 *
+	 * @param mapping
+	 * @param af
+	 * @param request
+	 * @param response
+	 * @return
+	 */
+	public ActionForward rules(ActionMapping mapping, ActionForm af, HttpServletRequest request, HttpServletResponse response) {
+		ContestsForm cf = (ContestsForm) af;
 
-                ContestsForm cf = (ContestsForm) af;
-
-                int contestId = Integer.parseInt((String) request.getParameter("contestId"));
-		Contest contest = lookupDudgeBean().getContest(contestId);
+		int contestId = Integer.parseInt((String) request.getParameter("contestId"));
+		Contest contest = serviceLocator.lookupContestBean().getContest(contestId);
 
 		AuthenticationObject ao = AuthenticationObject.extract(request);
 
 		// Проверяем право пользователя.
 		PermissionCheckerRemote pcb = ao.getPermissionChecker();
-		if (!pcb.canViewContest(
-				ao.getUsername(),
-				contestId)) {
+		if (!pcb.canViewContest(ao.getUsername(), contestId)) {
 			return mapping.findForward("accessDenied");
 		}
 
 		cf.reset(mapping, request);
-                cf.getContestTypes().addAll(Arrays.asList(ContestType.values()));
-                cf.getRoleTypes().addAll(Arrays.asList(RoleType.values()));
+		cf.getContestTypes().addAll(Arrays.asList(ContestType.values()));
+		cf.getRoleTypes().addAll(Arrays.asList(RoleType.values()));
 
-                // Выставляем значения для полей, соотв. текущим значениям редактируемого контеста.
+		// Выставляем значения для полей, соотв. текущим значениям редактируемого контеста.
 		cf.setContestId(String.valueOf(contestId));
 		cf.setCaption(contest.getCaption());
 		cf.setDescription(contest.getDescription());
 		cf.setContestType(contest.getType().name());
-                cf.setRules(contest.getRules());
+		cf.setRules(contest.getRules());
 
 		return mapping.findForward("contestRules");
 	}
 
-	public void getContestList(ActionMapping mapping,
-			ActionForm af,
-			HttpServletRequest request,
-			HttpServletResponse response) {
+	/**
+	 *
+	 * @param mapping
+	 * @param af
+	 * @param request
+	 * @param response
+	 */
+	public void getContestList(ActionMapping mapping, ActionForm af, HttpServletRequest request, HttpServletResponse response) {
 
-		//  Получаем из запроса, какие данные требуются клиенту.
-		/*boolean global = Boolean.parseBoolean( (String) request.getParameter("global"));
-		boolean acm = Boolean.parseBoolean( (String) request.getParameter("acm"));
-		boolean lab = Boolean.parseBoolean( (String) request.getParameter("lab"));*/
-
-		List<Contest> contests = lookupDudgeBean().getContests();
+		List<Contest> contests = serviceLocator.lookupContestBean().getContests();
 
 		JSONArray ja = new JSONArray();
 		JSONObject jo = new JSONObject();
 
 		try {
 			jo.put("totalCount", contests.size());
-		} catch (JSONException ex) {
-			ex.printStackTrace();
+		} catch (JSONException e) {
+			logger.log(Level.SEVERE, "exception caught", e);
 			return;
 		}
 
@@ -135,8 +120,8 @@ public class ContestsAction extends DispatchAction {
 		}
 		try {
 			jo.put("contests", ja);
-		} catch (JSONException ex) {
-			ex.printStackTrace();
+		} catch (JSONException e) {
+			logger.log(Level.SEVERE, "exception caught", e);
 			return;
 		}
 
@@ -144,14 +129,17 @@ public class ContestsAction extends DispatchAction {
 		response.setContentType("application/x-json");
 		try {
 			response.getWriter().print(jo);
-		} catch (IOException ex) {
-			ex.printStackTrace();
+		} catch (IOException e) {
+			logger.log(Level.SEVERE, "exception caught", e);
 		}
 	}
 
 	/**
-	 * Метод возвращает представления объекта в формата JSON - это нужно
-	 * для его отображение на стороне клиента через JavaScript/AJAX.
+	 * Метод возвращает представления объекта в формата JSON - это нужно для его отображение на стороне клиента через JavaScript/AJAX.
+	 *
+	 * @param contest
+	 * @param ao
+	 * @return
 	 */
 	private JSONObject getContestJSONView(Contest contest, AuthenticationObject ao) {
 
@@ -168,26 +156,27 @@ public class ContestsAction extends DispatchAction {
 			json.put("type", contest.getType().toString());
 			json.put("is_open", contest.isOpen());
 
-			json.put("joinable",
-					pcb.canJoinContest(ao.getUsername(), contest.getContestId()));
+			json.put("joinable", pcb.canJoinContest(ao.getUsername(), contest.getContestId()));
 
-			json.put("editable",
-					pcb.canModifyContest(ao.getUsername(), contest.getContestId()));
+			json.put("editable", pcb.canModifyContest(ao.getUsername(), contest.getContestId()));
 
-			json.put("deletable",
-					pcb.canDeleteContest(ao.getUsername(), contest.getContestId()));
+			json.put("deletable", pcb.canDeleteContest(ao.getUsername(), contest.getContestId()));
 
-		} catch (JSONException je) {
-			logger.log(Level.SEVERE, "Failed creation of JSON view of Contest object.", je);
+		} catch (JSONException e) {
+			logger.log(Level.SEVERE, "Failed creation of JSON view of Contest object.", e);
 		}
 		return json;
 	}
 
-	public ActionForward create(
-			ActionMapping mapping,
-			ActionForm af,
-			HttpServletRequest request,
-			HttpServletResponse response) {
+	/**
+	 *
+	 * @param mapping
+	 * @param af
+	 * @param request
+	 * @param response
+	 * @return
+	 */
+	public ActionForward create(ActionMapping mapping, ActionForm af, HttpServletRequest request, HttpServletResponse response) {
 
 		ContestsForm cf = (ContestsForm) af;
 
@@ -195,20 +184,18 @@ public class ContestsAction extends DispatchAction {
 
 		// Проверяем право пользователя.
 		PermissionCheckerRemote pcb = ao.getPermissionChecker();
-		if (!pcb.canAddContest(
-				ao.getUsername())) {
+		if (!pcb.canAddContest(ao.getUsername())) {
 			return mapping.findForward("accessDenied");
-
 		}
 
 		cf.reset(mapping, request);
-                cf.getContestTypes().addAll(Arrays.asList(ContestType.values()));
-                cf.getRoleTypes().addAll(Arrays.asList(RoleType.values()));
+		cf.getContestTypes().addAll(Arrays.asList(ContestType.values()));
+		cf.getRoleTypes().addAll(Arrays.asList(RoleType.values()));
 
 		//  Выставляем дефолтные значения полей.
 		cf.setCaption("");
 		cf.setDescription("");
-                cf.setRules("");
+		cf.setRules("");
 		cf.setContestType("ACM");
 		cf.setOpen(false);
 
@@ -233,11 +220,15 @@ public class ContestsAction extends DispatchAction {
 		return mapping.findForward("createContest");
 	}
 
-	public ActionForward edit(
-			ActionMapping mapping,
-			ActionForm af,
-			HttpServletRequest request,
-			HttpServletResponse response) {
+	/**
+	 *
+	 * @param mapping
+	 * @param af
+	 * @param request
+	 * @param response
+	 * @return
+	 */
+	public ActionForward edit(ActionMapping mapping, ActionForm af, HttpServletRequest request, HttpServletResponse response) {
 
 		ContestsForm cf = (ContestsForm) af;
 
@@ -246,90 +237,58 @@ public class ContestsAction extends DispatchAction {
 		// Получаем идентификатор редактируемого контеста, чтобы по нему найти объект нужного контеста
 		// и выставить текущие значения как значения по умолчанию для полей на странице редактирования.
 		int contestId = Integer.parseInt((String) request.getParameter("contestId"));
-		Contest modifiedContest = lookupDudgeBean().getContest(contestId);
+		Contest modifiedContest = serviceLocator.lookupContestBean().getContest(contestId);
 
 		cf.setContestId(Integer.toString(contestId));
-		
+
 		// Проверка прав отредактировать данный контест.
 		PermissionCheckerRemote pcb = ao.getPermissionChecker();
-		if (!pcb.canModifyContest(
-				ao.getUsername(),
-				contestId)) {
+		if (!pcb.canModifyContest(ao.getUsername(), contestId)) {
 			return mapping.findForward("accessDenied");
 		}
 
 		cf.reset(mapping, request);
-                cf.getContestTypes().addAll(Arrays.asList(ContestType.values()));
-                cf.getRoleTypes().addAll(Arrays.asList(RoleType.values()));
+		cf.getContestTypes().addAll(Arrays.asList(ContestType.values()));
+		cf.getRoleTypes().addAll(Arrays.asList(RoleType.values()));
 
 		// Выставляем значения для полей, соотв. текущим значениям редактируемого контеста.
 		cf.setContestId(String.valueOf(contestId));
 		cf.setCaption(modifiedContest.getCaption());
 		cf.setDescription(modifiedContest.getDescription());
-                cf.setRules(modifiedContest.getRules());
+		cf.setRules(modifiedContest.getRules());
 		cf.setContestType(modifiedContest.getType().name());
 		cf.setOpen(modifiedContest.isOpen());
 		cf.setFreezeTime(String.valueOf(modifiedContest.getFreezeTime() / 60));
 
-		cf.setStartDate(
-				new SimpleDateFormat("yyyy/MM/dd").format(modifiedContest.getStartTime()));
-		cf.setStartHour(String.valueOf(
-				modifiedContest.getStartTime().getHours()));
-		cf.setStartMinute(String.valueOf(
-				modifiedContest.getStartTime().getMinutes()));
-		cf.setDurationHours(String.valueOf(
-				modifiedContest.getDuration() / 3600));
-		cf.setDurationMinutes(String.valueOf(
-				(modifiedContest.getDuration() % 3600) / 60));
+		Calendar calendar = Calendar.getInstance();
+		calendar.setTime(modifiedContest.getStartTime());
+
+		cf.setStartDate(new SimpleDateFormat("yyyy/MM/dd").format(modifiedContest.getStartTime()));
+		cf.setStartHour(String.valueOf(calendar.get(Calendar.HOUR_OF_DAY)));
+		cf.setStartMinute(String.valueOf(calendar.get(Calendar.MINUTE)));
+		cf.setDurationHours(String.valueOf(modifiedContest.getDuration() / 3600));
+		cf.setDurationMinutes(String.valueOf((modifiedContest.getDuration() % 3600) / 60));
 
 		// Устанавливаем закодированный в формате JSON значения коллекций,
 		// используемые в отображении их на странице средствами JavaScript/ExtJS.
 
-		cf.setEncodedContestLanguages(this.encodeContestLanguagesToJSON(contestId));
-		cf.setEncodedContestProblems(this.encodeContestProblemsToJSON(contestId));
-		cf.setEncodedRoles(this.encodeRolesToJSON(contestId));
-		cf.setEncodedApplications(this.encodeApplicationsToJSON(contestId));
+		cf.setEncodedContestLanguages(encodeContestLanguagesToJSON(contestId));
+		cf.setEncodedContestProblems(encodeContestProblemsToJSON(contestId));
+		cf.setEncodedRoles(encodeRolesToJSON(contestId));
+		cf.setEncodedApplications(encodeApplicationsToJSON(contestId));
 
 		cf.setNewContest(false);
 		return mapping.findForward("editContest");
 	}
 
-	/*public ActionForward join(
-			ActionMapping mapping,
-			ActionForm af,
-			HttpServletRequest request,
-			HttpServletResponse response) {
-
-		ContestsForm cf = (ContestsForm) af;
-
-		// Получаем идентификатор контеста, к которому мы присоединяемся,
-		// и выставляем по нему идентификатор текущего контеста пользователя (сессионного).
-
-		int contestId = Integer.parseInt((String) request.getParameter("contestId"));
-
-		//Установка текущего соревнования, в которое будут отсылаться все задачи при сабмите их пользователем.
-		AuthenticationObject.extract(request.getSession()).setContestId(contestId);
-
-		AuthenticationObject ao = AuthenticationObject.extract(request.getSession());
-
-		// Проверяем право пользователя.
-		PermissionCheckerRemote pcb = ao.getPermissionChecker();
-		if (!pcb.canJoinContest(
-				ao.getUsername(),
-				contestId)) {
-			return mapping.findForward("accessDenied");
-		}
-
-		ActionForward forward = new ActionForward();
-		forward.setPath("contests.do?reqCode=view&contestId=" + contestId);
-		forward.setRedirect(true);
-		return forward;
-	}*/
-
-	public void sendApplication(ActionMapping mapping,
-			ActionForm af,
-			HttpServletRequest request,
-			HttpServletResponse response) {
+	/**
+	 *
+	 * @param mapping
+	 * @param af
+	 * @param request
+	 * @param response
+	 */
+	public void sendApplication(ActionMapping mapping, ActionForm af, HttpServletRequest request, HttpServletResponse response) {
 		AuthenticationObject ao = AuthenticationObject.extract(request);
 
 		// Проверяем, что заявку подал залогинившийся пользователь.
@@ -337,53 +296,48 @@ public class ContestsAction extends DispatchAction {
 			return;
 		}
 
-		DudgeLocal dudgeBean = lookupDudgeBean();
+		ContestLocal contestBean = serviceLocator.lookupContestBean();
+		UserLocal userBean = serviceLocator.lookupUserBean();
 		int contestId = Integer.parseInt(request.getParameter("contestId"));
 		String message = request.getParameter("message");
-		Contest contest = dudgeBean.getContest(contestId);
+		Contest contest = contestBean.getContest(contestId);
 		String login = ao.getUsername();
 
 		// Если пользователь уже является участником этого контеста, 
 		// то нет смысла обрабатывать его заявку.
-		if (!dudgeBean.haveNoRoles(login, contestId)) {
+		if (!userBean.haveNoRoles(login, contestId)) {
 			return;
 		}
 
-                // Если соревнование уже закончилось,
-		// то нет смысла обрабатывать заявку.
-		if (contest.isFinished()) {
-                    return;
-                }
-
-		// Если соревнование открытое и на него еще идет регистрация, 
-                // то пользователь сразу добавляется в него.
-		if (contest.isOpen() && contest.isPending()) {
-			Role r = new Role(contest, dudgeBean.getUser(login), RoleType.USER);
-                        logger.warning("User "+login+" is joined to contest "+Integer.toString(contest.getContestId())+" by his application");
+		// Если соревнование открытое, то пользователь сразу добавляется в него.
+		if (contest.isOpen()) {
+			Role r = new Role(contest, userBean.getUser(login), RoleType.USER);
 			contest.getRoles().add(r);
-			dudgeBean.modifyContest(contest);
+			contestBean.modifyContest(contest);
 			return;
 		}
 
-		Application ap = new Application(
-				contest,
-				dudgeBean.getUser(login));
+		Application ap = new Application(contest, userBean.getUser(login));
 		ap.setFilingTime(new Date());
 		ap.setMessage(message);
 		ap.setStatus(ApplicationStatus.NEW.toString());
 
 		contest.getApplications().add(ap);
-		dudgeBean.modifyContest(contest);
+		contestBean.modifyContest(contest);
 	}
 
-	public ActionForward submitCreate(
-			ActionMapping mapping,
-			ActionForm af,
-			HttpServletRequest request,
-			HttpServletResponse response) {
+	/**
+	 *
+	 * @param mapping
+	 * @param af
+	 * @param request
+	 * @param response
+	 * @return
+	 */
+	public ActionForward submitCreate(ActionMapping mapping, ActionForm af, HttpServletRequest request, HttpServletResponse response) {
 
 		ContestsForm cf = (ContestsForm) af;
-		DudgeLocal dudgeBean = lookupDudgeBean();
+		UserLocal userBean = serviceLocator.lookupUserBean();
 
 		AuthenticationObject ao = AuthenticationObject.extract(request);
 
@@ -393,23 +347,24 @@ public class ContestsAction extends DispatchAction {
 			return mapping.findForward("accessDenied");
 		}
 
-// Создаем новый экземпляр контеста, и передаем ему извлеченные из формы данные.
+		// Создаем новый экземпляр контеста, и передаем ему извлеченные из формы данные.
 		Date date = new Date();
 		try {
 			date = new SimpleDateFormat("yyyy/MM/dd").parse(cf.getStartDate());
-		} catch (ParseException ex) {
-			ex.printStackTrace();
+		} catch (ParseException e) {
+			logger.log(Level.SEVERE, "exception caught", e);
 		}
-
-		date.setHours(Integer.parseInt(cf.getStartHour()));
-		date.setMinutes(Integer.parseInt(cf.getStartMinute()));
+		Calendar calendar = Calendar.getInstance();
+		calendar.setTime(date);
+		calendar.set(Calendar.HOUR_OF_DAY, Integer.parseInt(cf.getStartHour()));
+		calendar.set(Calendar.MINUTE, Integer.parseInt(cf.getStartMinute()));
 
 		Contest contest = new Contest(
 				cf.getCaption(),
 				cf.getDescription(),
-                                cf.getRules(),
+				cf.getRules(),
 				ContestType.valueOf(cf.getContestType()),
-				date,
+				calendar.getTime(),
 				Integer.parseInt(cf.getDurationHours()) * 3600 + Integer.parseInt(cf.getDurationMinutes()) * 60);
 		contest.setFreezeTime(Integer.parseInt(cf.getFreezeTime()) * 60);
 
@@ -418,33 +373,33 @@ public class ContestsAction extends DispatchAction {
 		// Устанавливаем значения коллекций (раскодированных из JSON данных).
 		List<ContestLanguage> allLanguages = (List<ContestLanguage>) this.decodeContestLanguagesFromJSON(
 				cf.getEncodedContestLanguages(), contest);
-                if(allLanguages != null)
-                    contest.getContestLanguages().addAll(allLanguages);
+		if (allLanguages != null) {
+			contest.getContestLanguages().addAll(allLanguages);
+		}
 
 		// При задании коллекции задач соревнования, удаляем из нее те скрытые задачи,
 		// добавлять которые создатель контеста не имеет прав.
 		List<ContestProblem> allContestProblems = (List<ContestProblem>) this.decodeContestProblemsFromJSON(
 				cf.getEncodedContestProblems(), contest);
 
-                if(allContestProblems != null)
-                    contest.getContestProblems().addAll(allContestProblems);
+		if (allContestProblems != null) {
+			contest.getContestProblems().addAll(allContestProblems);
+		}
 
 		// При добавлении роли проверяем, что пользователь с таким логином существует в БД.
-		List<Role> allRoles = (List<Role>) this.decodeRolesFromJSON(cf.getEncodedRoles(), contest);
-                if(allRoles != null)
-                    contest.getRoles().addAll(allRoles);
+		Collection<Role> allRoles = (Collection<Role>) decodeRolesFromJSON(cf.getEncodedRoles(), contest);
+		if (allRoles != null) {
+			contest.getRoles().addAll(allRoles);
+		}
 
 		// Добавляем в список ролей создателя контеста с правами администрирования.
-		Role creator = new Role(
-				contest,
-				dudgeBean.getUser(ao.getUsername()),
-				RoleType.ADMINISTRATOR);
+		Role creator = new Role(contest, userBean.getUser(ao.getUsername()), RoleType.ADMINISTRATOR);
 
 		if (!contest.getRoles().contains(creator)) {
 			contest.getRoles().add(creator);
 		}
 
-		contest = dudgeBean.addContest(contest);
+		contest = serviceLocator.lookupContestBean().addContest(contest);
 		cf.setContestId(String.valueOf(contest.getContestId()));
 
 		//Редирект на страницу новосозданного контеста.
@@ -454,74 +409,76 @@ public class ContestsAction extends DispatchAction {
 		return forward;
 	}
 
-	public ActionForward submitEdit(
-			ActionMapping mapping,
-			ActionForm af,
-			HttpServletRequest request,
-			HttpServletResponse response) throws ParseException {
+	/**
+	 *
+	 * @param mapping
+	 * @param af
+	 * @param request
+	 * @param response
+	 * @return
+	 * @throws ParseException
+	 */
+	public ActionForward submitEdit(ActionMapping mapping, ActionForm af, HttpServletRequest request, HttpServletResponse response) throws ParseException {
 
 		ContestsForm cf = (ContestsForm) af;
-		DudgeLocal dudgeBean = lookupDudgeBean();
+		ContestLocal contestBean = serviceLocator.lookupContestBean();
 
 		// Получение контеста, который требуется отредактировать.
 		int contestId = Integer.parseInt(request.getParameter("contestId"));
-		Contest modifiedContest = dudgeBean.getContest( contestId );
+		Contest modifiedContest = contestBean.getContest(contestId);
 
 		cf.setContestId(Integer.toString(contestId));
-		
+
 		AuthenticationObject ao = AuthenticationObject.extract(request);
 
 		// Проверяем право пользователя.
 		PermissionCheckerRemote pcb = ao.getPermissionChecker();
-		if (!pcb.canModifyContest(
-				ao.getUsername(),
-				modifiedContest.getContestId())) {
+		if (!pcb.canModifyContest(ao.getUsername(), modifiedContest.getContestId())) {
 			return mapping.findForward("accessDenied");
 		}
 
-//  Редактируем существующий контест.
+		//  Редактируем существующий контест.
 		Date date = new Date();
 		try {
 			date = new SimpleDateFormat("yyyy/MM/dd").parse(cf.getStartDate());
-		} catch (ParseException ex) {
-			ex.printStackTrace();
+		} catch (ParseException e) {
+			logger.log(Level.SEVERE, "exception caught", e);
 		}
-
-		date.setHours(Integer.parseInt(cf.getStartHour()));
-		date.setMinutes(Integer.parseInt(cf.getStartMinute()));
+		Calendar calendar = Calendar.getInstance();
+		calendar.setTime(date);
+		calendar.set(Calendar.HOUR_OF_DAY, Integer.parseInt(cf.getStartHour()));
+		calendar.set(Calendar.MINUTE, Integer.parseInt(cf.getStartMinute()));
 
 		modifiedContest.setCaption(cf.getCaption());
 		modifiedContest.setDescription(cf.getDescription());
-                modifiedContest.setRules(cf.getRules());
+		modifiedContest.setRules(cf.getRules());
 		modifiedContest.setType(ContestType.valueOf(cf.getContestType()));
 		modifiedContest.setOpen(cf.isOpen());
-		modifiedContest.setStartTime(date);
-		modifiedContest.setDuration(Integer.parseInt(cf.getDurationHours()) * 3600 +
-				Integer.parseInt(cf.getDurationMinutes()) * 60);
+		modifiedContest.setStartTime(calendar.getTime());
+		modifiedContest.setDuration(Integer.parseInt(cf.getDurationHours()) * 3600 + Integer.parseInt(cf.getDurationMinutes()) * 60);
 		modifiedContest.setFreezeTime(Integer.parseInt(cf.getFreezeTime()) * 60);
 
 		// Устанавливаем значения коллекций (раскодированных из JSON данных).
 		List<ContestLanguage> allLanguages = (List<ContestLanguage>) this.decodeContestLanguagesFromJSON(
-				cf.getEncodedContestLanguages(), dudgeBean.getContest(contestId));
+				cf.getEncodedContestLanguages(), contestBean.getContest(contestId));
 		modifiedContest.setContestLanguages(allLanguages);
 
 		// При задании коллекции задач соревнования, удаляем из нее те скрытые задачи,
 		// добавлять которые создатель контеста не имеет прав.
 		List<ContestProblem> allContestProblems = (List<ContestProblem>) this.decodeContestProblemsFromJSON(
-				cf.getEncodedContestProblems(), dudgeBean.getContest(contestId));
+				cf.getEncodedContestProblems(), contestBean.getContest(contestId));
 
 		modifiedContest.setContestProblems(allContestProblems);
 
 		// При добавлении роли проверяем, что пользователь с таким логином существует в БД.
-		List<Role> allRoles = (List<Role>) this.decodeRolesFromJSON(cf.getEncodedRoles(), modifiedContest);
+		Collection<Role> allRoles = (Collection<Role>) decodeRolesFromJSON(cf.getEncodedRoles(), modifiedContest);
 
 		modifiedContest.setRoles(allRoles);
 
-		List<Application> allApplications = (List<Application>) this.decodeApplicationsFromJSON(
-				cf.getEncodedApplications(), modifiedContest);
+		List<Application> allApplications = (List<Application>) this.decodeApplicationsFromJSON(cf.getEncodedApplications(), modifiedContest);
 		modifiedContest.setApplications(allApplications);
 
-		dudgeBean.modifyContest(modifiedContest);
+		contestBean.modifyContest(modifiedContest);
 		cf.reset(mapping, request);
 
 		//Редирект на страницу отредактированного контеста.
@@ -531,34 +488,36 @@ public class ContestsAction extends DispatchAction {
 		return forward;
 	}
 
-	public ActionForward view(
-			ActionMapping mapping,
-			ActionForm af,
-			HttpServletRequest request,
-			HttpServletResponse response) {
+	/**
+	 *
+	 * @param mapping
+	 * @param af
+	 * @param request
+	 * @param response
+	 * @return
+	 */
+	public ActionForward view(ActionMapping mapping, ActionForm af, HttpServletRequest request, HttpServletResponse response) {
 		ContestsForm cf = (ContestsForm) af;
 
 		// Получаем идентификатор редактируемого контеста, чтобы по нему найти объект нужного контеста
 		// и выставить текущие значения как значения по умолчанию для полей на странице редактирования.
 
 		int contestId = Integer.parseInt((String) request.getParameter("contestId"));
-		Contest contest = lookupDudgeBean().getContest(contestId);
+		Contest contest = serviceLocator.lookupContestBean().getContest(contestId);
 
 		AuthenticationObject ao = AuthenticationObject.extract(request);
 
 		// Проверяем право пользователя.
 		PermissionCheckerRemote pcb = ao.getPermissionChecker();
-		if (!pcb.canViewContest(
-				ao.getUsername(),
-				contestId)) {
+		if (!pcb.canViewContest(ao.getUsername(), contestId)) {
 			return mapping.findForward("accessDenied");
 		}
 
 		cf.reset(mapping, request);
-                cf.getContestTypes().addAll(Arrays.asList(ContestType.values()));
-                cf.getRoleTypes().addAll(Arrays.asList(RoleType.values()));
+		cf.getContestTypes().addAll(Arrays.asList(ContestType.values()));
+		cf.getRoleTypes().addAll(Arrays.asList(RoleType.values()));
 
-// Выставляем значения для полей, соотв. текущим значениям редактируемого контеста.
+		// Выставляем значения для полей, соотв. текущим значениям редактируемого контеста.
 		cf.setContestId(String.valueOf(contestId));
 		cf.setCaption(contest.getCaption());
 		cf.setDescription(contest.getDescription());
@@ -566,137 +525,144 @@ public class ContestsAction extends DispatchAction {
 		cf.setOpen(contest.isOpen());
 		cf.setFreezeTime(String.valueOf(contest.getFreezeTime() / 60));
 
-		cf.setStartDate(
-				new SimpleDateFormat("yyyy/MM/dd").format(contest.getStartTime()));
-		cf.setStartHour(String.valueOf(
-				contest.getStartTime().getHours()));
-		cf.setStartMinute(String.valueOf(
-				contest.getStartTime().getMinutes()));
-		cf.setDurationHours(String.valueOf(
-				contest.getDuration() / 3600));
-		cf.setDurationMinutes(String.valueOf(
-				(contest.getDuration() % 3600) / 60));
+		Calendar calendar = Calendar.getInstance();
+		calendar.setTime(contest.getStartTime());
+
+		cf.setStartDate(new SimpleDateFormat("yyyy/MM/dd").format(contest.getStartTime()));
+		cf.setStartHour(String.valueOf(calendar.get(Calendar.HOUR_OF_DAY)));
+		cf.setStartMinute(String.valueOf(calendar.get(Calendar.MINUTE)));
+		cf.setDurationHours(String.valueOf(contest.getDuration() / 3600));
+		cf.setDurationMinutes(String.valueOf((contest.getDuration() % 3600) / 60));
 
 		return mapping.findForward("viewContest");
-
 	}
 
-	public void delete(
-			ActionMapping mapping,
-			ActionForm af,
-			HttpServletRequest request,
-			HttpServletResponse response) {
+	/**
+	 *
+	 * @param mapping
+	 * @param af
+	 * @param request
+	 * @param response
+	 */
+	public void delete(ActionMapping mapping, ActionForm af, HttpServletRequest request, HttpServletResponse response) {
 		AuthenticationObject ao = AuthenticationObject.extract(request);
-		ContestsForm cf = (ContestsForm) af;
+
 		int contestId = Integer.parseInt((String) request.getParameter("contestId"));
 
 		// Проверяем право пользователя на удаление задачи из системы.
 		PermissionCheckerRemote pcb = ao.getPermissionChecker();
-		if (!pcb.canDeleteContest(
-				ao.getUsername(),
-				contestId)) {
-
+		if (!pcb.canDeleteContest(ao.getUsername(), contestId)) {
 			return;
 		}
 
-		lookupDudgeBean().deleteContest(contestId);
+		serviceLocator.lookupContestBean().deleteContest(contestId);
 	}
 
-	public ActionForward listOfProblems(
-			ActionMapping mapping,
-			ActionForm af,
-			HttpServletRequest request,
-			HttpServletResponse response) {
-
-		ContestsForm cf = (ContestsForm) af;
-
+	/**
+	 *
+	 * @param mapping
+	 * @param af
+	 * @param request
+	 * @param response
+	 * @return
+	 */
+	public ActionForward listOfProblems(ActionMapping mapping, ActionForm af, HttpServletRequest request, HttpServletResponse response) {
 		return mapping.findForward("contestProblems");
 	}
 
-	// Перепроверяет все принадлежащие некоторому контесту решения определенной задачи.
-	public void resubmitAll(ActionMapping mapping,
-			ActionForm af,
-			HttpServletRequest request,
-			HttpServletResponse response) {
+	/**
+	 * Перепроверяет все принадлежащие некоторому контесту решения определенной задачи.
+	 *
+	 * @param mapping
+	 * @param af
+	 * @param request
+	 * @param response
+	 */
+	public void resubmitAll(ActionMapping mapping, ActionForm af, HttpServletRequest request, HttpServletResponse response) {
 		//  Получаем из запроса, какие данные требуются клиенту.
 		int problemId = Integer.parseInt(request.getParameter("problemId"));
-		
-		DudgeLocal dudgeBean = lookupDudgeBean();
-		
+
+		ContestLocal contestBean = serviceLocator.lookupContestBean();
+
 		//FIXME: Проверять здесь права.
-		AuthenticationObject ao = AuthenticationObject.extract(request);
+		//AuthenticationObject ao = AuthenticationObject.extract(request);
 
 		int contestId;
 		// Получаем идентификатор соревнования.
 		String param = request.getParameter("contestId");
-		if(param != null)
+		if (param != null) {
 			contestId = Integer.parseInt(param);
-		else
-			// Если нам не послали идентификатор, то используем идентификатор
-			// текущего соревнования.
-			contestId = dudgeBean.getDefaultContest().getContestId();
+		} else // Если нам не послали идентификатор, то используем идентификатор
+		// текущего соревнования.
+		{
+			contestId = contestBean.getDefaultContest().getContestId();
+		}
 
-		Contest currentContest = dudgeBean.getContest(contestId);
-		
-		dudgeBean.resubmitSolutions(currentContest.getContestId(), problemId);
+		Contest currentContest = contestBean.getContest(contestId);
+
+		serviceLocator.lookupDudgeBean().resubmitSolutions(currentContest.getContestId(), problemId);
 	}
-	
-////////////////////////////////////////////////////////////////////////////
-// Группа закрытых методов для обработки данных для обмена информации с клиентом.
-////////////////////////////////////////////////////////////////////////////
+
+	////////////////////////////////////////////////////////////////////////////
+	// Группа закрытых методов для обработки данных для обмена информации с клиентом.
+	////////////////////////////////////////////////////////////////////////////
 	/**
 	 * Метод возвращает коллекцию ролей данного соревнования, раскодированную из JSON-String.
+	 *
+	 * @param jsonEncodedRoles
+	 * @param contest
+	 * @return
 	 */
 	private Collection<Role> decodeRolesFromJSON(String jsonEncodedRoles, Contest contest) {
 
 		JSONArray jsonRoles;
-		Set<Role> roles = new TreeSet<Role>(new Comparator<Role>() {
+		Collection<Role> roles = new TreeSet<>(new Comparator<Role>() {
+			@Override
+			public int compare(Role a, Role b) {
+				if (!a.getUser().getLogin().equals(b.getUser().getLogin())) {
+					return a.getUser().getLogin().compareTo(b.getUser().getLogin());
+				}
 
-                                        @Override
-					public int compare(Role a, Role b) {
-						if (!a.getUser().getLogin().equals(b.getUser().getLogin())) {
-							return a.getUser().getLogin().compareTo(b.getUser().getLogin());
-						}
-						
-						if (a.getContest().getContestId() != b.getContest().getContestId()) {
-							return a.getContest().getContestId() - b.getContest().getContestId();
-						}
-						
-						if (!a.getRoleType().equals(b.getRoleType())){
-							return a.getRoleType().compareTo(b.getRoleType());
-						}
-						
-						return 0;						
-					}
-				});
+				if (a.getContest().getContestId() != b.getContest().getContestId()) {
+					return a.getContest().getContestId() - b.getContest().getContestId();
+				}
+
+				if (!a.getRoleType().equals(b.getRoleType())) {
+					return a.getRoleType().compareTo(b.getRoleType());
+				}
+
+				return 0;
+			}
+		});
 		try {
 			jsonRoles = new JSONArray(jsonEncodedRoles);
-							
-			DudgeLocal dudgeBean = lookupDudgeBean();
-			for (int i = 0; i <
-					jsonRoles.length(); i++) {
+
+			UserLocal userBean = serviceLocator.lookupUserBean();
+			for (int i = 0; i < jsonRoles.length(); i++) {
 				String login = jsonRoles.getJSONObject(i).getString("login");
-				User user = dudgeBean.getUser(login);
+				User user = userBean.getUser(login);
 
 				if (user != null) {
-					Role currentRole = new Role(
-							contest,
-							user,
-							RoleType.valueOf(jsonRoles.getJSONObject(i).getString("role")));
+					Role currentRole = new Role(contest, user, RoleType.valueOf(jsonRoles.getJSONObject(i).getString("role")));
 					roles.add(currentRole);
 				}
 
 			}
-		} catch (JSONException ex) {
-			ex.printStackTrace();
+		} catch (JSONException e) {
+			logger.log(Level.SEVERE, "exception caught", e);
 		}
 
 		// Отуникаливаем список ролей, сформированный пользователем.
-		return new ArrayList(roles);
+		return roles;
 	}
 
 	/**
 	 * Метод возвращает коллекцию обработанных заявок данного соревнования, раскодированную из JSON-String.
+	 *
+	 * @param jsonEncodedApplications
+	 * @param contest
+	 * @return
+	 * @throws ParseException
 	 */
 	private Collection<Application> decodeApplicationsFromJSON(String jsonEncodedApplications, Contest contest) throws ParseException {
 
@@ -704,11 +670,11 @@ public class ContestsAction extends DispatchAction {
 		Collection<Application> applications = null;
 		try {
 			jsonApplications = new JSONArray(jsonEncodedApplications);
-			applications = new ArrayList<Application>();
-			DudgeLocal dudgeBean = lookupDudgeBean();
+			applications = new ArrayList<>();
+			UserLocal userBean = serviceLocator.lookupUserBean();
 			for (int i = 0; i < jsonApplications.length(); i++) {
 				String login = jsonApplications.getJSONObject(i).getString("login");
-				User user = dudgeBean.getUser(login);
+				User user = userBean.getUser(login);
 
 				if (user != null) {
 					Application currentApplication = new Application(contest, user);
@@ -720,8 +686,8 @@ public class ContestsAction extends DispatchAction {
 				}
 
 			}
-		} catch (JSONException ex) {
-			ex.printStackTrace();
+		} catch (JSONException e) {
+			logger.log(Level.SEVERE, "exception caught", e);
 		}
 
 		return applications;
@@ -729,6 +695,10 @@ public class ContestsAction extends DispatchAction {
 
 	/**
 	 * Метод возвращает коллекцию включенных в соревнование задач , раскодированных из JSON-String.
+	 *
+	 * @param jsonEncodedProblems
+	 * @param contest
+	 * @return
 	 */
 	private Collection<ContestProblem> decodeContestProblemsFromJSON(String jsonEncodedProblems, Contest contest) {
 
@@ -736,74 +706,74 @@ public class ContestsAction extends DispatchAction {
 		Collection<ContestProblem> problems = null;
 		try {
 			jsonProblems = new JSONArray(jsonEncodedProblems);
-			problems =
-					new ArrayList<ContestProblem>();
-			DudgeLocal dudgeBean = lookupDudgeBean();
+			problems = new ArrayList<>();
 
-			for (int i = 0; i <
-					jsonProblems.length(); i++) {
+			for (int i = 0; i < jsonProblems.length(); i++) {
 				int problemId = Integer.parseInt(jsonProblems.getJSONObject(i).getString("problemId"));
-				Problem problem = dudgeBean.getProblem(problemId);
+				Problem problem = serviceLocator.lookupProblemBean().getProblem(problemId);
 
 				if (problem != null) {
 					ContestProblem currentProblem = new ContestProblem(contest, problem);
 
 					currentProblem.setProblemOrder(Integer.parseInt(jsonProblems.getJSONObject(i).getString("order")));
 					currentProblem.setProblemMark(jsonProblems.getJSONObject(i).getString("mark"));
-                                        currentProblem.setProblemCost(Integer.parseInt(jsonProblems.getJSONObject(i).getString("cost")));
+					currentProblem.setProblemCost(Integer.parseInt(jsonProblems.getJSONObject(i).getString("cost")));
 
 					problems.add(currentProblem);
 				}
 
 			}
 
-		} catch (JSONException ex) {
-			ex.printStackTrace();
+		} catch (JSONException e) {
+			logger.log(Level.SEVERE, "exception caught", e);
 		}
 
 		return problems;
-
 	}
 
 	/**
 	 * Метод возвращает коллекцию поддерживаемых соревнованием языков, раскодированных из JSON-String.
+	 *
+	 * @param jsonEncodedLanguages
+	 * @param contest
+	 * @return
 	 */
 	private Collection<ContestLanguage> decodeContestLanguagesFromJSON(String jsonEncodedLanguages, Contest contest) {
 
 		JSONArray jsonLanguages;
-		DudgeLocal dudgeBean = lookupDudgeBean();
 		Collection<ContestLanguage> languages = null;
 
 		try {
 			jsonLanguages = new JSONArray(jsonEncodedLanguages);
-			languages =
-					new ArrayList<ContestLanguage>();
+			languages = new ArrayList<>();
 
 			// Заново создаем список языков, разрешенных в данном соревновании, по полученным от пользователя данным.
-			for (int i = 0; i <
-					jsonLanguages.length(); i++) {
+			for (int i = 0; i
+					< jsonLanguages.length(); i++) {
 				if (jsonLanguages.getJSONObject(i).getBoolean("enabled") == true) {
 					String languageId = jsonLanguages.getJSONObject(i).getString("id");
-					Language language = dudgeBean.getLanguage(languageId);
+					Language language = serviceLocator.lookupLanguageBean().getLanguage(languageId);
 					ContestLanguage conLan = new ContestLanguage(contest, language);
 					languages.add(conLan);
 				}
 
 			}
 
-		} catch (JSONException ex) {
-			ex.printStackTrace();
+		} catch (JSONException e) {
+			logger.log(Level.SEVERE, "exception caught", e);
 		}
 
 		return languages;
 	}
 
 	/**
-	 * Метод возвращает список пользователей, допущенных под разными ролями
-	 * к данному соревнованию, закодированный как JSON-String.
+	 * Метод возвращает список пользователей, допущенных под разными ролями к данному соревнованию, закодированный как JSON-String.
+	 *
+	 * @param contestId
+	 * @return
 	 */
 	private String encodeRolesToJSON(int contestId) {
-		List<Role> roles = (List<Role>) lookupDudgeBean().getContest(contestId).getRoles();
+		Collection<Role> roles = serviceLocator.lookupContestBean().getContest(contestId).getRoles();
 
 		JSONArray ja = new JSONArray();
 		JSONObject jo = new JSONObject();
@@ -816,20 +786,22 @@ public class ContestsAction extends DispatchAction {
 			}
 
 			jo.put("roles", ja);
-		} catch (JSONException ex) {
-			ex.printStackTrace();
+		} catch (JSONException e) {
+			logger.log(Level.SEVERE, "exception caught", e);
 		}
 
 		return jo.toString();
 	}
 
 	/**
-	 * Метод возвращает список заявок, поданных в данное соревнование,
-	 * закодированный как JSON-String.
+	 * Метод возвращает список заявок, поданных в данное соревнование, закодированный как JSON-String.
+	 *
+	 * @param contestId
+	 * @return
 	 */
 	private String encodeApplicationsToJSON(int contestId) {
-		List<Application> applications = (List<Application>) lookupDudgeBean().
-				getContest(contestId).getApplications();
+
+		List<Application> applications = (List<Application>) serviceLocator.lookupContestBean().getContest(contestId).getApplications();
 
 		JSONArray ja = new JSONArray();
 		JSONObject jo = new JSONObject();
@@ -842,8 +814,8 @@ public class ContestsAction extends DispatchAction {
 			}
 
 			jo.put("applications", ja);
-		} catch (JSONException ex) {
-			ex.printStackTrace();
+		} catch (JSONException e) {
+			logger.log(Level.SEVERE, "exception caught", e);
 		}
 
 		return jo.toString();
@@ -851,12 +823,14 @@ public class ContestsAction extends DispatchAction {
 
 	/**
 	 * Метод возвращает список языков, поддерживаемых данным контестов, закодированный как JSON-String.
+	 *
 	 * @param contestId - идентификатор контеста, или 0 - если вызывается для нового контеста.
+	 * @return
 	 */
 	private String encodeContestLanguagesToJSON(int contestId) {
 
-		DudgeLocal dudgeBean = lookupDudgeBean();
-		List<Language> languages = dudgeBean.getLanguages();
+		ContestLocal contestBean = serviceLocator.lookupContestBean();
+		List<Language> languages = serviceLocator.lookupLanguageBean().getLanguages();
 
 		JSONArray ja = new JSONArray();
 		JSONObject jo = new JSONObject();
@@ -878,25 +852,25 @@ public class ContestsAction extends DispatchAction {
 				}
 
 				jo.put("languages", ja);
-			} catch (JSONException jse) {
-				jse.printStackTrace();
+			} catch (JSONException e) {
+				logger.log(Level.SEVERE, "exception caught", e);
 			}
 
 			return jo.toString();
 		}
 
 
-// Иначе:
-// Просматриваем все языки, и для выяснения их допустимости провереем,
-// есть ли данный язык в списке языков данноого контеста.
+		// Иначе:
+		// Просматриваем все языки, и для выяснения их допустимости провереем,
+		// есть ли данный язык в списке языков данноого контеста.
 		try {
 			jo.put("languagesTotalCount", languages.size());
 
 			for (Language language : languages) {
 				JSONObject languageView = new JSONObject();
-				ContestLanguage conLanguage = new ContestLanguage(dudgeBean.getContest(contestId), language);
+				ContestLanguage conLanguage = new ContestLanguage(contestBean.getContest(contestId), language);
 
-				if (dudgeBean.getContest(contestId).getContestLanguages().contains(conLanguage)) {
+				if (contestBean.getContest(contestId).getContestLanguages().contains(conLanguage)) {
 					languageView.put("enabled", true);
 				} else {
 					languageView.put("enabled", false);
@@ -910,8 +884,8 @@ public class ContestsAction extends DispatchAction {
 			}
 
 			jo.put("languages", ja);
-		} catch (JSONException jse) {
-			jse.printStackTrace();
+		} catch (JSONException e) {
+			logger.log(Level.SEVERE, "exception caught", e);
 		}
 
 		return jo.toString();
@@ -919,9 +893,12 @@ public class ContestsAction extends DispatchAction {
 
 	/**
 	 * Метод возвращает список задач данного соревнования, закодированный как JSON-String.
+	 *
+	 * @param contestId
+	 * @return
 	 */
 	private String encodeContestProblemsToJSON(int contestId) {
-		List<ContestProblem> problems = (List<ContestProblem>) lookupDudgeBean().getContest(contestId).getContestProblems();
+		List<ContestProblem> problems = (List<ContestProblem>) serviceLocator.lookupContestBean().getContest(contestId).getContestProblems();
 
 		JSONArray ja = new JSONArray();
 		JSONObject jo = new JSONObject();
@@ -934,17 +911,18 @@ public class ContestsAction extends DispatchAction {
 			}
 
 			jo.put("problems", ja);
-		} catch (JSONException ex) {
-			ex.printStackTrace();
+		} catch (JSONException e) {
+			logger.log(Level.SEVERE, "exception caught", e);
 		}
 
 		return jo.toString();
-
 	}
 
 	/**
-	 * Метод возвращает представления объекта в формата JSON - это нужно
-	 * для его отображение на стороне клиента через JavaScript/AJAX.
+	 * Метод возвращает представления объекта в формата JSON - это нужно для его отображение на стороне клиента через JavaScript/AJAX.
+	 *
+	 * @param role
+	 * @return
 	 */
 	private JSONObject getRoleJsonView(Role role) {
 		JSONObject json = new JSONObject();
@@ -954,16 +932,18 @@ public class ContestsAction extends DispatchAction {
 			json.put("login", role.getUser().getLogin());
 			json.put("role", role.getRoleType().toString());
 
-		} catch (JSONException Je) {
-			logger.severe("Failed creation of JSON view of User object.");
+		} catch (JSONException e) {
+			logger.log(Level.SEVERE, "Failed creation of JSON view of Role object.", e);
 		}
 
 		return json;
 	}
 
 	/**
-	 * Метод возвращает представления объекта в формата JSON - это нужно
-	 * для его отображение на стороне клиента через JavaScript/AJAX.
+	 * Метод возвращает представления объекта в формата JSON - это нужно для его отображение на стороне клиента через JavaScript/AJAX.
+	 *
+	 * @param app
+	 * @return
 	 */
 	private JSONObject getApplicationJsonView(Application app) {
 		JSONObject json = new JSONObject();
@@ -975,16 +955,18 @@ public class ContestsAction extends DispatchAction {
 			json.put("message", app.getMessage());
 			json.put("status", app.getStatus());
 
-		} catch (JSONException Je) {
-			logger.severe("Failed creation of JSON view of User object.");
+		} catch (JSONException e) {
+			logger.log(Level.SEVERE, "Failed creation of JSON view of Application object.", e);
 		}
 
 		return json;
 	}
 
 	/**
-	 * Метод возвращает представления объекта в формата JSON - это нужно
-	 * для его отображение на стороне клиента через JavaScript/AJAX.
+	 * Метод возвращает представления объекта в формата JSON - это нужно для его отображение на стороне клиента через JavaScript/AJAX.
+	 *
+	 * @param problem
+	 * @return
 	 */
 	private JSONObject getContestProblemJsonView(ContestProblem problem) {
 		JSONObject json = new JSONObject();
@@ -994,9 +976,9 @@ public class ContestsAction extends DispatchAction {
 			json.put("problemId", problem.getProblem().getProblemId());
 			json.put("order", problem.getProblemOrder());
 			json.put("mark", problem.getProblemMark());
-            json.put("cost", problem.getProblemCost());
-		} catch (JSONException Je) {
-			logger.severe("Failed creation of JSON view of User object.");
+			json.put("cost", problem.getProblemCost());
+		} catch (JSONException e) {
+			logger.log(Level.SEVERE, "Failed creation of JSON view of ContestProblem object.", e);
 		}
 
 		return json;

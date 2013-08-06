@@ -780,8 +780,16 @@ exists or setup the property manually. For example like this:
     <!--
                 COMPILATION SECTION
             -->
-    <target depends="init" if="no.dist.ear.dir" name="-deps-module-jar" unless="no.deps"/>
-    <target depends="init" if="dist.ear.dir" name="-deps-ear-jar" unless="no.deps"/>
+    <target depends="init" if="no.dist.ear.dir" name="-deps-module-jar" unless="no.deps">
+        <ant antfile="${project.dudge-lib}/build.xml" inheritall="false" target="jar">
+            <property name="deploy.on.save" value="false"/>
+        </ant>
+    </target>
+    <target depends="init" if="dist.ear.dir" name="-deps-ear-jar" unless="no.deps">
+        <ant antfile="${project.dudge-lib}/build.xml" inheritall="false" target="jar">
+            <property name="deploy.on.save" value="false"/>
+        </ant>
+    </target>
     <target depends="init, -deps-module-jar, -deps-ear-jar" name="deps-jar"/>
     <target depends="init,deps-jar" name="-pre-pre-compile">
         <mkdir dir="${build.classes.dir}"/>
@@ -799,6 +807,7 @@ exists or setup the property manually. For example like this:
         <copyfiles files="${file.reference.dom4j-1.6.1.jar}" todir="${build.classes.dir}"/>
         <copyfiles files="${file.reference.stax-api-1.0.1.jar}" todir="${build.classes.dir}"/>
         <copyfiles files="${file.reference.xmlbeans-2.3.0.jar}" todir="${build.classes.dir}"/>
+        <copyfiles files="${reference.dudge-lib.jar}" todir="${build.classes.dir}"/>
     </target>
     <target if="is.server.weblogic" name="-library-inclusion-in-archive-weblogic">
         <basename file="${file.reference.poi-3.8-20120326.jar}" property="manifest.file.reference.poi-3.8-20120326.jar"/>
@@ -807,14 +816,16 @@ exists or setup the property manually. For example like this:
         <basename file="${file.reference.dom4j-1.6.1.jar}" property="manifest.file.reference.dom4j-1.6.1.jar"/>
         <basename file="${file.reference.stax-api-1.0.1.jar}" property="manifest.file.reference.stax-api-1.0.1.jar"/>
         <basename file="${file.reference.xmlbeans-2.3.0.jar}" property="manifest.file.reference.xmlbeans-2.3.0.jar"/>
+        <basename file="${reference.dudge-lib.jar}" property="manifest.reference.dudge-lib.jar"/>
         <manifest file="${build.ear.classes.dir}/META-INF/MANIFEST.MF" mode="update">
-            <attribute name="Extension-List" value="jar-1 jar-2 jar-3 jar-4 jar-5 jar-6 "/>
+            <attribute name="Extension-List" value="jar-1 jar-2 jar-3 jar-4 jar-5 jar-6 jar-7 "/>
             <attribute name="jar-1-Extension-Name" value="${manifest.file.reference.poi-3.8-20120326.jar}"/>
             <attribute name="jar-2-Extension-Name" value="${manifest.file.reference.poi-ooxml-3.8-20120326.jar}"/>
             <attribute name="jar-3-Extension-Name" value="${manifest.file.reference.poi-ooxml-schemas-3.8-20120326.jar}"/>
             <attribute name="jar-4-Extension-Name" value="${manifest.file.reference.dom4j-1.6.1.jar}"/>
             <attribute name="jar-5-Extension-Name" value="${manifest.file.reference.stax-api-1.0.1.jar}"/>
             <attribute name="jar-6-Extension-Name" value="${manifest.file.reference.xmlbeans-2.3.0.jar}"/>
+            <attribute name="jar-7-Extension-Name" value="${manifest.reference.dudge-lib.jar}"/>
         </manifest>
     </target>
     <target depends="compile" name="library-inclusion-in-manifest">
@@ -824,6 +835,7 @@ exists or setup the property manually. For example like this:
         <copyfiles files="${file.reference.dom4j-1.6.1.jar}" todir="${dist.ear.dir}/lib"/>
         <copyfiles files="${file.reference.stax-api-1.0.1.jar}" todir="${dist.ear.dir}/lib"/>
         <copyfiles files="${file.reference.xmlbeans-2.3.0.jar}" todir="${dist.ear.dir}/lib"/>
+        <copyfiles files="${reference.dudge-lib.jar}" todir="${dist.ear.dir}/lib"/>
         <manifest file="${build.ear.classes.dir}/META-INF/MANIFEST.MF" mode="update"/>
     </target>
     <target name="-copy-meta-inf">
@@ -1206,7 +1218,9 @@ exists or setup the property manually. For example like this:
     <!--
                 CLEANUP SECTION
             -->
-    <target depends="init" name="deps-clean" unless="no.deps"/>
+    <target depends="init" name="deps-clean" unless="no.deps">
+        <ant antfile="${project.dudge-lib}/build.xml" inheritall="false" target="clean"/>
+    </target>
     <target depends="init" name="-do-clean">
         <delete dir="${build.dir}"/>
         <delete dir="${dist.dir}"/>

@@ -4,7 +4,12 @@
  */
 package dudge.opaque;
 
+import dudge.ContestLocal;
 import dudge.DudgeLocal;
+import dudge.ProblemLocal;
+import dudge.LanguageLocal;
+import dudge.SolutionLocal;
+import dudge.UserLocal;
 import dudge.db.Contest;
 import dudge.db.Language;
 import dudge.db.Problem;
@@ -16,7 +21,7 @@ import javax.jws.WebMethod;
 import javax.jws.WebParam;
 import javax.jws.WebResult;
 import javax.jws.soap.SOAPBinding;
-import java.util.ArrayList;
+//import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -38,7 +43,7 @@ import javax.naming.NamingException;
 
 public class OpaqueQuestionEngine {
     
-    private Logger logger = Logger.getLogger(this.getClass().toString());
+    private static final Logger logger = Logger.getLogger("OpaqueQuestionEngine");
     
     /**
      * This is a sample web service operation
@@ -146,8 +151,8 @@ public class OpaqueQuestionEngine {
         
         int problemid=question2ProblemId(questionID,questionVersion); 
         
-        DudgeLocal dudgeBean=lookupDudgeBean();
-        Problem problem = dudgeBean.getProblem(problemid);
+        ProblemLocal problemBean=lookupProblemBean();
+        Problem problem = problemBean.getProblem(problemid);
         
         OpaqueBeanLocal opaqueBean=lookupOpaqueBean();
         
@@ -184,7 +189,7 @@ public class OpaqueQuestionEngine {
         val.setProgressInfo("Question loaded"); // FIXME: возможно здесь должно быть более внятное сообщение
         val.setQuestionSession(sessionid);        
 
-        String resultHtml=makeXHTML(dudgeBean,problem,S,src,langid,S.isDisplayReadOnly(),sessionid);
+        String resultHtml=makeXHTML(problem,S,src,langid,S.isDisplayReadOnly(),sessionid);
         val.setXHTML(resultHtml);
       
         logger.info("progressInfo: "+val.getProgressInfo());
@@ -299,7 +304,8 @@ public class OpaqueQuestionEngine {
         Boolean needNewSolution;
         if(session.isSolution()) {
 
-            Solution solution=dudgeBean.getSolution(session.getSolutionId());
+            SolutionLocal solutionBean=lookupSolutionBean();
+            Solution solution=solutionBean.getSolution(session.getSolutionId());
             if(!isIntermediaStep)
                  needNewSolution=checkSolutionStatus(dudgeBean,solution,src,val);
             else needNewSolution=false;
@@ -320,13 +326,17 @@ public class OpaqueQuestionEngine {
             else needNewSolution=true;
         }
         
-        Problem problem = dudgeBean.getProblem(problemid);
+        ProblemLocal problemBean=lookupProblemBean();
+        Problem problem = problemBean.getProblem(problemid);
         
         if (needNewSolution) {
             if (!src.isEmpty()) {
-                Contest contest = dudgeBean.getContest(contestId);
-                User user = dudgeBean.getUser(username);
-                Language language = dudgeBean.getLanguage(langid);
+                ContestLocal contestBean=lookupContestBean();
+                Contest contest = contestBean.getContest(contestId);
+                UserLocal userBean=lookupUserBean();
+                User user = userBean.getUser(username);
+                LanguageLocal languageBean=lookupLanguageBean();
+                Language language = languageBean.getLanguage(langid);
 
                 Solution solution = new Solution();
                 solution.setUser(user);
@@ -349,7 +359,7 @@ public class OpaqueQuestionEngine {
         if(!isSlaveMode && isFinish) 
             opaqueBean.saveAsOriginalSession(questionSession);
 
-        String resultHtml=makeXHTML(dudgeBean,problem,session,src,langid,isReadOnly,originalsessionid);
+        String resultHtml=makeXHTML(problem,session,src,langid,isReadOnly,originalsessionid);
         val.setXHTML(resultHtml);
         
         logger.info("progressInfo: "+val.getProgressInfo());
@@ -357,7 +367,7 @@ public class OpaqueQuestionEngine {
     }
 
     
-    private String makeXHTML(DudgeLocal dudgeBean,
+    private String makeXHTML(
                 Problem problem,
                 OpaqueSession session,
                 String src,
@@ -365,7 +375,8 @@ public class OpaqueQuestionEngine {
                 boolean isReadOnly,
                 String originalsessionid) {
         
-        List<Language> llist=dudgeBean.getLanguages();
+        LanguageLocal languageBean=lookupLanguageBean();
+        List<Language> llist=languageBean.getLanguages();
         String langHtml="";
         String def;
         for(Language l : llist) {
@@ -495,7 +506,7 @@ public class OpaqueQuestionEngine {
     }
     
     private Map<String,String> params2map(ArrayOfStrings names, ArrayOfStrings values) {
-        Map<String,String> ret=new HashMap<String,String>();
+        Map<String,String> ret=new HashMap<>();
         
         List<String> n=names.getItem();
         List<String> v=values.getItem();
@@ -510,7 +521,7 @@ public class OpaqueQuestionEngine {
     }
     
     private static String stringToHTMLString(String string) {
-    StringBuffer sb = new StringBuffer(string.length());
+    StringBuilder sb = new StringBuilder(string.length());
     // true if last char was blank
     boolean lastWasBlankChar = false;
     int len = string.length();
@@ -559,28 +570,44 @@ public class OpaqueQuestionEngine {
     return sb.toString();
 }
 
-    private OpaqueBeanLocal lookupOpaqueBean() {
-		try {
-			Context c = new InitialContext();
-			return (OpaqueBeanLocal) c.lookup("java:global/dudge/dudge-ejb/OpaqueBean!dudge.opaque.OpaqueBeanLocal");
-		}
-		catch(NamingException ne) {
-			Logger.getLogger(getClass().getName()).log(Level.SEVERE,"exception caught" ,ne);
-			throw new RuntimeException(ne);
-		}
+    private Object lookupBean(String beanName) {
+	try {
+		Context c = new InitialContext();
+		return c.lookup(beanName);
 	}
-
+	catch(NamingException ne) {
+		Logger.getLogger(getClass().getName()).log(Level.SEVERE,"exception caught" ,ne);
+		throw new RuntimeException(ne);
+	}        
+    }
+    
+    private OpaqueBeanLocal lookupOpaqueBean() {
+        return (OpaqueBeanLocal)lookupBean("java:global/dudge/dudge-ejb/OpaqueBean!dudge.opaque.OpaqueBeanLocal");
+    }
     
     private DudgeLocal lookupDudgeBean() {
-		try {
-			Context c = new InitialContext();
-			return (DudgeLocal) c.lookup("java:global/dudge/dudge-ejb/DudgeBean!dudge.DudgeLocal");
-			//return (DudgeLocal) c.lookup("java:comp/env/ejb/DudgeBean");
-		}
-		catch(NamingException ne) {
-			Logger.getLogger(getClass().getName()).log(Level.SEVERE,"exception caught" ,ne);
-			throw new RuntimeException(ne);
-		}
-	}
+        return (DudgeLocal)lookupBean("java:global/dudge/dudge-ejb/DudgeBean!dudge.DudgeLocal");
+    }
+    
+    private ProblemLocal lookupProblemBean() {
+        return (ProblemLocal)lookupBean("java:global/dudge/dudge-ejb/ProblemBean!dudge.ProblemLocal");
+    }
+
+    private LanguageLocal lookupLanguageBean() {
+        return (LanguageLocal)lookupBean("java:global/dudge/dudge-ejb/LanguageBean!dudge.LanguageLocal");
+    }
+
+    private UserLocal lookupUserBean() {
+        return (UserLocal)lookupBean("java:global/dudge/dudge-ejb/UserBean!dudge.UserLocal");
+    }
+
+    private ContestLocal lookupContestBean() {
+        return (ContestLocal)lookupBean("java:global/dudge/dudge-ejb/ContestBean!dudge.ContestLocal");
+    }
+
+    private SolutionLocal lookupSolutionBean() {
+        return (SolutionLocal)lookupBean("java:global/dudge/dudge-ejb/SolutionBean!dudge.SolutionLocal");
+    }
     
 }
+// EOF

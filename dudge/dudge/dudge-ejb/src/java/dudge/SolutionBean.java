@@ -1,5 +1,6 @@
 package dudge;
 
+import dudge.ifaces.SolutionRemote;
 import dudge.db.Run;
 import dudge.db.Solution;
 import java.util.ArrayList;

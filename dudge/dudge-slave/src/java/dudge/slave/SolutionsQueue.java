@@ -5,7 +5,7 @@
  */
 package dudge.slave;
 
-import dudge.SolutionRemote;
+import dudge.ifaces.SolutionRemote;
 import dudge.db.SolutionStatus;
 import dudge.db.Solution;
 import java.io.PrintWriter;
