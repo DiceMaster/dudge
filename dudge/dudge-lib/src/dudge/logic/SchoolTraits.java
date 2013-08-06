@@ -3,7 +3,6 @@
  *
  * Created on September 12, 2009, 3:15 PM
  */
-
 package dudge.logic;
 
 import dudge.db.Contest;
@@ -14,6 +13,7 @@ import dudge.db.Contest;
  */
 public class SchoolTraits implements ContestTraits {
 
+	public static final long serialVersionUID = 1L;
 	private Contest contest;
 
 	/**
@@ -23,14 +23,17 @@ public class SchoolTraits implements ContestTraits {
 		this.contest = contest;
 	}
 
+	@Override
 	public Contest getContest() {
 		return contest;
 	}
 
+	@Override
 	public boolean isRunAllTests() {
 		return false;
 	}
 
+	@Override
 	public String getMonitorSuffix() {
 		return "SCHOOL";
 	}

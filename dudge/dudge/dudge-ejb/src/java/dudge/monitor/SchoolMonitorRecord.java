@@ -3,39 +3,44 @@
  *
  * Created on October 27, 2007, 4:02 PM
  */
-
 package dudge.monitor;
 
-import dudge.DudgeLocal;
+import dudge.SolutionLocal;
 import dudge.db.Contest;
 import dudge.db.ContestProblem;
 import dudge.db.Solution;
 import dudge.db.SolutionStatus;
 import dudge.db.User;
-import dudge.logic.AcmTraits;
 import java.io.Serializable;
 import java.util.Date;
-import java.util.Hashtable;
+import java.util.HashMap;
 import java.util.Map;
 
 public class SchoolMonitorRecord implements Comparable, Serializable {
 
+	public static final long serialVersionUID = 1L;
 	// Штрафное время за неудачный сабмит, в миллисекундах.
-	final int submitPenaltyTime = 20 * 60 * 1000;
-
+	final static int submitPenaltyTime = 20 * 60 * 1000;
 	private int place = 0;
 	private String user;
-	private Map<String, Integer> problemsTries = new Hashtable<String, Integer>();
-	private Map<String, Boolean> problemsSolved = new Hashtable<String, Boolean>();
+	private Map<String, Integer> problemsTries = new HashMap<>();
+	private Map<String, Boolean> problemsSolved = new HashMap<>();
 	private long time;
 
-	public SchoolMonitorRecord(DudgeLocal dudgeBean, Contest contest, User user, Date when) {
+	/**
+	 *
+	 * @param solutionBean
+	 * @param contest
+	 * @param user
+	 * @param when
+	 */
+	public SchoolMonitorRecord(SolutionLocal solutionBean, Contest contest, User user, Date when) {
 		this.user = user.getLogin();
 
 		// Штрафное время пользователя в данном соревновании.
 		time = 0;
 
-		for(ContestProblem contestProblem: contest.getContestProblems()) {
+		for (ContestProblem contestProblem : contest.getContestProblems()) {
 			String pm = contestProblem.getProblemMark();
 			// Решена ли задача.
 			problemsSolved.put(pm, false);
@@ -47,42 +52,29 @@ public class SchoolMonitorRecord implements Comparable, Serializable {
 			// учитывая 20 минутный штраф за каждое непрошедшее ее отправление.
 			long problemTime = 0;
 
-			AcmTraits traits = (AcmTraits) contest.getTraits();
-
 			// Проходим по всем решениям пользователем задачи соревнования.
-			for(Solution solution : dudgeBean.getSolutions(
-					user.getLogin(),
-					contest.getContestId(),
-					contestProblem.getProblem().getProblemId()
-					) ) {
+			for (Solution solution : solutionBean.getSolutions(user.getLogin(), contest.getContestId(), contestProblem.getProblem().getProblemId())) {
 				// Не учитываем решения, которые не были обработаны
 				// (в том числе не учитываем с ошибками компиляции).
-				if(solution.getStatus() != SolutionStatus.PROCESSED)
-					continue;
-
-				// Не учитываем решения, отправленные перед началом соревнования,
-				// после его конца и после определенного времени, кои таковое задано.
-				if( solution.getSubmitTime().before(contest.getStartTime())
-						|| (!contest.isInfinite()
-							&& solution.getSubmitTime().after(
-								contest.getEndTime()
-								)
-							)
-						|| (when != null
-							&& solution.getSubmitTime().after(when)
-							)
-					) {
+				if (solution.getStatus() != SolutionStatus.PROCESSED) {
 					continue;
 				}
 
-				if(solution.isAllTestsPassed()) {
+				// Не учитываем решения, отправленные перед началом соревнования,
+				// после его конца и после определенного времени, кои таковое задано.
+				if (solution.getSubmitTime().before(contest.getStartTime())
+						|| (!contest.isInfinite() && solution.getSubmitTime().after(contest.getEndTime()))
+						|| (when != null && solution.getSubmitTime().after(when))) {
+					continue;
+				}
+
+				if (solution.isAllTestsPassed()) {
 					// Задача решена.
 					problemsSolved.put(pm, true);
 
 					// Прибавляем ко штрафному времени время от начала
 					// соревнования до первой успешной попытки решения.
-					problemTime +=
-							solution.getSubmitTime().getTime() - contest.getStartTime().getTime();
+					problemTime += solution.getSubmitTime().getTime() - contest.getStartTime().getTime();
 					break;
 				}
 
@@ -93,37 +85,38 @@ public class SchoolMonitorRecord implements Comparable, Serializable {
 				problemsTries.put(pm, problemsTries.get(pm) + 1);
 			} // for solution
 
-			if(problemsSolved.get(pm)) {
+			if (problemsSolved.get(pm)) {
 				// Если задача решена, то прибавляем ее штрафное время
 				// к общему по пользователю.
-				time = getTime() + problemTime;
+				time += problemTime;
 			}
 		} // for contestProblem
 
 	} // AcmMonitorRecord() constructor
 
 	/**
-	 * Сравнивает эту запись с другой в том же соревновании.
-	 * Сравнение происходит по количеству решенных задач, потом,
-	 * в случае совпадения количеств, по штрафному времени.
-	 * @return -1 если эта запись стоит на месте, более низком,
-	 * чем посланная, 1 - если на более высоком, 0 если записи равны.
+	 * Сравнивает эту запись с другой в том же соревновании. Сравнение происходит по количеству решенных задач, потом, в случае совпадения количеств, по
+	 * штрафному времени.
+	 *
+	 * @return -1 если эта запись стоит на месте, более низком, чем посланная, 1 - если на более высоком, 0 если записи равны.
 	 */
+	@Override
 	public int compareTo(Object o) {
-		if(!(o instanceof SchoolMonitorRecord))
+		if (!(o instanceof SchoolMonitorRecord)) {
 			throw new RuntimeException("o must be of class SchoolMonitorRecord");
+		}
 
 		SchoolMonitorRecord other = (SchoolMonitorRecord) o;
 		int thisp = this.getSolvedProblemsCount();
 		int otherp = other.getSolvedProblemsCount();
-		if(thisp != otherp) {
+		if (thisp != otherp) {
 			return (thisp < otherp) ? -1 : 1;
 		}
 
 		long thist = this.getTime();
 		long othert = other.getTime();
 
-		if(thist != othert) {
+		if (thist != othert) {
 			return (thist > othert) ? -1 : 1;
 		}
 
@@ -132,13 +125,15 @@ public class SchoolMonitorRecord implements Comparable, Serializable {
 
 	/**
 	 * Позволяет получить количество решенных задач.
+	 *
 	 * @return количество решенных задач.
 	 */
 	public int getSolvedProblemsCount() {
 		int solvedCount = 0;
-		for(Map.Entry<String, Boolean> entry : problemsSolved.entrySet()) {
-			if(entry.getValue())
+		for (Map.Entry<String, Boolean> entry : problemsSolved.entrySet()) {
+			if (entry.getValue()) {
 				++solvedCount;
+			}
 		}
 
 		return solvedCount;
@@ -146,6 +141,7 @@ public class SchoolMonitorRecord implements Comparable, Serializable {
 
 	/**
 	 * Позволяет узнать, решена ли задача данным пользователем.
+	 *
 	 * @param problemMark метка задачи в соревновании.
 	 * @return true если задача решена, иначе false.
 	 */
@@ -154,8 +150,8 @@ public class SchoolMonitorRecord implements Comparable, Serializable {
 	}
 
 	/**
-	 * Возвращает количество неуспешных попыток решить задачу.
-	 * После решения задачи попытки ее решить не засчитываются.
+	 * Возвращает количество неуспешных попыток решить задачу. После решения задачи попытки ее решить не засчитываются.
+	 *
 	 * @param problemMark отметка задачи в соревновании.
 	 * @return количество неуспешных попыток.
 	 */
@@ -165,6 +161,7 @@ public class SchoolMonitorRecord implements Comparable, Serializable {
 
 	/**
 	 * Возвращает место этой записи в общей таблице соревнования.
+	 *
 	 * @return место.
 	 */
 	public int getPlace() {
@@ -172,8 +169,8 @@ public class SchoolMonitorRecord implements Comparable, Serializable {
 	}
 
 	/**
-	 * Устанавливает место этой записи в общей таблице соревнования.
-	 * Места могут совпадать для нескольких записей.
+	 * Устанавливает место этой записи в общей таблице соревнования. Места могут совпадать для нескольких записей.
+	 *
 	 * @param place новое место.
 	 */
 	public void setPlace(int place) {
@@ -182,6 +179,7 @@ public class SchoolMonitorRecord implements Comparable, Serializable {
 
 	/**
 	 * Возвращает имя пользователя для данной записи.
+	 *
 	 * @return имя пользователя.
 	 */
 	public String getUser() {
@@ -190,6 +188,7 @@ public class SchoolMonitorRecord implements Comparable, Serializable {
 
 	/**
 	 * Возвращает штрафное время для данной записи.
+	 *
 	 * @return штрафное время в миллисекундах.
 	 */
 	public long getTime() {

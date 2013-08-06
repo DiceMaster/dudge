@@ -781,16 +781,14 @@ exists or setup the property manually. For example like this:
                 COMPILATION SECTION
             -->
     <target depends="init" if="no.dist.ear.dir" name="-deps-module-jar" unless="no.deps">
-        <ant antfile="${project.dudge-dtest}/build.xml" inheritall="false" target="jar">
-            <property name="deploy.on.save" value="false"/>
-        </ant>
+        <ant antfile="${project.dudge-ejb}/build.xml" inheritall="false" target="dist"/>
         <ant antfile="${project.dudge-lib}/build.xml" inheritall="false" target="jar">
             <property name="deploy.on.save" value="false"/>
         </ant>
     </target>
     <target depends="init" if="dist.ear.dir" name="-deps-ear-jar" unless="no.deps">
-        <ant antfile="${project.dudge-dtest}/build.xml" inheritall="false" target="jar">
-            <property name="deploy.on.save" value="false"/>
+        <ant antfile="${project.dudge-ejb}/build.xml" inheritall="false" target="dist-ear">
+            <property location="${build.dir}" name="dist.ear.dir"/>
         </ant>
         <ant antfile="${project.dudge-lib}/build.xml" inheritall="false" target="jar">
             <property name="deploy.on.save" value="false"/>
@@ -807,21 +805,25 @@ exists or setup the property manually. For example like this:
     </target>
     <target depends="compile,-library-inclusion-in-archive-weblogic,-library-inclusion-in-archive-by-user" name="library-inclusion-in-archive"/>
     <target if="is.jars.in.ejbjar" name="-library-inclusion-in-archive-by-user">
-        <copyfiles files="${libs.junit_4.classpath}" todir="${build.classes.dir}"/>
+        <copyfiles files="${reference.dudge-ejb.dist}" todir="${build.classes.dir}"/>
         <copyfiles files="${reference.dudge-lib.jar}" todir="${build.classes.dir}"/>
+        <copyfiles files="${libs.junit_4.classpath}" todir="${build.classes.dir}"/>
     </target>
     <target if="is.server.weblogic" name="-library-inclusion-in-archive-weblogic">
-        <basename file="${libs.junit_4.classpath}" property="manifest.libs.junit_4.classpath"/>
+        <basename file="${reference.dudge-ejb.dist}" property="manifest.reference.dudge-ejb.dist"/>
         <basename file="${reference.dudge-lib.jar}" property="manifest.reference.dudge-lib.jar"/>
+        <basename file="${libs.junit_4.classpath}" property="manifest.libs.junit_4.classpath"/>
         <manifest file="${build.ear.classes.dir}/META-INF/MANIFEST.MF" mode="update">
-            <attribute name="Extension-List" value="jar-1 jar-2 "/>
-            <attribute name="jar-1-Extension-Name" value="${manifest.libs.junit_4.classpath}"/>
+            <attribute name="Extension-List" value="jar-1 jar-2 jar-3 "/>
+            <attribute name="jar-1-Extension-Name" value="${manifest.reference.dudge-ejb.dist}"/>
             <attribute name="jar-2-Extension-Name" value="${manifest.reference.dudge-lib.jar}"/>
+            <attribute name="jar-3-Extension-Name" value="${manifest.libs.junit_4.classpath}"/>
         </manifest>
     </target>
     <target depends="compile" name="library-inclusion-in-manifest">
-        <copyfiles files="${libs.junit_4.classpath}" todir="${dist.ear.dir}/lib"/>
+        <copyfiles files="${reference.dudge-ejb.dist}" todir="${dist.ear.dir}"/>
         <copyfiles files="${reference.dudge-lib.jar}" todir="${dist.ear.dir}/lib"/>
+        <copyfiles files="${libs.junit_4.classpath}" todir="${dist.ear.dir}/lib"/>
         <manifest file="${build.ear.classes.dir}/META-INF/MANIFEST.MF" mode="update"/>
     </target>
     <target name="-copy-meta-inf">
@@ -1205,7 +1207,7 @@ exists or setup the property manually. For example like this:
                 CLEANUP SECTION
             -->
     <target depends="init" name="deps-clean" unless="no.deps">
-        <ant antfile="${project.dudge-dtest}/build.xml" inheritall="false" target="clean"/>
+        <ant antfile="${project.dudge-ejb}/build.xml" inheritall="false" target="clean"/>
         <ant antfile="${project.dudge-lib}/build.xml" inheritall="false" target="clean"/>
     </target>
     <target depends="init" name="-do-clean">

@@ -1,48 +1,44 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
-
 package dudge.web.forms;
 
 import javax.servlet.http.HttpServletRequest;
-import org.apache.struts.action.ActionErrors;
+import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionMapping;
-import org.apache.struts.action.ActionMessage;
 
 /**
  *
  * @author olorin
  */
-public class LanguagesForm extends org.apache.struts.action.ActionForm {
-  
+public class LanguagesForm extends ActionForm {
+
+	public static final long serialVersionUID = 1L;
 	// Действие над текущим языком.
 	private boolean newLanguage = false;
-	
 	// Информация о текущем обрабатываемом языке.
-  
 	private String languageId;
 	private String title;
 	private String description;
 	private String fileExtension;
 	private String compilationCommand;
 	private String executionCommand;
-   
-	public LanguagesForm() {
-   }
 
+	public LanguagesForm() {
+	}
+
+	/**
+	 *
+	 * @param arg0
+	 * @param arg1
+	 */
 	@Override
 	public void reset(ActionMapping arg0, HttpServletRequest arg1) {
 		super.reset(arg0, arg1);
-		languageId="";
-		title="";
-		description="";
-		fileExtension="";
-		compilationCommand="";
-		executionCommand="";
+		languageId = "";
+		title = "";
+		description = "";
+		fileExtension = "";
+		compilationCommand = "";
+		executionCommand = "";
 	}
-	
-	
 
 	public String getLanguageId() {
 		return languageId;
@@ -52,7 +48,6 @@ public class LanguagesForm extends org.apache.struts.action.ActionForm {
 		this.languageId = languageId;
 	}
 
-
 	public String getTitle() {
 		return title;
 	}
@@ -60,7 +55,6 @@ public class LanguagesForm extends org.apache.struts.action.ActionForm {
 	public void setTitle(String title) {
 		this.title = title;
 	}
-
 
 	public String getDescription() {
 		return description;
@@ -70,7 +64,6 @@ public class LanguagesForm extends org.apache.struts.action.ActionForm {
 		this.description = description;
 	}
 
-
 	public String getFileExtension() {
 		return fileExtension;
 	}
@@ -79,7 +72,6 @@ public class LanguagesForm extends org.apache.struts.action.ActionForm {
 		this.fileExtension = fileExtension;
 	}
 
-
 	public String getCompilationCommand() {
 		return compilationCommand;
 	}
@@ -87,7 +79,6 @@ public class LanguagesForm extends org.apache.struts.action.ActionForm {
 	public void setCompilationCommand(String compilationCommand) {
 		this.compilationCommand = compilationCommand;
 	}
-
 
 	public String getExecutionCommand() {
 		return executionCommand;
@@ -104,6 +95,4 @@ public class LanguagesForm extends org.apache.struts.action.ActionForm {
 	public void setNewLanguage(boolean newLanguage) {
 		this.newLanguage = newLanguage;
 	}
-   
-   
 }

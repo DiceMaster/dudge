@@ -3,30 +3,31 @@
  *
  * Created on September 15, 2007, 2:10 AM
  */
-
 package dudge.slave;
 
-import dudge.ifaces.DudgeRemote;
-import dudge.db.Contest;
+import dudge.SolutionRemote;
+import dudge.db.SolutionStatus;
 import dudge.db.Language;
 import dudge.db.Problem;
-import dudge.db.Run;
 import dudge.db.RunResultType;
+import dudge.db.Run;
 import dudge.db.Solution;
-import dudge.db.SolutionStatus;
-import dudge.db.Test;
+import dudge.db.Contest;
 import dudge.logic.ContestTraits;
+import dudge.util.Substitution;
+import dudge.db.Test;
 import dudge.slave.dtest.CheckingLimits;
 import dudge.slave.dtest.CheckingResult;
 import dudge.slave.dtest.OutputComparer;
 import dudge.slave.dtest.SolutionLauncher;
-import dudge.util.Substitution;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -40,8 +41,8 @@ import javax.ejb.TransactionAttribute;
 import javax.ejb.TransactionAttributeType;
 
 /**
- * Session bean раба. Позволяет проверять решения
- * и получать информацию о рабе.
+ * Session bean раба. Позволяет проверять решения и получать информацию о рабе.
+ *
  * @author Vladimir Shabanov
  */
 @Stateless
@@ -49,37 +50,41 @@ public class SlaveBean implements dudge.slave.SlaveLocal {
 
 	private static final Logger logger = Logger.getLogger(SlaveBean.class.toString());
 	private static final String solutionPrefix = "Solution";
-	
 	@EJB
-	private DudgeRemote dudgeBean;
-
+	private SolutionRemote solutionBean;
 	@Resource
 	boolean launcherUsePrivilegeDrop = false;
-	
 	@Resource
 	String launcherUsername = "dudge";
-
 	@Resource
 	String launcherDomain = ".";
-
 	@Resource
 	String launcherPassword = "123";
-
 	@Resource
 	String slaveLanguages = "gcc fpc java";
-	
-	/** Creates a new instance of SlaveBean */
+
+	/**
+	 * Creates a new instance of SlaveBean
+	 */
 	public SlaveBean() {
 	}
-	
+
+	/**
+	 *
+	 * @param solution
+	 */
 	protected void saveSolution(Solution solution) {
-            dudgeBean.saveSolution(solution);
+		solutionBean.saveSolution(solution);
 	}
 
+	/**
+	 *
+	 * @param solution
+	 * @throws SlaveException
+	 */
 	@TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
-	protected void testSolutionInternal(Solution solution)
-	throws SlaveException {
-		logger.info("Testing Solution " + solution.getSolutionId());
+	protected void testSolutionInternal(Solution solution) throws SlaveException, UnsupportedEncodingException {
+		logger.log(Level.FINE, "Testing Solution {0}", solution.getSolutionId());
 
 		Properties props = new Properties();
 		props.setProperty("dtest.usePrivelegeDrop", Boolean.toString(launcherUsePrivilegeDrop));
@@ -92,9 +97,8 @@ public class SlaveBean implements dudge.slave.SlaveLocal {
 		ContestTraits traits = contest.getTraits();
 		Language lang = solution.getLanguage();
 		Problem problem = solution.getProblem();
-		List<Test> tests = new ArrayList<Test>(problem.getTests());
+		List<Test> tests = new ArrayList<>(problem.getTests());
 		Collections.sort(tests);
-
 
 		// Компилируем решение.
 		SolutionLauncher launcher = new SolutionLauncher(props);
@@ -104,8 +108,7 @@ public class SlaveBean implements dudge.slave.SlaveLocal {
 				new File(launcher.getTemporaryDirectory()),
 				solutionPrefix,
 				lang.getFileExtension(),
-				lang.getCompilationCommand()
-				);
+				lang.getCompilationCommand());
 
 		solution.setStatus(SolutionStatus.COMPILING);
 
@@ -119,10 +122,6 @@ public class SlaveBean implements dudge.slave.SlaveLocal {
 			String message = "Running of compiler failed.";
 			logger.log(Level.SEVERE, message, ex);
 			throw new SlaveException(message, ex);
-//		} catch (InterruptedException ex) {
-//			String message = "Compiler process creation failed.";
-//			logger.log(Level.SEVERE, message, ex);
-//			throw new SlaveException(message, ex);
 		} catch (CompilerHangedException ex) {
 			String message = "Compiler hanged.";
 			logger.log(Level.SEVERE, message, ex);
@@ -131,7 +130,7 @@ public class SlaveBean implements dudge.slave.SlaveLocal {
 
 		solution.setCompilationTime(compiler.getCompilationTime());
 
-		if(!isCompiled) {
+		if (!isCompiled) {
 			solution.setStatus(SolutionStatus.COMPILATION_ERROR);
 			solution.setStatusMessage(compiler.getOutput());
 			this.saveSolution(solution);
@@ -147,12 +146,9 @@ public class SlaveBean implements dudge.slave.SlaveLocal {
 		sub.set("PROG.EXENAME", compiler.getCompiledFile().getName());
 		sub.set("PROG.TESTDIR", launcher.getTemporaryDirectory());
 		sub.set("PATH.SEPAR", File.separator);
-		
-		String solutionExecutionCommand = sub.decodeString(lang.getExecutionCommand());
-		logger.finer("Execution command: " + solutionExecutionCommand);
 
-		//String progFile = compiler.getProgramFilename();
-		//String progPath = testDir + File.separator + progFile;
+		String solutionExecutionCommand = sub.decodeString(lang.getExecutionCommand());
+		logger.log(Level.FINER, "Execution command: {0}", solutionExecutionCommand);
 
 		// Тестируем решение.
 		CheckingLimits limits = new CheckingLimits();
@@ -166,21 +162,26 @@ public class SlaveBean implements dudge.slave.SlaveLocal {
 			Test test = tests.get(i);
 			Run run = new Run(solution, test);
 			run.setResultType(RunResultType.SUCCESS);
-			run.setRunNumber(i+1);
+			run.setRunNumber(i + 1);
 
 			ByteArrayOutputStream outs = new ByteArrayOutputStream();
 			StringWriter errorStream = new StringWriter();
 
+			// Фикс проблемы с зависанием при запуске теста
+			String testInputData = test.getInputData();
+			if (!testInputData.endsWith("\n")) {
+				testInputData += "\n";
+			}
+
 			CheckingResult res = launcher.checkSolution(
 					limits,
 					solutionExecutionCommand,
-					new ByteArrayInputStream(test.getInputData().getBytes()),
+					new ByteArrayInputStream(testInputData.getBytes("UTF-8")),
 					outs,
-					errorStream
-					);
+					errorStream);
 
 			boolean limit_reached = false;
-			switch(res.resultType) {
+			switch (res.resultType) {
 				case 1:
 					run.setResultType(RunResultType.TIME_LIMIT);
 					limit_reached = true;
@@ -198,25 +199,20 @@ public class SlaveBean implements dudge.slave.SlaveLocal {
 					limit_reached = true;
 					break;
 				case 13:
-					throw new SlaveException("Dynamic Library error.\n\n --DTEST OUTPUT START--\n"
-						+ errorStream.toString()
-						+ "\n--DTEST OUTPUT END--\n");
+					throw new SlaveException("Dynamic Library error.\n\n --DTEST OUTPUT START--\n" + errorStream.toString() + "\n--DTEST OUTPUT END--\n");
 			}
 
-			//logger.finest("[START SOLUTION OUTPUT]\n" + outs + "\n[END SOLUTION OUTPUT]\n");
-
-			if(!limit_reached) {
+			if (!limit_reached) {
 				OutputComparer comparator = new LineComparator();
 				//TODO: Брать компаратор от сервера в зависимости от задачи.
 
-				try{
+				try {
 					// Сравниваем ответ от решения и эталонный.
 					boolean comparationResult = comparator.compare(
-							new ByteArrayInputStream(test.getOutputData().getBytes()),
-							new ByteArrayInputStream(outs.toByteArray())							
-							);
+							new ByteArrayInputStream(test.getOutputData().getBytes("UTF-8")),
+							new ByteArrayInputStream(outs.toByteArray()));
 
-					if(!comparationResult) {
+					if (!comparationResult) {
 						run.setResultType(RunResultType.WRONG_ANSWER);
 					}
 				} catch (IOException ex) {
@@ -227,76 +223,72 @@ public class SlaveBean implements dudge.slave.SlaveLocal {
 
 			solution.getRuns().add(run);
 
-			logger.finest("Result for test #" + i+1 + ":\n" + run);
+			logger.log(Level.FINEST, "Result for test #{0}{1}:\n{2}", new Object[]{i, 1, run});
 
-			if (run.getResultType() != RunResultType.SUCCESS
-					&& !traits.isRunAllTests()) {
+			if (run.getResultType() != RunResultType.SUCCESS && !traits.isRunAllTests()) {
 				break;
 			}
 		} // for
 
 		solution.setStatus(SolutionStatus.PROCESSED);
 		this.saveSolution(solution);
-		logger.finest("Solution " + solution.getSolutionId() + " processed.");
+		logger.log(Level.FINEST, "Solution {0} processed.", solution.getSolutionId());
 	} // testSolutionInternal()
-	
+
 	/**
 	 * Запускает на рабе проверку решения.
+	 *
 	 * @param solution решение на проверку.
-	 */	
+	 */
 	@TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
-	public void testSolution(Solution solution)
-	throws SlaveException {
+	@Override
+	public void testSolution(Solution solution) throws SlaveException {
 		try {
 			testSolutionInternal(solution);
 		} catch (NoClassDefFoundError ex) {
-			logger.log(Level.SEVERE,  "Class is not defined. Most likely, it is SolutionLauncher in dtest-lib. "
+			logger.log(Level.SEVERE, "Class is not defined. Most likely, it is SolutionLauncher in dtest-lib. "
 					+ "Try placing dtest-lib.jar into application server's 'lib' folder."
 					+ "\n\nClasspath: " + System.getProperty("java.class.path")
-					+ "\n\nJava library path: "
-					+ System.getProperty("java.library.path")
-					, ex);
-			if(solution != null) {
+					+ "\n\nJava library path: " + System.getProperty("java.library.path"), ex);
+			if (solution != null) {
 				solution.setStatus(SolutionStatus.INTERNAL_ERROR);
 
 				StringWriter sw = new StringWriter();
-				sw.write("Class is not defined. Most likely, it is SolutionLauncher in dtest-lib. " +
-					"Try placing dtest-lib.jar into application server's 'lib' folder.\n\n");
+				sw.write("Class is not defined. Most likely, it is SolutionLauncher in dtest-lib. "
+						+ "Try placing dtest-lib.jar into application server's 'lib' folder.\n\n");
 				ex.printStackTrace(new PrintWriter(sw));
 				solution.setStatusMessage(sw.getBuffer().toString());
-				dudgeBean.saveSolution(solution);
+				solutionBean.saveSolution(solution);
 			}
-			throw new SlaveException("Class is not defined. Most likely, it is SolutionLauncher in dtest-lib. " +
-					"Try placing dtest-lib.jar into application server's 'lib' folder.", ex);
+			throw new SlaveException("Class is not defined. Most likely, it is SolutionLauncher in dtest-lib. "
+					+ "Try placing dtest-lib.jar into application server's 'lib' folder.", ex);
 		} catch (UnsatisfiedLinkError ex) {
-			logger.log(Level.SEVERE,  "dtest.dll/libdtest.so is not found. Please place it in " +
-						"java.library.path: " + System.getProperty("java.library.path"), ex);
-			if(solution != null) {
+			logger.log(Level.SEVERE, "dtest.dll/libdtest.so is not found. Please place it in "
+					+ "java.library.path: " + System.getProperty("java.library.path"), ex);
+			if (solution != null) {
 				solution.setStatus(SolutionStatus.INTERNAL_ERROR);
 
 				StringWriter sw = new StringWriter();
-				sw.write("dtest.dll/libdtest.so is not found.\n Please place it in " +
-						"java.library.path: " + System.getProperty("java.library.path") + "\n\n");
+				sw.write("dtest.dll/libdtest.so is not found.\n Please place it in "
+						+ "java.library.path: " + System.getProperty("java.library.path") + "\n\n");
 				ex.printStackTrace(new PrintWriter(sw));
 				solution.setStatusMessage(sw.getBuffer().toString());
-				dudgeBean.saveSolution(solution);
+				solutionBean.saveSolution(solution);
 			}
-			throw new SlaveException("dtest.dll/libdtest.so is not found.\n Please place it in " +
-						"java.library.path: " + System.getProperty("java.library.path"), ex);
+			throw new SlaveException("dtest.dll/libdtest.so is not found.\n Please place it in "
+					+ "java.library.path: " + System.getProperty("java.library.path"), ex);
 		} catch (Throwable ex) {
 			logger.log(Level.SEVERE, "Internal slave error occured on solution "
-					+ (solution != null ? solution.getSolutionId() : "")
-					+ " Exception " + ex.getClass().getName(), ex);
-			if(solution != null) {
+					+ (solution != null ? solution.getSolutionId() : "") + " Exception " + ex.getClass().getName(), ex);
+			if (solution != null) {
 				solution.setStatus(SolutionStatus.INTERNAL_ERROR);
 
 				StringWriter sw = new StringWriter();
 				ex.printStackTrace(new PrintWriter(sw));
 				solution.setStatusMessage(sw.getBuffer().toString());
-				dudgeBean.saveSolution(solution);
+				solutionBean.saveSolution(solution);
 			}
-			throw new SlaveException("Internal slave error occured on solution "
-					+ (solution != null ? solution.getSolutionId() : ""), ex);
+			throw new SlaveException("Internal slave error occured on solution " + (solution != null ? solution.getSolutionId() : ""), ex);
 		}
 	} // testSolution()
 }

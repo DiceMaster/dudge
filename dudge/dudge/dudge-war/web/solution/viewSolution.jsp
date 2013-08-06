@@ -2,14 +2,6 @@
 
 <script type="text/javascript">
     Ext.onReady(function() {
-        var solutionToolbar = Ext.getCmp('content-panel').getTopToolbar();
-
-        solutionToolbar.addButton({
-            text: '<bean:message key="solution.update" />',
-            handler: function(){
-                window.location.reload(true);
-            }
-        });
 
         var responseFunction = function(response) {
             var status = Ext.util.JSON.decode(response.responseText);

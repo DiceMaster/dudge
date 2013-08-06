@@ -3,10 +3,7 @@
  *
  * Created on 26 Сентябрь 2007 г., 19:36
  *
- * To change this template, choose Tools | Template Manager
- * and open the template in the editor.
  */
-
 package dudge.db;
 
 import java.io.Serializable;
@@ -19,19 +16,19 @@ import javax.persistence.Column;
  * @author Michael Antonov
  */
 public class ContestLanguagePK implements Serializable {
-	
-	@Column(name = "contest_id", nullable=false)
+
+	public static final long serialVersionUID = 1L;
+	@Column(name = "contest_id", nullable = false)
 	private int contestId;
-	
-	@Column(name = "language_id", nullable=false)
+	@Column(name = "language_id", nullable = false)
 	private String languageId;
-	
+
 	/**
 	 * Creates a new instance of ContestProblemPK
 	 */
 	public ContestLanguagePK() {
 	}
-	
+
 	/**
 	 * Creates a new instance of ContestProblemPK with the specified values.
 	 *
@@ -39,10 +36,10 @@ public class ContestLanguagePK implements Serializable {
 	 * @param contestId the contest ID of the ContestProblemPK
 	 */
 	public ContestLanguagePK(int contestId, String languageId) {
-		this.setContestId(contestId);
-		this.setLanguageId(languageId);
+		this.contestId = contestId;
+		this.languageId = languageId;
 	}
-	
+
 	/**
 	 * Gets the contestId of this ContestProblemPK.
 	 *
@@ -51,7 +48,7 @@ public class ContestLanguagePK implements Serializable {
 	public int getContestId() {
 		return this.contestId;
 	}
-	
+
 	/**
 	 * Sets the contest of this ContestProblemPK to the specified value.
 	 *
@@ -60,7 +57,7 @@ public class ContestLanguagePK implements Serializable {
 	public void setContest(int contestId) {
 		this.setContestId(contestId);
 	}
-	
+
 	/**
 	 * Gets the problemId of this ContestProblemPK.
 	 *
@@ -69,7 +66,7 @@ public class ContestLanguagePK implements Serializable {
 	public String getLanguageId() {
 		return this.languageId;
 	}
-	
+
 	/**
 	 * Sets the problem of this ContestProblemPK to the specified value.
 	 *
@@ -78,10 +75,10 @@ public class ContestLanguagePK implements Serializable {
 	public void setLanguageId(String languageId) {
 		this.languageId = languageId;
 	}
-	
+
 	/**
-	 * Returns a hash code value for the object.  This implementation computes
-	 * a hash code value based on the id fields in this object.
+	 * Returns a hash code value for the object. This implementation computes a hash code value based on the id fields in this object.
+	 *
 	 * @return a hash code value for this object.
 	 */
 	@Override
@@ -91,15 +88,13 @@ public class ContestLanguagePK implements Serializable {
 		hash += getContestId();
 		return hash;
 	}
-	
+
 	/**
-	 * Determines whether another object is equal to this ContestProblemPK.  The result is
-	 * <code>true</code> if and only if the argument is not null and is a ContestProblemPK object that
-	 * has the same id field values as this object.
+	 * Determines whether another object is equal to this ContestProblemPK. The result is
+	 * <code>true</code> if and only if the argument is not null and is a ContestProblemPK object that has the same id field values as this object.
 	 *
 	 * @param object the reference object with which to compare
-	 * @return <code>true</code> if this object is the same as the argument;
-	 * <code>false</code> otherwise.
+	 * @return <code>true</code> if this object is the same as the argument; <code>false</code> otherwise.
 	 */
 	@Override
 	public boolean equals(Object object) {
@@ -107,15 +102,19 @@ public class ContestLanguagePK implements Serializable {
 		if (!(object instanceof ContestLanguagePK)) {
 			return false;
 		}
-		ContestLanguagePK other = (ContestLanguagePK)object;
-		if (!this.getLanguageId().equals(other.getLanguageId())) return false;
-		if (this.getContestId() != other.getContestId()) return false;
+		ContestLanguagePK other = (ContestLanguagePK) object;
+		if (!this.getLanguageId().equals(other.getLanguageId())) {
+			return false;
+		}
+		if (this.getContestId() != other.getContestId()) {
+			return false;
+		}
 		return true;
 	}
-	
+
 	/**
-	 * Returns a string representation of the object.  This implementation constructs
-	 * that representation based on the id fields.
+	 * Returns a string representation of the object. This implementation constructs that representation based on the id fields.
+	 *
 	 * @return a string representation of the object.
 	 */
 	@Override

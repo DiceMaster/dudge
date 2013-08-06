@@ -9,31 +9,29 @@ import java.io.Serializable;
  * @author Vladimir Shabanov
  */
 public class User implements Serializable {
-	
-	private String login;
-		
-	private String email;
-	
-	private String realName = "";
-	
-	private String organization = "";
-	
-	private Date regDate;
 
+	public static final long serialVersionUID = 1L;
+	private String login;
+	private String email;
+	private String realName = "";
+	private String organization = "";
+	private Date regDate;
 	private String jabberId = "";
-	
 	private Integer icqNumber = null;
-	
 	private boolean isAdmin;
-	
 	private boolean canCreateContest;
-	
 	private boolean canCreateProblem;
-		
-	/** Creates a new instance of User */
+
+	/**
+	 * Creates a new instance of User
+	 */
 	public User() {
 	}
 
+	/**
+	 * 
+	 * @param user 
+	 */
 	public User(dudge.db.User user) {
 		this.login = user.getLogin();
 		this.email = user.getEmail();
@@ -46,17 +44,19 @@ public class User implements Serializable {
 		this.canCreateContest = user.canCreateContest();
 		this.canCreateProblem = user.canCreateProblem();
 	}
-	
+
 	/**
 	 * Creates a new instance of User with the specified values.
+	 *
 	 * @param login the login of the User
 	 */
 	public User(String login) {
 		this.login = login;
 	}
-	
+
 	/**
 	 * Creates a new instance of User with the specified values.
+	 *
 	 * @param login the login of the User
 	 * @param email the email of the User
 	 */
@@ -65,42 +65,46 @@ public class User implements Serializable {
 		this.email = email;
 		this.regDate = new Date();
 	}
-	
+
 	/**
 	 * Gets the login of this User.
+	 *
 	 * @return the login
 	 */
 	public String getLogin() {
 		return this.login;
 	}
-	
+
 	/**
 	 * Sets the login of this User to the specified value.
+	 *
 	 * @param login the new login
 	 */
 	public void setLogin(String login) {
 		this.login = login;
 	}
-		
+
 	/**
 	 * Gets the email of this User.
+	 *
 	 * @return the email
 	 */
 	public String getEmail() {
 		return this.email;
 	}
-	
+
 	/**
 	 * Sets the email of this User to the specified value.
+	 *
 	 * @param email the new email
 	 */
 	public void setEmail(String email) {
 		this.email = email;
 	}
-		
+
 	/**
-	 * Returns a hash code value for the object.  This implementation computes
-	 * a hash code value based on the id fields in this object.
+	 * Returns a hash code value for the object. This implementation computes a hash code value based on the id fields in this object.
+	 *
 	 * @return a hash code value for this object.
 	 */
 	@Override
@@ -109,14 +113,13 @@ public class User implements Serializable {
 		hash += (this.login != null ? this.login.hashCode() : 0);
 		return hash;
 	}
-	
+
 	/**
-	 * Determines whether another object is equal to this User.  The result is
-	 * <code>true</code> if and only if the argument is not null and is a User object that
-	 * has the same id field values as this object.
+	 * Determines whether another object is equal to this User. The result is
+	 * <code>true</code> if and only if the argument is not null and is a User object that has the same id field values as this object.
+	 *
 	 * @param object the reference object with which to compare
-	 * @return <code>true</code> if this object is the same as the argument;
-	 * <code>false</code> otherwise.
+	 * @return <code>true</code> if this object is the same as the argument; <code>false</code> otherwise.
 	 */
 	@Override
 	public boolean equals(Object object) {
@@ -124,81 +127,147 @@ public class User implements Serializable {
 		if (!(object instanceof User)) {
 			return false;
 		}
-		User other = (User)object;
-		if (this.login == null || !this.login.equals(other.login)) return false;
+		User other = (User) object;
+		if (this.login == null || !this.login.equals(other.login)) {
+			return false;
+		}
 		return true;
 	}
-	
+
 	/**
-	 * Returns a string representation of the object.  This implementation constructs
-	 * that representation based on the id fields.
+	 * Returns a string representation of the object. This implementation constructs that representation based on the id fields.
+	 *
 	 * @return a string representation of the object.
 	 */
 	@Override
 	public String toString() {
 		return "dudgedb.User[login=" + login + "]";
 	}
-	
-	public boolean  isAdmin() {
+
+	/**
+	 *
+	 * @return
+	 */
+	public boolean isAdmin() {
 		return isAdmin;
 	}
-	
+
+	/**
+	 *
+	 * @param isAdmin
+	 */
 	public void setAdmin(boolean isAdmin) {
 		this.isAdmin = isAdmin;
 	}
-	
+
+	/**
+	 *
+	 * @return
+	 */
 	public boolean canCreateContest() {
 		return canCreateContest;
 	}
-	
+
+	/**
+	 *
+	 * @param canCreateContest
+	 */
 	public void setCreateContest(boolean canCreateContest) {
 		this.canCreateContest = canCreateContest;
 	}
-		
+
+	/**
+	 *
+	 * @return
+	 */
 	public String getRealName() {
 		return realName;
 	}
-	
+
+	/**
+	 *
+	 * @param realName
+	 */
 	public void setRealName(String realName) {
 		this.realName = realName;
 	}
-	
+
+	/**
+	 *
+	 * @return
+	 */
 	public String getOrganization() {
 		return organization;
 	}
-	
+
+	/**
+	 *
+	 * @param organization
+	 */
 	public void setOrganization(String organization) {
 		this.organization = organization;
 	}
-	
+
+	/**
+	 *
+	 * @return
+	 */
 	public Date getRegDate() {
 		return regDate;
 	}
-	
+
+	/**
+	 *
+	 * @param regDate
+	 */
 	public void setRegDate(Date regDate) {
 		this.regDate = regDate;
 	}
-		
+
+	/**
+	 *
+	 * @return
+	 */
 	public String getJabberId() {
 		return jabberId;
 	}
 
+	/**
+	 *
+	 * @param jabberId
+	 */
 	public void setJabberId(String jabberId) {
 		this.jabberId = jabberId;
 	}
-	
+
+	/**
+	 *
+	 * @return
+	 */
 	public Integer getIcqNumber() {
 		return icqNumber;
 	}
-	
+
+	/**
+	 *
+	 * @param icqNumber
+	 */
 	public void setIcqNumber(Integer icqNumber) {
 		this.icqNumber = icqNumber;
 	}
 
+	/**
+	 *
+	 * @return
+	 */
 	public boolean canCreateProblem() {
 		return canCreateProblem;
 	}
 
+	/**
+	 *
+	 * @param canCreateProblem
+	 */
 	public void setCreateProblem(boolean canCreateProblem) {
 		this.canCreateProblem = canCreateProblem;
 	}

@@ -1,23 +1,21 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package dudge.web.forms;
+
+import org.apache.struts.action.ActionForm;
 
 /**
  *
- * @author Mikhail
+ * @author Mikhail Ivanov
  */
-public class ReportsForm extends org.apache.struts.action.ActionForm {
+public class ReportsForm extends ActionForm {
 
-    private int contestId;
+	public static final long serialVersionUID = 1L;
+	private int contestId;
 
-    public int getContestId() {
-        return contestId;
-    }
+	public int getContestId() {
+		return contestId;
+	}
 
-    public void setContestId(int contestId) {
-        this.contestId = contestId;
-    }
-    
+	public void setContestId(int contestId) {
+		this.contestId = contestId;
+	}
 }

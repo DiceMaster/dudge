@@ -18,7 +18,7 @@
             [
                 'place',
                 'user',
-    <c:forEach items="${dudgeLocal.contests}" var="contest">
+    <c:forEach items="${contestLocal.contests}" var="contest">
         <c:if test="${contest.contestId == contestId}">
             <c:set var="contestProblems" value="${contest.contestProblems}" /> 
             <c:forEach items="${contestProblems}" var="contestProblem">
@@ -68,7 +68,7 @@
                     renderer: renderLogin,
                     width: 80
                 },
-    <c:forEach items="${dudgeLocal.contests}" var="contest">
+    <c:forEach items="${contestLocal.contests}" var="contest">
         <c:if test="${contest.contestId == contestId}">
             <c:set var="contestProblems" value="${contest.contestProblems}" /> 
                 <c:forEach items="${contestProblems}" var="contestProblem">

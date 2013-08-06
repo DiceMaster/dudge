@@ -1,16 +1,17 @@
 package dudge.slave.dtest;
 
 /**
- *  !!!Этот класс используется в JNI-части системы!!!
- *  Класс результата проверки одного теста.
- *  Объект этого класса возвращается
- *  JNI-методом динамической библиотеки.
- *  @author Vladimir Shabanov
+ * !!!Этот класс используется в JNI-части системы!!! Класс результата проверки одного теста. Объект этого класса возвращается JNI-методом динамической
+ * библиотеки.
+ *
+ * @author Vladimir Shabanov
  */
-public class CheckingResult
-{
+public class CheckingResult {
+
+	/**
+	 * 
+	 */
 	public int returnedValue;
-	
 	/**
 	 * resultType - результат запуска решения.
 	 * 0 - все нормально.
@@ -23,11 +24,18 @@ public class CheckingResult
 	 * -1 - внутренняя ошибка.
 	 */
 	public byte resultType = -1;
-	
+	/**
+	 *
+	 */
 	public long maxMemUsed = 0; // bytes
+	/**
+	 *
+	 */
 	public long cpuTimeUsed = 0; // milliseconds
-	
-	public CheckingResult()
-	{
+
+	/**
+	 *
+	 */
+	public CheckingResult() {
 	}
 }
