@@ -8,6 +8,7 @@ import dudge.db.Role;
 import dudge.db.Solution;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.logging.Logger;
@@ -80,6 +81,8 @@ public class ContestBean implements ContestLocal {
 			}
 		}
 
+                Collections.sort(pendingContests);
+                
 		return pendingContests;
 	}
 
@@ -99,6 +102,8 @@ public class ContestBean implements ContestLocal {
 			}
 		}
 
+                Collections.sort(activeContests);
+                
 		return activeContests;
 	}
 
@@ -117,11 +122,13 @@ public class ContestBean implements ContestLocal {
 			c.setTime(contest.getEndTime());
 			c.add(java.util.Calendar.DAY_OF_MONTH, 7);
 
-			if (contest.isFinished() && c.before(java.util.Calendar.getInstance())) {
+			if (contest.isFinished() && c.after(java.util.Calendar.getInstance())) {
 				recentlyFinishedContests.add(contest);
 			}
 		}
 
+                Collections.sort(recentlyFinishedContests);
+                
 		return recentlyFinishedContests;
 	}
 
