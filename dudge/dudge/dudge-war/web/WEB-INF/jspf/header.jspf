@@ -33,6 +33,10 @@ on Libraries node in Projects view can be used to add the JSTL 1.1 library.
 <% dudge.ContestLocal contestLocal = dudge.web.ServiceLocator.getInstance().lookupContestBean();
     pageContext.setAttribute("contestLocal", contestLocal);%>
 
+<c:set var="activeContests" value="${contestLocal.getActiveContests()}" /> 
+<c:set var="pendingContests" value="${contestLocal.getPendingContests()}" /> 
+<c:set var="recentlyFinishedContests" value="${contestLocal.getRecentlyFinishedContests()}" />
+    
 <c:set var="contestId" value="${contestsForm.contestId}" scope="session"/>
 
 <c:if test="${contestId == null}">
@@ -47,397 +51,118 @@ on Libraries node in Projects view can be used to add the JSTL 1.1 library.
     </c:if>  
 </c:forEach>
 
-
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
-    "http://www.w3.org/TR/html4/loose.dtd">
+<!DOCTYPE html>
 <html>
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-        <link rel="stylesheet" type="text/css" href="/dudge/ext/resources/css/ext-all.css" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-        <script type="text/javascript" src="/dudge/ext/adapter/ext/ext-base.js"></script>
-        <script type="text/javascript" src="/dudge/ext/ext-all-debug.js"></script>
-
-        <script type="text/javascript" src="/dudge/scripts/Header.js"></script>
+        <link href="css/bootstrap.min.css" rel="stylesheet" media="screen">
 
         <title>Dudge</title>
-
-        <style type="text/css">
-            html, body {
-                font:normal 12px verdana;
-                margin:0;
-                padding:0;
-                border:0 none;
-                overflow:hidden;
-                height:100%;
-            }
-            p {
-                margin:10px;
-            }
-
-            h1 {
-                font-size: 200%
-            }
-
-            h2 {
-                font-size: 150%
-            }
-        </style>
-
     </head>
 
     <body>
-        <!-- use class="x-hide-display" to prevent a brief flicker of the content -->
-        <div id="problemsList" class="x-hide-display">
-
-            <c:forEach items="${menuContestProblems}" var="contestProblem">
-                <c:choose>
-                    <c:when test="${permissionCheckerRemote.canViewProblem(autentificationObject.username, contestProblem.problem.problemId)}">
-                        <p><b>${contestProblem.problemMark}</b>. 
-                            <a href="problems.do?contestId=${contestId}&reqCode=view&problemId=${contestProblem.problem.problemId}">${contestProblem.problem.title}</a>
-                        </c:when>
-                        <c:otherwise>
-                        <p><b>${contestProblem.problemMark}</b>.
-                            <i>${contestProblem.problem.title}</i>
-                        </c:otherwise>
-                    </c:choose>
-                </c:forEach>
+        <div class="navbar">
+            <div class="container">
+                <button class="navbar-toggle" type="button" data-toggle="collapse" data-target="navbar-collapse">
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                <a class="navbar-brand" href="/dudge">Dudge</a>
+                <div class="nav-collapse collapse">                
+                    <ul class="nav navbar-nav">
+                        <li class="active"> <a href="announces.do?reqCode=makeAnnounce"><bean:message key="menu.news"/></a> </li>
+                        <li> <a href="contests.do?reqCode=list"><bean:message key="menu.contests"/></a> </li>
+                        <li> <a href="problems.do?reqCode=list"><bean:message key="menu.problems"/></a> </li>
+                        <li> <a href="monitor.do?contestId=${contestId}&reqCode=showStatus"><bean:message key="menu.status"/></a> </li>
+                        <li> <a href="#"><bean:message key="menu.rules"/></a> </li>
+                    </ul>
+<c:choose>
+<c:when test="${not autentificationObject.authenticated}">
+                    <form class="navbar-form pull-right" action="login.do" method="POST">
+                        <input type="hidden" name="reqCode" value="login">
+                        <input type="text" name="username" class="form-control" placeholder="<bean:message key="user.login"/>" style="width: 150px;">
+                        <input type="password" name="password" class="form-control" placeholder="<bean:message key="user.password"/>" style="width: 150px;">
+                        <button type="submit" class="btn btn-default"><bean:message key="login.login"/></button>
+                        <a href="users.do?contestId=${contestId}&reqCode=register"><bean:message key="menu.registration"/></a>
+                    </form>
+</c:when>
+<c:otherwise>
+                    <ul class="nav navbar-nav pull-right">
+                        <li><p class="navbar-text"><bean:message key="menu.user" /></p></li>
+                        <li class="dropdown">
+                            <a href="#" class="dropdown-toggle" data-toggle="dropdown">${autentificationObject.username}<span class="caret"></span></a>    
+                            <ul class="dropdown-menu">
+                                <li> <a href="users.do?reqCode=view&login=${autentificationObject.username}"><bean:message key="user.profile"/></a> </li>
+                                <li> <a href="login.do?reqCode=logout"><bean:message key="login.logout"/></a> </li>
+                            </ul>
+                        </li>
+                    </ul>
+</c:otherwise>
+</c:choose>
+                </div><!--/.nav-collapse -->
+            </div>
         </div>
-
-        <div id="solutionRequirements" class="x-hide-display">
-            <p> <%@include file="requirements.jspf" %></p>
-        </div>
-
-        <div id="miscMenu" class="x-hide-display">
-            <p><a href="monitor.do?contestId=${contestId}&reqCode=showStatus"><bean:message key="menu.status"/></a>
-            <p><a href="users.do?contestId=${contestId}&reqCode=list"><bean:message key="menu.users"/></a>
-            <p><a href="problems.do?contestId=${contestId}&reqCode=list"><bean:message key="menu.problems"/></a>
-            <p><a href="languages.do?contestId=${contestId}&reqCode=list"><bean:message key="menu.languages"/></a>
-            <c:if test="${permissionCheckerRemote.canModifyContest(autentificationObject.username, contestId)}">
-                <p><a href="reports.do?reqCode=list"><bean:message key="menu.reporting"/></a>  
-            </c:if>
-        </div>
-
-        <div id="content" class="x-hide-display">
-
-
-            <script type="text/javascript">
-                function changePassword() {
-                    // Add password change dialog.
-
-                    // Save/loading status-data for AJAX - response, on action - changePassword.
-                    var ds = new Ext.data.Store({
-                        // load using script tags for cross domain, if the data in on the same domain as
-                        // this page, an HttpProxy would be better
-                        proxy: new Ext.data.HttpProxy({
-                            url: 'users.do?reqCode=changePassword'
-                        }),
-
-                        // create reader that reads the Topic records
-                        reader: new Ext.data.JsonReader(
-                        {
-                            root: 'password',
-                            totalProperty: 'totalCount'
-                        },
-                        [
-                            {name: 'result', mapping: 'result'}
-                        ]
-                    )
-                    });
-
-                    // tabs for the center
-                    var fields = new Ext.form.FieldSet({
-                        defaults: {inputType: 'password'},
-                        items:[
-                            new Ext.form.TextField({
-                                fieldLabel: '<bean:message key="changePassword.oldPassword" />',
-                                id: 'oldPassword'
-                            }),
-                            new Ext.form.TextField({
-                                fieldLabel: '<bean:message key="changePassword.newPassword" />',
-                                id: 'newPassword'
-                            }),
-                            new Ext.form.TextField({
-                                fieldLabel: '<bean:message key="changePassword.repeatNewPassword" />',
-                                id: 'repeatNewPassword'
-                            })
-                        ]
-                    });
-
-                    var changeButton = new Ext.Button({
-                        text:'<bean:message key="changePassword.change" />'
-                    });
-
-                    var cancelButton = new Ext.Button({
-                        text:'<bean:message key="changePassword.cancel" />'
-                    });
-
-                    var win = new Ext.Window({
-                        title: '<bean:message key="changePassword.windowTitle" />',
-                        closable: true,
-                        width: 300,
-                        modal: true,
-                        height: 180,
-                        //border:false,
-                        layout: 'fit',
-                        plain:true,
-
-                        items: [fields],
-                        buttons: [changeButton, cancelButton]
-                    });
-
-                    win.show(this);
-
-                    changeButton.on('click' , function() {
-                        if(fields.findById('newPassword').getValue() ==
-                            fields.findById('repeatNewPassword').getValue())
-                        {
-                            ds.on('load' , function() {
-                                if(ds.getAt(0).get('result') == "1"){
-                                    Ext.Msg.alert(
-                                    '<bean:message key="changePassword.passwordChanged" />',
-                                    '<bean:message key="changePassword.passwordChanged" />'
-                                );
-                                    win.close();
-                                }
-                                if(ds.getAt(0).get('result') == "0"){
-                                    Ext.Msg.alert(
-                                    '<bean:message key="changePassword.wrongPassword" />',
-                                    '<bean:message key="changePassword.wrongPassword" />'
-                                );
-                                }
-                            });
-
-                            ds.load({
-                                params: {
-                                    reqCode: 'changePassword',
-                                    oldPassword: fields.findById('oldPassword').getValue(),
-                                    newPassword: fields.findById('newPassword').getValue()
-                                } });
-
-                        }
-                        else { // Passwords don't match
-                            Ext.Msg.alert(
-                            '<bean:message key="changePassword.wrongRepeat" />',
-                            '<bean:message key="changePassword.wrongRepeat" />'
-                        );
-                        }
-                    });
-
-                    cancelButton.on('click', function() {win.close()});
-                } //changePassword();
-
-                Ext.onReady(function(){
-
-                    //Ext.state.Manager.setProvider(new Ext.state.CookieProvider());
-
-                    // add a combobox for change locales to the toolbar.
-                    var localesArray = [ ['en', '<bean:message key="locale.english" />'],
-                        ['ru', '<bean:message key="locale.russian" />'] ];
-
-                    var languageComboBox = new Ext.form.ComboBox({
-                        store: new Ext.data.SimpleStore({
-                            fields: ['key', 'displayName'],
-                            data : localesArray
-                        }),
-                        displayField: 'displayName',
-                        editable: false,
-                        typeAhead: true,
-                        mode: 'local',
-                        forceSelection: true,
-                        triggerAction: 'all',
-                        emptyText: '<bean:message key="locale.currentLocale" />',
-                        selectOnFocus: true,
-                        width: 90,
-                        getListParent: function() {
-                            return this.el.up('.x-menu');
-                        },
-                        iconCls: 'no-icon' //use iconCls if placing within menu to shift to right side of menu
-                    });
-
-                    languageComboBox.on('select' , function (combo,record,index) {
-                        var locale_name = record.get('key');
-                        var localeConnection = new Ext.data.Connection({method: 'POST' , url: 'locale.do'});
-                        localeConnection.request({
-                            params: {reqCode: 'setLocale' , locale_name: locale_name},
-                            callback: function() { window.location.reload( true );}
-                        });
-                    });
-                    
-                    var mainMenuToolbar = new Ext.Toolbar({
-                        height: 'auto',
-                        items: [
-                            {
-                                xtype: 'tbtext',
-                                html: '<a href="users.do?contestId=${contestId}&reqCode=register"><bean:message key="menu.registration"/></a>'
-                            },
-                            {
-                                xtype: 'tbtext',
-                                html: '<a href="contests.do?contestId=${contestId}&reqCode=list"><bean:message key="menu.contests"/></a>'
-                            },
-                            {
-                                xtype: 'tbtext',
-                                html: '<a href="authors.jsp?contestId=${contestId}&"><bean:message key="menu.authors"/></a>'
-                            },
-                            '->',
-                            languageComboBox,
-                            '-',
-                <c:choose>
-                    <c:when test="${not autentificationObject.authenticated}">
-                                    {
-                                        xtype: 'textfield',
-                                        id: 'username',
-                                        emptyText: '<bean:message key="user.login"/>',
-                                        width: 80,
-                                        listeners: {
-                                            specialkey: function(f,e){
-                                                if(e.getKey() == e.ENTER){
-                                                    console.log('Special Key = Enter');
-                                                    var loginBtn = Ext.getCmp("loginBtn");
-                                                    loginBtn.handler.call(loginBtn.scope, loginBtn, Ext.EventObject);
-                                                }
-                                            }
-                                        }
-                                    },
-                                    ' ',
-                                    {
-                                        xtype: 'textfield',
-                                        id: 'password',
-                                        inputType: 'password',
-                                        width: 80,
-                                        listeners: {
-                                            specialkey: function(f,e){
-                                                if(e.getKey() == e.ENTER){
-                                                    console.log('Special Key = Enter');
-                                                    var loginBtn = Ext.getCmp("loginBtn");
-                                                    loginBtn.handler.call(loginBtn.scope, loginBtn, Ext.EventObject);
-                                                }
-                                            }
-                                        }
-                                    },
-                                    ' ',
-                                    {
-                                        xtype: 'button',
-                                        name: 'login',
-                                        id: 'loginBtn',
-                                        text: '<bean:message key="login.login"/>',
-                                        type: 'submit',
-                                        handler: function (button, e) {
-                                            var loginConnection = new Ext.data.Connection({method: 'POST' , url: 'login.do?reqCode=login'});
-                                            loginConnection.request({
-                                                params: {username: Ext.getCmp('username').getRawValue() , password: Ext.getCmp('password').getRawValue()},
-                                                callback: function() { window.location.reload( true );}
-                                            });
-                                        }
-                                    }
-                    </c:when>
-                    <c:otherwise>
-                                    {
-                                        xtype: 'tbtext',
-                                        html: '<bean:message key="menu.user" />: '
-                                            + '<b><a href="users.do?reqCode=view&login=${autentificationObject.username}">${autentificationObject.username}</a></b>'
-                                            +' (<a href="javascript:changePassword()"><bean:message key="menu.changePassword"/></a>)'
-                                    },
-                                    ' ',
-                                    {
-                                        xtype: 'button',
-                                        name: 'logout',
-                                        text: '<bean:message key="login.logout"/>',
-                                        type: 'submit',
-                                        handler: function (button, e) {
-                                            var loginConnection = new Ext.data.Connection({method: 'POST' , url: 'login.do?reqCode=logout'});
-                                            loginConnection.request({
-                                                callback: function() { window.location.reload( true );}
-                                            });
-                                        }
-                                    }
-                    </c:otherwise>
-                </c:choose>
-                                , ' '
-                            ] //items of toolbar
-                        }); // Ext.Toolbar
-
-
-
-                        //var sentSolutionsGrid = new Ext.grid.GridPanel({
-                        //	store: new Ext.data.ArrayStore({
-                        //		autoDestroy: true,
-                        //		fields: ['solId', 'time', 'problemName'],
-                        //		data : [
-                        //			['2', '10:23', 'A. Р•Р¶РёРєРё'],
-                        //			['1', '10:28', 'C. Р”РµРјРѕРЅС‹ РёР· РІР°СЂРїР°']
-                        //		]
-                        //	}),
-                        //    colModel: new Ext.grid.ColumnModel({
-                        //        defaults: {
-                        //            width: 60,
-                        //            sortable: true
-                        //        },
-                        //        columns: [
-                        //			{id: 'solId', dataIndex: 'solId', hidden: true},
-                        //            {id: 'time', header: 'Р’СЂРµРјСЏ', dataIndex: 'time', width: 45, resizable: false},
-                        //            {header: 'Р—Р°РґР°С‡Р°', dataIndex: 'problemName', width: 150}
-                        //        ],
-                        //    }),
-                        //    viewConfig: {
-                        //        //forceFit: true
-                        //    },
-                        //    sm: new Ext.grid.RowSelectionModel({singleSelect:true}),
-                        //	border: false
-                        //});
-
-                        var viewport = new Ext.Viewport({
-                            layout: 'border',
-                            items: [
-                                {
-                                    region: 'north',
-                                    title: '<a href="index.jsp?contestId=${contestId}">Dudge</a>: <a href="contests.do?reqCode=view&contestId=${contestId}">${contestCaption}</a>',
-                                    tbar: mainMenuToolbar
-                                }, {
-                                    region: 'west',
-                                    id: 'west-panel', // see Ext.getCmp() below
-                                    title: '<bean:message key="menu.navigation"/> (<a href="monitor.do?reqCode=view&contestId=${contestId}"><bean:message key="menu.monitor"/></a>)',
-                                    split: true,
-                                    width: 200,
-                                    minSize: 175,
-                                    maxSize: 400,
-                                    collapsible: true,
-                                    margins: '0 0 0 5',
-                                    layout: {
-                                        type: 'accordion',
-                                        animate: true
-                                    },
-                                    items: [{
-                                            title: '<bean:message key="menu.contestProblems"/> (<a href="solutions.do?reqCode=submit&contestId=${contestId}"><bean:message key="menu.submit"/></a>)',
-                                            border: false,
-                                            autoScroll: true,
-                                            contentEl: 'problemsList'
-                                        }, {
-                                            contentEl: 'solutionRequirements',
-                                            title: '<bean:message key="menu.solutionRequirements"/>',
-                                            autoScroll: true,
-                                            border: false
-                                        }, {
-                                            title: '<bean:message key="menu.sentSolutions"/>',
-                                            border: false/*,
-items: sentSolutionsGrid*/
-                                        }, {
-                                            title: '<bean:message key="menu.misc"/>',
-                                            border: false,
-                                            contentEl: 'miscMenu'
-                                        }]
-                                },
-                                {
-                                    region: 'center',
-                                    id: 'content-panel',
-                                    contentEl: 'content',
-                                    bodyStyle:'padding:5px;',
-                                    autoScroll: true,
-                                    tbar: new Ext.Toolbar({ height: 'auto' }),
-                                    border: false
-                                }]
-                        });
-                   
-
-                    }); // Ext.OnReady()
-            </script>
+        <div class="container">
+            <div class="row">
+    		<div class="col-lg-3">
+<c:if test="${contest != null}">
+                    <div class="well sidebar-nav">
+                        <ul class="nav nav-list">
+                            <li class="nav-header"> <h4> ${contestCaption} </h4> </li>
+                            <li> <a href="monitor.do?reqCode=view&contestId=${contestId}"><bean:message key="monitor.monitor"/></a> </li>
+    <c:if test="${not empty menuContestProblems}">                    
+                            <li class="nav-header"> Задачи </li>
+        <c:forEach items="${menuContestProblems}" var="contestProblem">
+                            <li>
+            <c:choose>
+                <c:when test="${permissionCheckerRemote.canViewProblem(autentificationObject.username, contestProblem.problem.problemId)}">
+                                <a href="problems.do?contestId=${contestId}&reqCode=view&problemId=${contestProblem.problem.problemId}">${contestProblem.problemMark}. ${contestProblem.problem.title}</a>
+                </c:when>
+                <c:otherwise>
+                                <p>${contestProblem.problemMark}. ${contestProblem.problem.title}</p>
+                </c:otherwise>
+            </c:choose>
+                            </li>
+        </c:forEach>
+    </c:if>
+                        </ul>
+                    </div>
+</c:if>
+<c:if test="${not empty activeContests || not empty pendingContests || not empty recentlyFinishedContests}">
+                    <div class="well sidebar-nav">
+                        <ul class="nav nav-list">
+                            <li class="nav-header"> <h4><bean:message key="menu.contests"/></h4> </li>
+    <c:if test="${not empty activeContests}">
+                            <li class="nav-header"> <bean:message key="contests.active"/> </li>
+        <c:forEach items="${activeContests}" var="contest">
+                            <li>
+                                    <a href="contests.do?reqCode=view&contestId=${contest.contestId}">${contest.caption}</a>
+                            </li>
+        </c:forEach>
+    </c:if>
+    <c:if test="${not empty pendingContests}">
+                            <li class="nav-header"> <bean:message key="contests.pending"/> </li>
+        <c:forEach items="${pendingContests}" var="contest">
+                            <li>
+                                    <a href="contests.do?reqCode=view&contestId=${contest.contestId}">${contest.caption}</a>
+                            </li>
+        </c:forEach>
+    </c:if>
+    <c:if test="${not empty recentlyFinishedContests}">
+                            <li class="nav-header"> <bean:message key="contests.recentlyFinished"/> </li>
+        <c:forEach items="${recentlyFinishedContests}" var="contest">
+                            <li>
+                                    <a href="contests.do?reqCode=view&contestId=${contest.contestId}">${contest.caption}</a>
+                            </li>
+        </c:forEach>
+    </c:if>
+                        </ul>
+                    </div>
+</c:if>                    
+                    <!--/.well -->
+    		</div>
+    		<!--/span-->
+    		<div class="col-lg-9">
