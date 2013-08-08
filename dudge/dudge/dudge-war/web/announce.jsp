@@ -1,39 +1,20 @@
-<%@page import="dudge.db.Contest"%>
+﻿<%@page import="dudge.db.Contest" pageEncoding="UTF-8"%>
 <jsp:useBean id="announceForm" class="dudge.web.forms.AnnounceForm" scope="session" />
 <jsp:useBean id="announceAction" class="dudge.web.actions.AnnounceAction" scope="session"/>
 
-<h1 align="center"><bean:message key="contests.contests"/></h1>
-<p><p>
-
-    <c:set var="activeContests" value="${announceForm.activeContests}"/>
-    <c:set var="pendingContests" value="${announceForm.pendingContests}"/>
-    <c:set var="recentlyFinishedContests" value="${announceForm.recentlyFinishedContests}"/>
-
-    <c:if test="${fn:length(activeContests) gt 0}">
-    <h2 align="center"><bean:message key="contests.active"/></h2>
-    <c:forEach items="${activeContests}" var="contest">
-        <p align="center"><a onclick="setContestId(id)" id="${contest.contestId}" href="contests.do?reqCode=view&contestId=${contest.contestId}">${contest.caption}</a></p>
-    </c:forEach>
-</c:if>
-
-<c:if test="${fn:length(pendingContests) gt 0}">
-    <h2 align="center"><bean:message key="contests.pending"/></h2>
-    <c:forEach items="${pendingContests}" var="contest">
-        <p align="center"><a onclick="setContestId(id)" id="${contest.contestId}" href="contests.do?reqCode=view&contestId=${contest.contestId}">${contest.caption}</a></p>
-    </c:forEach>
-</c:if>
-
-<c:if test="${fn:length(recentlyFinishedContests) gt 0}">
-    <h2 align="center"><bean:message key="contests.recentlyFinished"/></h2>
-    <c:forEach items="${recentlyFinishedContests}" var="contest">
-        <p align="center"><a onclick="setContestId(id)" id="${contest.contestId}" href="contests.do?reqCode=view&contestId=${contest.contestId}">${contest.caption}</a></p>
-    </c:forEach>
-</c:if>
-
-<script type="text/javascript">
-    function setContestId(contestId) {
-        request.setAttribute("contestId", contestId);
-        session.setAttribute("contestId", contestId);
-    }
-</script>
-
+<div class="jumbotron">
+    <h1>Заголовок</h1>
+    <p>Dudge переводится на новый фреймворк для фронтенда. Вместе с этим будет переработана и главная страница, содержавшая ранее список соревнований.
+       Теперь вместо них здесь будут анонсы, результаты соревнований и прочие информационные сообщения.</p>
+    <p>Самое важное на данный момент сообщение, например информация о предстоящем или идущем соревновании, будет выделяться таким блоком.</p>
+    <p><a class="btn btn-primary btn-lg" href="#">Подробнее</a></p>
+</div>
+<div class="row">
+    <div class="col-lg-12">
+        <div class="panel">
+            <div class="panel-heading"> <h2>Еще одна новость</h2> </div>
+            <p>Остальные анонсы будут выглядеть в виде подобных блоков.</p>
+            <p> <a class="btn btn-default" href="#">Подробнее</a> </p>
+        </div>        
+    </div>
+</div>
