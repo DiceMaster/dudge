@@ -44,6 +44,10 @@ public class OpaqueQuestionEngine {
     
     private static final Logger logger = Logger.getLogger("OpaqueQuestionEngine");
     
+    // special values for moodle opaque question module
+    private static final String ANSWER_SAVED="Answer saved";
+    private static final String ANSWER_GRADED="Answer graded";
+    
     /**
      * This is a sample web service operation
      */
@@ -271,7 +275,8 @@ public class OpaqueQuestionEngine {
                 checkSolutionStatus(solution,emptysrc,val);
             }
             else {
-                
+                logger.info("Finish w/o solution in slave mode");
+                val.setProgressInfo(ANSWER_SAVED);
             }
         }
         else {
@@ -301,7 +306,7 @@ public class OpaqueQuestionEngine {
             session.setSolutionId(originalsolutionid);
             if(isIntermediaStep) {
                 logger.info("Intermedia step in slave mode");
-                val.setProgressInfo("Answer saved"); // специальное значение
+                val.setProgressInfo(ANSWER_SAVED);
             }
         }
     }
@@ -331,7 +336,8 @@ public class OpaqueQuestionEngine {
                 } 
         }
         else {
-            needNewSolution=true;
+            // solution will be created only at finish stage
+            needNewSolution=req.finish();
         }
         
         if (needNewSolution) {
@@ -340,6 +346,8 @@ public class OpaqueQuestionEngine {
                 { opaqueBean.updateSession(session); }
         }
 
+        // FIXME: если финишных пакетов будет несколько, поведение будет неадекватным
+        // т.к. в базу буде записано несколько экземпляров
         if(req.finish()) 
             { opaqueBean.saveAsOriginalSession(questionSession); }
         
@@ -448,7 +456,7 @@ public class OpaqueQuestionEngine {
                         { score.setMarks(1); } // FIXME: максимальный балл должен совпадать с getQuestionMetadata
                     else{ score.setMarks(0); }
                     res.getScores().add(score);
-                    val.setProgressInfo("Answer graded"); // must be
+                    val.setProgressInfo(ANSWER_GRADED); // must be
                     res.setActionSummary(status+" "+solution.getStatusMessage());
 
                     val.setResults(res); // результаты должны быть только в итоговом ответе
@@ -457,7 +465,7 @@ public class OpaqueQuestionEngine {
                     // пока нет оценки, отображается только progressInfo
                     //res.setActionSummary(solution.getStatusMessage());
                     //status+"<br/>"+solution.getStatusMessage()
-                    val.setProgressInfo("Answer saved"); // специальное значение
+                    val.setProgressInfo(ANSWER_SAVED);
                     logger.info("Solution "+solution.getSolutionId()+" in progress, status="+status);
                 }
             }
@@ -615,7 +623,7 @@ public class OpaqueQuestionEngine {
 
             solution = dudgeBean.submitSolution(solution);
             session.setSolutionId(solution.getSolutionId());
-            val.setProgressInfo("Answer saved"); // специальное значение
+            val.setProgressInfo(ANSWER_SAVED);
             logger.info("New solution");
             solutionCreated=true;
         } else {
