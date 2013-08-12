@@ -24,6 +24,9 @@ public class OpaqueSession {
     private Boolean display_remark; // дополнительные пояснения к задаче
     private int precision; // точность - число цифр после запятой в оценке
     
+    private String src;     // текст ответа
+    private String langid;  // язык программирования
+    
     
     public OpaqueSession(String sessionid,int problemid) {
         this.sessionid=sessionid;
@@ -35,7 +38,10 @@ public class OpaqueSession {
         this.display_correctness=false;
         this.display_feedback=false;
         this.display_readonly=false;
-        this.display_remark=false;
+        this.display_remark=false;        
+        this.precision=0;        
+        this.src="";
+        this.langid="unknown";
     }
     
     public String getSessionId() {
@@ -131,5 +137,18 @@ public class OpaqueSession {
     
     public void setDisplayRemark(Boolean display_remark) {
         this.display_remark=display_remark;
+    }
+
+    public void setResult(String result, String language) {
+        this.src=result;
+        this.langid=language;
+    }
+    
+    public String getSourceCode() {
+        return src;
+    }
+    
+    public String getLanguageId() {
+        return langid;
     }
 }

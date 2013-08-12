@@ -244,11 +244,17 @@ public class OpaqueQuestionEngine {
         ProblemLocal problemBean=lookupProblemBean();
         Problem problem = problemBean.getProblem(problemid);
         
-        if(isSlaveMode)
-             { processSlave(opaqueBean,session,val,req,
-                     originalsessionid); }
-        else { processMaster(opaqueBean,session,val,req,
-                     src,langid,questionSession,problem); }
+        if (isSlaveMode) {
+            isSlaveMode = processSlave(opaqueBean, session, val, req,
+                    originalsessionid);
+            if(!isSlaveMode) { 
+                logger.info("Now switch to master mode");
+                originalsessionid=questionSession; 
+            }
+        }
+        
+        if(!isSlaveMode)
+            { processMaster(opaqueBean, session, val, req, questionSession, problem); }
                 
         String resultHtml=makeXHTML(problem,session,src,langid,isReadOnly,originalsessionid);
         val.setXHTML(resultHtml);
@@ -257,7 +263,7 @@ public class OpaqueQuestionEngine {
         return val;
     }
 
-    private void processSlave(
+    private Boolean processSlave(
             OpaqueBeanLocal opaqueBean,
             OpaqueSession session,
             ProcessReturn val,
@@ -269,10 +275,10 @@ public class OpaqueQuestionEngine {
         if(req.finish()) {
             // TODO: вернуть ответ
             if(session.isSolution()) {
-                String emptysrc="";
+                logger.info("Finish with solution in slave mode");
                 SolutionLocal solutionBean=lookupSolutionBean();
                 Solution solution=solutionBean.getSolution(session.getSolutionId());
-                checkSolutionStatus(solution,emptysrc,val);
+                checkSolutionStatus(solution,val);
             }
             else {
                 logger.info("Finish w/o solution in slave mode");
@@ -286,9 +292,9 @@ public class OpaqueQuestionEngine {
             if(originalsession2==null) {
                 OpaqueOriginalSession originalsession=opaqueBean.getOriginalSession(originalsessionid);
                 if(originalsession==null) {
-                    logger.warning("Undefined original session in slave mode, aborted");
+                    logger.info("Undefined original session in slave mode, aborted");
                     // FIXME: нужно заполнить ответ подобающим образом
-                    return;
+                    return true; // leave in slave mode
                 }
                 originalsolutionid=originalsession.getSolutionId();
                 isIntermediaStep=session.getSteps()<originalsession.getSteps();
@@ -299,16 +305,23 @@ public class OpaqueQuestionEngine {
             }
 
             if(originalsolutionid==-1) {
-                    logger.warning("Undefined original solutionid in slave mode, aborted");
+                    logger.info("Undefined original solutionid in slave mode, aborted");
                     // FIXME: нужно заполнить ответ подобающим образом
-                    return;
+                    return false; // goto master mode
             }            
             session.setSolutionId(originalsolutionid);
             if(isIntermediaStep) {
                 logger.info("Intermedia step in slave mode");
                 val.setProgressInfo(ANSWER_SAVED);
             }
+            else {
+                // FIXME: если на последнем шаге мы не в состоянии finish
+                // вероятно эта сессия должна продолжиться в режиме master
+                logger.info("Last step in slave mode");
+                val.setProgressInfo(ANSWER_SAVED);                
+            }
         }
+        return isIntermediaStep;
     }
     
     private void processMaster(
@@ -316,36 +329,55 @@ public class OpaqueQuestionEngine {
             OpaqueSession session,
             ProcessReturn val,
             OpaqueRequestProcess req,
-            String src,
-            String langid,
             String questionSession,
             Problem problem
             ) 
     {                
-        logger.info("isSolution="+session.isSolution());
-        Boolean needNewSolution;
-        if(session.isSolution()) {
-
-            SolutionLocal solutionBean=lookupSolutionBean();
-            Solution solution=solutionBean.getSolution(session.getSolutionId());
-            needNewSolution=checkSolutionStatus(solution,src,val);
-
-            if(!needNewSolution && src.isEmpty()) { // restore source code of solution
-                src=solution.getSourceCode();
-                langid=solution.getLanguage().getLanguageId();
-                } 
+        if(req.finish()) {
+            if(session.isSolution()) {
+                logger.info("Finish with solution, check it");
+                SolutionLocal solutionBean=lookupSolutionBean();
+                Solution solution=solutionBean.getSolution(session.getSolutionId());
+                checkSolutionStatus(solution,val);
+            }
+            else {
+                logger.info("Finish w/o solution, make solution");
+                if(req.isResultExist()) {
+                   session.setResult(req.result(), req.programLanguage());
+                }
+                makeNewSolution(problem, session, val);
+            }
+        }
+        else if(req.isEnterAnswerButtonPressed()) {
+            if(session.isSolution()) {
+                SolutionLocal solutionBean=lookupSolutionBean();
+                Solution solution=solutionBean.getSolution(session.getSolutionId());
+                String oldSrc=solution.getSourceCode();
+            
+                if(oldSrc.equals(req.result())) {
+                    logger.info("EnterAnswer with solution, check it");
+                    checkSolutionStatus(solution,val);
+                }
+                else {
+                    logger.info("EnterAnswer with solution and new answer, make new solution");
+                    session.setResult(req.result(), req.programLanguage());
+                    makeNewSolution(problem, session, val);
+                }
+             }
+            else {
+               logger.info("EnterAnswer with/o solution, make solution");
+               session.setResult(req.result(), req.programLanguage());
+               makeNewSolution(problem, session, val);                
+            }
+            
         }
         else {
-            // solution will be created only at finish stage
-            needNewSolution=req.finish();
+            logger.info("Not finished answer");
+            session.setResult(req.result(), req.programLanguage());
+            val.setProgressInfo(ANSWER_SAVED);
         }
+        opaqueBean.updateSession(session);
         
-        if (needNewSolution) {
-            Boolean created=makeNewSolution(src, langid, problem, session, val);
-            if(created)
-                { opaqueBean.updateSession(session); }
-        }
-
         // FIXME: если финишных пакетов будет несколько, поведение будет неадекватным
         // т.к. в базу буде записано несколько экземпляров
         if(req.finish()) 
@@ -419,58 +451,47 @@ public class OpaqueQuestionEngine {
         return resultHtml;
     }
     
-    private boolean checkSolutionStatus(
-                                Solution solution,
-                                String src,
-                                ProcessReturn val) {
-            String oldSrc=solution.getSourceCode();
-            //String oldLangid=solution.getLanguage().getLanguageId();
-            boolean needNewSolution;
+    private void checkSolutionStatus(Solution solution,  ProcessReturn val) 
+    {
+        String status;
 
-            logger.info("Old source code: "+oldSrc);
-            logger.info("New source code: "+src);
-            
-            needNewSolution = !src.equals(oldSrc) && !src.isEmpty();
-            logger.info("Source code is changed ? "+needNewSolution);
-            
-            if(!needNewSolution) {
-                String status;
-                                
-                if(solution.getStatus() != SolutionStatus.PROCESSED
-				|| solution.getContest().getTraits().isRunAllTests()
-				|| solution.getLastRunResult() == null) {
-                    status=solution.getStatus().toString();
-		} else { 
-                    status = solution.getLastRunResult().toString();
-                }
+        if (solution.getStatus() != SolutionStatus.PROCESSED
+                || solution.getContest().getTraits().isRunAllTests()
+                || solution.getLastRunResult() == null) {
+            status = solution.getStatus().toString();
+        } else {
+            status = solution.getLastRunResult().toString();
+        }
 
-                // итоговое состояние
-                if(solution.getStatus() == SolutionStatus.PROCESSED ||
-                   solution.getStatus() == SolutionStatus.DISQUALIFIED ||
-                   solution.getStatus() == SolutionStatus.COMPILATION_ERROR) {
-                    
-                    Results res= new Results();
-                    Score score=new Score();
-                    val.setQuestionEnd(true);
-                    if(status.equals("SUCCESS"))
-                        { score.setMarks(1); } // FIXME: максимальный балл должен совпадать с getQuestionMetadata
-                    else{ score.setMarks(0); }
-                    res.getScores().add(score);
-                    val.setProgressInfo(ANSWER_GRADED); // must be
-                    res.setActionSummary(status+" "+solution.getStatusMessage());
+        // итоговое состояние
+        if (solution.getStatus() == SolutionStatus.PROCESSED
+                || solution.getStatus() == SolutionStatus.DISQUALIFIED
+                || solution.getStatus() == SolutionStatus.COMPILATION_ERROR) {
 
-                    val.setResults(res); // результаты должны быть только в итоговом ответе
-                    logger.info("Solution "+solution.getSolutionId()+" finished, status= "+status);
-                } else { // Solution в процессе обработки
-                    // пока нет оценки, отображается только progressInfo
-                    //res.setActionSummary(solution.getStatusMessage());
-                    //status+"<br/>"+solution.getStatusMessage()
-                    val.setProgressInfo(ANSWER_SAVED);
-                    logger.info("Solution "+solution.getSolutionId()+" in progress, status="+status);
-                }
+            Results res = new Results();
+            Score score = new Score();
+            val.setQuestionEnd(true);
+            if (status.equals("SUCCESS")) {
+                score.setMarks(1);
+            } // FIXME: максимальный балл должен совпадать с getQuestionMetadata
+            else {
+                score.setMarks(0);
             }
-            
-        return needNewSolution;
+            res.getScores().add(score);
+            val.setProgressInfo(ANSWER_GRADED); // must be
+            res.setActionSummary(status + " " + solution.getStatusMessage());
+
+            val.setResults(res); // результаты должны быть только в итоговом ответе
+            logger.info("Solution " + solution.getSolutionId() + " finished, status= " + status);
+        } else { // Solution в процессе обработки
+            // пока нет оценки, отображается только progressInfo
+            //res.setActionSummary(solution.getStatusMessage());
+            //status+"<br/>"+solution.getStatusMessage()
+            val.setProgressInfo(ANSWER_SAVED);
+            logger.info("Solution " + solution.getSolutionId() + " in progress, status=" + status);
+        }
+
+        return;
     }
 
     
@@ -595,8 +616,7 @@ public class OpaqueQuestionEngine {
         return (SolutionLocal)lookupBean("java:global/dudge/dudge-ejb/SolutionBean!dudge.SolutionLocal");
     }
 
-    private Boolean makeNewSolution(String src, 
-            String langid, 
+    private Boolean makeNewSolution(
             Problem problem,
             OpaqueSession session, 
             ProcessReturn val) 
@@ -604,6 +624,7 @@ public class OpaqueQuestionEngine {
      Boolean solutionCreated;
      int contestId=2; // Global contest TODO: брать из настроек
      String username="admin"; // TODO: брать из настроек
+     String src=session.getSourceCode();
 
         if (!src.isEmpty()) {
             DudgeLocal dudgeBean = lookupDudgeBean();              
@@ -612,7 +633,7 @@ public class OpaqueQuestionEngine {
             UserLocal userBean=lookupUserBean();
             User user = userBean.getUser(username);
             LanguageLocal languageBean=lookupLanguageBean();
-            Language language = languageBean.getLanguage(langid);
+            Language language = languageBean.getLanguage(session.getLanguageId());
 
             Solution solution = new Solution();
             solution.setUser(user);

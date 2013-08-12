@@ -18,19 +18,27 @@ public class OpaqueRequestBase {
         reqParam=param;
     }
     
+    public Boolean displayReadOnly() {
+        String pval=reqParam.get("display_readonly");
+        return "1".equals(pval);
+    }
+    
+    // результаты могут присутствовать как в запросах типа process, 
+    // так и в запросах типа start (в случае, когда новый ответ основан на старом ответе)
+    public Boolean isResultExist() {
+        return reqParam.containsKey("result") && reqParam.containsKey("prglang");
+    }
+
     public String programLanguage() {
-        return reqParam.get("prglang");
+        String ret=reqParam.get("prglang");
+        if(ret==null) ret="";
+        return ret;
     }
 
     public String result() {
         String ret=reqParam.get("result");
         if(ret==null) ret="";
         return ret;
-    }
-    
-    public Boolean displayReadOnly() {
-        String pval=reqParam.get("display_readonly");
-        return "1".equals(pval);
     }
 
 }

@@ -25,7 +25,20 @@ public class OpaqueRequestProcess extends OpaqueRequestBase {
     
     public Boolean finish() {
         Boolean isFinish="1".equals(reqParam.get("-finish"));
-        logger.info("isFinish="+isFinish+" -finish='"+reqParam.get("-finish")+"'");
+        //logger.info("isFinish="+isFinish+" -finish='"+reqParam.get("-finish")+"'");
         return isFinish;
     }
+
+    public Boolean isEnterAnswerButtonPressed() {
+        return reqParam.containsKey("omact_enteranswer");
+    }
+
+    public Boolean isClearButtonPressed() {
+        return reqParam.containsKey("omact_clear");
+    }
+
+    public Boolean isTryAgainButtonPressed() {
+        return reqParam.containsKey("omact_tryagain");
+    }
+    
 }
