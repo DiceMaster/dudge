@@ -47,8 +47,8 @@ public class OpaqueBean implements OpaqueBeanLocal {
     }
 
     @Override
-    public void updateSession(String questionSession, OpaqueSession one) {
-        session.put(questionSession,one);
+    public void updateSession(OpaqueSession one) {
+        session.put(one.getSessionId(),one);
     }
 
     @Override

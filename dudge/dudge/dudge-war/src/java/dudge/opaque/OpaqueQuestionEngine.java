@@ -6,8 +6,8 @@ package dudge.opaque;
 
 import dudge.ContestLocal;
 import dudge.DudgeLocal;
-import dudge.ProblemLocal;
 import dudge.LanguageLocal;
+import dudge.ProblemLocal;
 import dudge.SolutionLocal;
 import dudge.UserLocal;
 import dudge.db.Contest;
@@ -16,19 +16,18 @@ import dudge.db.Problem;
 import dudge.db.Solution;
 import dudge.db.SolutionStatus;
 import dudge.db.User;
-import javax.jws.WebService;
-import javax.jws.WebMethod;
-import javax.jws.WebParam;
-import javax.jws.WebResult;
-import javax.jws.soap.SOAPBinding;
-//import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import java.util.regex.Pattern;
 import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import javax.jws.WebMethod;
+import javax.jws.WebParam;
+import javax.jws.WebResult;
+import javax.jws.WebService;
+import javax.jws.soap.SOAPBinding;
 import javax.naming.Context;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
@@ -155,41 +154,22 @@ public class OpaqueQuestionEngine {
         Problem problem = problemBean.getProblem(problemid);
         
         OpaqueBeanLocal opaqueBean=lookupOpaqueBean();
+        OpaqueRequestStart req = new OpaqueRequestStart(param);
         
-        String seed=param.get("randomseed");
-        String sessionid=opaqueBean.makeQuestionSession(seed);
+        String sessionid=opaqueBean.makeQuestionSession(req.seed());
         logger.info("sessionid="+sessionid+" problemid="+problemid);
-        OpaqueSession S=new OpaqueSession(problemid);
+        OpaqueSession S=new OpaqueSession(sessionid,problemid);        
+        req.initializeSession(S);
+        opaqueBean.updateSession(S);
         
-        String pval;
-        pval=param.get("preferredbehaviour");
-        if(pval!=null) S.setBehaviour(pval);
-
-        pval=param.get("language"); // язык надписей
-        if(pval!=null) S.setLocale(pval);
-
-        pval=param.get("display_readonly");
-        if(pval!=null) S.setDisplayReadOnly("1".equals(pval));
-        
-        pval=param.get("display_correctness");
-        if(pval!=null) S.setDisplayCorrectness("1".equals(pval));
-
-        pval=param.get("display_feedback");
-        if(pval!=null) S.setDisplayFeedback("1".equals(pval));
-        
-        pval=param.get("display_generalfeedback");
-        if(pval!=null) S.setDisplayRemark("1".equals(pval));
-
-        opaqueBean.updateSession(sessionid,S);
-        
-        String langid=param.get("prglang");
-        String src=param.get("result");
-        if(src==null) src="";
-
         val.setProgressInfo("Question loaded"); // FIXME: возможно здесь должно быть более внятное сообщение
         val.setQuestionSession(sessionid);        
 
-        String resultHtml=makeXHTML(problem,S,src,langid,S.isDisplayReadOnly(),sessionid);
+        String resultHtml=makeXHTML(problem,S,
+                req.result(),
+                req.programLanguage(),
+                req.displayReadOnly(),
+                sessionid);
         val.setXHTML(resultHtml);
       
         logger.info("progressInfo: "+val.getProgressInfo());
@@ -221,55 +201,80 @@ public class OpaqueQuestionEngine {
         
         ProcessReturn val = new ProcessReturn();
         
-        int contestId=2; // Global contest TODO: брать из настроек
-        String username="admin"; // TODO: брать из настроек
-        
-        String langid=param.get("prglang");
-        String originalsessionid=param.get("originalsession");
-        
-        String src=param.get("result");
-        if(src==null) src="";
-
-        Boolean isFinish="1".equals(param.get("-finish")); // 1 - goto finish state
-        logger.info("isFinish="+isFinish+" -finish='"+param.get("-finish")+"'");
-        Boolean isIntermediaStep=false;
-
-
         OpaqueBeanLocal opaqueBean=lookupOpaqueBean();
+        OpaqueRequestProcess req = new OpaqueRequestProcess(param);
+        
         OpaqueSession session=opaqueBean.getSession(questionSession);
         if(session==null) {
             logger.warning("Unknown questionSession detected, aborted");
             // FIXME: нужно заполнить ответ подобающим образом
             return val;
         }
-        
         session.nextStep();
-        
-        Boolean isReadOnly=(isFinish || session.isDisplayReadOnly());
-        
-        int problemid=session.getProblemId();
-        logger.info("problemid="+problemid);
-        
-        DudgeLocal dudgeBean = lookupDudgeBean();              
 
-        // FIXME: финишный запрос не содержит никаких пользовательских параметров 
+        String langid=req.programLanguage();
+        String originalsessionid=req.originalSession();        
+        String src=req.result();
+        Boolean isFinish=req.finish();        
+        Boolean isReadOnly=(isFinish || session.isDisplayReadOnly());
+                
+        // Финишный запрос не содержит никаких пользовательских параметров 
         // и по нему нельзя определить - slave mode у нас или нет
         // но на этот момент нужная информация уже точно есть в сессии
         if(isFinish)
             originalsessionid=session.getOriginalSession();
         
-        // TODO: если originalsessionid не совпадает с sessionid то это означает,
-        // что идет повтор запросов (slave mode) и нужно возвращать ровно те ответы,
-        // которые были возвращены при первичных запросах
-        // и следовательно не требуется запускать проверку решения т.к. она будет повторной
         if(originalsessionid==null) 
             originalsessionid=questionSession;
         
+        // Если originalsessionid не совпадает с sessionid то это означает,
+        // что идет повтор запросов (slave mode) и нужно возвращать ровно те ответы,
+        // которые были возвращены при первичных запросах
+        // и следовательно не требуется запускать проверку решения т.к. она будет повторной
         boolean isSlaveMode=!questionSession.equals(originalsessionid);
         if(isSlaveMode)
             logger.info("Slave mode detected: cur="+questionSession+" orig="+originalsessionid);
 
-        if(isSlaveMode && !isFinish) {
+        int problemid=session.getProblemId();
+        logger.info("problemid="+problemid);
+        ProblemLocal problemBean=lookupProblemBean();
+        Problem problem = problemBean.getProblem(problemid);
+        
+        if(isSlaveMode)
+             { processSlave(opaqueBean,session,val,req,
+                     originalsessionid); }
+        else { processMaster(opaqueBean,session,val,req,
+                     src,langid,questionSession,problem); }
+                
+        String resultHtml=makeXHTML(problem,session,src,langid,isReadOnly,originalsessionid);
+        val.setXHTML(resultHtml);
+
+        logger.info("progressInfo: "+val.getProgressInfo());
+        return val;
+    }
+
+    private void processSlave(
+            OpaqueBeanLocal opaqueBean,
+            OpaqueSession session,
+            ProcessReturn val,
+            OpaqueRequestProcess req,
+            String originalsessionid) 
+    {
+        Boolean isIntermediaStep=false;
+        
+        if(req.finish()) {
+            // TODO: вернуть ответ
+            if(session.isSolution()) {
+                String emptysrc="";
+                SolutionLocal solutionBean=lookupSolutionBean();
+                Solution solution=solutionBean.getSolution(session.getSolutionId());
+                checkSolutionStatus(solution,emptysrc,val);
+            }
+            else {
+                
+            }
+        }
+        else {
             int originalsolutionid;
             OpaqueSession originalsession2=opaqueBean.getSession(originalsessionid);
             
@@ -278,7 +283,7 @@ public class OpaqueQuestionEngine {
                 if(originalsession==null) {
                     logger.warning("Undefined original session in slave mode, aborted");
                     // FIXME: нужно заполнить ответ подобающим образом
-                    return val;                
+                    return;
                 }
                 originalsolutionid=originalsession.getSolutionId();
                 isIntermediaStep=session.getSteps()<originalsession.getSteps();
@@ -291,7 +296,7 @@ public class OpaqueQuestionEngine {
             if(originalsolutionid==-1) {
                     logger.warning("Undefined original solutionid in slave mode, aborted");
                     // FIXME: нужно заполнить ответ подобающим образом
-                    return val;
+                    return;
             }            
             session.setSolutionId(originalsolutionid);
             if(isIntermediaStep) {
@@ -299,16 +304,26 @@ public class OpaqueQuestionEngine {
                 val.setProgressInfo("Answer saved"); // специальное значение
             }
         }
-
+    }
+    
+    private void processMaster(
+            OpaqueBeanLocal opaqueBean,
+            OpaqueSession session,
+            ProcessReturn val,
+            OpaqueRequestProcess req,
+            String src,
+            String langid,
+            String questionSession,
+            Problem problem
+            ) 
+    {                
         logger.info("isSolution="+session.isSolution());
         Boolean needNewSolution;
         if(session.isSolution()) {
 
             SolutionLocal solutionBean=lookupSolutionBean();
             Solution solution=solutionBean.getSolution(session.getSolutionId());
-            if(!isIntermediaStep)
-                 needNewSolution=checkSolutionStatus(dudgeBean,solution,src,val);
-            else needNewSolution=false;
+            needNewSolution=checkSolutionStatus(solution,src,val);
 
             if(!needNewSolution && src.isEmpty()) { // restore source code of solution
                 src=solution.getSourceCode();
@@ -316,56 +331,19 @@ public class OpaqueQuestionEngine {
                 } 
         }
         else {
-            if(isSlaveMode) {
-                // в этом режиме уже не нужно запускать решение на проверку, 
-                // просто имитируем аналогичный ответ
-                logger.info("New solution emulation (slave mode)");
-                val.setProgressInfo("Answer saved"); // специальное значение
-                needNewSolution=false;
-            }
-            else needNewSolution=true;
+            needNewSolution=true;
         }
-        
-        ProblemLocal problemBean=lookupProblemBean();
-        Problem problem = problemBean.getProblem(problemid);
         
         if (needNewSolution) {
-            if (!src.isEmpty()) {
-                ContestLocal contestBean=lookupContestBean();
-                Contest contest = contestBean.getContest(contestId);
-                UserLocal userBean=lookupUserBean();
-                User user = userBean.getUser(username);
-                LanguageLocal languageBean=lookupLanguageBean();
-                Language language = languageBean.getLanguage(langid);
-
-                Solution solution = new Solution();
-                solution.setUser(user);
-                solution.setContest(contest);
-                solution.setLanguage(language);
-                solution.setProblem(problem);
-                solution.setSourceCode(src);
-
-                solution = dudgeBean.submitSolution(solution); // FIXME:
-                session.setSolutionId(solution.getSolutionId());
-                opaqueBean.updateSession(questionSession, session);
-                val.setProgressInfo("Answer saved"); // специальное значение
-                logger.info("New solution");
-            } else {
-                val.setProgressInfo("Empty answer, none todo.");
-                logger.info("Skip solution creation - empty answer received");
-            }
+            Boolean created=makeNewSolution(src, langid, problem, session, val);
+            if(created)
+                { opaqueBean.updateSession(session); }
         }
 
-        if(!isSlaveMode && isFinish) 
-            opaqueBean.saveAsOriginalSession(questionSession);
-
-        String resultHtml=makeXHTML(problem,session,src,langid,isReadOnly,originalsessionid);
-        val.setXHTML(resultHtml);
+        if(req.finish()) 
+            { opaqueBean.saveAsOriginalSession(questionSession); }
         
-        logger.info("progressInfo: "+val.getProgressInfo());
-        return val;
     }
-
     
     private String makeXHTML(
                 Problem problem,
@@ -413,9 +391,9 @@ public class OpaqueQuestionEngine {
                         " rows='30' cols='60' name='%%IDPREFIX%%result'>"+
                         src+"</textarea>";
         if(session.getSolutionId()!=-1)
-                resultHtml+="<input type='hidden' name='%%IDPREFIX%%solutionid' value='"+session.getSolutionId()+"' />";
+            { resultHtml+="<input type='hidden' name='%%IDPREFIX%%solutionid' value='"+session.getSolutionId()+"' />"; }
         if(originalsessionid!=null)
-                resultHtml+="<input type='hidden' name='%%IDPREFIX%%originalsession' value='"+originalsessionid+"' />";
+            { resultHtml+="<input type='hidden' name='%%IDPREFIX%%originalsession' value='"+originalsessionid+"' />"; }
         if(!isReadOnly && session.isInteractiveBehaviour()) {
             // FIXME: в зависимости от ожидаемого поведения можно показывать разный набор кнопок
             // например:
@@ -433,7 +411,7 @@ public class OpaqueQuestionEngine {
         return resultHtml;
     }
     
-    private boolean checkSolutionStatus(DudgeLocal dudgeBean,
+    private boolean checkSolutionStatus(
                                 Solution solution,
                                 String src,
                                 ProcessReturn val) {
@@ -467,13 +445,13 @@ public class OpaqueQuestionEngine {
                     Score score=new Score();
                     val.setQuestionEnd(true);
                     if(status.equals("SUCCESS"))
-                              score.setMarks(1); // FIXME: максимальный балл должен совпадать с getQuestionMetadata
-                    else  score.setMarks(0); 
+                        { score.setMarks(1); } // FIXME: максимальный балл должен совпадать с getQuestionMetadata
+                    else{ score.setMarks(0); }
                     res.getScores().add(score);
                     val.setProgressInfo("Answer graded"); // must be
                     res.setActionSummary(status+" "+solution.getStatusMessage());
 
-                    val.setResults(res); // результаты должны быть в ответе только в итоговом ответе
+                    val.setResults(res); // результаты должны быть только в итоговом ответе
                     logger.info("Solution "+solution.getSolutionId()+" finished, status= "+status);
                 } else { // Solution в процессе обработки
                     // пока нет оценки, отображается только progressInfo
@@ -548,16 +526,16 @@ public class OpaqueQuestionEngine {
             lastWasBlankChar = false;
             //
             // HTML Special Chars
-            if (c == '"')      sb.append("&quot;");
-            else if (c == '&') sb.append("&amp;");
-            else if (c == '<') sb.append("&lt;");
-            else if (c == '>') sb.append("&gt;");
+            if (c == '"')      { sb.append("&quot;");}
+            else if (c == '&') { sb.append("&amp;");}
+            else if (c == '<') { sb.append("&lt;");}
+            else if (c == '>') { sb.append("&gt;");}
             //else if (c == '\n')sb.append("&lt;br/&gt;");
             else {
                 int ci = 0xffff & c;
                 if (ci < 160 )
                     // nothing special only 7 Bit
-                    sb.append(c);
+                     { sb.append(c); }
                 else {
                     // Not 7 Bit use the unicode system
                     sb.append("&#");
@@ -607,6 +585,46 @@ public class OpaqueQuestionEngine {
 
     private SolutionLocal lookupSolutionBean() {
         return (SolutionLocal)lookupBean("java:global/dudge/dudge-ejb/SolutionBean!dudge.SolutionLocal");
+    }
+
+    private Boolean makeNewSolution(String src, 
+            String langid, 
+            Problem problem,
+            OpaqueSession session, 
+            ProcessReturn val) 
+    {    
+     Boolean solutionCreated;
+     int contestId=2; // Global contest TODO: брать из настроек
+     String username="admin"; // TODO: брать из настроек
+
+        if (!src.isEmpty()) {
+            DudgeLocal dudgeBean = lookupDudgeBean();              
+            ContestLocal contestBean=lookupContestBean();
+            Contest contest = contestBean.getContest(contestId);
+            UserLocal userBean=lookupUserBean();
+            User user = userBean.getUser(username);
+            LanguageLocal languageBean=lookupLanguageBean();
+            Language language = languageBean.getLanguage(langid);
+
+            Solution solution = new Solution();
+            solution.setUser(user);
+            solution.setContest(contest);
+            solution.setLanguage(language);
+            solution.setProblem(problem);
+            solution.setSourceCode(src);
+
+            solution = dudgeBean.submitSolution(solution);
+            session.setSolutionId(solution.getSolutionId());
+            val.setProgressInfo("Answer saved"); // специальное значение
+            logger.info("New solution");
+            solutionCreated=true;
+        } else {
+            val.setProgressInfo("Empty answer, none todo.");
+            logger.info("Skip solution creation - empty answer received");
+            solutionCreated=false;
+        }
+        
+        return solutionCreated;
     }
     
 }

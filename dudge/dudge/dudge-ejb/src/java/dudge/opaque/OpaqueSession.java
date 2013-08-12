@@ -10,6 +10,7 @@ package dudge.opaque;
  */
 public class OpaqueSession {
 
+    private String sessionid;
     private int problemid;
     private int solutionid;
     private String originalsession;
@@ -24,7 +25,8 @@ public class OpaqueSession {
     private int precision; // точность - число цифр после запятой в оценке
     
     
-    public OpaqueSession(int problemid) {
+    public OpaqueSession(String sessionid,int problemid) {
+        this.sessionid=sessionid;
         this.problemid = problemid;
         this.steps=1;
         this.solutionid=-1;
@@ -34,6 +36,10 @@ public class OpaqueSession {
         this.display_feedback=false;
         this.display_readonly=false;
         this.display_remark=false;
+    }
+    
+    public String getSessionId() {
+        return this.sessionid;
     }
     
     public int getProblemId() {

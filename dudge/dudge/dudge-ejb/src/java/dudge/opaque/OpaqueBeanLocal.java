@@ -36,7 +36,7 @@ public interface OpaqueBeanLocal {
      *
      * @return
      */
-    void updateSession(String questionSession, OpaqueSession val);
+    void updateSession(OpaqueSession val);
     
     /**
      *
