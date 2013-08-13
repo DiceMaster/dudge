@@ -58,6 +58,7 @@ on Libraries node in Projects view can be used to add the JSTL 1.1 library.
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
         <link href="css/bootstrap.min.css" rel="stylesheet" media="screen">
+        <link href="css/dudge-styles.css" rel="stylesheet" media="screen">
 
         <title>Dudge</title>
     </head>

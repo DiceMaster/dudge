@@ -1,50 +1,15 @@
-.x-form-field-wrap .x-form-trigger-add{
-    //width:17px;
-   // height:21px;
-    //border:0;
-    background:transparent url(images/triggeradd.gif) no-repeat 0 0;
-    cursor:pointer;
-    border-bottom: 1px solid #B5B8C8;
-    //position:absolute;
-    //top:0;
-
+ .btn-group{
+  bottom: 20px;
+  position: relative;
+  top: 20px;
 }
-
-.ext-safari .x-form-field-wrap .x-form-trigger-add{
-    height:19px; /* safari doesn't allow height adjustments to the fields, so adjust trigger */
+@media (min-width: 768px) {
+    .dl-dudge dt {
+        width: 260px;
+        margin-bottom: 6px;
+    }
+    .dl-dudge dd {
+        margin-left: 280px;
+        margin-bottom: 6px;
+    }
 }
-.x-small-editor .x-form-field-wrap .x-form-trigger-add{
-    height:19px;
-}
-
-
-
-.ext-ie .x-toolbar .x-form-field-wrap .x-form-trigger-add {
-	top:1px;
-}
-/*.x-form-field-wrap .x-form-trigger{
-    width:17px;
-    height:21px;
-    border:0;
-    background:transparent url(images/trigger.gif) no-repeat 0 0;
-    cursor:pointer;
-    border-bottom: 1px solid #B5B8C8;
-    position:absolute;
-    top:0;
-}*/
-
-.Global {color:magenta}
-.ACM {color:red}
-.Lab {color:green}
-
-.author_name{
-   font-weight: bold;
-   font-size:medium;
-}
-.author_job{
-   font-size: medium;
-}
-
-.problem_info{font-size: medium}
-
-.contest_info{font-size: medium}

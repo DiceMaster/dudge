@@ -286,7 +286,7 @@
 
         <div class="form-group">
             <div class="col-lg-offset-3 col-lg-7">
-                <button type="submit" class="btn btn-default">
+                <button type="submit" class="btn btn-primary">
                     <c:choose>
                         <c:when test="${usersForm.newUser}">
                             <bean:message key="registration.register" />
