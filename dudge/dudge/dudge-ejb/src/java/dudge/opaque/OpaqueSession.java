@@ -4,12 +4,16 @@
  */
 package dudge.opaque;
 
+import java.util.logging.Logger;
+
 /**
  *
  * @author duke
  */
 public class OpaqueSession {
 
+    private static final Logger logger = Logger.getLogger("OpaqueSession");
+    
     private String sessionid;
     private int problemid;
     private int solutionid;
@@ -140,6 +144,7 @@ public class OpaqueSession {
     }
 
     public void setResult(String result, String language) {
+        this.logger.info("setResult()" + result);
         this.src=result;
         this.langid=language;
     }

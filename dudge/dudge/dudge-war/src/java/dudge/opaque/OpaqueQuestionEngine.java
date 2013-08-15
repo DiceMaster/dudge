@@ -239,8 +239,8 @@ public class OpaqueQuestionEngine {
         Problem problem = problemBean.getProblem(problemid);
         
         if (isSlaveMode) {
-            isSlaveMode = processSlave(opaqueBean, session, val, req,
-                    originalsessionid);
+            session.setOriginalSession(originalsessionid);
+            isSlaveMode = processSlave(opaqueBean, session, val, req);
             if(!isSlaveMode) { 
                 logger.info("Now switch to master mode");
                 originalsessionid=questionSession; 
@@ -252,7 +252,16 @@ public class OpaqueQuestionEngine {
                 
         String resultHtml=makeXHTML(problem,session,isReadOnly,originalsessionid);
         val.setXHTML(resultHtml);
+
         
+        opaqueBean.updateSession(session);        
+        // FIXME: если финишных пакетов будет несколько, поведение будет неадекватным
+        // т.к. в базу буде записано несколько экземпляров
+        if(req.finish() && !isSlaveMode)
+            { opaqueBean.saveAsOriginalSession(questionSession); }        
+
+        logger.info("original session id ="+session.getOriginalSession());
+
         logger.info("progressInfo: "+val.getProgressInfo());
         return val;
     }
@@ -261,10 +270,10 @@ public class OpaqueQuestionEngine {
             OpaqueBeanLocal opaqueBean,
             OpaqueSession session,
             ProcessReturn val,
-            OpaqueRequestProcess req,
-            String originalsessionid) 
+            OpaqueRequestProcess req)
     {
         Boolean isIntermediaStep=false;
+        Boolean stayInSlave;
         
         if(req.finish()) {
             // TODO: вернуть ответ
@@ -276,9 +285,11 @@ public class OpaqueQuestionEngine {
                 logger.info("Finish w/o solution in slave mode");
                 val.setProgressInfo(ANSWER_SAVED);
             }
+            stayInSlave=true;
         }
         else {
             int originalsolutionid;
+            String originalsessionid=session.getOriginalSession();
             OpaqueSession originalsession2=opaqueBean.getSession(originalsessionid);
             
             if(originalsession2==null) {
@@ -303,6 +314,11 @@ public class OpaqueQuestionEngine {
                     return false; // goto master mode
             }            
             session.setSolutionId(originalsolutionid);
+            
+            if(req.isResultExist()) {
+                session.setResult(req.result(), req.programLanguage());
+            }
+
             if(isIntermediaStep) {
                 logger.info("Intermedia step in slave mode");
                 val.setProgressInfo(ANSWER_SAVED);
@@ -313,8 +329,10 @@ public class OpaqueQuestionEngine {
                 logger.info("Last step in slave mode");
                 val.setProgressInfo(ANSWER_SAVED);                
             }
+            stayInSlave=isIntermediaStep;
         }
-        return isIntermediaStep;
+        
+        return stayInSlave;
     }
     
     private void processMaster(
@@ -367,13 +385,6 @@ public class OpaqueQuestionEngine {
             session.setResult(req.result(), req.programLanguage());
             val.setProgressInfo(ANSWER_SAVED);
         }
-        opaqueBean.updateSession(session);
-        
-        // FIXME: если финишных пакетов будет несколько, поведение будет неадекватным
-        // т.к. в базу буде записано несколько экземпляров
-        if(req.finish()) 
-            { opaqueBean.saveAsOriginalSession(questionSession); }
-        
     }
     
     private String makeXHTML(
@@ -479,9 +490,11 @@ public class OpaqueQuestionEngine {
             }
             res.getScores().add(score);
             val.setProgressInfo(ANSWER_GRADED); // must be
-            res.setActionSummary(status + " " + solution.getStatusMessage());
+            //res.setActionSummary(status + " " + solution.getStatusMessage());
             res.setQuestionLine(solution.getProblem().getTitle());
-            res.setAnswerLine(solution.getStatusMessage());
+            // FIXME: getStatusMessage() возвращает только ошибку компиляции или сбо проверки
+            // если решение не прошло тест, тут будет пусто
+            res.setAnswerLine(status+"\n"+solution.getStatusMessage());
 
             val.setResults(res); // результаты должны быть только в итоговом ответе
             logger.info("Solution " + solution.getSolutionId() + " finished, status= " + status);
