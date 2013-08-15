@@ -55,6 +55,7 @@ public class OpaqueRequestStart extends OpaqueRequestBase {
         S.setDisplayReadOnly(displayReadOnly());        
         S.setDisplayCorrectness(displayCorrectness());
         S.setDisplayFeedback(displayFeedback());
-        S.setDisplayRemark(displayGeneralFeedback());
+        S.setDisplayRemark(displayGeneralFeedback());        
+        S.setResult(result(), programLanguage());
     }
 }

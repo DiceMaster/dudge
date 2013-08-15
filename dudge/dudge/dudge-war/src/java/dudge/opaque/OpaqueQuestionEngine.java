@@ -169,11 +169,7 @@ public class OpaqueQuestionEngine {
         val.setProgressInfo("Question loaded"); // FIXME: возможно здесь должно быть более внятное сообщение
         val.setQuestionSession(sessionid);        
 
-        String resultHtml=makeXHTML(problem,S,
-                req.result(),
-                req.programLanguage(),
-                req.displayReadOnly(),
-                sessionid);
+        String resultHtml=makeXHTML(problem,S,req.displayReadOnly(),sessionid);
         val.setXHTML(resultHtml);
       
         logger.info("progressInfo: "+val.getProgressInfo());
@@ -211,14 +207,12 @@ public class OpaqueQuestionEngine {
         OpaqueSession session=opaqueBean.getSession(questionSession);
         if(session==null) {
             logger.warning("Unknown questionSession detected, aborted");
-            // FIXME: нужно заполнить ответ подобающим образом
+            val.setQuestionEnd(true);
             return val;
         }
         session.nextStep();
 
-        String langid=req.programLanguage();
         String originalsessionid=req.originalSession();        
-        String src=req.result();
         Boolean isFinish=req.finish();        
         Boolean isReadOnly=(isFinish || session.isDisplayReadOnly());
                 
@@ -256,7 +250,7 @@ public class OpaqueQuestionEngine {
         if(!isSlaveMode)
             { processMaster(opaqueBean, session, val, req, questionSession, problem); }
                 
-        String resultHtml=makeXHTML(problem,session,src,langid,isReadOnly,originalsessionid);
+        String resultHtml=makeXHTML(problem,session,isReadOnly,originalsessionid);
         val.setXHTML(resultHtml);
         
         logger.info("progressInfo: "+val.getProgressInfo());
@@ -276,9 +270,7 @@ public class OpaqueQuestionEngine {
             // TODO: вернуть ответ
             if(session.isSolution()) {
                 logger.info("Finish with solution in slave mode");
-                SolutionLocal solutionBean=lookupSolutionBean();
-                Solution solution=solutionBean.getSolution(session.getSolutionId());
-                checkSolutionStatus(solution,val);
+                checkSolutionStatus(session,val);
             }
             else {
                 logger.info("Finish w/o solution in slave mode");
@@ -293,6 +285,7 @@ public class OpaqueQuestionEngine {
                 OpaqueOriginalSession originalsession=opaqueBean.getOriginalSession(originalsessionid);
                 if(originalsession==null) {
                     logger.info("Undefined original session in slave mode, aborted");
+                    val.setQuestionEnd(true);
                     // FIXME: нужно заполнить ответ подобающим образом
                     return true; // leave in slave mode
                 }
@@ -306,7 +299,7 @@ public class OpaqueQuestionEngine {
 
             if(originalsolutionid==-1) {
                     logger.info("Undefined original solutionid in slave mode, aborted");
-                    // FIXME: нужно заполнить ответ подобающим образом
+                    // FIXME: вообще не понятно - что нужно делать в этом случае
                     return false; // goto master mode
             }            
             session.setSolutionId(originalsolutionid);
@@ -336,9 +329,7 @@ public class OpaqueQuestionEngine {
         if(req.finish()) {
             if(session.isSolution()) {
                 logger.info("Finish with solution, check it");
-                SolutionLocal solutionBean=lookupSolutionBean();
-                Solution solution=solutionBean.getSolution(session.getSolutionId());
-                checkSolutionStatus(solution,val);
+                checkSolutionStatus(session,val);
             }
             else {
                 logger.info("Finish w/o solution, make solution");
@@ -388,15 +379,15 @@ public class OpaqueQuestionEngine {
     private String makeXHTML(
                 Problem problem,
                 OpaqueSession session,
-                String src,
-                String langid,
                 boolean isReadOnly,
-                String originalsessionid) {
+                String originalsessionid) 
+    {
         
         LanguageLocal languageBean=lookupLanguageBean();
-        List<Language> llist=languageBean.getLanguages();
+        List<Language> llist=languageBean.getLanguages();        
         String langHtml="";
-        String def;
+        String def;        
+        String  langid=session.getLanguageId();
         for(Language l : llist) {
             def = (l.getLanguageId().equals(langid)) ? "selected":"";
             //logger.info("default="+langid+" curr="+l.getLanguageId()+" res="+def);
@@ -421,7 +412,7 @@ public class OpaqueQuestionEngine {
         if(isReadOnly) { roHtml="readonly='readonly'"; disHtml="disabled='disabled'"; }
         else { roHtml=""; disHtml=""; }
         
-        src=stringToHTMLString(src);
+        String src=stringToHTMLString(session.getSourceCode());
         String resultHtml;
         resultHtml="<div class='qtext'>"+
                 "<h1>"+title+"</h1>"+desc+"</div>"+
@@ -451,6 +442,13 @@ public class OpaqueQuestionEngine {
         return resultHtml;
     }
     
+    private void checkSolutionStatus(OpaqueSession session,  ProcessReturn val) {
+        SolutionLocal solutionBean=lookupSolutionBean();
+        Solution solution=solutionBean.getSolution(session.getSolutionId());
+
+        checkSolutionStatus(solution,val);
+    }
+            
     private void checkSolutionStatus(Solution solution,  ProcessReturn val) 
     {
         String status;
@@ -489,8 +487,6 @@ public class OpaqueQuestionEngine {
             logger.info("Solution " + solution.getSolutionId() + " finished, status= " + status);
         } else { // Solution в процессе обработки
             // пока нет оценки, отображается только progressInfo
-            //res.setActionSummary(solution.getStatusMessage());
-            //status+"<br/>"+solution.getStatusMessage()
             val.setProgressInfo(ANSWER_SAVED);
             logger.info("Solution " + solution.getSolutionId() + " in progress, status=" + status);
         }
