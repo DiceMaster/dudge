@@ -470,7 +470,6 @@ public class OpaqueQuestionEngine {
 
             Results res = new Results();
             Score score = new Score();
-            val.setQuestionEnd(true);
             score.setAxis(""); // "" - default axis name in moodle
             if (status.equals("SUCCESS")) {
                 score.setMarks(1); // FIXME: максимальный балл должен быть не больше того, что возвращает getQuestionMetadata()
@@ -484,6 +483,7 @@ public class OpaqueQuestionEngine {
             val.setProgressInfo(ANSWER_GRADED); // must be
             res.setActionSummary(status + " " + solution.getStatusMessage());
             res.setQuestionLine(solution.getProblem().getTitle());
+            res.setAnswerLine(solution.getStatusMessage());
 
             val.setResults(res); // результаты должны быть только в итоговом ответе
             logger.info("Solution " + solution.getSolutionId() + " finished, status= " + status);
