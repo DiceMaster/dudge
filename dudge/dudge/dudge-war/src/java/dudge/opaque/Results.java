@@ -61,7 +61,8 @@ public class Results {
     }
     
     /**
-     * Gets the value of the actionSummary property.
+     * A log of the actions the student took in getting to their final answer. 
+     * Intended for reports seen by test administrators.
      * 
      * @return
      *     possible object is
@@ -85,7 +86,8 @@ public class Results {
     }
 
     /**
-     * Gets the value of the answerLine property.
+     * A one-line summary of the student's final answer. 
+     * For general reporting. 
      * 
      * @return
      *     possible object is
@@ -109,8 +111,11 @@ public class Results {
     }
 
     /**
-     * Gets the value of the attempts property.
-     * 
+     * Number of attempts it took the student to get their final answer right, 
+     * if their final answer was right. 
+     * -1 if the final answer was wrong; 
+     * -2 if the final answer was partially correct; 
+     *  0 if the student gave up on the question. 
      */
     public int getAttempts() {
         return attempts;
@@ -124,37 +129,11 @@ public class Results {
         this.attempts = value;
     }
 
-    /**
-     * Gets the value of the customResults property.
-     * 
-     * <p>
-     * This accessor method returns a reference to the live list,
-     * not a snapshot. Therefore any modification you make to the
-     * returned list will be present inside the JAXB object.
-     * This is why there is not a <CODE>set</CODE> method for the customResults property.
-     * 
-     * <p>
-     * For example, to add a new item, do as follows:
-     * <pre>
-     *    getCustomResults().add(newItem);
-     * </pre>
-     * 
-     * 
-     * <p>
-     * Objects of the following type(s) are allowed in the list
-     * {@link CustomResult }
-     * 
-     * 
-     */
-    public List<CustomResult> getCustomResults() {
-        if (customResults == null) {
-            customResults = new ArrayList<CustomResult>();
-        }
-        return this.customResults;
-    }
 
     /**
-     * Gets the value of the questionLine property.
+     * A one line summary of the question that was asked. 
+     * For reporting. Most useful when a question has different 
+     * random variants. 
      * 
      * @return
      *     possible object is
@@ -206,5 +185,33 @@ public class Results {
         return this.scores;
     }
 
+    /**
+     * Gets the value of the customResults property.
+     * 
+     * <p>
+     * This accessor method returns a reference to the live list,
+     * not a snapshot. Therefore any modification you make to the
+     * returned list will be present inside the JAXB object.
+     * This is why there is not a <CODE>set</CODE> method for the customResults property.
+     * 
+     * <p>
+     * For example, to add a new item, do as follows:
+     * <pre>
+     *    getCustomResults().add(newItem);
+     * </pre>
+     * 
+     * 
+     * <p>
+     * Objects of the following type(s) are allowed in the list
+     * {@link CustomResult }
+     * 
+     * 
+     */
+    public List<CustomResult> getCustomResults() {
+        if (customResults == null) {
+            customResults = new ArrayList<CustomResult>();
+        }
+        return this.customResults;
+    }
 }
 

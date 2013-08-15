@@ -94,7 +94,7 @@ public class OpaqueQuestionEngine {
         String questionBaseURL)
         throws OmException
     {
-        // FIXME: число баллов marks должно совпадать с баллами положительной оценки в process()
+        // FIXME: число баллов marks должно совпадать с максимальным баллом положительной оценки в process()        
         return "<questionmetadata>"+
                   "<scoring><marks>1</marks></scoring>"+
                   "<plainmode>yes</plainmode>"+
@@ -258,7 +258,7 @@ public class OpaqueQuestionEngine {
                 
         String resultHtml=makeXHTML(problem,session,src,langid,isReadOnly,originalsessionid);
         val.setXHTML(resultHtml);
-
+        
         logger.info("progressInfo: "+val.getProgressInfo());
         return val;
     }
@@ -471,15 +471,19 @@ public class OpaqueQuestionEngine {
             Results res = new Results();
             Score score = new Score();
             val.setQuestionEnd(true);
+            score.setAxis(""); // "" - default axis name in moodle
             if (status.equals("SUCCESS")) {
-                score.setMarks(1);
-            } // FIXME: максимальный балл должен совпадать с getQuestionMetadata
+                score.setMarks(1); // FIXME: максимальный балл должен быть не больше того, что возвращает getQuestionMetadata()
+                res.setAttempts(1); // FIXME: число попыток, за которое получен правильный ответ
+            } 
             else {
                 score.setMarks(0);
+                res.setAttempts(-1); // must be if answer is wrong
             }
             res.getScores().add(score);
             val.setProgressInfo(ANSWER_GRADED); // must be
             res.setActionSummary(status + " " + solution.getStatusMessage());
+            res.setQuestionLine(solution.getProblem().getTitle());
 
             val.setResults(res); // результаты должны быть только в итоговом ответе
             logger.info("Solution " + solution.getSolutionId() + " finished, status= " + status);
