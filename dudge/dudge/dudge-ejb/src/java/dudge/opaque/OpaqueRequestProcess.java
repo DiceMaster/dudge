@@ -40,5 +40,29 @@ public class OpaqueRequestProcess extends OpaqueRequestBase {
     public Boolean isTryAgainButtonPressed() {
         return reqParam.containsKey("omact_tryagain");
     }
-    
+
+    public Boolean isComment() {
+        return reqParam.containsKey("-comment");
+    }
+
+    // коментарий преподавателя к ответу
+    public String comment() {
+        String retval;
+        if(this.isComment()) retval=reqParam.get("-comment");
+        else retval="";
+        
+        return retval;
+    }
+
+    // оценка, выставленная преподавателем вручную
+    // идет только вместе с комментарием преподавателя к ответу
+    public int mark() {
+        return Integer.parseInt(reqParam.get("-mark"));
+    }
+
+    // максимальная оценка которую можно выставить
+    // идет только вместе с комментарием преподавателя к ответу
+    public int maxmark() {
+        return Integer.parseInt(reqParam.get("-maxmark"));
+    }
 }

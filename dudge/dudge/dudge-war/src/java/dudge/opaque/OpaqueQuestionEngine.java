@@ -382,7 +382,9 @@ public class OpaqueQuestionEngine {
         }
         else {
             logger.info("Not finished answer");
-            session.setResult(req.result(), req.programLanguage());
+            if(req.isResultExist()) {
+                session.setResult(req.result(), req.programLanguage());
+            }
             val.setProgressInfo(ANSWER_SAVED);
         }
     }
