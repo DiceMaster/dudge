@@ -84,6 +84,9 @@ on Libraries node in Projects view can be used to add the JSTL 1.1 library.
                         <li> <a href="problems.do?reqCode=list"><bean:message key="menu.problems"/></a> </li>
                         <li> <a href="monitor.do?contestId=${contestId}&reqCode=showStatus"><bean:message key="menu.status"/></a> </li>
                         <li> <a href="#"><bean:message key="menu.rules"/></a> </li>
+<c:if test="${permissionCheckerRemote.canViewUsersList(autentificationObject.username)}">
+                        <li> <a href="users.do?reqCode=list"><bean:message key="menu.users"/></a> </li>
+</c:if>                        
                     </ul>
 <c:choose>
 <c:when test="${not autentificationObject.authenticated}">

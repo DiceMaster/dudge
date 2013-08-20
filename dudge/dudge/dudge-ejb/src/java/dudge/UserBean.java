@@ -177,6 +177,30 @@ public class UserBean implements UserLocal {
 		em.remove((User) em.find(User.class, login.toLowerCase(Locale.ENGLISH)));
 	}
 
+        /**
+	 * Возвращает количество пользователей, зарегестрированных в системе.
+	 *
+	 * @return Количество пользователей системы.
+	 */
+        @Override
+	public long getUsersCount()
+        {
+            return (Long) em.createQuery("SELECT COUNT(u) FROM User u").getSingleResult();
+        }
+        
+       	/**
+	 * Возвращает диапазон пользователей, зарегестрированных в системе.
+	 *
+         * @param start Начало диапазона.
+         * @param length Длина диапазона. 
+	 * @return Диапазон пользователей системы.
+	 */
+        @Override
+	public List<User> getUsersRange(int start, int length)
+        {
+            return em.createNamedQuery("User.getUsers").setFirstResult(start).setMaxResults(length).getResultList();
+        }
+        
 	/**
 	 *
 	 * @return

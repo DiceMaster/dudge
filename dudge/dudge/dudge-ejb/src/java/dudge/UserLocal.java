@@ -75,9 +75,25 @@ public interface UserLocal {
 	public void deleteUser(String login);
 
 	/**
+	 * Возвращает количество пользователей, зарегестрированных в системе.
+	 *
+	 * @return Количество пользователей системы.
+	 */
+	long getUsersCount();
+        
+       	/**
 	 * Возвращает всех пользователей, зарегестрированных в системе.
 	 *
 	 * @return Список пользователей системы.
 	 */
 	List<User> getUsers();
+
+       	/**
+	 * Возвращает диапазон пользователей, зарегестрированных в системе.
+	 *
+         * @param start Начало диапазона.
+         * @param length Длина диапазона. 
+	 * @return Диапазон пользователей системы.
+	 */
+	List<User> getUsersRange(int start, int length);
 }
