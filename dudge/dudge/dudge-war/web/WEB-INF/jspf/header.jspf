@@ -59,20 +59,25 @@ on Libraries node in Projects view can be used to add the JSTL 1.1 library.
 
         <link href="css/bootstrap.min.css" rel="stylesheet" media="screen">
         <link href="css/dudge-styles.css" rel="stylesheet" media="screen">
+        
+        <script src="scripts/jquery.min.js"></script>
+        <script src="scripts/bootstrap.min.js"></script>
 
         <title>Dudge</title>
     </head>
 
     <body>
-        <div class="navbar">
+        <div class="navbar navbar-default navbar-static-top" role="navigation">
             <div class="container">
-                <button class="navbar-toggle" type="button" data-toggle="collapse" data-target="navbar-collapse">
-                    <span class="icon-bar"></span>
-                    <span class="icon-bar"></span>
-                    <span class="icon-bar"></span>
-                </button>
-                <a class="navbar-brand" href="/dudge">Dudge</a>
-                <div class="nav-collapse collapse">                
+                <div class="navbar-header">
+                    <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-responsive-collapse">
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                    </button>
+                    <a class="navbar-brand" href="/dudge">Dudge</a>
+                </div>    
+                <div class="collapse navbar-collapse navbar-responsive-collapse">
                     <ul class="nav navbar-nav">
                         <li class="active"> <a href="announces.do?reqCode=makeAnnounce"><bean:message key="menu.news"/></a> </li>
                         <li> <a href="contests.do?reqCode=list"><bean:message key="menu.contests"/></a> </li>
@@ -82,7 +87,7 @@ on Libraries node in Projects view can be used to add the JSTL 1.1 library.
                     </ul>
 <c:choose>
 <c:when test="${not autentificationObject.authenticated}">
-                    <form class="navbar-form pull-right" action="login.do" method="POST">
+                    <form class="navbar-form navbar-right" action="login.do" method="POST">
                         <input type="hidden" name="reqCode" value="login">
                         <input type="text" name="username" class="form-control" placeholder="<bean:message key="user.login"/>" style="width: 150px;">
                         <input type="password" name="password" class="form-control" placeholder="<bean:message key="user.password"/>" style="width: 150px;">
@@ -91,8 +96,7 @@ on Libraries node in Projects view can be used to add the JSTL 1.1 library.
                     </form>
 </c:when>
 <c:otherwise>
-                    <ul class="nav navbar-nav pull-right">
-                        <li><p class="navbar-text"><bean:message key="menu.user" /></p></li>
+                    <ul class="nav navbar-nav navbar-right">
                         <li class="dropdown">
                             <a href="#" class="dropdown-toggle" data-toggle="dropdown">${autentificationObject.username}<span class="caret"></span></a>    
                             <ul class="dropdown-menu">
@@ -103,7 +107,7 @@ on Libraries node in Projects view can be used to add the JSTL 1.1 library.
                     </ul>
 </c:otherwise>
 </c:choose>
-                </div><!--/.nav-collapse -->
+                </div><!--/.nav-collapse -->            
             </div>
         </div>
         <div class="container">

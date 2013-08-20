@@ -11,10 +11,14 @@
 </div>
 <div class="row">
     <div class="col-lg-12">
-        <div class="panel">
-            <div class="panel-heading"> <h2>Еще одна новость</h2> </div>
-            <p>Остальные анонсы будут выглядеть в виде подобных блоков.</p>
-            <p> <a class="btn btn-default" href="#">Подробнее</a> </p>
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h2>Еще одна новость</h2>
+            </div>
+            <div class="panel-body">
+                <p>Остальные анонсы будут выглядеть в виде подобных блоков.</p>
+                <p> <a class="btn btn-default" href="#">Подробнее</a> </p>
+            </div>
         </div>        
     </div>
 </div>
