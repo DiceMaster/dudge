@@ -111,6 +111,7 @@
 			 name="usersForm"
 			 parameter="reqCode">
 			<forward name="registrationSuccess" path="/registrationSuccess.jsp" redirect="true"/>
+                        <forward name="redirectUsersList" path="/users.do?reqCode=list" redirect="true"/>
 		</action>
 		
 		<action path="/languages" 

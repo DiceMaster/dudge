@@ -440,7 +440,7 @@ public class UsersAction extends DispatchAction {
 		String deletedUser = (String) request.getParameter("login");
 		serviceLocator.lookupUserBean().deleteUser(deletedUser);
 
-		return mapping.findForward("users");
+                return mapping.findForward("redirectUsersList");
 	}
 
 	/**

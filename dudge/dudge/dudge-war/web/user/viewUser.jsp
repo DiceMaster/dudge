@@ -12,7 +12,27 @@
 <c:if test="${permissionCheckerRemote.canModifyUser(autentificationObject.username, requestScope.login)}">        
     <div class="pull-right">
         <div class="btn-group">
-            <button type="submit" class="btn btn-primary"><bean:message key="contest.editProperties"/></button>
+            <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#deleteUser"><bean:message key="users.delete"/></button>
+            <!-- Modal -->
+            <div class="modal" id="deleteUser" tabindex="-1" role="dialog" aria-hidden="true">
+              <div class="modal-dialog">
+                <div class="modal-content">
+                  <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                    <h4 class="modal-title"><bean:message key="user.confirmDeleteTitle"/></h4>
+                  </div>
+                  <div class="modal-body">
+                      <bean:message key="user.confirmDeleteMsg"/>
+                  </div>
+                  <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal"><bean:message key="user.cancel"/></button>
+                    <a href="users.do?reqCode=delete&login=${usersForm.login}" class="btn btn-danger"><bean:message key="users.delete"/></a>
+                  </div>
+                </div><!-- /.modal-content -->
+              </div><!-- /.modal-dialog -->
+            </div><!-- /.modal -->
+            
+            <button type="submit" class="btn btn-primary"><bean:message key="user.editProperties"/></button>
         </div>
     </div>
     <div class="clearfix"></div>
