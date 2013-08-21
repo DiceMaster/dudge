@@ -1,8 +1,21 @@
- .btn-group{
+.btn-group {
   bottom: 20px;
   position: relative;
   top: 20px;
 }
+
+.dudge-pagination a {
+    min-width: 46px;
+    text-align: center;
+}
+
+.dudge-pagination > .disabled > span,
+.dudge-pagination > .disabled > a,
+.dudge-pagination > .disabled > a:hover,
+.dudge-pagination > .disabled > a:focus {
+  cursor: default;
+}
+
 @media (min-width: 768px) {
     .dl-dudge dt {
         width: 260px;

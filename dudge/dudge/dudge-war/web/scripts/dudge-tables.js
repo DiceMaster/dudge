@@ -27,9 +27,9 @@
              };
 
              $(nPaging).append(
-                 '<ul class="pagination">'+
-                     '<li class="prev disabled"><a href="#">&larr; '+oLang.sPrevious+'</a></li>'+
-                     '<li class="next disabled"><a href="#">'+oLang.sNext+' &rarr; </a></li>'+
+                 '<ul class="pagination dudge-pagination">'+
+                     '<li class="prev disabled"><a href="#">&larr; </a></li>'+
+                     '<li class="next disabled"><a href="#">&rarr; </a></li>'+
                  '</ul>'
              );
              var els = $('a', nPaging);
@@ -38,34 +38,64 @@
          },
 
          "fnUpdate": function ( oSettings, fnDraw ) {
-             var iListLength = 5;
+             var iListLength = 9;
              var oPaging = oSettings.oInstance.fnPagingInfo();
              var an = oSettings.aanFeatures.p;
              var i, j, sClass, iStart, iEnd, iHalf=Math.floor(iListLength/2);
 
-             if ( oPaging.iTotalPages < iListLength) {
+             if ( oPaging.iTotalPages <= iListLength) {
                  iStart = 1;
                  iEnd = oPaging.iTotalPages;
              }
              else if ( oPaging.iPage <= iHalf ) {
                  iStart = 1;
-                 iEnd = iListLength;
-             } else if ( oPaging.iPage >= (oPaging.iTotalPages-iHalf) ) {
-                 iStart = oPaging.iTotalPages - iListLength + 1;
+                 iEnd = iListLength - 2;
+             } else if ( oPaging.iPage >= (oPaging.iTotalPages-iHalf - 1) ) {
+                 iStart = oPaging.iTotalPages - iListLength + 3;
                  iEnd = oPaging.iTotalPages;
              } else {
-                 iStart = oPaging.iPage - iHalf + 1;
-                 iEnd = iStart + iListLength - 1;
+                 iStart = oPaging.iPage - iHalf + 3;
+                 iEnd = oPaging.iPage + iHalf - 1;
              }
 
              for ( i=0, iLen=an.length ; i<iLen ; i++ ) {
                  // Remove the middle elements
                  $('li:gt(0)', an[i]).filter(':not(:last)').remove();
 
+                 if (iStart > 1) {
+                     $('<li><a href="#">1</a></li>')
+                         .insertBefore( $('li:last', an[i])[0] )
+                         .bind('click', function (e) {
+                             e.preventDefault();
+                             oSettings._iDisplayStart = (parseInt($('a', this).text(),10)-1) * oPaging.iLength;
+                             fnDraw( oSettings );
+                         } );
+                     $('<li class="disabled"><a href="#">&#133;</a></li>')
+                         .insertBefore( $('li:last', an[i])[0] )
+                         .click(function(e) {
+                            e.preventDefault();;
+                         });
+                 }
+                 
                  // Add the new list items and their event handlers
                  for ( j=iStart ; j<=iEnd ; j++ ) {
                      sClass = (j==oPaging.iPage+1) ? 'class="active"' : '';
                      $('<li '+sClass+'><a href="#">'+j+'</a></li>')
+                         .insertBefore( $('li:last', an[i])[0] )
+                         .bind('click', function (e) {
+                             e.preventDefault();
+                             oSettings._iDisplayStart = (parseInt($('a', this).text(),10)-1) * oPaging.iLength;
+                             fnDraw( oSettings );
+                         } );
+                 }
+                 
+                 if (iEnd < oPaging.iTotalPages) {
+                     $('<li class="disabled"><a href="#">&#133;</a></li>')
+                         .insertBefore( $('li:last', an[i])[0] )
+                         .click(function(e) {
+                            e.preventDefault();;
+                         });
+                     $('<li><a href="#">' + oPaging.iTotalPages + '</a></li>')
                          .insertBefore( $('li:last', an[i])[0] )
                          .bind('click', function (e) {
                              e.preventDefault();

@@ -9,8 +9,10 @@
             "bFilter": false,
             "bLengthChange": false,
             "bInfo": false,
+            "iDisplayLength ": 25,
             "sAjaxSource": "users.do?reqCode=getUserList",
             "sPaginationType": "bootstrap",
+            "sDom": '<"top"p>rt<"bottom"p><"clear">',
             "fnCreatedRow": function( nRow, aData ) {
                 $('td:eq(0)', nRow).html( '<a href="users.do?reqCode=view&login=' + aData[0] + '">' + aData[0] +'</a>' );
             }
@@ -20,7 +22,7 @@
 
 <h1><bean:message key="users.users"/></h1>
 
-<table class="table table-hover" id="userGrid">
+<table class="table" id="userGrid">
     <thead>
         <tr>
             <th><bean:message key="user.login"/></th>
