@@ -2,17 +2,15 @@
 <script src="scripts/dudge-tables.js"></script>
 
 <script type="text/javascript">
-     $(document).ready(function() {
+    $(document).ready(function() {
         $('#userGrid').dataTable( {
             "bProcessing": true,
             "bServerSide": true,
-            "bFilter": false,
             "bLengthChange": false,
-            "bInfo": false,
             "iDisplayLength ": 25,
             "sAjaxSource": "users.do?reqCode=getUserList",
             "sPaginationType": "bootstrap",
-            "sDom": '<"top"p>rt<"bottom"p><"clear">',
+            "sDom": '<"row"<"pull-left"p><"pull-right"f><"clearfix">>rt<"row"<"col-lg-8"p><"col-lg-4"i>>',
             "oLanguage": {
                 "sUrl": "l18n/${pageContext.response.locale}.txt"
             },
@@ -20,7 +18,7 @@
                 $('td:eq(0)', nRow).html( '<a href="users.do?reqCode=view&login=' + aData[0] + '">' + aData[0] +'</a>' );
             }
         });
-        
+
         $("#navbarUsers").addClass("active");
     });
 </script>

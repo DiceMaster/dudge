@@ -1,3 +1,18 @@
+/* Default class modification */
+$.extend( $.fn.dataTableExt.oStdClasses, {
+    "sWrapper": "dataTables_wrapper form-inline"
+} );
+
+ $.fn.dataTableExt.oApi.dudgeTableStyles = function ( oSettings ) {
+    $('#' + oSettings.sTableId + '_length label select').addClass('form-control');
+    $('#' + oSettings.sTableId + '_filter label input').addClass('form-control');   
+}
+
+$.fn.dataTable.models.oSettings['aoInitComplete'].push( {
+    "fn": $.fn.dataTableExt.oApi.dudgeTableStyles,
+    "sName": 'dudgeTableStyles'
+} );
+    
 /* API method to get paging information */
  $.fn.dataTableExt.oApi.fnPagingInfo = function ( oSettings )
  {
@@ -38,7 +53,7 @@
          },
 
          "fnUpdate": function ( oSettings, fnDraw ) {
-             var iListLength = 9;
+             var iListLength = 7;
              var oPaging = oSettings.oInstance.fnPagingInfo();
              var an = oSettings.aanFeatures.p;
              var i, j, sClass, iStart, iEnd, iHalf=Math.floor(iListLength/2);

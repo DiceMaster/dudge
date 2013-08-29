@@ -15,7 +15,7 @@
     <h1 class="pull-left"><bean:message key="user.user" /> ${usersForm.login}</h1>
 <c:if test="${permissionCheckerRemote.canModifyUser(autentificationObject.username, requestScope.login)}">        
     <div class="pull-right">
-        <div class="btn-group">
+        <div class="btn-group dudge-btn-group">
             <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#deleteUser"><bean:message key="users.delete"/></button>
             <!-- Modal -->
             <div class="modal" id="deleteUser" tabindex="-1" role="dialog" aria-hidden="true">

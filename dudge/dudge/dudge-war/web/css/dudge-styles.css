@@ -1,11 +1,11 @@
-.btn-group {
+.dudge-btn-group {
   bottom: 20px;
   position: relative;
   top: 20px;
 }
 
 .dudge-pagination a {
-    min-width: 46px;
+    min-width: 42px;
     text-align: center;
 }
 
@@ -25,6 +25,10 @@
         margin-left: 280px;
         margin-bottom: 6px;
     }
+}
+
+div.dataTables_filter label {
+    float: right;
 }
 
 .dataTables_processing {
