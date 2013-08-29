@@ -26,3 +26,18 @@
         margin-bottom: 6px;
     }
 }
+
+.dataTables_processing {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 32px;
+    height: 32px;
+    margin-left: -16px;
+    margin-top: -16px;
+    background-image: url(../img/ajax-loader-big.gif);    
+    text-align: center;
+    color: #999;
+    font-size: 14px;
+    background-color: white;
+}
