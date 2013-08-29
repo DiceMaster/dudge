@@ -1,3 +1,9 @@
+<script>
+    $(document).ready(function() {
+        $("#navbarStatus").addClass("active");
+    });
+</script>
+
 <script type="text/javascript">
 var ds = null;
 var solutionCount = 20;

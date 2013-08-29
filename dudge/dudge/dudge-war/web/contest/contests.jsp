@@ -3,6 +3,12 @@
 <jsp:useBean id="problemsForm" class="dudge.web.forms.ProblemsForm" scope="page" />
 <jsp:useBean id="problemsAction" scope="page" class="dudge.web.actions.ProblemsAction" />
 
+<script>
+    $(document).ready(function() {
+        $("#navbarContests").addClass("active");
+    });
+</script>
+
 <script type="text/javascript" src="scripts/json.js"></script>
 
 <script type="text/javascript">

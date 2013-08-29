@@ -3,6 +3,10 @@
 <jsp:useBean id="usersForm" class="dudge.web.forms.UsersForm" scope="session" />
 <jsp:useBean id="usersAction" scope="session" class="dudge.web.actions.UsersAction" />
 
+<script>
+    $("#navbarUsers").addClass("active");
+</script>
+
 <c:if test="${permissionCheckerRemote.canModifyUser(autentificationObject.username, requestScope.login)}">
 <form action="users.do" method="GET">
     <input type="hidden" name="reqCode" value="edit">

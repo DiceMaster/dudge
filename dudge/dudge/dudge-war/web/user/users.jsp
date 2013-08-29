@@ -17,6 +17,8 @@
                 $('td:eq(0)', nRow).html( '<a href="users.do?reqCode=view&login=' + aData[0] + '">' + aData[0] +'</a>' );
             }
         });
+        
+        $("#navbarUsers").addClass("active");
     });
 </script>
 

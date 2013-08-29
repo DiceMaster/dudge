@@ -1,3 +1,9 @@
+<script>
+    $(document).ready(function() {
+        $("#navbarProblems").addClass("active");
+    });
+</script>
+
 <script type="text/javascript">
     var pageSize = 20;
     var ds = null;

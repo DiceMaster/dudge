@@ -2,6 +2,12 @@
 <jsp:useBean id="announceForm" class="dudge.web.forms.AnnounceForm" scope="session" />
 <jsp:useBean id="announceAction" class="dudge.web.actions.AnnounceAction" scope="session"/>
 
+<script>
+    $(document).ready(function() {
+        $("#navbarAnounce").addClass("active");
+    });
+</script>
+
 <div class="jumbotron">
     <h1>Заголовок</h1>
     <p>Dudge переводится на новый фреймворк для фронтенда. Вместе с этим будет переработана и главная страница, содержавшая ранее список соревнований.
