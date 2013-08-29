@@ -13,6 +13,9 @@
             "sAjaxSource": "users.do?reqCode=getUserList",
             "sPaginationType": "bootstrap",
             "sDom": '<"top"p>rt<"bottom"p><"clear">',
+            "oLanguage": {
+                "sUrl": "l18n/${pageContext.response.locale}.txt"
+            },
             "fnCreatedRow": function( nRow, aData ) {
                 $('td:eq(0)', nRow).html( '<a href="users.do?reqCode=view&login=' + aData[0] + '">' + aData[0] +'</a>' );
             }
