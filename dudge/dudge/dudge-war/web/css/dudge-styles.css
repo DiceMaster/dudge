@@ -45,3 +45,54 @@ div.dataTables_filter label {
     font-size: 14px;
     background-color: white;
 }
+
+table.table thead .sorting,
+table.table thead .sorting_asc,
+table.table thead .sorting_desc,
+table.table thead .sorting_asc_disabled,
+table.table thead .sorting_desc_disabled {
+    cursor: pointer;
+    *cursor: hand;
+    position: relative;
+}
+
+table.table thead .sorting:focus,
+table.table thead .sorting_asc:focus,
+table.table thead .sorting_desc:focus,
+table.table thead .sorting_asc_disabled:focus,
+table.table thead .sorting_desc_disabled:focus {
+    outline: none;
+}
+
+table.table thead .sorting:after {
+    content: url('../img/sort_both.png');
+    position: absolute;
+    top: 50%;
+    margin-top: -10px;
+}
+
+table.table thead .sorting_asc:after {
+    content: url('../img/sort_asc.png');
+    position: absolute;
+    top: 50%;
+    margin-top: -10px;
+}
+table.table thead .sorting_desc:after {
+    content: url('../img/sort_desc.png');
+    position: absolute;
+    top: 50%;
+    margin-top: -10px;
+}
+ 
+table.table thead .sorting_asc_disabled:after {
+    content: url('../img/sort_asc_disabled.png');
+    position: absolute;
+    top: 50%;
+    margin-top: -10px;
+}
+table.table thead .sorting_desc_disabled:after {
+    content: url('../img/sort_desc_disabled.png');
+    position: absolute;
+    top: 50%;
+    margin-top: -10px;
+}
