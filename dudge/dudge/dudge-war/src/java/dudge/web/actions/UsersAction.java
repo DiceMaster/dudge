@@ -39,6 +39,13 @@ public class UsersAction extends DispatchAction {
 
 	private static final Logger logger = Logger.getLogger(UsersAction.class.toString());
 	private ServiceLocator serviceLocator = ServiceLocator.getInstance();
+                
+        private static final String[] columns = {
+          "login",
+          "regDate",
+          "realName",
+          "organization"
+        };
 
 	/**
 	 * Creates a new instance of RegistrationAction
@@ -378,51 +385,67 @@ public class UsersAction extends DispatchAction {
 	 * Возвращает AJAX-клиенту очередную порцию из списка пользователей.
 	 */
 	public void getUserList(ActionMapping mapping, ActionForm af, HttpServletRequest request, HttpServletResponse response) {
-
-		//  Получаем из запроса, какие данные требуются клиенту.
+                //  Получаем из запроса, какие данные требуются клиенту.
                 String iDisplayStartString = (String) request.getParameter("iDisplayStart");
                 String iDisplayLengthString = (String) request.getParameter("iDisplayLength");
-                
-                List<User> users;
-                if (iDisplayStartString != null && iDisplayLengthString != "-1") {
-                    users = serviceLocator.lookupUserBean().getUsersRange(
-                            Integer.parseInt(iDisplayStartString),
-                            Integer.parseInt(iDisplayLengthString)
-                            );
-                } else {
-                    users = serviceLocator.lookupUserBean().getUsers();
+                int iDisplayStart = iDisplayStartString == null ? -1 : Integer.parseInt(iDisplayStartString);
+                int iDisplayLength = iDisplayLengthString == null ? -1 : Integer.parseInt(iDisplayLengthString);
+
+                String searchString = (String) request.getParameter("sSearch");
+                if (searchString != null && searchString.isEmpty()) {
+                   searchString = null;
                 }
- 
-		JSONArray ja = new JSONArray();
-		JSONObject jo = new JSONObject();
+                
+                String order = null;
+                boolean descending = false;
+                if (request.getParameter("iSortCol_0") != null)
+                {
+                    int iColumn = Integer.parseInt(request.getParameter("iSortCol_0"));
+                    if (request.getParameter("bSortable_" + iColumn).equals("true"))
+                    {
+                            order = columns[iColumn];
+                            descending = request.getParameter("sSortDir_0").equals("desc");
+                    }
+                }
+
+                UserLocal.FilteredUsers users = serviceLocator.lookupUserBean().getUsers(
+                    searchString,
+                    order,
+                    descending,
+                    iDisplayStart,
+                    iDisplayLength
+                );
+
+                JSONArray ja = new JSONArray();
+                JSONObject jo = new JSONObject();
 
                 long totalUsersCount = serviceLocator.lookupUserBean().getUsersCount();
-		try {
+                try {
                     jo.put("sEcho", request.getParameter("sEcho"));
                     jo.put("iTotalRecords", totalUsersCount);
-                    jo.put("iTotalDisplayRecords", totalUsersCount);
-		} catch (JSONException e) {
+                    jo.put("iTotalDisplayRecords", users.getFilteredTotal());
+                } catch (JSONException e) {
                     logger.log(Level.SEVERE, "exception caught", e);
                     return;
-		}
+                }
 
-		for (Iterator<User> iter = users.iterator(); iter.hasNext();) {
+                for (Iterator<User> iter = users.getFilteredUsers().iterator(); iter.hasNext();) {
                     ja.put(this.getUserJSONView(iter.next()));
-		}
-		try {
+                }
+                try {
                     jo.put("aaData", ja);
-		} catch (JSONException e) {
+                } catch (JSONException e) {
                     logger.log(Level.SEVERE, "exception caught", e);
                     return;
-		}
+                }
 
-		// Устанавливаем тип контента
-		response.setContentType("application/x-json");
-		try {
+                // Устанавливаем тип контента
+                response.setContentType("application/x-json");
+                try {
                     response.getWriter().print(jo);
-		} catch (IOException e) {
+                } catch (IOException e) {
                     logger.log(Level.SEVERE, "exception caught", e);
-		}
+                }
 	}
 
 	/**

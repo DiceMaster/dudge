@@ -6,7 +6,7 @@ $.extend( $.fn.dataTableExt.oStdClasses, {
  $.fn.dataTableExt.oApi.dudgeTableStyles = function ( oSettings ) {
     $('#' + oSettings.sTableId + '_length label select').addClass('form-control');
     $('#' + oSettings.sTableId + '_filter label input').addClass('form-control');   
-}
+};
 
 $.fn.dataTable.models.oSettings['aoInitComplete'].push( {
     "fn": $.fn.dataTableExt.oApi.dudgeTableStyles,
@@ -27,7 +27,7 @@ $.fn.dataTable.models.oSettings['aoInitComplete'].push( {
          "iTotalPages":    oSettings._iDisplayLength === -1 ?
              0 : Math.ceil( oSettings.fnRecordsDisplay() / oSettings._iDisplayLength )
      };
- }
+ };
 
  /* Bootstrap style pagination control */
  $.extend( $.fn.dataTableExt.oPagination, {

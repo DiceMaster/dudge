@@ -6,6 +6,7 @@
         $('#userGrid').dataTable( {
             "bProcessing": true,
             "bServerSide": true,
+            "sServerMethod": "POST",
             "bLengthChange": false,
             "iDisplayLength ": 25,
             "sAjaxSource": "users.do?reqCode=getUserList",
