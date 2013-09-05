@@ -3,7 +3,7 @@
 <jsp:useBean id="usersForm" class="dudge.web.forms.UsersForm" scope="session" />
 <jsp:useBean id="usersAction" class="dudge.web.actions.UsersAction" scope="session"/>
 
-<link rel="stylesheet" type="text/css" href="/dudge/css/editUser.css" />
+<script type="text/javascript" src="scripts/jquery.scrollintoview.min.js"></script>
 <script type="text/javascript">
     function validate() {
     
@@ -26,7 +26,7 @@
             $("#loginFieldError").removeClass("hide");
             $("#loginFieldError").html('<bean:message key="register.loginWrongSymbols" />');
             if (!failed) {
-                $(window).scrollTop(Math.min($(window).scrollTop(), $("#loginGroup").position().top));
+                $("#loginGroup").scrollintoview();
                 failed = true;
             }
         }
@@ -36,7 +36,7 @@
             $("#loginFieldError").removeClass("hide");
             $("#loginFieldError").html('<bean:message key="register.loginTooShort" />');
             if (!failed) {
-                $(window).scrollTop(Math.min($(window).scrollTop(), $("#loginGroup").position().top));
+                $("#loginGroup").scrollintoview();
                 failed = true;
             }
         }
@@ -46,7 +46,7 @@
             $("#loginFieldError").removeClass("hide");
             $("#loginFieldError").html('<bean:message key="register.loginTooLong" />');
             if (!failed) {
-                $(window).scrollTop(Math.min($(window).scrollTop(), $("#loginGroup").position().top));
+                $("#loginGroup").scrollintoview();
                 failed = true;
             }
         }
@@ -58,7 +58,7 @@
             $("#realNameFieldError").removeClass("hide");
             $("#realNameFieldError").html('<bean:message key="register.realNameTooShort" />');
             if (!failed) {
-                $(window).scrollTop(Math.min($(window).scrollTop(), $("#realNameGroup").position().top));
+                $("#realNameGroup").scrollintoview();
                 failed = true;
             }
         }
@@ -68,7 +68,7 @@
             $("#realNameFieldError").removeClass("hide");
             $("#realNameFieldError").html('<bean:message key="register.realNameTooLong" />');
             if (!failed) {
-                $(window).scrollTop(Math.min($(window).scrollTop(), $("#realNameGroup").position().top));
+                $("#realNameGroup").scrollintoview();
                 failed = true;
             }
         }
@@ -82,7 +82,7 @@
             $("#passwordFieldError").removeClass("hide");
             $("#passwordFieldError").html('<bean:message key="register.passwordWrongConfirm" />');
             if (!failed) {
-                $(window).scrollTop(Math.min($(window).scrollTop(), $("#passwordGroup").position().top));
+                $("#passwordGroup").scrollintoview();
                 failed = true;
             }
         }
@@ -92,7 +92,7 @@
             $("#passwordFieldError").removeClass("hide");
             $("#passwordFieldError").html('<bean:message key="register.passwordTooShort" />');
             if (!failed) {
-                $(window).scrollTop(Math.min($(window).scrollTop(), $("#passwordGroup").position().top));
+                $("#passwordGroup").scrollintoview();
                 failed = true;
             }
         }
@@ -102,7 +102,7 @@
             $("#passwordFieldError").removeClass("hide");
             $("#passwordFieldError").html('<bean:message key="register.passwordTooLong" />');
             if (!failed) {
-                $(window).scrollTop(Math.min($(window).scrollTop(), $("#passwordGroup").position().top));
+                $("#passwordGroup").scrollintoview();
                 failed = true;
             }
         }
@@ -115,7 +115,7 @@
             $("#emailFieldError").removeClass("hide");
             $("#emailFieldError").html('<bean:message key="register.emailMalformed" />');
             if (!failed) {
-                $(window).scrollTop(Math.min($(window).scrollTop(), $("#emailGroup").position().top));
+                $("#emailGroup").scrollintoview();
                 failed = true;
             }
         }
