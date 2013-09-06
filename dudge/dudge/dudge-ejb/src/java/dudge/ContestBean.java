@@ -15,6 +15,10 @@ import java.util.logging.Logger;
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
+import javax.persistence.Query;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Root;
 
 /**
  *
@@ -215,4 +219,58 @@ public class ContestBean implements ContestLocal {
 	public void deleteContest(int contestId) {
 		em.remove((Contest) em.find(Contest.class, contestId));
 	}
+
+        @Override
+        public FilteredContests getContests(String searchCriteria, String orderBy, boolean descending, int start, int length) {
+            CriteriaBuilder builder = em.getCriteriaBuilder();
+            CriteriaQuery contestsCriteriaQuery = builder.createQuery();
+            Root contestsRoot = contestsCriteriaQuery.from(Contest.class);
+            
+            CriteriaQuery<Long> countCriteriaQuery = builder.createQuery(Long.class);
+            Root countRoot = countCriteriaQuery.from(Contest.class);
+            countCriteriaQuery.select(builder.count(countRoot));
+
+            if (searchCriteria != null) {
+                contestsCriteriaQuery.where(
+                        builder.like(contestsRoot.get("caption"), "%" + searchCriteria + "%")
+                    );
+                countCriteriaQuery.where(
+                        builder.like(contestsRoot.get("caption"), "%" + searchCriteria + "%")
+                    );
+            }
+            
+            final long count = em.createQuery(countCriteriaQuery).getSingleResult();
+            
+            if (orderBy != null) {
+                contestsCriteriaQuery.orderBy(descending ? builder.desc(contestsRoot.get(orderBy)) : builder.asc(contestsRoot.get(orderBy)));
+            }
+
+            Query contestsQuery = em.createQuery(contestsCriteriaQuery);
+            if (start >= 0) {
+                contestsQuery = contestsQuery.setFirstResult(start);
+            }
+            if (length > 0) {
+                contestsQuery = contestsQuery.setMaxResults(length);
+            }
+            final List<Contest> filteredContests = (List<Contest>) contestsQuery.getResultList();
+            
+            return new FilteredContests() {
+
+                @Override
+                public long getFilteredTotal() {
+                    return count;
+                }
+
+                @Override
+                public List<Contest> getFilteredContests() {
+                    return filteredContests;
+                }
+            };
+
+        }
+
+        @Override
+        public long getContestsCount() {
+            return (Long) em.createQuery("SELECT COUNT(c) FROM Contest c").getSingleResult();
+        }
 }

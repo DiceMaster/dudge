@@ -7,6 +7,7 @@
             "bProcessing": true,
             "bServerSide": true,
             "sServerMethod": "POST",
+            "bStateSave": true,
             "iDisplayLength": 25,
             "sAjaxSource": "users.do?reqCode=getUserList",
             "sPaginationType": "bootstrap",

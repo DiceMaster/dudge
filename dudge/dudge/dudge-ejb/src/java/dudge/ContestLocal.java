@@ -11,6 +11,11 @@ import javax.ejb.Local;
 @Local
 public interface ContestLocal {
 
+        public interface FilteredContests {
+            public long getFilteredTotal();
+            public List<Contest> getFilteredContests();
+        }
+    
 	/**
 	 * Возвращает соревнование по умолчанию.
 	 *
@@ -32,6 +37,26 @@ public interface ContestLocal {
 	 * @return список всех соревнований.
 	 */
 	List<Contest> getContests();
+        
+        /**
+	 * Возвращает соревнования, всоответствии с заданными критериями.
+	 *
+         * @param searchCriteria строка поиска.
+         * @param orderBy сортируемая колонка.
+         * @param descending обратный порядок сортировки.
+         * @param start Начало диапазона.
+         * @param length Длина диапазона. 
+	 * @return Диапазон соревнований системы.
+	 */
+	FilteredContests getContests(String searchCriteria, String orderBy, boolean descending, int start, int length);
+
+        
+        /**
+	 * Возвращает количество соревнований, зарегестрированных в системе.
+	 *
+	 * @return Количество соревнований в системе.
+	 */
+	long getContestsCount();
 
 	/**
 	 * Возвращает соревнования на этапе регистраций.
