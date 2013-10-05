@@ -11,6 +11,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import javax.servlet.http.HttpServletRequest;
+import json.JSONException;
+import json.JSONObject;
 import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionMapping;
 
@@ -122,4 +124,19 @@ public class SolutionsForm extends ActionForm {
 	public void setCurrentTestNumber(int currentTestNumber) {
 		this.currentTestNumber = currentTestNumber;
 	}
+        
+        public String StatusToJSONText() {
+            JSONObject jo= new JSONObject();
+            String ret;
+            
+            try {
+                jo.put("status", status);
+                jo.put("currentTestNumber", currentTestNumber);
+                jo.put("statusMessage", statusMessage);
+                ret=jo.toString();
+            } catch (JSONException e) {
+                ret="{'status':'INTERNAL_ERROR','currentTestNumber':'-1','statusMessage':'Exception detected'}";
+		}
+            return ret.replace("\\","\\\\").replace("'","\\'");
+        }
 }

@@ -110,7 +110,7 @@
             Ext.Ajax.request(request);
         }
         
-        responseFunction({responseText: '{ status: \'${solutionsForm.status}\', currentTestNumber: \'${solutionsForm.currentTestNumber}\', statusMessage: \'${solutionsForm.statusMessage}\' }'});
+        responseFunction({responseText: '${solutionsForm.StatusToJSONText()}'});
     });
 
 </script>
@@ -126,9 +126,9 @@
         <img id="throbber" src="img/ajax-loader.gif" />
         <span id="statusElement"></span>
     </p>
-    <div id="statusMessageBlock">    
-        <p id="statusMessageTitle" />
-        <textarea id="statusMessageText" class="x-form-text" readonly="true" style="width:100%;height:250px"></textarea>
+    <div id="statusMessageBlock" style="display:none;">
+        <p id="statusMessageTitle"></p>
+        <textarea id="statusMessageText" class="x-form-text" readonly="true" style="width:90%;height:250px"></textarea>
     </div>
 
     <p><br><br></p>
