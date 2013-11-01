@@ -84,7 +84,7 @@ public class SlaveBean implements dudge.slave.SlaveLocal {
 	 */
 	@TransactionAttribute(TransactionAttributeType.NOT_SUPPORTED)
 	protected void testSolutionInternal(Solution solution) throws SlaveException, UnsupportedEncodingException {
-		logger.log(Level.FINE, "Testing Solution {0}", solution.getSolutionId());
+		logger.log(Level.INFO, "Testing Solution {0}", solution.getSolutionId());
 
 		Properties props = new Properties();
 		props.setProperty("dtest.usePrivelegeDrop", Boolean.toString(launcherUsePrivilegeDrop));
@@ -110,6 +110,8 @@ public class SlaveBean implements dudge.slave.SlaveLocal {
 				lang.getFileExtension(),
 				lang.getCompilationCommand());
 
+                compiler.SetProblemId(problem.getProblemId());
+                
 		solution.setStatus(SolutionStatus.COMPILING);
 
 		this.saveSolution(solution);
@@ -135,6 +137,7 @@ public class SlaveBean implements dudge.slave.SlaveLocal {
 			solution.setStatusMessage(compiler.getOutput());
 			this.saveSolution(solution);
 
+                        logger.log(Level.INFO, "Solution {0} processed (with compilation error).", solution.getSolutionId());
 			return;
 		}
 
@@ -232,7 +235,7 @@ public class SlaveBean implements dudge.slave.SlaveLocal {
 
 		solution.setStatus(SolutionStatus.PROCESSED);
 		this.saveSolution(solution);
-		logger.log(Level.FINEST, "Solution {0} processed.", solution.getSolutionId());
+		logger.log(Level.INFO, "Solution {0} processed.", solution.getSolutionId());
 	} // testSolutionInternal()
 
 	/**

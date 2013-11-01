@@ -33,6 +33,8 @@ public class SourceCompiler {
 	private String compilationCommand;
 	private StringBuffer outputBuffer = new StringBuffer();
 	private int compilationTime = 0; //milliseconds
+        
+        private int problemId =-1; // FIXME: temporary hack for DB olymp 2013
 
 	/**
 	 *
@@ -144,6 +146,8 @@ public class SourceCompiler {
 		sub.set("PROG.SRCNAME", getSourceFile().getCanonicalPath());
 		sub.set("PROG.TESTDIR", dstDir.getCanonicalPath());
 		sub.set("PATH.SEPAR", File.separator);
+                sub.set("PROBLEM.ID", String.valueOf(getProblemId())); // FIXME: temporary hack for DB olymp 2013
+
 
 		String decodedCommand = sub.decodeString(compilationCommand);
 		logger.log(Level.FINEST, "Compilation command: {0}", decodedCommand);
@@ -223,4 +227,12 @@ public class SourceCompiler {
 		String outs = outputBuffer.toString();
 		return outs;
 	}
+
+        public void SetProblemId(int problemId) { // FIXME: temporary hack for DB olymp 2013
+            this.problemId=problemId;
+        }
+        
+        public int getProblemId() { // FIXME: temporary hack for DB olymp 2013
+            return problemId;
+        }
 }
