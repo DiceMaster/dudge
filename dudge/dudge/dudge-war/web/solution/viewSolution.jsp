@@ -118,7 +118,7 @@
 <a href="solutions.do?reqCode=submit&contestId=${contestId}"><bean:message key="solution.submitAnother"/></a>
 <p><br>
 
-<div id="solutionContent">
+<div id="solutionContent" style="height:100%">
 
     <h3><bean:message key="solution.solution" /> ${solutionsForm.solutionId}</h3>
     <p>
@@ -132,5 +132,5 @@
     </div>
 
     <p><br><br></p>
-    <textarea readonly wrap="off" style="border: 1; width: 50%; height: 80%; position: absolute;">${solutionsForm.sourceCode}</textarea>
+    <textarea readonly wrap="off" style="border: 1; width: 96%; height: 70%; margin:1%;">${solutionsForm.sourceCode}</textarea>
 </div>

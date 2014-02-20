@@ -52,7 +52,7 @@
                         <div class="x-form-item">
                             <label for="sourcecode"><bean:message key="submit.source"/></label>
                             <div class="x-form-element">
-                                <html:textarea property="sourceCode" styleId="sourcecode" style="width:90%;height:200px" />
+                                <html:textarea property="sourceCode" styleId="sourcecode" style="width:96%;height:400pt;margin:1%;" />
                             </div>
                         </div>
                         <div id="send" style="margin:20px;"></div>  

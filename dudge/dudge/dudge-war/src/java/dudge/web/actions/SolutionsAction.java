@@ -180,7 +180,8 @@ public class SolutionsAction extends DispatchAction {
 
 		// Проверяем право пользователя.
 		PermissionCheckerRemote pcb = ao.getPermissionChecker();
-		if (!pcb.canSubmitSolution(ao.getUsername(), contest.getContestId(), problem.getProblemId())) {
+		if (contest==null || problem==null || pcb==null ||
+                    !pcb.canSubmitSolution(ao.getUsername(), contest.getContestId(), problem.getProblemId())) {
 			return mapping.findForward("accessDenied");
 		}
 
