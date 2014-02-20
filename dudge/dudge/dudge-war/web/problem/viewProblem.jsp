@@ -2,7 +2,7 @@
 
 <c:set var="problemId" value="${problemsForm.problemId}" scope="session"/>
 
-<script type="text/javascript" src="scripts/json.js"></script>
+<%--<script type="text/javascript" src="scripts/json.js"></script>--%>
 
 <script type="text/javascript">
     Ext.onReady(function(){	

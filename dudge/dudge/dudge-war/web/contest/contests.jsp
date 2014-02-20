@@ -3,7 +3,7 @@
 <jsp:useBean id="problemsForm" class="dudge.web.forms.ProblemsForm" scope="page" />
 <jsp:useBean id="problemsAction" scope="page" class="dudge.web.actions.ProblemsAction" />
 
-<script type="text/javascript" src="scripts/json.js"></script>
+<%--<script type="text/javascript" src="scripts/json.js"></script>--%>
 
 <script type="text/javascript">
     var pageSize = 20;
