@@ -22,6 +22,7 @@ import dudge.db.User;
 import dudge.web.AuthenticationObject;
 import dudge.web.ServiceLocator;
 import dudge.web.forms.ContestsForm;
+import dudge.web.forms.ContestsForm.ContestRole;
 import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -140,7 +141,7 @@ public class ContestsAction extends DispatchAction {
                     iDisplayLength
                 );
                 
-                long totalContestsCount = serviceLocator.lookupUserBean().getUsersCount();
+                long totalContestsCount = serviceLocator.lookupContestBean().getContestsCount();
                 
 		JSONArray ja = new JSONArray();
 		JSONObject jo = new JSONObject();
@@ -550,6 +551,10 @@ public class ContestsAction extends DispatchAction {
 		cf.reset(mapping, request);
 		cf.getContestTypes().addAll(Arrays.asList(ContestType.values()));
 		cf.getRoleTypes().addAll(Arrays.asList(RoleType.values()));
+                
+                for (Role role : contest.getRoles()) {
+                    cf.getRoles().add(cf.new ContestRole(role.getUser().getLogin(), role.getUser().getRealName(), role.getRoleType()));
+                }
 
 		// Выставляем значения для полей, соотв. текущим значениям редактируемого контеста.
 		cf.setContestId(String.valueOf(contestId));

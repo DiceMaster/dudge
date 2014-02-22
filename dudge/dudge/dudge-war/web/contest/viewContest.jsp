@@ -5,6 +5,7 @@
 <c:set var="contestId" value="${contestsForm.contestId}" scope="session" />
 
 <script type="text/javascript">
+    /*
     Ext.onReady(function(){
         var buttonsToolbar = Ext.getCmp('content-panel').getTopToolbar();
     <c:if test="${permissionCheckerRemote.canSendApplication(autentificationObject.username, contestId)}">
@@ -68,47 +69,94 @@
             buttonsToolbar.doLayout();
             buttonsToolbar.render();
         }); //Ext.onReady()
+*/
 </script>
+<c:choose>
+    <c:when test="${permissionCheckerRemote.canModifyContest(autentificationObject.username, contestId)}">
+<form action="contests.do" method="GET">
+    <input type="hidden" name="reqCode" value="edit">
+    <input type="hidden" name="contestId" value="${contestId}">
+    <h1 class="pull-left">${contestsForm.caption}</h1>
+    <div class="pull-right">
+        <div class="btn-group dudge-btn-group">
+            <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#deleteContest"><bean:message key="contest.delete"/></button>
+            <!-- Modal -->
+            <div class="modal" id="deleteContest" tabindex="-1" role="dialog" aria-hidden="true">
+              <div class="modal-dialog">
+                <div class="modal-content">
+                  <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                    <h4 class="modal-title"><bean:message key="contest.confirmDeleteTitle"/></h4>
+                  </div>
+                  <div class="modal-body">
+                      <bean:message key="contest.confirmDeleteMsg"/>
+                  </div>
+                  <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal"><bean:message key="contest.cancel"/></button>
+                    <a href="contests.do?reqCode=delete&contestId=${contestId}" class="btn btn-danger"><bean:message key="contest.delete"/></a>
+                  </div>
+                </div><!-- /.modal-content -->
+              </div><!-- /.modal-dialog -->
+            </div><!-- /.modal -->
+            
+            <button type="submit" class="btn btn-primary"><bean:message key="contest.edit"/></button>
+        </div>
+    </div>
+    <div class="clearfix"></div>
+</form>
+    </c:when>
+    <c:otherwise>
+<h1>${contestsForm.caption}</h1>
+    </c:otherwise>
+</c:choose>
+    
+<p><a href="contests.do?reqCode=rules&contestId=${contestId}"><bean:message key="contest.rules" /></a></p>
+<h2><bean:message key="contest.parameters"/></h2>
+<hr>
+<dl class="dl-horizontal">
+    <dt><bean:message key="contest.type" /></dt>
+    <dd>${contestsForm.contestType}</dd>
 
-<html:form action="contests" method="GET">
-    <h3 align="center" style="font-size:x-large">${contestsForm.caption}</h3>
-    <p align="center" class="contest_info" >
-        <a href="contests.do?reqCode=rules&contestId=${contestId}"><bean:message key="contest.rules" /></a><br>
-        <bean:message key="contest.type" />: ${contestsForm.contestType}<br>
+    <dt><bean:message key="contest.isOpen" /></dt>
+    <c:choose>
+        <c:when test="${contestsForm.open}">
+            <dd><bean:message key="contest.open.yes" /></dd>
+        </c:when>
+        <c:otherwise>
+            <dd><bean:message key="contest.open.no" /></dd>
+        </c:otherwise>
+    </c:choose>
 
-        <c:choose>
-            <c:when test="${contestsForm.open}">
-                <bean:message key="contest.isOpen" />: <bean:message key="contest.open.yes" /><br>    
-            </c:when>
-            <c:otherwise>
-                <bean:message key="contest.isOpen" />: <bean:message key="contest.open.no" /><br>  
-            </c:otherwise>
-        </c:choose>
-        <bean:message key="contest.startDate" />: ${contestsForm.startDate}<br>
-        <bean:message key="contest.startTime" />: ${contestsForm.startHour}:${contestsForm.startMinute}<br>
-        <bean:message key="contest.duration" />: ${contestsForm.durationHours}:${contestsForm.durationMinutes}<br>
+    <dt><bean:message key="contest.startDate" /></dt>
+    <dd>${contestsForm.startDate}</dd>
 
-    </p><br>
-    <p class="contest_info">${contestsForm.description} </p>
-    <p class="contest_info">
-    <h2 align="center" style="font-size:large"><bean:message key="contest.competitors" /></h2>
-    <table align="center" border="1" cellspacing="0" width="50%">
-        <thead>
-            <tr>
-                <th><b><bean:message key="user.login" /></b></th>
-                <th><b><bean:message key="user.realName" /></b></th>
-            </tr>
-        </thead>
-        <tbody>
-            <c:forEach items="${contest.roles}" var="role">
-                <c:if test="${role.roleType == roleTypeUser}">
-                    <tr>
-                        <td width="50%"><a href="users.do?reqCode=view&login=${role.user.login}">${role.user.login}</a></td>
-                        <td width="50%">${role.user.realName} </td>
-                    </tr>
-                </c:if>
-            </c:forEach>
-        </tbody>
-    </table>
-</p>
-</html:form>
+    <dt><bean:message key="contest.startTime" /></dt>
+    <dd>${contestsForm.startHour}:${contestsForm.startMinute}</dd>
+
+    <dt><bean:message key="contest.duration" /></dt>
+    <dd>${contestsForm.durationHours}:${contestsForm.durationMinutes}</dd>
+</dl>
+<h2><bean:message key="contest.description"/></h2>
+<hr>
+<div>${contestsForm.description} </div>
+
+<p>${contest}</p>
+<h2><bean:message key="contest.competitors" /></h2>
+<table class="table">
+    <thead>
+        <tr>
+            <th><b><bean:message key="user.login" /></b></th>
+            <th><b><bean:message key="user.realName" /></b></th>
+        </tr>
+    </thead>
+    <tbody>
+        <c:forEach items="${contestsForm.roles}" var="role">
+            <c:if test="${role.roleType == roleTypeUser}">
+                <tr>
+                    <td><a href="users.do?reqCode=view&login=${role.user}">${role.user}</a></td>
+                    <td>${role.realName} </td>
+                </tr>
+            </c:if>
+        </c:forEach>
+    </tbody>
+</table>

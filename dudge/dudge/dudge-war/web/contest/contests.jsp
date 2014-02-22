@@ -16,7 +16,10 @@
             "iDisplayLength": 25,
             "sAjaxSource": "contests.do?reqCode=getContestList",
             "aoColumnDefs": [
-                { "bVisible": false, "aTargets": [ 0, 5, 6, 7, 8 ] }
+                { "bVisible": false, "aTargets": [ 0, 5, 6, 7, 8 ] },
+                { "mRender": function ( data, type, full ) {
+                                 return data ? "<bean:message key="contest.open.yes"/>" : "<bean:message key="contest.open.no"/>";
+                             }, "aTargets": [ 3 ]}
             ],
             "sPaginationType": "bootstrap",
             "sDom": '<"row"<"pull-left"p><"pull-right"f><"clearfix">>rt<"row"<"col-lg-8"p><"col-lg-4"i>>',
