@@ -5,6 +5,14 @@
 <c:set var="contestId" value="${contestsForm.contestId}" scope="session" />
 
 <script type="text/javascript">
+    $( document ).ready(function() {
+        $('#sendApplication').click(function(){
+            var message = '<bean:message key="contest.sendApplication" />';
+            $.post('contests.do', {reqCode: 'sendApplication' , contestId: ${contestId} , message: message}, function(xml){
+                $('.alert').show();
+            }, 'xml');
+        });
+    });
     /*
     Ext.onReady(function(){
         var buttonsToolbar = Ext.getCmp('content-panel').getTopToolbar();
@@ -71,14 +79,16 @@
         }); //Ext.onReady()
 */
 </script>
-<c:choose>
-    <c:when test="${permissionCheckerRemote.canModifyContest(autentificationObject.username, contestId)}">
 <form action="contests.do" method="GET">
     <input type="hidden" name="reqCode" value="edit">
     <input type="hidden" name="contestId" value="${contestId}">
     <h1 class="pull-left">${contestsForm.caption}</h1>
     <div class="pull-right">
         <div class="btn-group dudge-btn-group">
+<c:if test="${permissionCheckerRemote.canSendApplication(autentificationObject.username, contestId)}">            
+            <button type="button" class="btn" id="sendApplication"><bean:message key="contest.sendApplication"/></button>
+</c:if>            
+<c:if test="${permissionCheckerRemote.canModifyContest(autentificationObject.username, contestId)}">                        
             <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#deleteContest"><bean:message key="contest.delete"/></button>
             <!-- Modal -->
             <div class="modal" id="deleteContest" tabindex="-1" role="dialog" aria-hidden="true">
@@ -100,16 +110,15 @@
             </div><!-- /.modal -->
             
             <button type="submit" class="btn btn-primary"><bean:message key="contest.edit"/></button>
+</c:if>            
         </div>
     </div>
     <div class="clearfix"></div>
 </form>
-    </c:when>
-    <c:otherwise>
-<h1>${contestsForm.caption}</h1>
-    </c:otherwise>
-</c:choose>
-    
+<div class="alert alert-success alert-dismissable" hidden="true">
+    <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+    <bean:message key="contest.applicationSent" />
+</div>
 <p><a href="contests.do?reqCode=rules&contestId=${contestId}"><bean:message key="contest.rules" /></a></p>
 <h2><bean:message key="contest.parameters"/></h2>
 <hr>
