@@ -11,6 +11,7 @@ import dudge.PermissionCheckerRemote;
 import dudge.monitor.SchoolMonitorRecord;
 import dudge.web.AuthenticationObject;
 import dudge.web.ServiceLocator;
+import dudge.web.forms.MonitorForm;
 import java.io.IOException;
 import java.util.Date;
 import java.util.List;
@@ -62,6 +63,7 @@ public class MonitorAction extends DispatchAction {
 
 		ContestLocal contestBean = serviceLocator.lookupContestBean();
 		AuthenticationObject ao = AuthenticationObject.extract(request);
+		MonitorForm mf = (MonitorForm) af;
 
 		int contestId;
 		// Получаем идентификатор соревнования.
@@ -80,16 +82,25 @@ public class MonitorAction extends DispatchAction {
 			return mapping.findForward("accessDenied");
 		}
 
+		Contest contest = contestBean.getContest(contestId);
+
+		mf.reset(mapping, request);
+		mf.setContestId(contestId);
+		for (ContestProblem contestProblem : contest.getContestProblems()) {
+			mf.getProblems().add(contestProblem);
+		}
+
 		// Получаем свойства соревнования.
-		ContestTraits traits = contestBean.getContest(contestId).getTraits();
+		ContestTraits traits = contest.getTraits();
 
 		//Редирект на страницу монитора.
 		return mapping.findForward("monitor" + traits.getMonitorSuffix());
 	}
 
 	/**
-	 * Метод для получения через AJAX данных монитора глобального соревнования. Возвращает в response нужные данные. Само соревнование задается через параметр
-	 * contestId.
+	 * Метод для получения через AJAX данных монитора глобального соревнования.
+	 * Возвращает в response нужные данные. Само соревнование задается через
+	 * параметр contestId.
 	 *
 	 * @param mapping
 	 * @param af
@@ -160,8 +171,9 @@ public class MonitorAction extends DispatchAction {
 	}
 
 	/**
-	 * Метод для получения через AJAX данных монитора соревнования ACM. Возвращает в response нужные данные. Само соревнование задается через параметр
-	 * contestId.
+	 * Метод для получения через AJAX данных монитора соревнования ACM.
+	 * Возвращает в response нужные данные. Само соревнование задается через
+	 * параметр contestId.
 	 *
 	 * @param mapping
 	 * @param af
@@ -169,6 +181,7 @@ public class MonitorAction extends DispatchAction {
 	 * @param response
 	 */
 	public void getAcmMonitorData(ActionMapping mapping, ActionForm af, HttpServletRequest request, HttpServletResponse response) {
+
 		//  Получаем идентификатор соревнования.
 		int contestId = Integer.parseInt(request.getParameter("contestId"));
 		AuthenticationObject ao = AuthenticationObject.extract(request);
@@ -182,8 +195,6 @@ public class MonitorAction extends DispatchAction {
 		Contest contest = serviceLocator.lookupContestBean().getContest(contestId);
 		//AcmTraits traits = (AcmTraits) contest.getTraits();
 
-		JSONArray jaRows = new JSONArray();
-
 		// Администраторы соревнования видят монитор размороженным.
 		boolean userIsContestAdmin = serviceLocator.lookupUserBean().isInRole(ao.getUsername(), contest.getContestId(), RoleType.ADMINISTRATOR);
 
@@ -191,71 +202,73 @@ public class MonitorAction extends DispatchAction {
 				contest, (userIsContestAdmin || contest.isInfinite()) ? null
 				: new Date(Long.valueOf(contest.getEndTime().getTime() - contest.getFreezeTime() * 1000)));
 
-		for (AcmMonitorRecord row : monitorRows) {
-			JSONObject joRow = new JSONObject();
+		JSONArray ja = new JSONArray();
+		JSONObject jo = new JSONObject();
 
-			try {
-				joRow.put("user", row.getUser());
-				joRow.put("place", row.getPlace());
-
-				for (ContestProblem contestProblem : contest.getContestProblems()) {
-					// Данные ячейки в мониторе.
-					String cellData = "";
-
-					if (row.isSolved(contestProblem.getProblemMark())) {
-						// Выводим в ячейку "плюс";
-						cellData += "+";
-					} else {
-						cellData += "-";
-					}
-
-					// Выводим количество неуспешных попыток,
-					// если таковые были.
-					int unsucAttempts = row.getProblemTriesCount(contestProblem.getProblemMark());
-					if (unsucAttempts != 0) {
-						cellData += Integer.toString(unsucAttempts);
-					}
-					joRow.put("problem" + contestProblem.getProblemMark(), cellData);
-				} // for contestProblem
-
-				joRow.put("solvedProblems", row.getSolvedProblemsCount());
-				// Выводим время в минутах.
-				joRow.put("time", row.getTime() / (60 * 1000));
-			} catch (JSONException e) {
-				logger.log(Level.SEVERE, "Creating JSON view of Solution object failed.", e);
-				return;
-			}
-
-			jaRows.put(joRow);
-		} // for row
-
-		JSONObject joRoot = new JSONObject();
 		try {
-			joRoot.put("totalCount", monitorRows.size());
+			jo.put("sEcho", request.getParameter("sEcho"));
+			jo.put("iTotalRecords", monitorRows.size());
+			jo.put("iTotalDisplayRecords", monitorRows.size());
 		} catch (JSONException e) {
-			logger.log(Level.ALL, "exception caught", e);
+			logger.log(Level.SEVERE, "exception caught", e);
 			return;
 		}
 
+		for (AcmMonitorRecord row : monitorRows) {
+			JSONArray json = new JSONArray();
+
+			// Заполняем данными пользователя созданный JSON массив.
+
+			json.put(row.getPlace());
+			json.put(row.getUser());
+			json.put(row.getSolvedProblemsCount());
+
+			for (ContestProblem contestProblem : contest.getContestProblems()) {
+				// Данные ячейки в мониторе.
+				String cellData = "";
+
+				if (row.isSolved(contestProblem.getProblemMark())) {
+					// Выводим в ячейку "плюс";
+					cellData += "+";
+				} else {
+					cellData += "-";
+				}
+
+				// Выводим количество неуспешных попыток,
+				// если таковые были.
+				int unsucAttempts = row.getProblemTriesCount(contestProblem.getProblemMark());
+				if (unsucAttempts != 0) {
+					cellData += Integer.toString(unsucAttempts);
+				}
+				json.put(cellData);
+			} // for contestProblem
+
+			// Выводим время в минутах.
+			json.put(row.getTime() / (60 * 1000));
+			
+			ja.put(json);
+		} // for row
+
 		try {
-			joRoot.put("rows", jaRows);
+			jo.put("aaData", ja);
 		} catch (JSONException e) {
-			logger.log(Level.SEVERE, "Exception occured.", e);
+			logger.log(Level.SEVERE, "exception caught", e);
 			return;
 		}
 
 		// Устанавливаем тип контента
 		response.setContentType("application/x-json");
 		try {
-			response.getWriter().print(joRoot);
+			response.getWriter().print(jo);
 		} catch (IOException e) {
-			logger.log(Level.SEVERE, "Exception occured.", e);
+			logger.log(Level.SEVERE, "exception caught", e);
 		}
 	}
 
 	/**
-	 * Метод для получения через AJAX данных монитора школьного соревнования. Возвращает в response нужные данные. Само соревнование задается через параметр
-	 * contestId.
+	 * Метод для получения через AJAX данных монитора школьного соревнования.
+	 * Возвращает в response нужные данные. Само соревнование задается через
+	 * параметр contestId.
 	 *
 	 * @param mapping
 	 * @param af

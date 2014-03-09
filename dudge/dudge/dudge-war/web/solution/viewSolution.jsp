@@ -128,7 +128,7 @@
     </p>
     <div id="statusMessageBlock">    
         <p id="statusMessageTitle" />
-        <textarea id="statusMessageText" class="x-form-text" readonly="true" style="width:100%;height:250px"></textarea>
+        <textarea id="statusMessageText" class="x-form-text" readonly style="width:100%;height:250px"></textarea>
     </div>
 
     <p><br><br></p>
