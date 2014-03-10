@@ -122,53 +122,52 @@ public class MonitorAction extends DispatchAction {
 		Contest contest = serviceLocator.lookupContestBean().getContest(contestId);
 		//GlobalTraits traits = (GlobalTraits) contest.getTraits();
 
-		JSONArray jaRows = new JSONArray();
-
-		// Администраторы соревнования видят монитор размороженным.
 		boolean userIsContestAdmin = serviceLocator.lookupUserBean().isInRole(ao.getUsername(), contest.getContestId(), RoleType.ADMINISTRATOR);
 
 		Date freezeTime = new Date(Long.valueOf(contest.getEndTime().getTime() - contest.getFreezeTime() * 1000));
 		List<GlobalMonitorRecord> monitorRows = serviceLocator.lookupDudgeBean().getGlobalMonitorRecords(
 				contest, (userIsContestAdmin || contest.isInfinite()) ? null
 				: freezeTime);
-		
+	
 		boolean isFrozen = !userIsContestAdmin && !contest.isInfinite() && new Date().after(freezeTime);
+		Date updateTime = isFrozen ? freezeTime : new Date();
 
-		for (GlobalMonitorRecord row : monitorRows) {
-			JSONObject joRow = new JSONObject();
+		JSONArray ja = new JSONArray();
+		JSONObject jo = new JSONObject();
 
-			try {
-				joRow.put("user", row.getUser());
-				joRow.put("place", row.getPlace());
-				joRow.put("solvedProblems", row.getSolvedProblemsCount());
-				joRow.put("rating", row.getRating());
-			} catch (JSONException e) {
-				logger.log(Level.SEVERE, "Creating JSON view of Solution object failed.", e);
-				return;
-			}
-
-			jaRows.put(joRow);
-		} // for row
-
-		JSONObject joRoot = new JSONObject();
 		try {
-			joRoot.put("totalCount", monitorRows.size());
+			jo.put("sEcho", request.getParameter("sEcho"));
+			jo.put("iTotalRecords", monitorRows.size());
+			jo.put("iTotalDisplayRecords", monitorRows.size());
+			jo.put("frozen", isFrozen);
+			jo.put("updateTime", updateTime.getTime());
 		} catch (JSONException e) {
-			logger.log(Level.ALL, "exception caught", e);
+			logger.log(Level.SEVERE, "exception caught", e);
 			return;
 		}
 
+		for (GlobalMonitorRecord row : monitorRows) {
+			JSONArray jRow = new JSONArray();
+			
+			jRow.put(row.getPlace());
+			jRow.put(row.getUser());
+			jRow.put(row.getSolvedProblemsCount());
+			jRow.put(row.getRating());
+
+			ja.put(jRow);
+		} // for row
+
 		try {
-			joRoot.put("rows", jaRows);
+			jo.put("aaData", ja);
 		} catch (JSONException e) {
-			logger.log(Level.SEVERE, "Exception occured.", e);
+			logger.log(Level.SEVERE, "exception caught", e);
 			return;
 		}
 
 		// Устанавливаем тип контента
 		response.setContentType("application/x-json");
 		try {
-			response.getWriter().print(joRoot);
+			response.getWriter().print(jo);
 		} catch (IOException ex) {
 			logger.log(Level.SEVERE, "Exception occured.", ex);
 		}
