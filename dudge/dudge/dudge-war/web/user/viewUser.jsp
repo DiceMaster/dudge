@@ -7,13 +7,12 @@
     $("#navbarUsers").addClass("active");
 </script>
 
-<c:if test="${permissionCheckerRemote.canModifyUser(autentificationObject.username, requestScope.login)}">
+<c:choose>
+    <c:when test="${permissionCheckerRemote.canModifyUser(autentificationObject.username, requestScope.login)}">
 <form action="users.do" method="GET">
     <input type="hidden" name="reqCode" value="edit">
     <input type="hidden" name="login" value="${usersForm.login}">
-</c:if>
     <h1 class="pull-left"><bean:message key="user.user" /> ${usersForm.login}</h1>
-<c:if test="${permissionCheckerRemote.canModifyUser(autentificationObject.username, requestScope.login)}">        
     <div class="pull-right">
         <div class="btn-group dudge-btn-group">
             <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#deleteUser"><bean:message key="users.delete"/></button>
@@ -41,8 +40,11 @@
     </div>
     <div class="clearfix"></div>
 </form>
-</c:if>
-
+    </c:when>
+    <c:otherwise>
+<h1><bean:message key="user.user" /> ${usersForm.login}</h1>
+    </c:otherwise>
+</c:choose>
 <h3><bean:message key="user.userInfo" /></h3>
 <hr>
 
