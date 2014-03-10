@@ -10,7 +10,6 @@
             "bServerSide": true,
             "bSort" : false,
             "sServerMethod": "POST",
-            "iDisplayLength": 25,
             "sAjaxSource": "monitor.do?reqCode=getAcmMonitorData&contestId=${monitorForm.contestId}",
             "sDom": 'rt',
             "oLanguage": {
@@ -20,6 +19,19 @@
                 $('td:eq(1)', nRow).html( '<a href="users.do?reqCode=view&login=' + aData[1] + '">' + aData[1] +'</a>' );
             }
         });
+        
+        monitorTable.on('xhr', function ( e, o, json ) {
+            if (json.frozen) {
+                $("#alertFrozen").show();
+            } else {
+                $("#alertFrozen").hide();
+            }
+            
+            var updatedTime = $("#updatedTime");
+            var time = new Date(json.updateTime);
+            updatedTime.text('<bean:message key="monitor.updated"/>: ' + time.toLocaleString());
+            updatedTime.show();
+        } );
  
         setInterval(function(){
             monitorTable.fnReloadAjax();
@@ -27,6 +39,9 @@
     });
  </script>
 
+<h1>${monitorForm.contestCaption}</h1>
+<div class="alert alert-warning" id="alertFrozen" hidden="true"><bean:message key="monitor.frozen"/></div>
+<div id="updatedTime" hidden="true"></div>
 <table class="table" id="monitorGrid">
     <thead>
         <tr>

@@ -86,6 +86,7 @@ public class MonitorAction extends DispatchAction {
 
 		mf.reset(mapping, request);
 		mf.setContestId(contestId);
+		mf.setContestCaption(contest.getCaption());
 		for (ContestProblem contestProblem : contest.getContestProblems()) {
 			mf.getProblems().add(contestProblem);
 		}
@@ -126,9 +127,12 @@ public class MonitorAction extends DispatchAction {
 		// Администраторы соревнования видят монитор размороженным.
 		boolean userIsContestAdmin = serviceLocator.lookupUserBean().isInRole(ao.getUsername(), contest.getContestId(), RoleType.ADMINISTRATOR);
 
+		Date freezeTime = new Date(Long.valueOf(contest.getEndTime().getTime() - contest.getFreezeTime() * 1000));
 		List<GlobalMonitorRecord> monitorRows = serviceLocator.lookupDudgeBean().getGlobalMonitorRecords(
 				contest, (userIsContestAdmin || contest.isInfinite()) ? null
-				: new Date(Long.valueOf(contest.getEndTime().getTime() - contest.getFreezeTime() * 1000)));
+				: freezeTime);
+		
+		boolean isFrozen = !userIsContestAdmin && !contest.isInfinite() && new Date().after(freezeTime);
 
 		for (GlobalMonitorRecord row : monitorRows) {
 			JSONObject joRow = new JSONObject();
@@ -198,9 +202,13 @@ public class MonitorAction extends DispatchAction {
 		// Администраторы соревнования видят монитор размороженным.
 		boolean userIsContestAdmin = serviceLocator.lookupUserBean().isInRole(ao.getUsername(), contest.getContestId(), RoleType.ADMINISTRATOR);
 
+		Date freezeTime = new Date(Long.valueOf(contest.getEndTime().getTime() - contest.getFreezeTime() * 1000));
 		List<AcmMonitorRecord> monitorRows = serviceLocator.lookupDudgeBean().getAcmMonitorRecords(
 				contest, (userIsContestAdmin || contest.isInfinite()) ? null
-				: new Date(Long.valueOf(contest.getEndTime().getTime() - contest.getFreezeTime() * 1000)));
+				: freezeTime);
+	
+		boolean isFrozen = !userIsContestAdmin && !contest.isInfinite() && new Date().after(freezeTime);
+		Date updateTime = isFrozen ? freezeTime : new Date();
 
 		JSONArray ja = new JSONArray();
 		JSONObject jo = new JSONObject();
@@ -209,6 +217,8 @@ public class MonitorAction extends DispatchAction {
 			jo.put("sEcho", request.getParameter("sEcho"));
 			jo.put("iTotalRecords", monitorRows.size());
 			jo.put("iTotalDisplayRecords", monitorRows.size());
+			jo.put("frozen", isFrozen);
+			jo.put("updateTime", updateTime.getTime());
 		} catch (JSONException e) {
 			logger.log(Level.SEVERE, "exception caught", e);
 			return;

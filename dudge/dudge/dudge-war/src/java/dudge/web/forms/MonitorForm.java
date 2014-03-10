@@ -27,6 +27,7 @@ import org.apache.struts.action.ActionMapping;
 public class MonitorForm extends ActionForm {
 
 	private int contestId;
+	private String contestCaption;
 	private List<ContestProblem> problems = Collections.synchronizedList(new ArrayList<ContestProblem>());
 
 	public MonitorForm() {
@@ -50,5 +51,13 @@ public class MonitorForm extends ActionForm {
 
 	public void setContestId(int contestId) {
 		this.contestId = contestId;
+	}
+
+	public String getContestCaption() {
+		return contestCaption;
+	}
+
+	public void setContestCaption(String contestCaption) {
+		this.contestCaption = contestCaption;
 	}
 }
