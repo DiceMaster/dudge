@@ -298,72 +298,75 @@ public class MonitorAction extends DispatchAction {
 
 		Contest contest = serviceLocator.lookupContestBean().getContest(contestId);
 
-		JSONArray jaRows = new JSONArray();
-
 		// Администраторы соревнования видят монитор размороженным.
 		boolean userIsContestAdmin = serviceLocator.lookupUserBean().isInRole(ao.getUsername(), contest.getContestId(), RoleType.ADMINISTRATOR);
 
+		Date freezeTime = new Date(Long.valueOf(contest.getEndTime().getTime() - contest.getFreezeTime() * 1000));
 		List<SchoolMonitorRecord> monitorRows = serviceLocator.lookupDudgeBean().getSchoolMonitorRecords(
 				contest, (userIsContestAdmin || contest.isInfinite()) ? null
-				: new Date(Long.valueOf(contest.getEndTime().getTime() - contest.getFreezeTime() * 1000)));
+				: freezeTime);
+	
+		boolean isFrozen = !userIsContestAdmin && !contest.isInfinite() && new Date().after(freezeTime);
+		Date updateTime = isFrozen ? freezeTime : new Date();
+
+		JSONArray ja = new JSONArray();
+		JSONObject jo = new JSONObject();
+
+		try {
+			jo.put("sEcho", request.getParameter("sEcho"));
+			jo.put("iTotalRecords", monitorRows.size());
+			jo.put("iTotalDisplayRecords", monitorRows.size());
+			jo.put("frozen", isFrozen);
+			jo.put("updateTime", updateTime.getTime());
+		} catch (JSONException e) {
+			logger.log(Level.SEVERE, "exception caught", e);
+			return;
+		}
 
 		for (SchoolMonitorRecord row : monitorRows) {
-			JSONObject joRow = new JSONObject();
+			JSONArray jRow = new JSONArray();
 
-			try {
-				joRow.put("user", row.getUser());
-				joRow.put("place", row.getPlace());
+			jRow.put(row.getPlace());
+			jRow.put(row.getUser());			
+			jRow.put(row.getSolvedProblemsCount());
+			
+			for (ContestProblem contestProblem : contest.getContestProblems()) {
+				// Данные ячейки в мониторе.
+				String cellData = "";
 
-				for (ContestProblem contestProblem : contest.getContestProblems()) {
-					// Данные ячейки в мониторе.
-					String cellData = "";
+				if (row.isSolved(contestProblem.getProblemMark())) {
+					// Выводим в ячейку "плюс";
+					cellData += "+";
+				} else {
+					cellData += "-";
+				}
 
-					if (row.isSolved(contestProblem.getProblemMark())) {
-						// Выводим в ячейку "плюс";
-						cellData += "+";
-					} else {
-						cellData += "-";
-					}
+				// Выводим количество неуспешных попыток,
+				// если таковые были.
+				int unsucAttempts = row.getProblemTriesCount(contestProblem.getProblemMark());
+				if (unsucAttempts != 0) {
+					cellData += Integer.toString(unsucAttempts);
+				}
+				jRow.put(cellData);
+			} // for contestProblem
+			
+			// Выводим время в минутах.
+			jRow.put(row.getTime() / (60 * 1000));
 
-					// Выводим количество неуспешных попыток,
-					// если таковые были.
-					int unsucAttempts = row.getProblemTriesCount(contestProblem.getProblemMark());
-					if (unsucAttempts != 0) {
-						cellData += Integer.toString(unsucAttempts);
-					}
-					joRow.put("problem" + contestProblem.getProblemMark(), cellData);
-				} // for contestProblem
-
-				joRow.put("solvedProblems", row.getSolvedProblemsCount());
-				// Выводим время в минутах.
-				joRow.put("time", row.getTime() / (60 * 1000));
-			} catch (JSONException e) {
-				logger.log(Level.SEVERE, "Creating JSON view of Solution object failed.", e);
-				return;
-			}
-
-			jaRows.put(joRow);
+			ja.put(jRow);
 		} // for row
 
-		JSONObject joRoot = new JSONObject();
 		try {
-			joRoot.put("totalCount", monitorRows.size());
+			jo.put("aaData", ja);
 		} catch (JSONException e) {
-			logger.log(Level.ALL, "exception caught", e);
+			logger.log(Level.SEVERE, "exception caught", e);
 			return;
 		}
-
-		try {
-			joRoot.put("rows", jaRows);
-		} catch (JSONException e) {
-			logger.log(Level.SEVERE, "Exception occured.", e);
-			return;
-		}
-
+		
 		// Устанавливаем тип контента
 		response.setContentType("application/x-json");
 		try {
-			response.getWriter().print(joRoot);
+			response.getWriter().print(jo);
 		} catch (IOException e) {
 			logger.log(Level.SEVERE, "Exception occured.", e);
 		}
