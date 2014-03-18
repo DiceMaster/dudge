@@ -15,6 +15,8 @@ li.L5, li.L6, li.L7, li.L8 {
 <script type="text/javascript" src="prettify/run_prettify.js"></script>
 <script type="text/javascript">
     $( document ).ready(function() {
+        var submitTime = new Date(${solutionsForm.submitTime});
+        $('#submitTime').text(submitTime.toLocaleString());
 
         var responseFunction = function(status) {
             var statusBlock = $("#statusBlock");
@@ -37,7 +39,7 @@ li.L5, li.L6, li.L7, li.L8 {
                         '<bean:message key="solution.onTest"/> ' + status.currentTestNumber
                     );
                     statusMessageBlock.show();
-                    $('#statusMessageTitle').text('<bean:message key="solution.stackTrace" /><br>');
+                    $('#statusMessageTitle').text('<bean:message key="solution.stackTrace" />');
                     $('#statusMessageText').text(status.statusMessage);
                     break;
                 case 'DISQUALIFIED':
@@ -142,6 +144,9 @@ li.L5, li.L6, li.L7, li.L8 {
 
 <a href="solutions.do?reqCode=submit&contestId=${contestId}"><bean:message key="solution.submitAnother"/></a>
 <h1><bean:message key="solution.solution" /> ${solutionsForm.solutionId}</h1>
+<p><strong><bean:message key="problem.problem" /></strong>: ${solutionsForm.problemName}</p>
+<p><strong><bean:message key="solution.author" /></strong>: <a href="users.do?reqCode=view&login=${solutionsForm.userId}">${solutionsForm.userId}</a></p>
+<p><strong><bean:message key="solution.time" /></strong>: <span id="submitTime"></span></p>
 <div id="statusBlock" class="alert alert-info">
     <strong><bean:message key="solution.status" />:</strong>
     <img id="throbber" src="img/ajax-loader.gif" />

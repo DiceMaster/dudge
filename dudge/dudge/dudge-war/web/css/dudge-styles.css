@@ -25,6 +25,14 @@
         margin-left: 280px;
         margin-bottom: 6px;
     }
+    .dl-dudge-wide dt {
+        width: 300px;
+        margin-bottom: 6px;
+    }
+    .dl-dudge-wide dd {
+        margin-left: 320px;
+        margin-bottom: 6px;
+    }
 }
 
 div.dataTables_filter label {

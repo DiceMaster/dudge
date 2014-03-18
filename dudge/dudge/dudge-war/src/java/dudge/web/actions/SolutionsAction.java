@@ -84,6 +84,9 @@ public class SolutionsAction extends DispatchAction {
 		Solution solution = serviceLocator.lookupSolutionBean().getSolution(solutionId);
 
 		sf.setSolutionId(Integer.toString(solution.getSolutionId()));
+		sf.setProblemName(solution.getProblem().getTitle());
+		sf.setUserId(solution.getUser().getLogin());
+		sf.setSubmitTime(solution.getSubmitTime().getTime());
 
 		if (solution.getStatus() != SolutionStatus.PROCESSED || solution.getContest().getTraits().isRunAllTests() || solution.getLastRunResult() == null) {
 			sf.setStatus(solution.getStatus().toString());

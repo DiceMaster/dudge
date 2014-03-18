@@ -2,8 +2,9 @@
 <jsp:useBean id="solutionsForm" class="dudge.web.forms.SolutionsForm" scope="session" />
 <% pageContext.setAttribute("contestTypeGlobal", dudge.db.ContestType.GLOBAL); %>
 
-<form class="form-horizontal" action="solutions.do?reqCode=submitSubmit">
+<form class="form-horizontal" action="solutions.do">
     <h1><bean:message key="submit.submitSolution" /></h1>
+    <input type="hidden" name="reqCode" value="submitSubmit"/>
     <input type="hidden" name="contestId" value="${contestId}"/>
     
     <div class="form-group">

@@ -35,7 +35,25 @@ public class SolutionsForm extends ActionForm {
 	private String status;
 	// Сообщение к статусу решения.
 	private String statusMessage;
+	// Номер текущего теста.
 	private int currentTestNumber;
+	// Время отправки решения.
+	private long submitTime;
+	// Автор решения.
+	private String userId;
+	// Название задачи.
+	private String problemName;
+
+	public SolutionsForm(int solutionId, String languageId, int problemId, String sourceCode, String status, String statusMessage, int currentTestNumber, long submitTime) {
+		this.solutionId = solutionId;
+		this.languageId = languageId;
+		this.problemId = problemId;
+		this.sourceCode = sourceCode;
+		this.status = status;
+		this.statusMessage = statusMessage;
+		this.currentTestNumber = currentTestNumber;
+		this.submitTime = submitTime;
+	}
 
 	/**
 	 * Creates a new instance of SolutionsForm
@@ -57,6 +75,8 @@ public class SolutionsForm extends ActionForm {
 		sourceCode = "";
 		status = null;
 		statusMessage = "";
+		submitTime = 0L;
+		userId = null;
 	}
 
 	public String getLanguageId() {
@@ -121,5 +141,29 @@ public class SolutionsForm extends ActionForm {
 
 	public void setCurrentTestNumber(int currentTestNumber) {
 		this.currentTestNumber = currentTestNumber;
+	}
+
+	public long getSubmitTime() {
+		return submitTime;
+	}
+
+	public void setSubmitTime(long submitTime) {
+		this.submitTime = submitTime;
+	}
+
+	public String getUserId() {
+		return userId;
+	}
+
+	public void setUserId(String userId) {
+		this.userId = userId;
+	}
+
+	public String getProblemName() {
+		return problemName;
+	}
+
+	public void setProblemName(String problemName) {
+		this.problemName = problemName;
 	}
 }

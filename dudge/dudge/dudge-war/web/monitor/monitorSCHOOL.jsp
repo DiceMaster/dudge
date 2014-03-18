@@ -40,7 +40,7 @@
 </script>
 
 <h1>${monitorForm.contestCaption}</h1>
-<div class="alert alert-warning" id="alertFrozen" hidden="true"><bean:message key="monitor.frozen"/></div>
+<div class="alert alert-info" id="alertFrozen" hidden="true"><bean:message key="monitor.frozen"/></div>
 <div id="updatedTime" hidden="true"></div>
 <table class="table" id="monitorGrid">
     <thead>
