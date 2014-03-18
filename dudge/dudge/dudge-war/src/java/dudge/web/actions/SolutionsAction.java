@@ -96,7 +96,7 @@ public class SolutionsAction extends DispatchAction {
 		} catch (NoSuchElementException e) {
 			sf.setCurrentTestNumber(0);
 		}
-
+                
 		sf.setStatusMessage(solution.getStatusMessage());
 		sf.setSourceCode(solution.getSourceCode());
 
