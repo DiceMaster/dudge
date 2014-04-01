@@ -62,7 +62,6 @@ on Libraries node in Projects view can be used to add the JSTL 1.1 library.
         
         <script src="scripts/jquery.min.js"></script>
         <script src="scripts/bootstrap.min.js"></script>
-
         <title>Dudge</title>
     </head>
 
@@ -88,28 +87,41 @@ on Libraries node in Projects view can be used to add the JSTL 1.1 library.
                         <li id="navbarUsers"> <a href="users.do?reqCode=list"><bean:message key="menu.users"/></a> </li>
 </c:if>                        
                     </ul>
+                    <ul class="nav navbar-nav navbar-right">
 <c:choose>
 <c:when test="${not autentificationObject.authenticated}">
-                    <form class="navbar-form navbar-right" action="login.do" method="POST">
-                        <input type="hidden" name="reqCode" value="login">
-                        <input type="text" name="username" class="form-control" placeholder="<bean:message key="user.login"/>" style="width: 150px;">
-                        <input type="password" name="password" class="form-control" placeholder="<bean:message key="user.password"/>" style="width: 150px;">
-                        <button type="submit" class="btn btn-default"><bean:message key="login.login"/></button>
-                        <a href="users.do?contestId=${contestId}&reqCode=register"><bean:message key="menu.registration"/></a>
-                    </form>
+                        <li><a href="users.do?contestId=${contestId}&reqCode=register"><bean:message key="menu.registration"/></a></li>
+                        <li class="dropdown">
+                            <a class="dropdown-toggle" href="#" data-toggle="dropdown"><bean:message key="login.login"/> <strong class="caret"></strong></a>
+                                <div class="dropdown-menu">
+                                     <form class="form" action="login.do" method="POST">
+                                        <input type="hidden" name="reqCode" value="login">
+                                        <input type="text" name="username" class="form-control" placeholder="<bean:message key="user.login"/>">
+                                        <input type="password" name="password" class="form-control" placeholder="<bean:message key="user.password"/>">
+                                        <button type="submit" class="btn btn-primary" style="width: 100%"><bean:message key="login.login"/></button>
+                                    </form>
+                                </div>
+                        </li>
 </c:when>
 <c:otherwise>
-                    <ul class="nav navbar-nav navbar-right">
                         <li class="dropdown">
-                            <a href="#" class="dropdown-toggle" data-toggle="dropdown">${autentificationObject.username}<span class="caret"></span></a>    
+                            <a href="#" class="dropdown-toggle" data-toggle="dropdown">${autentificationObject.username} <span class="caret"></span></a>    
                             <ul class="dropdown-menu">
                                 <li> <a href="users.do?reqCode=view&login=${autentificationObject.username}"><bean:message key="user.profile"/></a> </li>
                                 <li> <a href="login.do?reqCode=logout"><bean:message key="login.logout"/></a> </li>
                             </ul>
                         </li>
-                    </ul>
 </c:otherwise>
 </c:choose>
+                        <li class="divider-vertical"></li>
+                        <li class="dropdown">
+                            <a href="#" class="dropdown-toggle" data-toggle="dropdown"><span class="flag <bean:message key="locale.currentTag" />"></span><bean:message key="locale.currentLocale" /> <span class="caret"></span></a>    
+                            <ul class="dropdown-menu">
+                                <li><a href="locale.do?reqCode=setLocale&locale_name=en"><span class="flag en_US"></span><bean:message key="locale.english" /></a></li>
+                                <li><a href="locale.do?reqCode=setLocale&locale_name=ru"><span class="flag ru_RU"></span><bean:message key="locale.russian" /></a></li>
+                            </ul>
+                        </li>
+                    </ul>
                 </div><!--/.nav-collapse -->            
             </div>
         </div>

@@ -24,7 +24,7 @@
             "sPaginationType": "bootstrap",
             "sDom": '<"row"<"pull-left"p><"pull-right"f><"clearfix">>rt<"row"<"col-lg-8"p><"col-lg-4"i>>',
             "oLanguage": {
-                "sUrl": "l18n/${pageContext.response.locale}.txt"
+                "sUrl": "l18n/<bean:message key="locale.currentTag"/>.txt"
             },
             "fnCreatedRow": function( nRow, aData ) {
                 $('td:eq(0)', nRow).html( '<a href="contests.do?reqCode=view&contestId=' + aData[0] + '">' + aData[1] +'</a>' );

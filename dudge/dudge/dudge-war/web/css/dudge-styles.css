@@ -16,6 +16,31 @@
   cursor: default;
 }
 
+.dropdown-menu > form {
+    margin: 10px;
+    min-width: 240px;
+}
+
+.dropdown-menu > form > input {
+    margin-bottom: .5em;
+}
+
+.ru_RU {
+    background-image: url('../img/flags/ru_RU.png');
+}
+
+.en_US {
+    background-image: url('../img/flags/en_US.png');
+}
+
+.flag {
+    display:inline-block;
+    width:16px;height:11px;
+    margin: 0 5px 0 0;
+    position:relative;
+    top:1px;
+}
+
 @media (min-width: 768px) {
     .dl-dudge dt {
         width: 260px;
@@ -32,6 +57,11 @@
     .dl-dudge-wide dd {
         margin-left: 320px;
         margin-bottom: 6px;
+    }
+    .divider-vertical {
+        height: 30px;
+        margin: 10px 9px;
+        border-right: 1px solid #777;
     }
 }
 

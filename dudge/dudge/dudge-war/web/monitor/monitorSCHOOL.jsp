@@ -13,7 +13,7 @@
             "sAjaxSource": "monitor.do?reqCode=getSchoolMonitorData&contestId=${monitorForm.contestId}",
             "sDom": 'rt',
             "oLanguage": {
-                "sUrl": "l18n/${pageContext.response.locale}.txt"
+                "sUrl": "l18n/<bean:message key="locale.currentTag"/>.txt"
             },
             "fnCreatedRow": function( nRow, aData ) {
                 $('td:eq(1)', nRow).html( '<a href="users.do?reqCode=view&login=' + aData[1] + '">' + aData[1] +'</a>' );
