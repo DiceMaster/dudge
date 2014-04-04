@@ -1,142 +1,86 @@
+<link rel="stylesheet" type="text/css" href="css/dudge-styles.css" /> 
+
+<script src="scripts/jquery.dataTables.min.js"></script>
+<script src="scripts/dudge-tables.js"></script>
+
 <script type="text/javascript">
-    var ds = null;
-    Ext.onReady(function(){
-        ds = new Ext.data.Store({
-            // load using script tags for cross domain, if the data in on the same domain as
-            // this page, an HttpProxy would be better
-            proxy: new Ext.data.HttpProxy({
-                url: 'languages.do?reqCode=getLanguagesList'
-            }),
-
-            // create reader that reads the Topic records
-            reader: new Ext.data.JsonReader({
-                root: 'languages',
-                totalProperty: 'totalCount'
-            }, [
-                {name: 'id', mapping: 'id'},
-                {name: 'title', mapping: 'title'},
-                {name: 'description', mapping: 'description'},
-                {name: 'editable', mapping: 'editable' },
-                {name: 'deletable', mapping: 'deletable'}
-            ])
-        });	
-
-        function renderId(value, metadata, record, row, col, ds)
-        {
-            return '<a href="languages.do?reqCode=view&languageId=' + value + '">' + value + '</a>';
-        }
-	
-        var cm = new Ext.grid.ColumnModel([{
-                header: '<bean:message key="language.id"/>',
-                dataIndex: 'id',
-                width: 100,
-                renderer: renderId,
-                css: 'white-space:normal;'
-            },{
-                header: '<bean:message key="language.title" />',
-                dataIndex: 'title',
-                width: 150
-            },{
-                header: '<bean:message key="language.description" />',
-                dataIndex: 'description',
-                width: 200
-            }
-        ]);
-
-        var languagesToolbar = new Ext.Toolbar({  });
-
-        var grid = new Ext.grid.GridPanel({
-            applyTo: 'languagesGrid',
-            title: '<bean:message key="languages.languages"/>',
-            ds: ds,
-            tbar: languagesToolbar,
-            cm: cm,
-            autoHeight: true,
-            loadMask: true,
-            sm: new Ext.grid.RowSelectionModel({ singleSelect:true }),
-            viewConfig: {
-                forceFit: true
+    $(document).ready(function() {
+        $('#languagesGrid tbody').on('click', 'tr', function( e ) {
+            languagesTable.$('tr.selectedRow').removeClass('selectedRow');
+            $(this).addClass('selectedRow');
+            var anSelected = languagesTable.$('tr.selectedRow');
+            if ( anSelected.length !== 0 ) {
+                var rowData = languagesTable.fnGetData(anSelected[0]);
+                if (rowData[4]) {
+                    $('#deleteBtn').removeClass('disabled');
+                    $('#deleteDlgBtn').attr('href', 'languages.do?reqCode=delete&id=' + rowData[0]);
+                } else {
+                    $('#deleteBtn').addClass('disabled');
+                    $('#deleteDlgBtn').attr('href', '#');
+                }
+                if (rowData[3]) {
+                    $('#editBtn').removeClass('disabled');
+                    $('#editBtn').attr('href', 'languages.do?reqCode=edit&languageId=' + rowData[0]);
+                } else {
+                    $('#editBtn').addClass('disabled');
+                    $('#editBtn').attr('href', '#');
+                }    
             }
         });
         
-            <c:if test="${permissionCheckerRemote.canAddLanguage(autentificationObject.username)}">
-            languagesToolbar.addButton({
-                text: '<bean:message key="languages.create" />',
-                handler: function() { window.location = "languages.do?reqCode=create"; }
-            }); 
-    </c:if>
-			 
-            var btnEdit = new Ext.Toolbar.Button({
-                text: '<bean:message key="languages.edit" />',
-                disabled: true,
-                handler:function()
-                {
-                    var languageId = grid.getSelectionModel().getSelected().get('id');
-                    window.location = "languages.do?reqCode=edit&languageId=" + languageId;
-                }
-            });
-
-            languagesToolbar.addButton(btnEdit);
-
-            var btnDelete = new Ext.Toolbar.Button({
-                text: '<bean:message key="languages.delete" />',
-                disabled: true,
-                handler: function()
-                {
-                    function commitDelete (btn) {
-                        if (btn == 'yes') {
-                            var id = grid.getSelectionModel().getSelected().get('id');
-                            var proxy =  new Ext.data.HttpProxy({
-                                url: 'languages.do?reqCode=getLanguagesList'
-                            });
-
-                            proxy.getConnection().request({
-                                method: 'GET' ,
-                                url: 'languages.do' ,
-                                params: {reqCode: 'delete' , id: id} ,
-                                callback: function() { ds.load({});}
-                            });
-                            grid.getView().refresh(false);
-                        }
-                    }
-
-                    Ext.MessageBox.confirm('<bean:message key="language.confirmDeleteTitle" />',
-                    '<bean:message key="language.confirmDeleteMsg" />',
-                    commitDelete);
-                }
-            });
-
-            languagesToolbar.addButton(btnDelete);
-
-            // This is callback for enabling/disabling button "Edit", for selected language in list.
-            grid.on('rowclick' , viewOrNotViewEdit);
-            function viewOrNotViewEdit (grid , rowIndex , e) {
-                if ( grid.getStore().getAt(rowIndex).get('editable') ) {
-                    btnEdit.enable();
-                } else {
-                    btnEdit.disable();
-                }
+        var languagesTable = $('#languagesGrid').dataTable( {
+            'bProcessing': true,
+            'bServerSide': true,
+            'bSort' : false,
+            'sServerMethod': 'POST',
+            'sAjaxSource': 'languages.do?reqCode=getLanguagesList',
+            'sDom': 'rt',
+            "aoColumnDefs": [
+                { "bVisible": false, "aTargets": [ 3, 4 ] }
+            ],
+            'oLanguage': {
+                'sUrl': 'l18n/<bean:message key="locale.currentTag"/>.txt'
             }
-
-            // This is callback for enabling/disabling button "Delete", for selected language in list.
-            grid.on('rowclick' , viewOrNotViewDelete);
-            function viewOrNotViewDelete (grid , rowIndex , e) {
-                if ( grid.getStore().getAt(rowIndex).get('deletable') ) {
-                    btnDelete.enable();
-                } else {
-                    btnDelete.disable();
-                }
-            }
-
-            languagesToolbar.doLayout();
-
-        }); //Ext.onReady()
-</script>
-
-<script type="text/javascript">
-    Ext.onReady(function(){
-        ds.load({});
+        });
     });
 </script>
 
-<div id="languagesGrid"></div>
+<h1><bean:message key="languages.languages"/></h1>
+<div class="btn-group">
+<c:if test="${permissionCheckerRemote.canAddLanguage(autentificationObject.username)}">
+    <a class="btn btn-default" href="languages.do?reqCode=create"><bean:message key="languages.create" /></button>
+</c:if>
+    <a id="editBtn" class="btn btn-default disabled" role="button" href="#"><bean:message key="languages.edit"/></a>
+    <div class="modal" id="deleteLanguage" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header">
+              <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+              <h4 class="modal-title"><bean:message key="language.confirmDeleteTitle"/></h4>
+            </div>
+            <div class="modal-body">
+                <bean:message key="language.confirmDeleteMsg"/>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-default" data-dismiss="modal"><bean:message key="contest.cancel"/></button>
+              <a id="deleteDlgBtn" href="#" class="btn btn-danger"><bean:message key="problem.delete"/></a>
+            </div>
+          </div><!-- /.modal-content -->
+        </div><!-- /.modal-dialog -->
+    </div><!-- /.modal -->
+    <a class="btn btn-default disabled" id="deleteBtn" role="button" href="#" data-toggle="modal" data-target="#deleteLanguage"><bean:message key="languages.delete"/></a>        
+</div>
+<div class="clearfix"></div>
+<table class="table table-hover " id="languagesGrid">
+    <thead>
+        <tr>
+            <th><bean:message key="language.id"/></th>
+            <th><bean:message key="language.title"/></th>
+            <th><bean:message key="language.description"/></th>
+            <th>Editable</th>
+            <th>Deletable</th>
+        </tr>
+    </thead>
+    <tbody>
+    </tbody>
+</table>

@@ -134,3 +134,11 @@ table.table thead .sorting_desc_disabled:after {
     top: 50%;
     margin-top: -10px;
 }
+
+.selectedRow {
+    background-color: #d9edf7;
+}
+
+.table-hover>tbody>.selectedRow:hover>td, .table-hover>tbody>.selectedRow:hover>th {
+    background-color: #e7f1f6;
+}

@@ -71,13 +71,23 @@ public class LanguagesAction extends DispatchAction {
 			logger.log(Level.SEVERE, "exception caught", e);
 			return;
 		}
+                
+                try {
+                    jo.put("sEcho", request.getParameter("sEcho"));
+                    jo.put("iTotalRecords", languages.size());
+                    jo.put("iTotalDisplayRecords", languages.size());
+		} catch (JSONException e) {
+                    logger.log(Level.SEVERE, "exception caught", e);
+                    return;
+		}
 
 		AuthenticationObject ao = AuthenticationObject.extract(request);
 		for (Iterator<Language> iter = languages.iterator(); iter.hasNext();) {
 			ja.put(this.getLanguageJSONView(iter.next(), ao));
 		}
-		try {
-			jo.put("languages", ja);
+		
+                try {
+			jo.put("aaData", ja);
 		} catch (JSONException e) {
 			logger.log(Level.SEVERE, "exception caught", e);
 			return;
@@ -297,22 +307,18 @@ public class LanguagesAction extends DispatchAction {
 	 * @param ao
 	 * @return
 	 */
-	private JSONObject getLanguageJSONView(Language language, AuthenticationObject ao) {
+	private JSONArray getLanguageJSONView(Language language, AuthenticationObject ao) {
 
-		JSONObject json = new JSONObject();
+		JSONArray json = new JSONArray();
 
 		PermissionCheckerRemote pcb = ao.getPermissionChecker();
 
-		// Заполняем данными задачи созданный объект JSON.
-		try {
-			json.put("id", language.getLanguageId());
-			json.put("title", language.getName());
-			json.put("description", language.getDescription());
-			json.put("editable", pcb.canModifyLanguage(ao.getUsername()));
-			json.put("deletable", pcb.canDeleteLanguage(ao.getUsername()));
-		} catch (JSONException e) {
-			logger.log(Level.SEVERE, "Failed creation of JSON view of Language object.", e);
-		}
+                json.put(language.getLanguageId());
+                json.put(language.getName());
+                json.put(language.getDescription());
+                json.put(pcb.canModifyLanguage(ao.getUsername()));
+                json.put(pcb.canDeleteLanguage(ao.getUsername()));
+
 		return json;
 	}
 }
