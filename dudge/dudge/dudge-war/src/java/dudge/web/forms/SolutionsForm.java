@@ -28,7 +28,9 @@ public class SolutionsForm extends ActionForm {
 	// Идентификатор языка решения.
 	private String languageId;
 	// Идентификатор задачи решения.
-	private int problemId;
+	private int problemId;	
+	// Идентификатор соревнования.
+	private int contestId;
 	// Исходник решения.
 	private String sourceCode;
 	// Статус решения.
@@ -43,6 +45,10 @@ public class SolutionsForm extends ActionForm {
 	private String userId;
 	// Название задачи.
 	private String problemName;
+	// Метка задачи.
+	private String problemMark;
+	// Название соревнования.
+	private String contestName;
 
 	public SolutionsForm(int solutionId, String languageId, int problemId, String sourceCode, String status, String statusMessage, int currentTestNumber, long submitTime) {
 		this.solutionId = solutionId;
@@ -70,7 +76,7 @@ public class SolutionsForm extends ActionForm {
 	public void reset(ActionMapping mapping, HttpServletRequest request) {
 		contestLanguages.clear();
 		contestProblems.clear();
-		solutionId = 0;
+		setSolutionId(0);
 		languageId = "";
 		sourceCode = "";
 		status = null;
@@ -91,8 +97,8 @@ public class SolutionsForm extends ActionForm {
 		return Integer.toString(problemId);
 	}
 
-	public void setProblemId(String problemId) {
-		this.problemId = Integer.parseInt(problemId);
+	public void setProblemId(int problemId) {
+		this.problemId = problemId;
 	}
 
 	public String getSourceCode() {
@@ -115,10 +121,10 @@ public class SolutionsForm extends ActionForm {
 		return solutionId;
 	}
 
-	public void setSolutionId(String solutionId) {
-		this.solutionId = Integer.parseInt(solutionId);
+	public void setSolutionId(int solutionId) {
+		this.solutionId = solutionId;
 	}
-
+	
 	public String getStatus() {
 		return status;
 	}
@@ -165,5 +171,29 @@ public class SolutionsForm extends ActionForm {
 
 	public void setProblemName(String problemName) {
 		this.problemName = problemName;
+	}
+
+	public int getContestId() {
+		return contestId;
+	}
+
+	public void setContestId(int contestId) {
+		this.contestId = contestId;
+	}
+
+	public String getProblemMark() {
+		return problemMark;
+	}
+
+	public void setProblemMark(String problemMark) {
+		this.problemMark = problemMark;
+	}
+
+	public String getContestName() {
+		return contestName;
+	}
+
+	public void setContestName(String contestName) {
+		this.contestName = contestName;
 	}
 }

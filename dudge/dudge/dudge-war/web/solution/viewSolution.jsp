@@ -144,7 +144,8 @@ li.L5, li.L6, li.L7, li.L8 {
 
 <a href="solutions.do?reqCode=submit&contestId=${contestId}"><bean:message key="solution.submitAnother"/></a>
 <h1><bean:message key="solution.solution" /> ${solutionsForm.solutionId}</h1>
-<p><strong><bean:message key="problem.problem" /></strong>: ${solutionsForm.problemName}</p>
+<p><strong><bean:message key="problem.problem" /></strong>: <a href="problems.do?reqCode=view&contestId=${solutionsForm.contestId}&problemId=${solutionsForm.problemId}">${solutionsForm.problemMark} - ${solutionsForm.problemName}</a></p>
+<p><strong><bean:message key="contest.contest" /></strong>: <a href="contests.do?reqCode=view&contestId=${solutionsForm.contestId}">${solutionsForm.contestName}</a></p>
 <p><strong><bean:message key="solution.author" /></strong>: <a href="users.do?reqCode=view&login=${solutionsForm.userId}">${solutionsForm.userId}</a></p>
 <p><strong><bean:message key="solution.time" /></strong>: <span id="submitTime"></span></p>
 <div id="statusBlock" class="alert alert-info">

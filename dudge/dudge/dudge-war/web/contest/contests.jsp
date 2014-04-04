@@ -21,6 +21,7 @@
                                  return data ? "<bean:message key="contest.open.yes"/>" : "<bean:message key="contest.open.no"/>";
                              }, "aTargets": [ 3 ]}
             ],
+            "aaSorting": [[4, "desc"]],
             "sPaginationType": "bootstrap",
             "sDom": '<"row"<"pull-left"p><"pull-right"f><"clearfix">>rt<"row"<"col-lg-8"p><"col-lg-4"i>>',
             "oLanguage": {
@@ -30,7 +31,6 @@
                 $('td:eq(0)', nRow).html( '<a href="contests.do?reqCode=view&contestId=' + aData[0] + '">' + aData[1] +'</a>' );
             }
         });
-        table.fnSort([[4, 'desc']]);
 
         $("#navbarContests").addClass("active");
     });
