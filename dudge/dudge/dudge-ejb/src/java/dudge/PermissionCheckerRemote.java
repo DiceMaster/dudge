@@ -23,7 +23,15 @@ public interface PermissionCheckerRemote {
 	 */
 	boolean canGetUser(String principal, User user);
 
-	/**
+         /**
+	 * true, если пользователь - администратор, иначе false.
+	 *
+	 * @param principal Имя пользователя, для которого проверяется право.
+	 * @param user Пользователь, данные которого запрашиваются.
+	 */
+	boolean canViewUsersList(String principal);
+
+        /**
 	 * Проверяет право модификации данных определенного пользователя.
 	 *
 	 * @param principal Имя пользователя, для которого проверяется право.

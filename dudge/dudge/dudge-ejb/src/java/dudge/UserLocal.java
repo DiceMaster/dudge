@@ -12,6 +12,11 @@ import javax.ejb.Local;
 @Local
 public interface UserLocal {
 
+        public interface FilteredUsers {
+            public long getFilteredTotal();
+            public List<User> getFilteredUsers();
+        }
+    
 	public String calcHash(String password);
 
 	/**
@@ -75,9 +80,29 @@ public interface UserLocal {
 	public void deleteUser(String login);
 
 	/**
+	 * Возвращает количество пользователей, зарегестрированных в системе.
+	 *
+	 * @return Количество пользователей системы.
+	 */
+	long getUsersCount();
+        
+       	/**
 	 * Возвращает всех пользователей, зарегестрированных в системе.
 	 *
 	 * @return Список пользователей системы.
 	 */
 	List<User> getUsers();
+
+       	/**
+	 * Возвращает пользователей, зарегестрированных в системе в
+         * соответствии с заданными критериями.
+	 *
+         * @param searchCriteria строка поиска.
+         * @param orderBy сортируемая колонка.
+         * @param descending обратный порядок сортировки.
+         * @param start Начало диапазона.
+         * @param length Длина диапазона. 
+	 * @return Диапазон пользователей системы.
+	 */
+	FilteredUsers getUsers(String searchCriteria, String orderBy, boolean descending, int start, int length);
 }

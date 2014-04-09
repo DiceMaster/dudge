@@ -1,126 +1,59 @@
+<jsp:useBean id="monitorForm" class="dudge.web.forms.MonitorForm" scope="session" />
+
+<script src="scripts/jquery.dataTables.min.js"></script>
+<script src="scripts/dudge-tables.js"></script>
+
 <script type="text/javascript">
-
-    var ds = null;
-    Ext.onReady(function(){
-        // create the Data Store
-        ds = new Ext.data.Store({
-            // load using script tags for cross domain, if the data in on the same domain as
-            // this page, an HttpProxy would be better
-            proxy: new Ext.data.HttpProxy({
-                url: 'monitor.do?reqCode=getAcmMonitorData'
-            }),
-
-            reader: new Ext.data.JsonReader({
-                root: 'rows',
-                totalProperty: 'totalCount',
-                id: 'user'
+    $(document).ready(function() {
+        var monitorTable = $('#monitorGrid').dataTable( {
+            "bProcessing": true,
+            "bServerSide": true,
+            "bSort" : false,
+            "sServerMethod": "POST",
+            "sAjaxSource": "monitor.do?reqCode=getAcmMonitorData&contestId=${monitorForm.contestId}",
+            "sDom": 'rt',
+            "oLanguage": {
+                "sUrl": "l18n/<bean:message key="locale.currentTag"/>.txt"
             },
-            [
-                'place',
-                'user',
-    <c:forEach items="${contestLocal.contests}" var="contest">
-        <c:if test="${contest.contestId == contestId}">
-            <c:set var="contestProblems" value="${contest.contestProblems}" /> 
-            <c:forEach items="${contestProblems}" var="contestProblem">
-                                'problem' + '${contestProblem.problemMark}',
-            </c:forEach>
-        </c:if>  
-    </c:forEach>
-                    'time'
-                ]
-            ),
-
-                // remote sorting
-                remoteSort: false
-            });
-
-            function renderPlace(value, metadata, record, row, col, ds)
-            {
-                if(value == '0')
-                    return '-';
-
-                return value;
+            "fnCreatedRow": function( nRow, aData ) {
+                $('td:eq(1)', nRow).html( '<a href="users.do?reqCode=view&login=' + aData[1] + '">' + aData[1] +'</a>' );
             }
-
-            function renderLogin(value, metadata, record, row, col, ds)
-            {
-                return '<a href="users.do?reqCode=view&login='
-                    + value + '">' + value + '</a>';
+        });
+        
+        monitorTable.on('xhr', function ( e, o, json ) {
+            if (json.frozen) {
+                $("#alertFrozen").show();
+            } else {
+                $("#alertFrozen").hide();
             }
-
-            function renderProblemCell(value, metadata, record, row, col, ds)
-            {
-                return '<center><b>' + value + '</b></center>';
-            }
-
-            // the column model has information about grid columns
-            // dataIndex maps the column to the specific data field in
-            // the data store
-            var cm = new Ext.grid.ColumnModel([
-                {
-                    header: '<bean:message key="monitor.place"/>',
-                    dataIndex: 'place',
-                    width: 50
-                },
-                {
-                    header: '<bean:message key="monitor.user"/>',
-                    dataIndex: 'user',
-                    renderer: renderLogin,
-                    width: 80
-                },
-    <c:forEach items="${contestLocal.contests}" var="contest">
-        <c:if test="${contest.contestId == contestId}">
-            <c:set var="contestProblems" value="${contest.contestProblems}" /> 
-            <c:forEach items="${contestProblems}" var="contestProblem">
-                            {
-                                header: '${contestProblem.problemMark}',
-                                dataIndex: 'problem' + '${contestProblem.problemMark}',
-                                renderer: renderProblemCell,
-                                width: 25
-                            },
-            </c:forEach>
-        </c:if>  
-    </c:forEach>
-                {
-                    header: '<bean:message key="monitor.time" />',
-                    dataIndex: 'time',
-                    width: 40
-                }
-            ]);
-
-            var monitorToolbar = new Ext.Toolbar();
-
-            var grid = new Ext.grid.GridPanel({
-                applyTo: 'monitorGrid',
-                title: '<bean:message key="monitor.monitor"/>',
-                ds: ds,
-                cm: cm,
-                sm: new Ext.grid.RowSelectionModel({ singleSelect:true }),
-                autoHeight: true,
-                loadMask: true,
-                tbar: monitorToolbar
-            });
-
-            monitorToolbar.addButton(
-            {
-                text: '<bean:message key="monitor.update" />',
-                handler: function()
-                {
-                    ds.load({params:{contestId: ${contestId}}});
-                    grid.getView().refresh(false);
-                }
-            }
-        );
-
-            monitorToolbar.doLayout();
-
-        }); //Ext.onReady()
-</script>
-
-<script type="text/javascript">
-    Ext.onReady(function(){
-        ds.load({params:{contestId: ${contestId}}});
+            
+            var updatedTime = $("#updatedTime");
+            var time = new Date(json.updateTime);
+            updatedTime.text('<bean:message key="monitor.updated"/>: ' + time.toLocaleString());
+            updatedTime.show();
+        } );
+ 
+        setInterval(function(){
+            monitorTable.fnReloadAjax();
+        }, 60000);
     });
-</script>
+ </script>
 
-<div id="monitorGrid"></div>
+<h1>${monitorForm.contestCaption}</h1>
+<div class="alert alert-info" id="alertFrozen" hidden="true"><bean:message key="monitor.frozen"/></div>
+<div id="updatedTime" hidden="true"></div>
+<table class="table" id="monitorGrid">
+    <thead>
+        <tr>
+            <th><bean:message key="monitor.place"/></th>
+            <th><bean:message key="monitor.user"/></th>
+            <th><bean:message key="monitor.solvedProblems"/></th>
+<c:forEach items="${monitorForm.problems}" var="contestProblem">
+            <th>${contestProblem.problemMark}</th>
+</c:forEach>            
+            <th><bean:message key="monitor.time" /></th>
+        </tr>
+    </thead>
+    <tbody>       
+    </tbody>
+</table>

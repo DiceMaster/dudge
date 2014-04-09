@@ -22,6 +22,7 @@ import dudge.db.User;
 import dudge.web.AuthenticationObject;
 import dudge.web.ServiceLocator;
 import dudge.web.forms.ContestsForm;
+import dudge.web.forms.ContestsForm.ContestRole;
 import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -47,6 +48,14 @@ public class ContestsAction extends DispatchAction {
 	private static final Logger logger = Logger.getLogger(ContestsAction.class.toString());
 	private ServiceLocator serviceLocator = ServiceLocator.getInstance();
 
+        private static final String[] columns = {
+          "contestId",
+          "caption",
+          "type",
+          "open",
+          "startTime"
+        };
+        
 	/**
 	 * Creates a new instance of ContestsAction
 	 */
@@ -101,25 +110,57 @@ public class ContestsAction extends DispatchAction {
 	 * @param response
 	 */
 	public void getContestList(ActionMapping mapping, ActionForm af, HttpServletRequest request, HttpServletResponse response) {
+                //  Получаем из запроса, какие данные требуются клиенту.
+                String iDisplayStartString = (String) request.getParameter("iDisplayStart");
+                String iDisplayLengthString = (String) request.getParameter("iDisplayLength");
+                int iDisplayStart = iDisplayStartString == null ? -1 : Integer.parseInt(iDisplayStartString);
+                int iDisplayLength = iDisplayLengthString == null ? -1 : Integer.parseInt(iDisplayLengthString);
 
-		List<Contest> contests = serviceLocator.lookupContestBean().getContests();
+                String searchString = (String) request.getParameter("sSearch");
+                if (searchString != null && searchString.isEmpty()) {
+                   searchString = null;
+                }
+                
+                String order = null;
+                boolean descending = false;
+                if (request.getParameter("iSortCol_0") != null)
+                {
+                    int iColumn = Integer.parseInt(request.getParameter("iSortCol_0"));
+                    if (request.getParameter("bSortable_" + iColumn).equals("true"))
+                    {
+                            order = columns[iColumn];
+                            descending = request.getParameter("sSortDir_0").equals("desc");
+                    }
+                }
 
+                ContestLocal.FilteredContests contests = serviceLocator.lookupContestBean().getContests(
+                    searchString,
+                    order,
+                    descending,
+                    iDisplayStart,
+                    iDisplayLength
+                );
+                
+                long totalContestsCount = serviceLocator.lookupContestBean().getContestsCount();
+                
 		JSONArray ja = new JSONArray();
 		JSONObject jo = new JSONObject();
 
 		try {
-			jo.put("totalCount", contests.size());
+                    jo.put("sEcho", request.getParameter("sEcho"));
+                    jo.put("iTotalRecords", totalContestsCount);
+                    jo.put("iTotalDisplayRecords", contests.getFilteredTotal());
 		} catch (JSONException e) {
-			logger.log(Level.SEVERE, "exception caught", e);
-			return;
+                    logger.log(Level.SEVERE, "exception caught", e);
+                    return;
 		}
 
 		AuthenticationObject ao = AuthenticationObject.extract(request);
-		for (Iterator<Contest> iter = contests.iterator(); iter.hasNext();) {
-			ja.put(this.getContestJSONView(iter.next(), ao));
+		for (Iterator<Contest> iter = contests.getFilteredContests().iterator(); iter.hasNext();) {
+                    ja.put(this.getContestJSONView(iter.next(), ao));
 		}
 		try {
-			jo.put("contests", ja);
+			jo.put("aaData", ja);
 		} catch (JSONException e) {
 			logger.log(Level.SEVERE, "exception caught", e);
 			return;
@@ -141,30 +182,24 @@ public class ContestsAction extends DispatchAction {
 	 * @param ao
 	 * @return
 	 */
-	private JSONObject getContestJSONView(Contest contest, AuthenticationObject ao) {
+	private JSONArray getContestJSONView(Contest contest, AuthenticationObject ao) {
 
-		JSONObject json = new JSONObject();
+		JSONArray json = new JSONArray();
 
 		PermissionCheckerRemote pcb = ao.getPermissionChecker();
 
 		// Заполняем данными задачи созданный объект JSON.
-		try {
-			json.put("id", contest.getContestId());
-			json.put("caption", contest.getCaption());
-			json.put("starts", new SimpleDateFormat("yyyy.MM.dd HH:mm").format(contest.getStartTime()));
-			json.put("duration", contest.getDuration());
-			json.put("type", contest.getType().toString());
-			json.put("is_open", contest.isOpen());
+                json.put(contest.getContestId());
 
-			json.put("joinable", pcb.canJoinContest(ao.getUsername(), contest.getContestId()));
-
-			json.put("editable", pcb.canModifyContest(ao.getUsername(), contest.getContestId()));
-
-			json.put("deletable", pcb.canDeleteContest(ao.getUsername(), contest.getContestId()));
-
-		} catch (JSONException e) {
-			logger.log(Level.SEVERE, "Failed creation of JSON view of Contest object.", e);
-		}
+                json.put(contest.getCaption());
+                json.put(contest.getType().toString());
+                json.put(contest.isOpen());
+                json.put(new SimpleDateFormat("yyyy.MM.dd HH:mm").format(contest.getStartTime()));
+                
+                json.put(contest.getDuration());
+                json.put(pcb.canJoinContest(ao.getUsername(), contest.getContestId()));
+                json.put(pcb.canModifyContest(ao.getUsername(), contest.getContestId()));
+                json.put(pcb.canDeleteContest(ao.getUsername(), contest.getContestId()));
 		return json;
 	}
 
@@ -516,6 +551,10 @@ public class ContestsAction extends DispatchAction {
 		cf.reset(mapping, request);
 		cf.getContestTypes().addAll(Arrays.asList(ContestType.values()));
 		cf.getRoleTypes().addAll(Arrays.asList(RoleType.values()));
+                
+                for (Role role : contest.getRoles()) {
+                    cf.getRoles().add(cf.new ContestRole(role.getUser().getLogin(), role.getUser().getRealName(), role.getRoleType()));
+                }
 
 		// Выставляем значения для полей, соотв. текущим значениям редактируемого контеста.
 		cf.setContestId(String.valueOf(contestId));

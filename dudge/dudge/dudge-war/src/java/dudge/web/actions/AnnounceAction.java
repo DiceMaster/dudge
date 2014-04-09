@@ -40,15 +40,9 @@ public class AnnounceAction extends DispatchAction {
 
 		anf.setContestBean(contestBean);
 
-		List<Contest> activeContests = contestBean.getActiveContests();
-		Collections.sort(activeContests);
-		anf.setActiveContests(activeContests);
-		List<Contest> pendingContests = contestBean.getPendingContests();
-		Collections.sort(pendingContests);
-		anf.setPendingContests(pendingContests);
-		List<Contest> recentlyFinishedContests = contestBean.getRecentlyFinishedContests();
-		Collections.sort(recentlyFinishedContests);
-		anf.setRecentlyFinishedContests(recentlyFinishedContests);
+		anf.setActiveContests(contestBean.getActiveContests());
+		anf.setPendingContests(contestBean.getPendingContests());
+		anf.setRecentlyFinishedContests(contestBean.getRecentlyFinishedContests());
 
 		return mapping.findForward("announce");
 	}

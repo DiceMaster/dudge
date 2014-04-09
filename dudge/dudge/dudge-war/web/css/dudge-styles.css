@@ -1,50 +1,144 @@
-.x-form-field-wrap .x-form-trigger-add{
-    //width:17px;
-   // height:21px;
-    //border:0;
-    background:transparent url(images/triggeradd.gif) no-repeat 0 0;
-    cursor:pointer;
-    border-bottom: 1px solid #B5B8C8;
-    //position:absolute;
-    //top:0;
-
+.dudge-btn-group {
+  bottom: 20px;
+  position: relative;
+  top: 20px;
 }
 
-.ext-safari .x-form-field-wrap .x-form-trigger-add{
-    height:19px; /* safari doesn't allow height adjustments to the fields, so adjust trigger */
-}
-.x-small-editor .x-form-field-wrap .x-form-trigger-add{
-    height:19px;
+.dudge-pagination a {
+    min-width: 42px;
+    text-align: center;
 }
 
-
-
-.ext-ie .x-toolbar .x-form-field-wrap .x-form-trigger-add {
-	top:1px;
-}
-/*.x-form-field-wrap .x-form-trigger{
-    width:17px;
-    height:21px;
-    border:0;
-    background:transparent url(images/trigger.gif) no-repeat 0 0;
-    cursor:pointer;
-    border-bottom: 1px solid #B5B8C8;
-    position:absolute;
-    top:0;
-}*/
-
-.Global {color:magenta}
-.ACM {color:red}
-.Lab {color:green}
-
-.author_name{
-   font-weight: bold;
-   font-size:medium;
-}
-.author_job{
-   font-size: medium;
+.dudge-pagination > .disabled > span,
+.dudge-pagination > .disabled > a,
+.dudge-pagination > .disabled > a:hover,
+.dudge-pagination > .disabled > a:focus {
+  cursor: default;
 }
 
-.problem_info{font-size: medium}
+.dropdown-menu > form {
+    margin: 10px;
+    min-width: 240px;
+}
 
-.contest_info{font-size: medium}
+.dropdown-menu > form > input {
+    margin-bottom: .5em;
+}
+
+.ru_RU {
+    background-image: url('../img/flags/ru_RU.png');
+}
+
+.en_US {
+    background-image: url('../img/flags/en_US.png');
+}
+
+.flag {
+    display:inline-block;
+    width:16px;height:11px;
+    margin: 0 5px 0 0;
+    position:relative;
+    top:1px;
+}
+
+@media (min-width: 768px) {
+    .dl-dudge dt {
+        width: 260px;
+        margin-bottom: 6px;
+    }
+    .dl-dudge dd {
+        margin-left: 280px;
+        margin-bottom: 6px;
+    }
+    .dl-dudge-wide dt {
+        width: 300px;
+        margin-bottom: 6px;
+    }
+    .dl-dudge-wide dd {
+        margin-left: 320px;
+        margin-bottom: 6px;
+    }
+    .divider-vertical {
+        height: 30px;
+        margin: 10px 9px;
+        border-right: 1px solid #777;
+    }
+}
+
+div.dataTables_filter label {
+    float: right;
+}
+
+.dataTables_processing {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 32px;
+    height: 32px;
+    margin-left: -16px;
+    margin-top: -16px;
+    background-image: url(../img/ajax-loader-big.gif);    
+    text-align: center;
+    color: #999;
+    font-size: 14px;
+    background-color: white;
+}
+
+table.table thead .sorting,
+table.table thead .sorting_asc,
+table.table thead .sorting_desc,
+table.table thead .sorting_asc_disabled,
+table.table thead .sorting_desc_disabled {
+    cursor: pointer;
+    *cursor: hand;
+    position: relative;
+}
+
+table.table thead .sorting:focus,
+table.table thead .sorting_asc:focus,
+table.table thead .sorting_desc:focus,
+table.table thead .sorting_asc_disabled:focus,
+table.table thead .sorting_desc_disabled:focus {
+    outline: none;
+}
+
+table.table thead .sorting:after {
+    content: url('../img/sort_both.png');
+    position: absolute;
+    top: 50%;
+    margin-top: -10px;
+}
+
+table.table thead .sorting_asc:after {
+    content: url('../img/sort_asc.png');
+    position: absolute;
+    top: 50%;
+    margin-top: -10px;
+}
+table.table thead .sorting_desc:after {
+    content: url('../img/sort_desc.png');
+    position: absolute;
+    top: 50%;
+    margin-top: -10px;
+}
+ 
+table.table thead .sorting_asc_disabled:after {
+    content: url('../img/sort_asc_disabled.png');
+    position: absolute;
+    top: 50%;
+    margin-top: -10px;
+}
+table.table thead .sorting_desc_disabled:after {
+    content: url('../img/sort_desc_disabled.png');
+    position: absolute;
+    top: 50%;
+    margin-top: -10px;
+}
+
+.selectedRow {
+    background-color: #d9edf7;
+}
+
+.table-hover>tbody>.selectedRow:hover>td, .table-hover>tbody>.selectedRow:hover>th {
+    background-color: #e7f1f6;
+}

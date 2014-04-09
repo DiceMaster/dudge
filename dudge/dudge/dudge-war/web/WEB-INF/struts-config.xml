@@ -7,7 +7,7 @@
 
 <struts-config>
 	<form-beans>
-        <form-bean name="announceForm" type="dudge.web.forms.AnnounceForm"/>
+		<form-bean name="announceForm" type="dudge.web.forms.AnnounceForm"/>
 		<form-bean name="usersForm" type="dudge.web.forms.UsersForm"/>
 		<form-bean name="loginForm" type="dudge.web.forms.LoginForm"/>
 		<form-bean name="contestsForm" type="dudge.web.forms.ContestsForm"/>	
@@ -15,6 +15,7 @@
 		<form-bean name="solutionsForm" type="dudge.web.forms.SolutionsForm"/>
 		<form-bean name="languagesForm" type="dudge.web.forms.LanguagesForm"/>
 		<form-bean name="reportsForm" type="dudge.web.forms.ReportsForm"/>
+                <form-bean name="monitorForm" type="dudge.web.forms.MonitorForm"/>
 	</form-beans>
 	
 	<global-exceptions>
@@ -103,6 +104,8 @@
 		
 		<action path="/monitor"
 			 type="dudge.web.actions.MonitorAction"
+			 name="monitorForm"
+			 scope="session"
 			 parameter="reqCode">
 		</action>
 		
@@ -111,6 +114,7 @@
 			 name="usersForm"
 			 parameter="reqCode">
 			<forward name="registrationSuccess" path="/registrationSuccess.jsp" redirect="true"/>
+                        <forward name="redirectUsersList" path="/users.do?reqCode=list" redirect="true"/>
 		</action>
 		
 		<action path="/languages" 

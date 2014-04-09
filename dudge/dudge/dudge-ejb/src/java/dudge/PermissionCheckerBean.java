@@ -71,6 +71,31 @@ public class PermissionCheckerBean implements PermissionCheckerRemote {
 		return true;
 	}
 
+        /**
+	 * true, если пользователь - администратор, иначе false.
+	 *
+	 * @param principal Имя пользователя, для которого проверяется право.
+	 * @param user Пользователь, данные которого запрашиваются.
+	 */
+        @Override
+	public boolean canViewUsersList(String principal) {
+		if (principal == null) {
+			return false;
+		}
+		User princ = userBean.getUser(principal);
+		if (princ == null) {
+			logger.log(Level.WARNING, "Nonexistent user {0}", principal);
+			return false;
+		}
+
+		// Проверяем, является ли пользователь Администратором Системы
+		if (princ.isAdmin()) {
+			return true;
+		}
+
+		return false;
+	}
+
 	/**
 	 * true, если пользователь пытается редактировать свой профиль или является администратором системы, иначе false.
 	 *

@@ -87,6 +87,28 @@ public class SolutionBean implements SolutionLocal, SolutionRemote {
 	}
 
 	/**
+	 * Возвращает список решений.
+	 *
+	 * @param start номер первого возвращяемого решения.
+	 * @param count сколько решений возвращать.
+	 * @return отсортированный по возрастанию давности список решений.
+	 */
+	@Override
+	public List<Solution> getSolutions(int start, int count) {
+		return (List<Solution>) em.createNamedQuery("Solution.getLastSolutions").setFirstResult(start).setMaxResults(count).getResultList();
+	}
+	
+	/**
+	 * Возвращает количество решений, отправленных в систему.
+	 *
+	 * @return Количество решений, отправленных в систему.
+	 */
+	@Override
+	public long getSolutionsCount() {
+		return (Long)em.createQuery("SELECT COUNT(s) FROM Solution s").getSingleResult();
+	}
+	
+	/**
 	 *
 	 * @param count
 	 * @return

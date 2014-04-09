@@ -39,6 +39,13 @@ public class UsersAction extends DispatchAction {
 
 	private static final Logger logger = Logger.getLogger(UsersAction.class.toString());
 	private ServiceLocator serviceLocator = ServiceLocator.getInstance();
+                
+        private static final String[] columns = {
+          "login",
+          "regDate",
+          "realName",
+          "organization"
+        };
 
 	/**
 	 * Creates a new instance of RegistrationAction
@@ -55,6 +62,14 @@ public class UsersAction extends DispatchAction {
 	 * @return
 	 */
 	public ActionForward list(ActionMapping mapping, ActionForm af, HttpServletRequest request, HttpServletResponse response) {
+		AuthenticationObject ao = AuthenticationObject.extract(request);
+		PermissionCheckerRemote pcb = ao.getPermissionChecker();
+
+		// Проверяем право пользователя.
+		if (!pcb.canViewUsersList(ao.getUsername())) {
+			return mapping.findForward("accessDenied");
+		}
+            
 		return mapping.findForward("users");
 	}
 
@@ -370,45 +385,67 @@ public class UsersAction extends DispatchAction {
 	 * Возвращает AJAX-клиенту очередную порцию из списка пользователей.
 	 */
 	public void getUserList(ActionMapping mapping, ActionForm af, HttpServletRequest request, HttpServletResponse response) {
+                //  Получаем из запроса, какие данные требуются клиенту.
+                String iDisplayStartString = (String) request.getParameter("iDisplayStart");
+                String iDisplayLengthString = (String) request.getParameter("iDisplayLength");
+                int iDisplayStart = iDisplayStartString == null ? -1 : Integer.parseInt(iDisplayStartString);
+                int iDisplayLength = iDisplayLengthString == null ? -1 : Integer.parseInt(iDisplayLengthString);
 
-		//  Получаем из запроса, какие данные требуются клиенту.
-		int start = Integer.parseInt((String) request.getParameter("start"));
-		int limit = Integer.parseInt((String) request.getParameter("limit"));
+                String searchString = (String) request.getParameter("sSearch");
+                if (searchString != null && searchString.isEmpty()) {
+                   searchString = null;
+                }
+                
+                String order = null;
+                boolean descending = false;
+                if (request.getParameter("iSortCol_0") != null)
+                {
+                    int iColumn = Integer.parseInt(request.getParameter("iSortCol_0"));
+                    if (request.getParameter("bSortable_" + iColumn).equals("true"))
+                    {
+                            order = columns[iColumn];
+                            descending = request.getParameter("sSortDir_0").equals("desc");
+                    }
+                }
 
-		List<User> users = serviceLocator.lookupUserBean().getUsers();
-		List<User> selectedUsers;
-		try {
-			selectedUsers = users.subList(start, start + limit);
-		} catch (IndexOutOfBoundsException e) {
-			selectedUsers = users.subList(start, users.size());
-		}
-		JSONArray ja = new JSONArray();
-		JSONObject jo = new JSONObject();
+                UserLocal.FilteredUsers users = serviceLocator.lookupUserBean().getUsers(
+                    searchString,
+                    order,
+                    descending,
+                    iDisplayStart,
+                    iDisplayLength
+                );
 
-		try {
-			jo.put("totalCount", users.size());
-		} catch (JSONException e) {
-			logger.log(Level.SEVERE, "exception caught", e);
-			return;
-		}
+                JSONArray ja = new JSONArray();
+                JSONObject jo = new JSONObject();
 
-		for (Iterator<User> iter = selectedUsers.iterator(); iter.hasNext();) {
-			ja.put(this.getUserJSONView(iter.next()));
-		}
-		try {
-			jo.put("users", ja);
-		} catch (JSONException e) {
-			logger.log(Level.SEVERE, "exception caught", e);
-			return;
-		}
+                long totalUsersCount = serviceLocator.lookupUserBean().getUsersCount();
+                try {
+                    jo.put("sEcho", request.getParameter("sEcho"));
+                    jo.put("iTotalRecords", totalUsersCount);
+                    jo.put("iTotalDisplayRecords", users.getFilteredTotal());
+                } catch (JSONException e) {
+                    logger.log(Level.SEVERE, "exception caught", e);
+                    return;
+                }
 
-		// Устанавливаем тип контента
-		response.setContentType("application/x-json");
-		try {
-			response.getWriter().print(jo);
-		} catch (IOException e) {
-			logger.log(Level.SEVERE, "exception caught", e);
-		}
+                for (Iterator<User> iter = users.getFilteredUsers().iterator(); iter.hasNext();) {
+                    ja.put(this.getUserJSONView(iter.next()));
+                }
+                try {
+                    jo.put("aaData", ja);
+                } catch (JSONException e) {
+                    logger.log(Level.SEVERE, "exception caught", e);
+                    return;
+                }
+
+                // Устанавливаем тип контента
+                response.setContentType("application/x-json");
+                try {
+                    response.getWriter().print(jo);
+                } catch (IOException e) {
+                    logger.log(Level.SEVERE, "exception caught", e);
+                }
 	}
 
 	/**
@@ -426,28 +463,25 @@ public class UsersAction extends DispatchAction {
 		String deletedUser = (String) request.getParameter("login");
 		serviceLocator.lookupUserBean().deleteUser(deletedUser);
 
-		return mapping.findForward("users");
+                return mapping.findForward("redirectUsersList");
 	}
 
 	/**
-	 * Метод возвращает представления объекта в формата JSON - это нужно для его отображение на стороне клиента через JavaScript/AJAX.
+	 * Метод возвращает представления объекта в формата JSON массива - это нужно для его отображение на стороне клиента через JavaScript/AJAX.
 	 */
-	public JSONObject getUserJSONView(User user) {
+	public JSONArray getUserJSONView(User user) {
 
-		JSONObject json = new JSONObject();
+		JSONArray json = new JSONArray();
 
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyy.MM.dd");
 
-		// Заполняем данными пользователя созданный объект JSON.
-		try {
-			json.put("login", user.getLogin());
-			json.put("realname", user.getRealName());
-			json.put("regdate", sdf.format(user.getRegDate()));
-			json.put("organization", user.getOrganization());
-		} catch (JSONException e) {
-			logger.log(Level.SEVERE, "Trouble while creating JSON view of User object", e);
-		}
-		return json;
+		// Заполняем данными пользователя созданный JSON массив.
+                json.put(user.getLogin());
+                json.put(sdf.format(user.getRegDate()));
+                json.put(user.getRealName());                
+                json.put(user.getOrganization());
+                
+                return json;
 	}
 
 	/**

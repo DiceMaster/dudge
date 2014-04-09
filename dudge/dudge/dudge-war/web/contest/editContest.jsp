@@ -1,8 +1,9 @@
 <%@page import="java.text.SimpleDateFormat" %>
 <jsp:useBean id="contestsForm" class="dudge.web.forms.ContestsForm" scope="session" />
 
-<script type="text/javascript" src="/dudge/ext/examples/ux/CheckColumn.js"></script>
-<script type="text/javascript">
+<script src="ckeditor/ckeditor.js"></script>
+<script>
+/*  
     // Defining data stores for using in callback-function, set hidden-fields in contestsForm.
     var userDs;
     var problemDs;
@@ -61,10 +62,6 @@
         });
 
         Ext.QuickTips.init();
-
-        /*	var descriptionEditor = new Ext.form.HtmlEditor({applyTo: 'description'});
-
-        var rulesEditor = new Ext.form.HtmlEditor({applyTo: 'rules'});*/
 
         //////////////////////////////
         // CONTEST ROLES
@@ -516,149 +513,127 @@
         document.getElementById('encodedApplications').value = jsonEncodedApplications;
 	  
     }
+*/
 </script>
 
-<html:form styleId="contestsForm" styleClass="x-form" action="contests.do"
-           onsubmit="saveCollectionsValues()">
-    <div class="x-box-tl"><div class="x-box-tr"><div class="x-box-tc"></div></div></div>
-    <div class="x-box-ml"><div class="x-box-mr"><div class="x-box-mc">
+<form action="contests.do" onsubmit="saveCollectionsValues()">
+    <input type="hidden" name="contestId" value="${sessionScope.contestId}"/>
 
-                <div class="x-form-bd" id="container">
-                    <input type="hidden" name="contestId" value="${sessionScope.contestId}"/>
+    <c:choose>
+        <c:when test="${contestsForm.newContest}">
+            <input type="hidden" name="reqCode" value="submitCreate" />
+            <h3><bean:message key="contest.newContest" /></h3>
+        </c:when>
+        <c:otherwise>
+            <input type="hidden" name="reqCode" value="submitEdit" />
+            <h3>${contestsForm.caption}</h3>
+        </c:otherwise>    
+    </c:choose>
 
-                    <c:choose>
-                        <c:when test="${contestsForm.newContest}">
-                            <html:hidden property="reqCode" value="submitCreate" />
-                            <h3 style="margin-bottom:5px;"><bean:message key="contest.newContest" /></h3>
-                        </c:when>
-                        <c:otherwise>
-                            <html:hidden property="reqCode" value="submitEdit" />
-                            <h3 style="margin-bottom:5px;">${contestsForm.caption}</h3>
-                        </c:otherwise>    
-                    </c:choose>
+    <ul class="nav nav-tabs">
+        <li class="active"><a href="#descriptionTab" data-toggle="tab"><bean:message key="contest.description" /></a></li>
+        <li><a href="#parametersTab" data-toggle="tab"><bean:message key="contest.parameters" /></a></li>
+        <li><a href="#problemsTab" data-toggle="tab"><bean:message key="contest.problems" /></a></li>
+        <li><a href="#rulesTab" data-toggle="tab"><bean:message key="contest.rules" /></a></li>
+        <li><a href="#usersTab" data-toggle="tab"><bean:message key="contest.users" /></a></li>
+        <li><a href="#applicationsTab" data-toggle="tab"><bean:message key="contest.applications" /></a></li>
+        <li><a href="#languagesTab" data-toggle="tab"><bean:message key="contest.languages"/></a></li>
+    </ul>        
+    <div class="tab-content">
+        <fieldset id="descriptionTab" class="tab-pane active">
+            <div class="form-group">
+                <label><bean:message key="contest.caption" /></label>
+                <input type="text" class="form-control" name="caption" value="${contestsForm.caption}"/>
+            </div>
 
-                    <div id="contestTabs">
-                        <div id="descriptionTab" class="x-hide-display">
-                            <div class="x-form-item">
-                                <label><bean:message key="contest.caption" /></label>
-                                <div class="x-form-element">
-                                    <html:text property="caption" />
-                                </div>
-                            </div>
+            <div class="form-group">
+                <label><bean:message key="contest.description" /></label>
+                <textarea class="ckeditor" name="description">${contestsForm.description}</textarea>
+            </div>
+        </fieldset>
 
-                            <div class="x-form-item">
-                                <label><bean:message key="contest.description" /></label>
-                                <div class="x-form-element">
-                                    <html:textarea property="description" cols="80" rows="25"/>
-                                </div>
-                            </div>
-                        </div>
+        <div id="parametersTab" class="tab-pane">
+            <div class="form-group">
+                <label><bean:message key="contest.type" /></label>                       
+                <select class="form-control" name="contestType">
+                    <c:forEach items="${contestsForm.contestTypes}" var="type">
+                    <option value="${type}" <c:if test="${contestsForm.contestType eq type}">selected</c:if> >${type}</option>
+                    </c:forEach>
+                </select>							
+            </div>
 
-                        <div id="parametersTab" class="x-hide-display">
-                            <div class="x-form-item">
-                                <label><bean:message key="contest.type" /></label>                       
-                                <div class="x-form-element">
-                                    <html:select  property="contestType" styleId="contestType">
-                                        <html:options property="contestTypes"/>
-                                    </html:select>							
-                                </div>                 
-                            </div>
+            <div class="checkbox">
+                <label>
+                    <input type="checkbox" name="open" <c:if test="${contestsForm.open}">checked</c:if> />
+                    <bean:message key="contest.isOpen" />
+                </label>
+            </div>
 
-                            <div class="x-form-item">
-                                <label><bean:message key="contest.isOpen" /></label>
-                                <div class="x-form-element">
-                                    <html:checkbox property="open">
-                                    </html:checkbox>
-                                </div>
-                            </div>
+            <div class="form-group">
+                <label><bean:message key="contest.startDate" /></label>  
+                <input type="text" class="form-control" name="startDate" size="8" value="${contestsForm.startDate}" />
+            </div>
 
-                            <div class="x-form-item">
-                                <label><bean:message key="contest.startDate" /></label>  
-                                <div class="x-form-element">
-                                    <% SimpleDateFormat sdf = new SimpleDateFormat("yyyy/MM/dd");%>
-                                    <html:text property="startDate" styleId="startDate" size="8" />
-                                </div>
-                            </div>
-
-                            <div class="x-form-item">
-                                <label><bean:message key="contest.startTime" /></label>
-                                <div class="x-form-element">
-                                    <html:text property="startHour" styleId="startHour" size="2"  />
-                                    <b>:</b>
-                                    <html:text property="startMinute" styleId="startMinute" size="2" />
-                                </div>
-                            </div>
-
-                            <div class="x-form-item">
-                                <label><bean:message key="contest.duration" /></label>
-                                <div class="x-form-element">
-                                    <html:text property="durationHours" styleId="durationHours" size="2"  />
-                                    <b>:</b>
-                                    <html:text property="durationMinutes" styleId="durationMinutes" size="2" />
-                                </div>
-                            </div>
-
-                            <div class="x-form-item">
-                                <label><bean:message key="contest.freezeTime" /></label>
-                                <div class="x-form-element">
-                                    <html:text property="freezeTime" size="20" />
-                                </div>
-                            </div>
-                        </div>
-
-                        <div id="problemsTab" class="x-hide-display">
-                            <div id="problemsTable"></div>
-                        </div>
-
-                        <div id="rulesTab" class="x-hide-display">
-                            <div class="x-form-item">
-                                <label><bean:message key="contest.rules" /></label>
-                                <div class="x-form-element">
-                                    <html:textarea property="rules" cols="80" rows="25"/>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="x-hide-display">
-                            <!-- you must define the select box here, as the custom editor for the 'role' column will require it -->
-                            <select name="role" id="role" style="display: none;">
-                                <option value="ADMINISTRATOR"><bean:message key="contest.users.admin" /></option>
-                                <option value="USER"><bean:message key="contest.users.user" /></option>
-                                <option value="OBSERVER"><bean:message key="contest.users.observer" /></option>
-                            </select>
-                        </div>
-
-                        <div id="usersTab" class="x-hide-display">
-                            <div id="usersTable"></div>							
-                        </div>
-
-                        <div id="applicationsTab" class="x-hide-display">
-                            <div id="applicationsTable"></div>
-                        </div>
-
-                        <div id="languagesTab" class="x-hide-display">
-                            <div id="languagesTable"></div>
-                        </div>
-
-                    </div>
-
-                    <html:hidden property="encodedRoles" styleId="encodedRoles" />
-                    <html:hidden property="encodedContestProblems" styleId="encodedContestProblems" />
-                    <html:hidden property="encodedContestLanguages" styleId="encodedContestLanguages" />
-                    <html:hidden property="encodedApplications" styleId="encodedApplications" />
-
-                    <html:submit>
-                        <c:choose>
-                            <c:when test="${contestsForm.newContest}">
-                                <bean:message key="contest.addContest" /> 
-                            </c:when>
-                            <c:otherwise>
-                                <bean:message key="contest.applyChanges" />
-                            </c:otherwise>
-                        </c:choose>
-                    </html:submit>
-
+            <div class="form-group">
+                <label><bean:message key="contest.startTime" /></label>
+                <div class="x-form-element">
+                    <input type="text" name="startHour" size="2" value="${contestsForm.startHour}" />
+                    :
+                    <input type="text" name="startMinute" size="2" value="${contestsForm.startMinute}" />
                 </div>
-            </div></div></div>
-    <div class="x-box-bl"><div class="x-box-br"><div class="x-box-bc"></div></div></div>
-</html:form>
+            </div>
+
+            <div class="form-group">
+                <label><bean:message key="contest.duration" /></label>
+                <div class="x-form-element">
+                    <input type="text" name="durationHours" styleId="durationHours" size="2" value="${contestsForm.durationHours}" />
+                    :
+                    <input type="text" name="durationMinutes" styleId="durationMinutes" size="2" value="${contestsForm.durationMinutes}" />
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label><bean:message key="contest.freezeTime" /></label>
+                <input type="text" class="form-control" name="freezeTime" size="20" value="${contestsForm.freezeTime}" />
+            </div>
+        </div>
+
+        <div id="problemsTab" class="tab-pane">
+            <div id="problemsTable"></div>
+        </div>
+
+        <div id="rulesTab" class="tab-pane">
+            <div class="form-group">
+                <label><bean:message key="contest.rules" /></label>
+                <textarea class="ckeditor" name="rules">${contestsForm.rules}</textarea>
+            </div>
+        </div>
+
+        <div id="usersTab" class="tab-pane">
+            <div id="usersTable"></div>							
+        </div>
+
+        <div id="applicationsTab" class="tab-pane">
+            <div id="applicationsTable"></div>
+        </div>
+
+        <div id="languagesTab" class="tab-pane">
+            <div id="languagesTable"></div>
+        </div>
+
+    </div>
+
+    <input type="hidden" name="encodedRoles" />
+    <input type="hidden" name="encodedContestProblems" />
+    <input type="hidden" name="encodedContestLanguages" />
+    <input type="hidden" name="encodedApplications" />
+
+    <c:choose>
+        <c:when test="${contestsForm.newContest}">
+            <input type="submit" value="<bean:message key="contest.addContest" />"/>
+        </c:when>
+        <c:otherwise>
+            <input type="submit" value="<bean:message key="contest.applyChanges" />"/>
+        </c:otherwise>
+    </c:choose>
+</form>
