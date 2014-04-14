@@ -106,7 +106,7 @@ public class ContestBean implements ContestLocal {
 			}
 		}
 
-                Collections.sort(activeContests);
+		Collections.sort(activeContests);
                 
 		return activeContests;
 	}
@@ -131,11 +131,24 @@ public class ContestBean implements ContestLocal {
 			}
 		}
 
-                Collections.sort(recentlyFinishedContests);
+		Collections.sort(recentlyFinishedContests);
                 
 		return recentlyFinishedContests;
 	}
 
+	/**
+	 *
+	 * @return
+	 */
+	@Override
+	public List<Contest> getGlobalContests() {
+		List<Contest> contests = (List<Contest>) em.createNamedQuery("Contest.getGlobalContests").getResultList();
+
+		Collections.sort(contests);
+                
+		return contests;
+	}
+	
 	/**
 	 *
 	 * @param contest

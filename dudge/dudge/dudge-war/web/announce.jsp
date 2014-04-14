@@ -8,23 +8,69 @@
     });
 </script>
 
+<c:if test="${announceForm.noContests}">
+<h3 class="text-center"><bean:message key="contests.noContests"/></h3>
+<p class="text-center"><a class="btn btn-primary" href="contests.do?reqCode=list"><bean:message key="contests.list" /></a></p>
+</c:if>
+
+<c:if test="${not empty announceForm.highlightedContest}">
 <div class="jumbotron">
-    <h1>Заголовок</h1>
-    <p>Dudge переводится на новый фреймворк для фронтенда. Вместе с этим будет переработана и главная страница, содержавшая ранее список соревнований.
-       Теперь вместо них здесь будут анонсы, результаты соревнований и прочие информационные сообщения.</p>
-    <p>Самое важное на данный момент сообщение, например информация о предстоящем или идущем соревновании, будет выделяться таким блоком.</p>
-    <p><a class="btn btn-primary btn-lg" href="#">Подробнее</a></p>
+    <h1>${announceForm.highlightedContest.caption}</h1>
+    <div>${announceForm.highlightedContest.description}</div>
+    <p><a class="btn btn-primary btn-lg" href="contests.do?reqCode=view&contestId=${announceForm.highlightedContest.contestId}"><bean:message key="announce.details"/></a></p>
 </div>
+</c:if>
+
+<c:forEach items="${announceForm.activeContests}" var="contest">
+    <c:if test="${contest != announceForm.highlightedContest}">
 <div class="row">
     <div class="col-lg-12">
         <div class="panel panel-default">
             <div class="panel-heading">
-                <h2>Еще одна новость</h2>
+                <h2>${contest.caption}</h2>
             </div>
             <div class="panel-body">
-                <p>Остальные анонсы будут выглядеть в виде подобных блоков.</p>
-                <p> <a class="btn btn-default" href="#">Подробнее</a> </p>
+                <div>${contest.description}</div>
+                <p><a class="btn btn-primary btn-lg" href="contests.do?reqCode=view&contestId=${contest.contestId}"><bean:message key="announce.details"/></a></p>
             </div>
         </div>        
     </div>
 </div>
+    </c:if>
+</c:forEach>
+
+<c:forEach items="${announceForm.pendingContests}" var="contest">
+    <c:if test="${contest != announceForm.highlightedContest}">
+<div class="row">
+    <div class="col-lg-12">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h2>${contest.caption}</h2>
+            </div>
+            <div class="panel-body">
+                <div>${contest.description}</div>
+                <p><a class="btn btn-primary btn-lg" href="contests.do?reqCode=view&contestId=${contest.contestId}"><bean:message key="announce.details"/></a></p>
+            </div>
+        </div>        
+    </div>
+</div>
+    </c:if>
+</c:forEach>
+
+<c:forEach items="${announceForm.recentlyFinishedContests}" var="contest">
+    <c:if test="${contest != announceForm.highlightedContest}">
+<div class="row">
+    <div class="col-lg-12">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h2>${contest.caption}</h2>
+            </div>
+            <div class="panel-body">
+                <div>${contest.description}</div>
+                <p><a class="btn btn-primary btn-lg" href="contests.do?reqCode=view&contestId=${contest.contestId}"><bean:message key="announce.details"/></a></p>
+            </div>
+        </div>        
+    </div>
+</div>
+    </c:if>
+</c:forEach>

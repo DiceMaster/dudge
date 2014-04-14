@@ -11,10 +11,11 @@ import javax.ejb.Local;
 @Local
 public interface ContestLocal {
 
-        public interface FilteredContests {
-            public long getFilteredTotal();
-            public List<Contest> getFilteredContests();
-        }
+
+	public interface FilteredContests {
+		public long getFilteredTotal();
+        public List<Contest> getFilteredContests();
+    }
     
 	/**
 	 * Возвращает соревнование по умолчанию.
@@ -78,6 +79,13 @@ public interface ContestLocal {
 	 * @return список недавно законченных соревнований.
 	 */
 	List<Contest> getRecentlyFinishedContests();
+	
+	/**
+	 * Возвращает глобальные соревнования.
+	 *
+	 * @return список глобальных соревнований.
+	 */
+	List<Contest> getGlobalContests();
 
 	/**
 	 * Добавляет новое соревнование в систему.

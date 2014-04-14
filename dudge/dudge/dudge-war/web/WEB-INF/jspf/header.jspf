@@ -38,6 +38,7 @@ on Libraries node in Projects view can be used to add the JSTL 1.1 library.
 <c:set var="activeContests" value="${contestLocal.getActiveContests()}" /> 
 <c:set var="pendingContests" value="${contestLocal.getPendingContests()}" /> 
 <c:set var="recentlyFinishedContests" value="${contestLocal.getRecentlyFinishedContests()}" />
+<c:set var="globalContests" value="${contestLocal.getGlobalContests()}" /> 
     
 <c:set var="contestId" value="${contestsForm.contestId}" scope="session"/>
 
@@ -153,7 +154,7 @@ on Libraries node in Projects view can be used to add the JSTL 1.1 library.
                         </ul>
                     </div>
 </c:if>
-<c:if test="${not empty activeContests || not empty pendingContests || not empty recentlyFinishedContests}">
+<c:if test="${not empty activeContests || not empty pendingContests || not empty recentlyFinishedContests || not empty globalContests}">
                     <div class="well sidebar-nav">
                         <ul class="nav nav-list">
                             <li class="nav-header"> <h4><bean:message key="menu.contests"/></h4> </li>
@@ -181,6 +182,14 @@ on Libraries node in Projects view can be used to add the JSTL 1.1 library.
                             </li>
         </c:forEach>
     </c:if>
+    <c:if test="${not empty globalContests}">
+                            <li class="nav-header"> <bean:message key="contests.global"/> </li>
+        <c:forEach items="${globalContests}" var="contest">
+                            <li>
+                                    <a href="contests.do?reqCode=view&contestId=${contest.contestId}">${contest.caption}</a>
+                            </li>
+        </c:forEach>
+    </c:if>                            
                         </ul>
                     </div>
 </c:if>                    

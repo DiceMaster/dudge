@@ -48,7 +48,7 @@
 <h1><bean:message key="languages.languages"/></h1>
 <div class="btn-group">
 <c:if test="${permissionCheckerRemote.canAddLanguage(autentificationObject.username)}">
-    <a class="btn btn-default" href="languages.do?reqCode=create"><bean:message key="languages.create" /></button>
+    <a class="btn btn-default" href="languages.do?reqCode=create"><bean:message key="languages.create" /></a>
 </c:if>
     <a id="editBtn" class="btn btn-default disabled" role="button" href="#"><bean:message key="languages.edit"/></a>
     <div class="modal" id="deleteLanguage" tabindex="-1" role="dialog" aria-hidden="true">
