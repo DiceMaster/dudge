@@ -161,7 +161,7 @@
                 var id = parseInt(row) * 2 + parseInt(col);
                 return '<input type="button" id="' 
                     + record.get('testId')+  '" name="' 
-                    + parseInt(col-2) +  '" onclick="testDialogShow(this)" value="<bean:message key="problem.tests.change" />" />';
+                    + parseInt(col-2) +  '" onclick="testDialogShow(this)" value="<bean:message key="problem.tests.change" />" >';
             }
 	
             // Test table.

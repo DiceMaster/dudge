@@ -1,7 +1,6 @@
 <%@page import="dudge.db.User" %>
 
 <jsp:useBean id="usersForm" class="dudge.web.forms.UsersForm" scope="session" />
-<jsp:useBean id="usersAction" scope="session" class="dudge.web.actions.UsersAction" />
 
 <script>
     $("#navbarUsers").addClass("active");

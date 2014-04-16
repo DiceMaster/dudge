@@ -50,6 +50,14 @@
         margin-left: 280px;
         margin-bottom: 6px;
     }
+    .dl-dudge-small dt {
+        width: 200px;
+        margin-bottom: 6px;
+    }
+    .dl-dudge-small dd {
+        margin-left: 220px;
+        margin-bottom: 6px;
+    }    
     .dl-dudge-wide dt {
         width: 300px;
         margin-bottom: 6px;

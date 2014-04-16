@@ -1,84 +1,173 @@
 <%@page import="dudge.db.Language" %>
 
 <jsp:useBean id="languagesForm" class="dudge.web.forms.LanguagesForm" scope="session" />
-<jsp:useBean id="languagesAction" scope="session" class="dudge.web.actions.LanguagesAction" />
 
-<html:form action="languages" styleClass="x-form">
-    <div class="x-box-tl"><div class="x-box-tr"><div class="x-box-tc"></div></div></div>
-    <div class="x-box-ml"><div class="x-box-mr"><div class="x-box-mc">
-                <div class="x-form-bd" id="container">
-                    <c:choose>
-                        <c:when test="${languagesForm.newLanguage}">
-                            <html:hidden property="reqCode" value="submitCreate" />
-                            <h3 style="margin-bottom:5px;"><bean:message key="language.create" /></h3>
-                        </c:when>
-                        <c:otherwise>
-                            <html:hidden property="reqCode" value="submitEdit" />
-                            <html:hidden property="languageId" />
-                            <h3 style="margin-bottom:5px;"><bean:message key="language.edit" /> ${languagesForm.languageId}</h3>
-                        </c:otherwise>
-                    </c:choose>
-                    <fieldset>
-                        <legend><bean:message key="language.languageInfo" /></legend>
+<script>
+function validate() {
+/*
+    $("#languageIdError").addClass("hide");
+    $("#languageIdGroup").removeClass("has-error");
+    $("#ldescriptionError").addClass("hide");
+    $("#ldescriptionGroup").removeClass("has-error");
+    $("#fileExtensionError").addClass("hide");
+    $("#fileExtensionGroup").removeClass("has-error");
+    $("#compilationCommandError").addClass("hide");
+    $("#compilationCommandGroup").removeClass("has-error");
+    $("#executionCommandError").addClass("hide");
+    $("#executionCommandGroup").removeClass("has-error");
 
-                        <c:if test="${languagesForm.newLanguage}">
-                            <div class="x-form-item">
-                                <label for="login"><bean:message key="language.id" /></label>
-                                <div class="x-form-element">
-                                    <html:text property="languageId" styleId="languageId" size="20" styleClass="x-form-text x-form-field"/>
-                                </div>
-                            </div>  
-                        </c:if>
-                        <div class="x-form-item">
-                            <label for="title"><bean:message key="language.title" /></label>
-                            <div class="x-form-element">
-                                <html:text property="title" styleId="title" size="20" styleClass="x-form-text x-form-field"/>
-                            </div>
-                        </div>
-                        <div class="x-form-item">
-                            <label for="description"><bean:message key="language.description" /></label>
-                            <div class="x-form-element">
-                                <html:textarea property="description" styleId="description" styleClass="x-form-text x-form-field"/>
-                            </div>
-                        </div>
+    var failed = false;
 
+    // Language ID validation
+    if ($("#languageId").val().length < 1)
+    {
+        $("#languageIdGroup").addClass("has-error");
+        $("#languageIdError").removeClass("hide");
+        $("#languageIdError").html('<bean:message key="language.languageIdTooShort" />');
+        if (!failed) {
+            $("#languageIdGroup").scrollintoview();
+            failed = true;
+        }
+    }
+    if ($("#login").val().length > 255)
+    {
+        $("#languageIdGroup").addClass("has-error");
+        $("#languageIdError").removeClass("hide");
+        $("#languageIdError").html('<bean:message key="language.languageIdTooLong" />');
+        if (!failed) {
+            $("#languageIdGroup").scrollintoview();
+            failed = true;
+        }
+    }
+    
+    // Description validation
+    if ($("#description").val().length > 500)
+    {
+        $("#descriptionGroup").addClass("has-error");
+        $("#descriptionError").removeClass("hide");
+        $("#descriptionError").html('<bean:message key="language.descriptionTooLong" />');
+        if (!failed) {
+            $("#descriptionGroup").scrollintoview();
+            failed = true;
+        }
+    }
+    
+    // File extension validation
+    if ($("#fileExtension").val().length < 1)
+    {
+        $("#fileExtensionGroup").addClass("has-error");
+        $("#fileExtensionError").removeClass("hide");
+        $("#fileExtensionError").html('<bean:message key="language.fileExtensionTooShort" />');
+        if (!failed) {
+            $("#realNameGroup").scrollintoview();
+            failed = true;
+        }
+    }
+    if ($("#fileExtensionName").val().length > 15)
+    {
+        $("#fileExtensionGroup").addClass("has-error");
+        $("#fileExtensionError").removeClass("hide");
+        $("#fileExtensionError").html('<bean:message key="language.fileExtensionTooLong" />');
+        if (!failed) {
+            $("#fileExtensionGroup").scrollintoview();
+            failed = true;
+        }
+    }
 
-                    </fieldset>
+    if (failed) {
+        return false;
+    }
+ */
+    return true;
+}
+</script>
 
-                    <fieldset>
-                        <legend><bean:message key="language.technicalParameters" /></legend>
-                        <div class="x-form-item">
-                            <label for="fileExtension"><bean:message key="language.fileExtension" /></label>
-                            <div class="x-form-element">
-                                <html:text property="fileExtension" styleId="fileExtension" size="20" styleClass="x-form-text x-form-field"/>
-                            </div>
-                        </div>
-                        <div class="x-form-item">
-                            <label for="compilationCommand"><bean:message key="language.compilationCommand" /></label>
-                            <div class="x-form-element">
-                                <html:text property="compilationCommand" styleId="compilationCommand" size="20" styleClass="x-form-text x-form-field"/>
-                            </div>
-                        </div>
-                        <div class="x-form-item">
-                            <label for="executionCommand"><bean:message key="language.executionCommand" /></label>
-                            <div class="x-form-element">
-                                <html:text property="executionCommand" styleId="executionCommand" size="20" styleClass="x-form-text x-form-field"/>
-                            </div>
-                        </div>
+<form action="languages.do" class="form-horizontal" onsubmit="return validate()">
+    <c:choose>
+        <c:when test="${languagesForm.newLanguage}">
+            <input type="hidden" name="reqCode" value="submitCreate">
+            <h1><bean:message key="language.create" /></h1>
+        </c:when>
+        <c:otherwise>
+            <input type="hidden" name="reqCode" value="submitEdit" >
+            <input type="hidden" name="languageId" value="${languagesForm.languageId}">
+            <h1><bean:message key="language.edit" /> ${languagesForm.languageId}</h1>
+        </c:otherwise>
+    </c:choose>
+    <fieldset>
+        <legend><bean:message key="language.languageInfo" /></legend>
 
-                    </fieldset>
-                            
-                    <html:submit>
-                        <c:choose>
-                            <c:when test="${languagesForm.newLanguage}">
-                                <bean:message key="language.submitCreate" /> 
-                            </c:when>
-                            <c:otherwise>
-                                <bean:message key="language.applyChanges" />
-                            </c:otherwise>
-                        </c:choose>
-                    </html:submit>        
+        <c:if test="${languagesForm.newLanguage}">
+            <div class="form-group" id="languageIdGroup">
+                <label for="languageId" class="col-lg-3 control-label"><bean:message key="language.id" /></label>
+                <div class="col-lg-7">
+                    <input type="text" id="languageId" name="languageId" class="form-control">
                 </div>
-            </div></div></div>
-    <div class="x-box-bl"><div class="x-box-br"><div class="x-box-bc"></div></div></div>
-</html:form>
+            </div>
+            <span class="help-block col-lg-offset-3 col-lg-7 hide" id="languageIdError"></span>
+        </c:if>
+        <div class="form-group" id="titleGroup">
+            <label for="title" class="col-lg-3 control-label"><bean:message key="language.title" /></label>
+            <div class="col-lg-7">
+                <input type="text" id="title" name="title" class="form-control" value="${languagesForm.title}">
+            </div>
+        </div>
+        <div class="form-group" id="descriptionGroup">
+            <label for="description" class="col-lg-3 control-label"><bean:message key="language.description" /></label>
+            <div class="col-lg-7">
+                <textarea id="description" name="description" class="form-control" rows="3">${languagesForm.description}</textarea>
+            </div>
+            <span class="help-block col-lg-offset-3 col-lg-7 hide" id="descriptionError"></span>
+        </div>
+    </fieldset>
+
+    <fieldset>
+        <legend><bean:message key="language.technicalParameters" /></legend>
+        <div class="form-group" id="fileExtensionGroup">
+            <label for="fileExtension" class="col-lg-3 control-label"><bean:message key="language.fileExtension" /></label>
+            <div class="col-lg-7">
+                <input type="text" id="fileExtension" name="fileExtension" class="form-control" value="${languagesForm.fileExtension}">
+            </div>
+            <span class="help-block col-lg-offset-3 col-lg-7 hide" id="fileExtensionError"></span>
+        </div>
+        <div class="form-group" id="compilationCommandGroup">
+            <label for="compilationCommand" class="col-lg-3 control-label"><bean:message key="language.compilationCommand" /></label>
+            <div class="col-lg-7">
+                <input type="text" id="compilationCommand" name="compilationCommand" class="form-control" value="${languagesForm.compilationCommand}">
+            </div>
+            <span class="help-block col-lg-offset-3 col-lg-7 hide" id="compilationCommandError"></span>
+        </div>
+        <div class="form-group" id="executionCommandGroup">
+            <label for="executionCommand" class="col-lg-3 control-label"><bean:message key="language.executionCommand" /></label>
+            <div class="col-lg-7">
+                <input type="text" id="executionCommand" name="executionCommand" class="form-control" value="${languagesForm.executionCommand}">
+            </div>
+            <span class="help-block col-lg-offset-3 col-lg-7 hide" id="executionCommandError"></span>
+        </div>
+        <div class="form-group">
+            <label for="substitutions" class="col-lg-3 control-label"><bean:message key="language.substitutions" /></label>
+            <div class="col-lg-7">
+                <pre><bean:message key="language.substitution.name" />
+<bean:message key="language.substitution.source" />
+<bean:message key="language.substitution.executable" />
+<bean:message key="language.substitution.testdir" />
+<bean:message key="language.substitution.separator" /></pre>
+            </div>
+        </div>
+    </fieldset>
+
+    <div class="form-group">
+        <div class="col-lg-offset-3 col-lg-7">
+            <button type="submit" class="btn btn-primary">
+                <c:choose>
+                    <c:when test="${languagesForm.newLanguage}">
+                        <bean:message key="language.submitCreate" />
+                    </c:when>
+                    <c:otherwise>
+                        <bean:message key="language.applyChanges" />
+                    </c:otherwise>
+                </c:choose>
+            </button>
+        </div>
+    </div>
+</form>
