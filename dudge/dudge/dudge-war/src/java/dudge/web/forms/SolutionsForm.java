@@ -95,8 +95,8 @@ public class SolutionsForm extends ActionForm {
 		this.languageId = languageId;
 	}
 
-	public String getProblemId() {
-		return Integer.toString(problemId);
+	public int getProblemId() {
+		return problemId;
 	}
 
 	public void setProblemId(int problemId) {

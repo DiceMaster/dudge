@@ -2,10 +2,10 @@
 <jsp:useBean id="solutionsForm" class="dudge.web.forms.SolutionsForm" scope="session" />
 <% pageContext.setAttribute("contestTypeGlobal", dudge.db.ContestType.GLOBAL); %>
 
-<form class="form-horizontal" action="solutions.do">
+<form class="form-horizontal" action="solutions.do" method="post">
     <h1><bean:message key="submit.submitSolution" /></h1>
     <input type="hidden" name="reqCode" value="submitSubmit">
-    <input type="hidden" name="contestId" value="${contestId}">
+    <input type="hidden" name="contestId" value="${solutionsForm.contestId}">
     
     <div class="form-group">
         <label for="languageId" class="col-lg-2 control-label"><bean:message key="language.language"/></label>
@@ -22,20 +22,18 @@
     <div class="form-group">
         <label for="problemId" class="col-lg-2 control-label"><bean:message key="problem.problem"/></label>
         <div class="col-lg-9">
-            <c:choose>
-                <c:when test="${contest.type == contestTypeGlobal}">
-                    <input type="text" name="problemId" class="form-control">
-                </c:when>
-                <c:otherwise>
-                    <select name="problemId" class="form-control">
-                                                    <c:forEach items="${solutionsForm.contestProblems}" var="contestProblem">
-                            <option value='${contestProblem.problem.problemId}' >
-                                                            ${contestProblem.problemMark}. ${contestProblem.problem.title}
-                            </option>
-                                                    </c:forEach> 
-                    </select>
-                                            </c:otherwise>
-                                        </c:choose>
+<c:choose>
+    <c:when test="${contest.type == contestTypeGlobal}">
+            <input type="text" name="problemId" class="form-control">
+    </c:when>
+    <c:otherwise>
+            <select name="problemId" class="form-control">
+        <c:forEach items="${solutionsForm.contestProblems}" var="contestProblem">
+                <option value='${contestProblem.problem.problemId}' >${contestProblem.problemMark}. ${contestProblem.problem.title}</option>
+        </c:forEach> 
+            </select>
+    </c:otherwise>
+</c:choose>
                             </div>
                         </div>
     <div class="form-group">

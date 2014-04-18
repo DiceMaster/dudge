@@ -191,7 +191,7 @@ public class SolutionsAction extends DispatchAction {
 		User user = serviceLocator.lookupUserBean().getUser(ao.getUsername());
 		Contest contest = contestBean.getContest(contestId);
 		Language language = serviceLocator.lookupLanguageBean().getLanguage(sf.getLanguageId());
-		Problem problem = serviceLocator.lookupProblemBean().getProblem(Integer.parseInt(sf.getProblemId()));
+		Problem problem = serviceLocator.lookupProblemBean().getProblem(sf.getProblemId());
 
 		// Проверяем право пользователя.
 		PermissionCheckerRemote pcb = ao.getPermissionChecker();
