@@ -811,4 +811,26 @@ public class PermissionCheckerBean implements PermissionCheckerRemote {
 		return (java.lang.Boolean) em.createNativeQuery("SELECT can_view_news(:principal, :news_id)", java.lang.Boolean.class)
 				.setParameter("principal", principal).setParameter("newsId", newsId).getSingleResult();
 	}
+	
+	/* Проверяет наличие каких-либо прав на управление объектами системы.
+	 * @principal пользователь, для которого проверяются права;
+	 * @return true если пользователь может чем-то управлять.
+	 */
+	@Override
+	public boolean canAdmin(String principal)
+	{
+		if (principal == null) {
+			return false;
+		}
+		User princ = userBean.getUser(principal);
+		if (princ == null) {
+			logger.log(Level.WARNING, "Nonexistent user {0}", principal);
+			return false;
+		}
+		//Если пользователь является Администратором системы
+		if (princ.isAdmin()) {
+			return true;
+		}
+		return false;
+	}
 }

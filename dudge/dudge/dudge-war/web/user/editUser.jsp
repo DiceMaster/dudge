@@ -128,7 +128,7 @@
     }
 </script>
 
-<form class="form-horizontal" action="users.do" onsubmit="return validate()">
+<form class="form-horizontal" action="users.do" method="post" onsubmit="return validate()">
     <fieldset>
         <c:choose>
             <c:when test="${usersForm.newUser}">

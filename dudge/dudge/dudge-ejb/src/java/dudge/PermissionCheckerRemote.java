@@ -254,4 +254,10 @@ public interface PermissionCheckerRemote {
 	 * @return true если пользователь может просматривать данную новость.
 	 */
 	public boolean canViewNews(String principal, int newsId);
+	
+	/* Проверяет наличие каких-либо прав на управление объектами системы.
+	 * @principal пользователь, для которого проверяются права;
+	 * @return true если пользователь может чем-то управлять.
+	 */
+	public boolean canAdmin(String principal);
 }

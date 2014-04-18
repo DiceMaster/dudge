@@ -82,7 +82,7 @@ function validate() {
 }
 </script>
 
-<form action="languages.do" class="form-horizontal" onsubmit="return validate()">
+<form action="languages.do" class="form-horizontal" method="post" onsubmit="return validate()">
     <c:choose>
         <c:when test="${languagesForm.newLanguage}">
             <input type="hidden" name="reqCode" value="submitCreate">
