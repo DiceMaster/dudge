@@ -161,9 +161,10 @@ on Libraries node in Projects view can be used to add the JSTL 1.1 library.
             </c:choose>
                             </li>
         </c:forEach>
-    </c:if>
                         </ul>
+    
                     </div>
+    </c:if>
 </c:if>
 <c:if test="${not empty activeContests || not empty pendingContests || not empty recentlyFinishedContests || not empty globalContests}">
                     <div class="well sidebar-nav">
