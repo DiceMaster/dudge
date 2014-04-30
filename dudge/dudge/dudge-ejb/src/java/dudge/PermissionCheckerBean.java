@@ -621,8 +621,8 @@ public class PermissionCheckerBean implements PermissionCheckerRemote {
 		}
 
 		// Если соревнование открытое  и в настоящее время идет.
-		//if(contest.isOpen() && contest.isInProgress())
-		//return true;
+		if(contest.isOpen() && contest.isInProgress())
+			return true;
 
 		return false;
 	}
@@ -783,6 +783,9 @@ public class PermissionCheckerBean implements PermissionCheckerRemote {
 	 */
 	@Override
 	public boolean canSendApplication(String principal, int contestId) {
+		if (contestBean.getContest(contestId).isOpen()) {
+			return false;
+		}
 		if (principal == null) {
 			return false;
 		}

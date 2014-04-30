@@ -80,6 +80,7 @@ public class DudgeBean implements DudgeLocal {
 	public void joinAllOpenContests(String login) {
 		User user = userBean.getUser(login);
 
+		boolean shouldFlush = false;
 		for (Contest contest : contestBean.getContests()) {
 			if (!contest.isOpen()) {
 				continue;
@@ -87,9 +88,12 @@ public class DudgeBean implements DudgeLocal {
 
 			if (userBean.haveNoRoles(login, contest.getContestId())) {
 				Role role = new Role(contest, user, RoleType.USER);
-				em.merge(role);
-				em.flush();
+				contest.getRoles().add(role);
+				shouldFlush = true;
 			}
+		}
+		if (shouldFlush) {
+			em.flush();
 		}
 	}
 

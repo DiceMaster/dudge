@@ -63,7 +63,6 @@ public class AuthenticationObject {
 			Date currentDate = new Date();
 			if (currentDate.before(expirationDate)) {
 				ao.setUsername(userName);
-				serviceLocator.lookupDudgeBean().joinAllOpenContests(userName);
 			}
 		}
 
