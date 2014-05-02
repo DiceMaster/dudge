@@ -142,7 +142,7 @@ on Libraries node in Projects view can be used to add the JSTL 1.1 library.
                         <ul class="nav nav-list">
                             <li class="nav-header"> <h4> ${contestCaption} </h4> </li>
                             <li> <a href="monitor.do?reqCode=view&contestId=${contestId}"><bean:message key="monitor.monitor"/></a> </li>
-                            <li> <a href="monitor.do?reqCode=myStatus&contestId=${contestId}"><bean:message key="status.myStatus"/></a> </li>
+                            <li> <a href="solutions.do?reqCode=mySolutions&contestId=${contestId}"><bean:message key="status.myStatus"/></a> </li>
                         </ul>
                     </div>
     <c:if test="${not empty menuContestProblems}">                        

@@ -3,6 +3,8 @@ package dudge;
 import dudge.ifaces.SolutionRemote;
 import dudge.db.Run;
 import dudge.db.Solution;
+import dudge.solution.SolutionDescription;
+import dudge.solution.SolutionMessageSource;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -51,6 +53,28 @@ public class SolutionBean implements SolutionLocal, SolutionRemote {
 		return solution;
 	}
 
+		/**
+	 * Возвращает список решений, отправленных определенным пользователем в конкретное соревнование.
+	 *
+	 * @param login имя пользователя-автора решений.
+	 * @param contestId идентификатор соревнования, куда решения были отправлены.
+	 * @param messageSource источник локализованных соообщений.
+	 * @return отсортированный по давности (т.е. сначала новые) список решений.
+	 */
+	@Override
+	public List<SolutionDescription> getSolutionDescriptions(String login, int contestId, SolutionMessageSource messageSource) {
+		List<Solution> solutions = (List<Solution>) em.createNamedQuery("Solution.findByUserContest")
+				.setParameter("login", login.toLowerCase(Locale.ENGLISH))
+				.setParameter("contestId", contestId)
+				.getResultList();
+		
+		ArrayList<SolutionDescription> solutionDescriptions = new ArrayList<>();
+		for (Solution solution : solutions) {
+			solutionDescriptions.add(new SolutionDescription(solution, messageSource));
+		}
+		return solutionDescriptions;
+	}
+	
 	/**
 	 *
 	 * @param login

@@ -60,7 +60,6 @@ public class SolutionsAction extends DispatchAction {
 	 */
 	@SuppressWarnings("unchecked")
 	public ActionForward view(ActionMapping mapping, ActionForm af, HttpServletRequest request, HttpServletResponse response) {
-
 		SolutionsForm sf = (SolutionsForm) af;
 
 		AuthenticationObject ao = AuthenticationObject.extract(request);
@@ -116,6 +115,29 @@ public class SolutionsAction extends DispatchAction {
 		sf.setSourceCode(solution.getSourceCode());
 
 		return mapping.findForward("viewSolution");
+	}
+	
+	/**
+	 *
+	 * @param mapping
+	 * @param af
+	 * @param request
+	 * @param response
+	 * @return
+	 */
+	public ActionForward mySolutions(ActionMapping mapping, ActionForm af, HttpServletRequest request, HttpServletResponse response) {
+
+		AuthenticationObject ao = AuthenticationObject.extract(request);
+		if (ao.getUsername() == null) {
+			return mapping.findForward("loginRequired");
+		}
+
+		SolutionsForm sf = (SolutionsForm) af;
+		ContestLocal contestBean = serviceLocator.lookupContestBean();
+		Contest contest = contestBean.getContest(sf.getContestId());
+		sf.setContestName(contest.getCaption());
+		
+		return mapping.findForward("mySolutions");
 	}
 
 	/**
@@ -267,7 +289,7 @@ public class SolutionsAction extends DispatchAction {
 	}
 
 	/**
-	 * Метод для получения через AJAX списка из последних N отправленных в систему решений, где n задачется параметром limit.
+	 * Метод для получения через AJAX списка отправленных в систему решений.
 	 *
 	 * @param mapping
 	 * @param af
@@ -321,11 +343,11 @@ public class SolutionsAction extends DispatchAction {
 			}
 
 			json.put(sol.getLanguage().getLanguageId());
-				if (sol.getStatus() != SolutionStatus.PROCESSED || sol.getLastRunResult() == null) {
+			if (sol.getStatus() != SolutionStatus.PROCESSED || sol.getLastRunResult() == null) {
 				json.put(sol.getStatus().toString());
-				} else {
+			} else {
 				json.put(sol.getLastRunResult().toString());
-				}
+			}
 			
 			int testNumber;
 			try {

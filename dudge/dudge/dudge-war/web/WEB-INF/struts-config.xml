@@ -42,6 +42,7 @@
 		
 		<forward name="submitSolution" path="/solution/submitSolution.jsp"/>
 		<forward name="viewSolution" path="/solution/viewSolution.jsp"/>
+		<forward name="mySolutions" path="/solution/mySolutions.jsp"/>
 		
 		<forward name="editProblem" path="/problem/editProblem.jsp"/>
 		<forward name="problems" path="/problem/problems.jsp"/>
