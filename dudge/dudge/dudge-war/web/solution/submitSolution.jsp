@@ -29,7 +29,14 @@
     <c:otherwise>
             <select name="problemId" class="form-control">
         <c:forEach items="${solutionsForm.contestProblems}" var="contestProblem">
+            <c:choose>
+                <c:when test="${contestProblem.problem.problemId == solutionsForm.problemId}">
+                <option value='${contestProblem.problem.problemId}' selected>${contestProblem.problemMark}. ${contestProblem.problem.title}</option>
+                </c:when>
+                <c:otherwise>
                 <option value='${contestProblem.problem.problemId}' >${contestProblem.problemMark}. ${contestProblem.problem.title}</option>
+                </c:otherwise>
+            </c:choose>
         </c:forEach> 
             </select>
     </c:otherwise>

@@ -151,20 +151,11 @@ public class SolutionsAction extends DispatchAction {
 	public ActionForward submit(ActionMapping mapping, ActionForm af, HttpServletRequest request, HttpServletResponse response) {
 
 		SolutionsForm sf = (SolutionsForm) af;
+		int contestId = sf.getContestId();
+		int problemId = sf.getProblemId();
 		sf.reset(mapping, request);
 		ContestLocal contestBean = serviceLocator.lookupContestBean();
 		AuthenticationObject ao = AuthenticationObject.extract(request);
-
-		int contestId;
-		// Получаем идентификатор соревнования.
-		String param = request.getParameter("contestId");
-		if (param != null) {
-			contestId = Integer.parseInt(param);
-		} else // Если нам не послали идентификатор, то используем идентификатор
-		// текущего соревнования.
-		{
-			contestId = contestBean.getDefaultContest().getContestId();
-		}
 
 		Contest contest = contestBean.getContest(contestId);
 
@@ -177,6 +168,8 @@ public class SolutionsAction extends DispatchAction {
 		// Установление свойств, нужных для корректного отображение параметров языка соревнования.
 		sf.getContestLanguages().addAll(contest.getContestLanguages());
 		sf.getContestProblems().addAll(contest.getContestProblems());
+		sf.setContestId(contestId);
+		sf.setProblemId(problemId);
 
 		return mapping.findForward("submitSolution");
 	}
