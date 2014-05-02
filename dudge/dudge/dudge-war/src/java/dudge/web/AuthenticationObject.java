@@ -42,11 +42,9 @@ public class AuthenticationObject {
 			}
 
 			if (cookie.getName().equals(AuthenticationCookies.COOKIE_EXPIRATION)) {
-				DateFormat dateFormat = DateFormat.getInstance();
-
 				try {
-					expirationDate = dateFormat.parse(cookie.getValue());
-				} catch (ParseException ex) {
+					expirationDate = new Date(Long.parseLong(cookie.getValue()));
+				} catch (NumberFormatException ex) {
 				}
 			}
 
@@ -59,7 +57,7 @@ public class AuthenticationObject {
 			return ao;
 		}
 
-		if (key.equals(AuthenticationCookies.getCookieKey(userName, expirationDate))) {
+		if (key.equals(AuthenticationCookies.getCookieKey(userName, expirationDate.getTime()))) {
 			Date currentDate = new Date();
 			if (currentDate.before(expirationDate)) {
 				ao.setUsername(userName);

@@ -46,11 +46,8 @@ public class LoginAction extends DispatchAction {
 		LoginForm lf = (LoginForm) af;
 		if (serviceLocator.lookupUserBean().authenticate(lf.getUsername(), lf.getPassword())) {
 			lf.setPassword("");
-			Calendar calendar = Calendar.getInstance();
-			calendar.add(Calendar.HOUR, 6);
-			Date expirationTime = calendar.getTime();
-
-			AuthenticationCookies.setCookies(lf.getUsername(), expirationTime, response);
+			
+			AuthenticationCookies.setCookies(lf.getUsername(), response);
 
 			ActionForward forward = new ActionForward();
 			forward.setPath(request.getHeader("referer"));

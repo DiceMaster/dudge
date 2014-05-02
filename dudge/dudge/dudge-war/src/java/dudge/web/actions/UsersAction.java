@@ -8,11 +8,14 @@ package dudge.web.actions;
 import dudge.PermissionCheckerRemote;
 import dudge.UserLocal;
 import dudge.db.User;
+import dudge.web.AuthenticationCookies;
 import dudge.web.AuthenticationObject;
 import dudge.web.ServiceLocator;
 import dudge.web.forms.UsersForm;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.logging.Level;
@@ -309,6 +312,9 @@ public class UsersAction extends DispatchAction {
 		}
 
 		userBean.modifyUser(user);
+		
+		AuthenticationCookies.setCookies(user.getLogin(), response);
+		
 		return mapping.findForward("registrationSuccess");
 	}
 
