@@ -260,4 +260,10 @@ public interface PermissionCheckerRemote {
 	 * @return true если пользователь может чем-то управлять.
 	 */
 	public boolean canAdmin(String principal);
+	
+	/* Проверяет наличие прав на редактирование глобальной страницы с правилами.
+	 * @principal пользователь, для которого проверяются права;
+	 * @return true если пользователь может редактировать глобальные правила.
+	 */
+	public boolean canEditRules(String principal);
 }

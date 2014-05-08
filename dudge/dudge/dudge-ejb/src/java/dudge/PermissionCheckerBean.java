@@ -836,4 +836,26 @@ public class PermissionCheckerBean implements PermissionCheckerRemote {
 		}
 		return false;
 	}
+	
+	/* Проверяет наличие прав на редактирование глобальной страницы с правилами.
+	 * @principal пользователь, для которого проверяются права;
+	 * @return true если пользователь может редактировать глобальные правила.
+	 */
+	@Override
+	public boolean canEditRules(String principal)
+	{
+		if (principal == null) {
+			return false;
+		}
+		User princ = userBean.getUser(principal);
+		if (princ == null) {
+			logger.log(Level.WARNING, "Nonexistent user {0}", principal);
+			return false;
+		}
+		//Если пользователь является Администратором системы
+		if (princ.isAdmin()) {
+			return true;
+		}
+		return false;
+	}
 }

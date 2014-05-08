@@ -330,4 +330,37 @@ public class DudgeBean implements DudgeLocal {
 			}
 		}
 	}
+	
+	/**
+	 * Позволяет получить текст глобальных правил системы.
+	 *
+	 * @return текст глобальных правил.
+	 */
+	@Override
+	public String getRules() {
+		Param rulesParam = em.find(Param.class, "global_rules");
+
+		if (rulesParam == null) {
+			return null;
+		}
+		
+		return rulesParam.getValue();
+	}
+	
+	/**
+	 * Позволяет задать текст глобальных правил системы.
+	 *
+	 * @param rules текст глобальных правил.
+	 */
+	public void setRules(String rules) {
+		Param rulesParam = em.find(Param.class, "global_rules");
+
+		if (rulesParam != null) {
+			rulesParam.setValue(rules);
+		} else {
+			rulesParam = new Param("global_rules", rules);
+		}
+		
+		em.merge(rulesParam);
+	}
 }

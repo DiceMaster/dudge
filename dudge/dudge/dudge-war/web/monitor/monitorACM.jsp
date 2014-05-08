@@ -49,7 +49,7 @@
             <th><bean:message key="monitor.user"/></th>
             <th><bean:message key="monitor.solvedProblems"/></th>
 <c:forEach items="${monitorForm.problems}" var="contestProblem">
-            <th>${contestProblem.problemMark}</th>
+            <th><a href="problems.do?contestId=${contestProblem.contest.contestId}&reqCode=view&problemId=${contestProblem.problem.problemId}">${contestProblem.problemMark}</a></th>
 </c:forEach>            
             <th><bean:message key="monitor.time" /></th>
         </tr>

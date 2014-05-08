@@ -3,10 +3,8 @@
 <h1 class="pull-left"><bean:message key="problem.problem" /> ${problemsForm.problemId}: ${problemsForm.title}</h1>
 <div class="pull-right">
     <div class="btn-group dudge-btn-group">
-<c:if test="${permissionCheckerRemote.canSubmitSolution(autentificationObject.username, contestId, problemsForm.problemId)}">            
-        <a class="btn btn-default" href="solutions.do?reqCode=submit&contestId=${contestId}&problemId=${problemsForm.problemId}"><bean:message key="problem.submitSolution"/></a>
-    </c:if>
 <c:if test="${permissionCheckerRemote.canDeleteProblem(autentificationObject.username, problemsForm.problemId)}">        
+        <a class="btn btn-danger" href="#" data-toggle="modal" data-target="#deleteProblem"><bean:message key="problem.delete"/></a>
         <div class="modal" id="deleteProblem" tabindex="-1" role="dialog" aria-hidden="true">
           <div class="modal-dialog">
             <div class="modal-content">
@@ -24,14 +22,16 @@
             </div><!-- /.modal-content -->
           </div><!-- /.modal-dialog -->
         </div><!-- /.modal -->
-        <a class="btn btn-danger" href="#" data-toggle="modal" data-target="#deleteProblem"><bean:message key="problem.delete"/></a>        
 </c:if>            
 <c:if test="${permissionCheckerRemote.canModifyProblem(autentificationObject.username, problemsForm.problemId)}">
         <a class="btn btn-primary" href="problems.do?reqCode=edit&problemId=${problemId}"><bean:message key="problem.edit"/></a>
-    </c:if>
+</c:if>
     </div>
 </div>
 <div class="clearfix"></div>
+<c:if test="${permissionCheckerRemote.canSubmitSolution(autentificationObject.username, contestId, problemsForm.problemId)}">            
+<a class="btn btn-default" href="solutions.do?reqCode=submit&contestId=${contestId}&problemId=${problemsForm.problemId}"><bean:message key="problem.submitSolution"/></a>
+</c:if>
 
 <dl class="dl-horizontal dl-dudge-wide">
     <dt><bean:message key="problem.owner" /></dt>

@@ -82,7 +82,7 @@ on Libraries node in Projects view can be used to add the JSTL 1.1 library.
                         <li id="navbarAnounce"> <a href="announces.do?reqCode=makeAnnounce"><bean:message key="menu.news"/></a> </li>
                         <li id="navbarContests"> <a href="contests.do?reqCode=list"><bean:message key="menu.contests"/></a> </li>
                         <li id="navbarProblems"> <a href="problems.do?reqCode=list"><bean:message key="menu.problems"/></a> </li>
-                        <li id="navbarRules"> <a href="#"><bean:message key="menu.rules"/></a> </li>
+                        <li id="navbarRules"> <a href="rules.do?reqCode=view"><bean:message key="menu.rules"/></a> </li>
 <c:if test="${permissionCheckerRemote.canAdmin(autentificationObject.username)}">
                         <li id="navbarAdmin" class="dropdown">
                             <a href="#" class="dropdown-toggle" data-toggle="dropdown"><bean:message key="menu.admin"/><span class="caret"></span></a>
