@@ -12,10 +12,10 @@ import javax.ejb.Local;
 @Local
 public interface UserLocal {
 
-        public interface FilteredUsers {
-            public long getFilteredTotal();
-            public List<User> getFilteredUsers();
-        }
+	public interface FilteredUsers {
+		public long getFilteredTotal();
+		public List<User> getFilteredUsers();
+	}
     
 	public String calcHash(String password);
 

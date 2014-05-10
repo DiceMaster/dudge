@@ -202,55 +202,55 @@ public class UserBean implements UserLocal {
             return (List<User>) em.createNamedQuery("User.getUsers").getResultList();
 	}
         
-        @Override
+	@Override
 	public FilteredUsers getUsers(String searchCriteria, String orderBy, boolean descending, int start, int length) {
-            CriteriaBuilder builder = em.getCriteriaBuilder();
-            CriteriaQuery usersCriteriaQuery = builder.createQuery();
-            Root usersRoot = usersCriteriaQuery.from(User.class);
-            
-            CriteriaQuery<Long> countCriteriaQuery = builder.createQuery(Long.class);
-            Root countRoot = countCriteriaQuery.from(User.class);
-            countCriteriaQuery.select(builder.count(countRoot));
+		CriteriaBuilder builder = em.getCriteriaBuilder();
+		CriteriaQuery usersCriteriaQuery = builder.createQuery();
+		Root usersRoot = usersCriteriaQuery.from(User.class);
 
-            if (searchCriteria != null) {
-                usersCriteriaQuery.where(builder.or(
-                        builder.like(usersRoot.get("login"), "%" + searchCriteria + "%"),                        
-                        builder.like(usersRoot.get("organization"), "%" + searchCriteria + "%"),
-                        builder.like(usersRoot.get("realName"), "%" + searchCriteria + "%")
-                    ));
-                countCriteriaQuery.where(builder.or(
-                        builder.like(countRoot.get("login"), "%" + searchCriteria + "%"),                        
-                        builder.like(countRoot.get("organization"), "%" + searchCriteria + "%"),
-                        builder.like(countRoot.get("realName"), "%" + searchCriteria + "%")
-                    ));
-            }
-            
-            final long count = em.createQuery(countCriteriaQuery).getSingleResult();
-            
-            if (orderBy != null) {
-                usersCriteriaQuery.orderBy(descending ? builder.desc(usersRoot.get(orderBy)) : builder.asc(usersRoot.get(orderBy)));
-            }
+		CriteriaQuery<Long> countCriteriaQuery = builder.createQuery(Long.class);
+		Root countRoot = countCriteriaQuery.from(User.class);
+		countCriteriaQuery.select(builder.count(countRoot));
 
-            Query usersQuery = em.createQuery(usersCriteriaQuery);
-            if (start >= 0) {
-                usersQuery = usersQuery.setFirstResult(start);
-            }
-            if (length > 0) {
-                usersQuery = usersQuery.setMaxResults(length);
-            }
-            final List<User> filteredUsers = (List<User>) usersQuery.getResultList();
-            
-            return new FilteredUsers() {
+		if (searchCriteria != null) {
+			usersCriteriaQuery.where(builder.or(
+					builder.like(usersRoot.get("login"), "%" + searchCriteria + "%"),                        
+					builder.like(usersRoot.get("organization"), "%" + searchCriteria + "%"),
+					builder.like(usersRoot.get("realName"), "%" + searchCriteria + "%")
+				));
+			countCriteriaQuery.where(builder.or(
+					builder.like(countRoot.get("login"), "%" + searchCriteria + "%"),                        
+					builder.like(countRoot.get("organization"), "%" + searchCriteria + "%"),
+					builder.like(countRoot.get("realName"), "%" + searchCriteria + "%")
+				));
+		}
 
-                @Override
-                public long getFilteredTotal() {
-                    return count;
-                }
+		final long count = em.createQuery(countCriteriaQuery).getSingleResult();
 
-                @Override
-                public List<User> getFilteredUsers() {
-                    return filteredUsers;
-                }
-            };
+		if (orderBy != null) {
+			usersCriteriaQuery.orderBy(descending ? builder.desc(usersRoot.get(orderBy)) : builder.asc(usersRoot.get(orderBy)));
+		}
+
+		Query usersQuery = em.createQuery(usersCriteriaQuery);
+		if (start >= 0) {
+			usersQuery = usersQuery.setFirstResult(start);
+		}
+		if (length > 0) {
+			usersQuery = usersQuery.setMaxResults(length);
+		}
+		final List<User> filteredUsers = (List<User>) usersQuery.getResultList();
+
+		return new FilteredUsers() {
+
+			@Override
+			public long getFilteredTotal() {
+				return count;
+			}
+
+			@Override
+			public List<User> getFilteredUsers() {
+				return filteredUsers;
+			}
+		};
 	}
 }

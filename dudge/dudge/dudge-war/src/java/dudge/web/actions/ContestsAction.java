@@ -189,17 +189,17 @@ public class ContestsAction extends DispatchAction {
 		PermissionCheckerRemote pcb = ao.getPermissionChecker();
 
 		// Заполняем данными задачи созданный объект JSON.
-                json.put(contest.getContestId());
+		json.put(contest.getContestId());
 
-                json.put(contest.getCaption());
-                json.put(contest.getType().toString());
-                json.put(contest.isOpen());
-                json.put(new SimpleDateFormat("yyyy.MM.dd HH:mm").format(contest.getStartTime()));
-                
-                json.put(contest.getDuration());
-                json.put(pcb.canJoinContest(ao.getUsername(), contest.getContestId()));
-                json.put(pcb.canModifyContest(ao.getUsername(), contest.getContestId()));
-                json.put(pcb.canDeleteContest(ao.getUsername(), contest.getContestId()));
+		json.put(contest.getCaption());
+		json.put(contest.getType().toString());
+		json.put(contest.isOpen());
+		json.put(new SimpleDateFormat("yyyy.MM.dd HH:mm").format(contest.getStartTime()));
+
+		json.put(contest.getDuration());
+		json.put(pcb.canJoinContest(ao.getUsername(), contest.getContestId()));
+		json.put(pcb.canModifyContest(ao.getUsername(), contest.getContestId()));
+		json.put(pcb.canDeleteContest(ao.getUsername(), contest.getContestId()));
 		return json;
 	}
 

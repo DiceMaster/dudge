@@ -24,7 +24,7 @@
         </div><!-- /.modal -->
 </c:if>            
 <c:if test="${permissionCheckerRemote.canModifyProblem(autentificationObject.username, problemsForm.problemId)}">
-        <a class="btn btn-primary" href="problems.do?reqCode=edit&problemId=${problemId}"><bean:message key="problem.edit"/></a>
+        <a class="btn btn-primary" href="problems.do?reqCode=edit&problemId=${problemsForm.problemId}"><bean:message key="problem.edit"/></a>
 </c:if>
     </div>
 </div>

@@ -20,6 +20,15 @@ public interface ProblemLocal {
 	Problem getProblem(int problemId);
 
 	/**
+	 * Возвращает упорядоченный список задач.
+	 *
+	 * @param orderBy сортируемая колонка.
+	 * @param descending обратный порядок сортировки.
+	 * @return список адач.
+	 */
+	List<Problem> getProblems(String orderBy, boolean descending);
+	
+	/**
 	 * @return общее количество задач в системе.
 	 */
 	long getProblemsCount();
@@ -30,15 +39,6 @@ public interface ProblemLocal {
 	 * @return Список задач в системе.
 	 */
 	List<Problem> getProblems();
-
-	/**
-	 * Возвращает задачи в определенном промежутке.
-	 *
-	 * @param start начальный id задачи;
-	 * @param limit количество задач;
-	 * @return список из limit задач системы с id, начинающимся со start.
-	 */
-	List<Problem> getProblems(int start, int limit);
 
 	/**
 	 * Добавляет новую задачу в систему.

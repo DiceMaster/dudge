@@ -31,7 +31,6 @@
     <a class="btn btn-default" href="languages.do?reqCode=create"><bean:message key="languages.create" /></a>
 </div>
 </c:if>
-<div class="clearfix"></div>
 <table class="table" id="languagesGrid">
     <thead>
         <tr>

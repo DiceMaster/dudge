@@ -1,4 +1,3 @@
-<%@page import="java.text.SimpleDateFormat" %>
 <jsp:useBean id="contestsForm" class="dudge.web.forms.ContestsForm" scope="session" />
 
 <script src="ckeditor/ckeditor.js"></script>
@@ -517,15 +516,14 @@
 </script>
 
 <form action="contests.do" onsubmit="saveCollectionsValues()">
-    <input type="hidden" name="contestId" value="${sessionScope.contestId}"/>
-
     <c:choose>
         <c:when test="${contestsForm.newContest}">
-            <input type="hidden" name="reqCode" value="submitCreate" />
+            <input type="hidden" name="reqCode" value="submitCreate">
             <h3><bean:message key="contest.newContest" /></h3>
         </c:when>
         <c:otherwise>
-            <input type="hidden" name="reqCode" value="submitEdit" />
+            <input type="hidden" name="reqCode" value="submitEdit">
+            <input type="hidden" name="contestId" value="${sessionScope.contestId}">
             <h3>${contestsForm.caption}</h3>
         </c:otherwise>    
     </c:choose>
@@ -543,7 +541,7 @@
         <fieldset id="descriptionTab" class="tab-pane active">
             <div class="form-group">
                 <label><bean:message key="contest.caption" /></label>
-                <input type="text" class="form-control" name="caption" value="${contestsForm.caption}"/>
+                <input type="text" class="form-control" name="caption" value="${contestsForm.caption}">
             </div>
 
             <div class="form-group">
@@ -564,37 +562,37 @@
 
             <div class="checkbox">
                 <label>
-                    <input type="checkbox" name="open" <c:if test="${contestsForm.open}">checked</c:if> />
+                    <input type="checkbox" name="open" <c:if test="${contestsForm.open}">checked</c:if> >
                     <bean:message key="contest.isOpen" />
                 </label>
             </div>
 
             <div class="form-group">
                 <label><bean:message key="contest.startDate" /></label>  
-                <input type="text" class="form-control" name="startDate" size="8" value="${contestsForm.startDate}" />
+                <input type="text" class="form-control" name="startDate" size="8" value="${contestsForm.startDate}">
             </div>
 
             <div class="form-group">
                 <label><bean:message key="contest.startTime" /></label>
                 <div class="x-form-element">
-                    <input type="text" name="startHour" size="2" value="${contestsForm.startHour}" />
+                    <input type="text" name="startHour" size="2" value="${contestsForm.startHour}">
                     :
-                    <input type="text" name="startMinute" size="2" value="${contestsForm.startMinute}" />
+                    <input type="text" name="startMinute" size="2" value="${contestsForm.startMinute}">
                 </div>
             </div>
 
             <div class="form-group">
                 <label><bean:message key="contest.duration" /></label>
                 <div class="x-form-element">
-                    <input type="text" name="durationHours" styleId="durationHours" size="2" value="${contestsForm.durationHours}" />
+                    <input type="text" name="durationHours" styleId="durationHours" size="2" value="${contestsForm.durationHours}">
                     :
-                    <input type="text" name="durationMinutes" styleId="durationMinutes" size="2" value="${contestsForm.durationMinutes}" />
+                    <input type="text" name="durationMinutes" styleId="durationMinutes" size="2" value="${contestsForm.durationMinutes}">
                 </div>
             </div>
 
             <div class="form-group">
                 <label><bean:message key="contest.freezeTime" /></label>
-                <input type="text" class="form-control" name="freezeTime" size="20" value="${contestsForm.freezeTime}" />
+                <input type="text" class="form-control" name="freezeTime" size="20" value="${contestsForm.freezeTime}">
             </div>
         </div>
 
@@ -630,10 +628,10 @@
 
     <c:choose>
         <c:when test="${contestsForm.newContest}">
-            <input type="submit" value="<bean:message key="contest.addContest" />"/>
+            <input type="submit" value="<bean:message key="contest.addContest" />">
         </c:when>
         <c:otherwise>
-            <input type="submit" value="<bean:message key="contest.applyChanges" />"/>
+            <input type="submit" value="<bean:message key="contest.applyChanges" />">
         </c:otherwise>
     </c:choose>
 </form>

@@ -6,6 +6,10 @@ import java.util.logging.Logger;
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
+import javax.persistence.Query;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Root;
 
 /**
  *
@@ -29,6 +33,28 @@ public class ProblemBean implements ProblemLocal {
 	}
 
 	/**
+	 * Возвращает упорядоченный список задач.
+	 *
+	 * @param orderBy сортируемая колонка.
+	 * @param descending обратный порядок сортировки.
+	 * @return список адач.
+	 */
+	@Override
+	public List<Problem> getProblems(String orderBy, boolean descending) {
+		CriteriaBuilder builder = em.getCriteriaBuilder();
+		CriteriaQuery problemsCriteriaQuery = builder.createQuery();
+		Root problemsRoot = problemsCriteriaQuery.from(Problem.class);
+
+		if (orderBy != null) {
+			problemsCriteriaQuery.orderBy(descending ? builder.desc(problemsRoot.get(orderBy)) : builder.asc(problemsRoot.get(orderBy)));
+		}
+
+		Query problemsQuery = em.createQuery(problemsCriteriaQuery);
+		
+		return (List<Problem>) problemsQuery.getResultList();
+	}
+	
+	/**
 	 *
 	 * @return
 	 */
@@ -44,18 +70,6 @@ public class ProblemBean implements ProblemLocal {
 	@Override
 	public List<Problem> getProblems() {
 		return (List<Problem>) em.createNamedQuery("Problem.getProblems").getResultList();
-	}
-
-	/**
-	 *
-	 * @param start
-	 * @param limit
-	 * @return
-	 */
-	@Override
-	public List<Problem> getProblems(int start, int limit) {
-		return (List<Problem>) em.createQuery("SELECT p FROM Problem p ORDER BY p.problemId")
-				.setFirstResult(start).setMaxResults(limit).getResultList();
 	}
 
 	/**

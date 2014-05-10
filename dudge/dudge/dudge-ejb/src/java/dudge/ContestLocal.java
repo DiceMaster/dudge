@@ -39,18 +39,17 @@ public interface ContestLocal {
 	 */
 	List<Contest> getContests();
         
-        /**
-	 * Возвращает соревнования, всоответствии с заданными критериями.
+	/**
+	 * Возвращает диапазон соревнований в соответствии с заданными критериями.
 	 *
-         * @param searchCriteria строка поиска.
-         * @param orderBy сортируемая колонка.
-         * @param descending обратный порядок сортировки.
-         * @param start Начало диапазона.
-         * @param length Длина диапазона. 
+	 * @param searchCriteria строка поиска.
+	 * @param orderBy сортируемая колонка.
+	 * @param descending обратный порядок сортировки.
+	 * @param start Начало диапазона.
+	 * @param length Длина диапазона. 
 	 * @return Диапазон соревнований системы.
 	 */
 	FilteredContests getContests(String searchCriteria, String orderBy, boolean descending, int start, int length);
-
         
         /**
 	 * Возвращает количество соревнований, зарегестрированных в системе.

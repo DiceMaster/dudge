@@ -47,6 +47,14 @@ public class ProblemsAction extends DispatchAction {
 	private static final Logger logger = Logger.getLogger(ProblemsAction.class.toString());
 	private ServiceLocator serviceLocator = ServiceLocator.getInstance();
 
+	private static final String[] columns = {
+		"problemId",
+		"title",
+		"author",
+		"createTime",
+		"healthy"
+	};
+	
 	/**
 	 * Creates a new instance of ProblemsAction
 	 */
@@ -85,7 +93,7 @@ public class ProblemsAction extends DispatchAction {
 
 		ProblemsForm pf = (ProblemsForm) af;
 
-		int problemId = Integer.parseInt((String) request.getParameter("problemId"));
+		int problemId = Integer.parseInt(request.getParameter("problemId"));
 		Problem problem = serviceLocator.lookupProblemBean().getProblem(problemId);
 
 		AuthenticationObject ao = AuthenticationObject.extract(request);
@@ -123,54 +131,90 @@ public class ProblemsAction extends DispatchAction {
 	 * @param request
 	 * @param response
 	 */
-	public void getProblemList(ActionMapping mapping, ActionForm af, HttpServletRequest request, HttpServletResponse response) {
-
+	public void getProblemList(ActionMapping mapping, ActionForm af, HttpServletRequest request, HttpServletResponse response) {		
 		//  Получаем из запроса, какие данные требуются клиенту.
-		int start = Integer.parseInt((String) request.getParameter("start"));
-		int limit = Integer.parseInt((String) request.getParameter("limit"));
+		String iDisplayStartString = (String) request.getParameter("iDisplayStart");
+		String iDisplayLengthString = (String) request.getParameter("iDisplayLength");
+		int iDisplayStart = iDisplayStartString == null ? -1 : Integer.parseInt(iDisplayStartString);
+		int iDisplayLength = iDisplayLengthString == null ? -1 : Integer.parseInt(iDisplayLengthString);
 
-		List<Problem> problems = serviceLocator.lookupProblemBean().getProblems();
-		AuthenticationObject ao = AuthenticationObject.extract(request);
+		String searchString = (String) request.getParameter("sSearch");
+		if (searchString != null && searchString.isEmpty()) {
+		   searchString = null;
+		}
 
-		// Проверяем право пользователя.
-		PermissionCheckerRemote pcb = ao.getPermissionChecker();
-
-		// Отсеиваем из списка задач те, которые пользователь видеть в общем списке задач не должен.
-		List<Problem> selectedProblems = new ArrayList<>();
-		for (Problem problem : problems) {
-			if (pcb.canViewProblem(ao.getUsername(), problem.getProblemId())) {
-				selectedProblems.add(problem);
+		String order = null;
+		boolean descending = false;
+		if (request.getParameter("iSortCol_0") != null)
+		{
+			int iColumn = Integer.parseInt(request.getParameter("iSortCol_0"));
+			if (request.getParameter("bSortable_" + iColumn).equals("true"))
+			{
+					order = columns[iColumn];
+					descending = request.getParameter("sSortDir_0").equals("desc");
 			}
 		}
 
-		int totalCount = selectedProblems.size();
+		List<Problem> problems = serviceLocator.lookupProblemBean().getProblems(
+			order,
+			descending
+		);
+		
+				// Проверяем право пользователя.
+		AuthenticationObject ao = AuthenticationObject.extract(request);
+		PermissionCheckerRemote pcb = ao.getPermissionChecker();
 
-		if (start + limit > selectedProblems.size()) {
-			limit = selectedProblems.size() - start;
+		// Отсеиваем из списка задач те, которые пользователь видеть в общем списке задач не должен.
+		List<Problem> visibleProblems = new ArrayList<>();
+		for (Problem problem : problems) {
+			if (pcb.canViewProblem(ao.getUsername(), problem.getProblemId())) {
+				visibleProblems.add(problem);
+			}
 		}
 
-		if (start < 0 || limit < 0) {
-			return;
+		int totalCount = visibleProblems.size();
+
+		List<Problem> filteredProblems = new ArrayList<>();
+		
+		if (searchString != null) {
+			for (Problem problem : visibleProblems) {
+				if (problem.getTitle().toLowerCase().contains(searchString.toLowerCase()) ||
+					problem.getAuthor().toLowerCase().contains(searchString.toLowerCase())) {
+					
+					filteredProblems.add(problem);
+				}
+			}
+		} else {
+			filteredProblems = visibleProblems;
+		}
+		
+		int filteredCount = filteredProblems.size();
+		
+		if (iDisplayStart + iDisplayLength > filteredProblems.size()) {
+			iDisplayLength = filteredProblems.size() - iDisplayStart;
 		}
 
-		selectedProblems = selectedProblems.subList(start, start + limit);
-
+		List<Problem> selectedProblems = filteredProblems.subList(iDisplayStart, iDisplayStart + iDisplayLength);
+		
 		JSONArray ja = new JSONArray();
 		JSONObject jo = new JSONObject();
-
+		
+		long totalProblemsCount = serviceLocator.lookupProblemBean().getProblemsCount();
 		try {
-			jo.put("totalCount", totalCount);
+			jo.put("sEcho", request.getParameter("sEcho"));
+			jo.put("iTotalRecords", totalCount);
+			jo.put("iTotalDisplayRecords", filteredCount);
 		} catch (JSONException e) {
 			logger.log(Level.SEVERE, "exception caught", e);
 			return;
 		}
 
-		Iterator<Problem> iter = selectedProblems.iterator();
-		while (iter.hasNext()) {
-			ja.put(this.getProblemJSONView(iter.next(), ao));
+		for (Problem problem : selectedProblems) {
+			ja.put(this.getProblemJSONView(problem, ao));
 		}
+		
 		try {
-			jo.put("problems", ja);
+			jo.put("aaData", ja);
 		} catch (JSONException e) {
 			logger.log(Level.SEVERE, "exception caught", e);
 			return;
@@ -734,30 +778,15 @@ public class ProblemsAction extends DispatchAction {
 	 * @param ao
 	 * @return
 	 */
-	private JSONObject getProblemJSONView(Problem problem, AuthenticationObject ao) {
+	private JSONArray getProblemJSONView(Problem problem, AuthenticationObject ao) {
+		JSONArray json = new JSONArray();
 
-		JSONObject json = new JSONObject();
+		json.put(problem.getProblemId());
+		json.put(problem.getTitle());
+		json.put(problem.getAuthor());
+		json.put(problem.getCreateTime().getTime());
+		json.put(problem.isHealthy());
 
-		SimpleDateFormat sdf = new SimpleDateFormat("yyyy.MM.dd");
-
-		PermissionCheckerRemote pcb = ao.getPermissionChecker();
-
-		// Заполняем данными задачи созданный объект JSON.
-		try {
-			json.put("id", problem.getProblemId());
-			json.put("title", problem.getTitle());
-			json.put("owner", problem.getOwner().getLogin());
-			json.put("create_time", sdf.format(problem.getCreateTime()));
-			json.put("is_healthy", problem.isHealthy());
-
-			if (pcb.canDeleteProblem(ao.getUsername(), problem.getProblemId())) {
-				json.put("deletable", true);
-			} else {
-				json.put("deletable", false);
-			}
-		} catch (JSONException e) {
-			logger.log(Level.SEVERE, "Trouble while creating JSON view of Problem object.", e);
-		}
 		return json;
 	}
 

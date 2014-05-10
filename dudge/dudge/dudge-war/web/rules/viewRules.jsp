@@ -1,4 +1,9 @@
 <jsp:useBean id="rulesForm" class="dudge.web.forms.RulesForm" scope="session" />
+<script>
+    $(document).ready(function() {
+        $("#navbarRules").addClass("active");
+    });
+</script>
 
 <h1 class="pull-left"><bean:message key="rules.rules"/></h1>
 <c:if test="${permissionCheckerRemote.canEditRules(autentificationObject.username)}">
