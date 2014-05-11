@@ -11,11 +11,16 @@
         <label for="languageId" class="col-lg-2 control-label"><bean:message key="language.language"/></label>
         <div class="col-lg-9">
             <select name="languageId" class="form-control">
-                                    <c:forEach items="${solutionsForm.contestLanguages}" var="contestLanguage">
-                    <option value='${contestLanguage.language.languageId}' >
-                                            ${contestLanguage.language.name}
-                    </option>
-                                    </c:forEach> 
+<c:forEach items="${solutionsForm.contestLanguages}" var="contestLanguage">
+    <c:choose>
+        <c:when test="${contestLanguage.language.languageId == solutionsForm.languageId}">
+                    <option value='${contestLanguage.language.languageId}' selected>${contestLanguage.language.name}</option>
+        </c:when>
+        <c:otherwise>
+                    <option value='${contestLanguage.language.languageId}'>${contestLanguage.language.name}</option>
+        </c:otherwise>
+    </c:choose>
+</c:forEach>
             </select>
                             </div>
                         </div>

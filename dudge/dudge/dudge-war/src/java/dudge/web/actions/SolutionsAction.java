@@ -24,6 +24,7 @@ import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import json.JSONArray;
@@ -43,7 +44,10 @@ public class SolutionsAction extends DispatchAction {
 
 	private static final Logger logger = Logger.getLogger(SolutionsAction.class.toString());
 	private ServiceLocator serviceLocator = ServiceLocator.getInstance();
-
+	
+	private static final String LANGUAGE_COOKIE = "SelectedLanguage";
+	private static final int COOKIE_EXPIRATION_TIME = 6 * 60 * 60;
+	
 	/**
 	 * Creates a new instance of SolutionsAction
 	 */
@@ -170,6 +174,14 @@ public class SolutionsAction extends DispatchAction {
 		sf.getContestProblems().addAll(contest.getContestProblems());
 		sf.setContestId(contestId);
 		sf.setProblemId(problemId);
+		
+		Cookie[] cookies = request.getCookies();
+		for (Cookie cookie : cookies) {
+			if (cookie.getName().equals(LANGUAGE_COOKIE)) {
+				sf.setLanguageId(cookie.getValue());
+				break;
+			}
+		}
 
 		return mapping.findForward("submitSolution");
 	}
@@ -208,6 +220,10 @@ public class SolutionsAction extends DispatchAction {
 		Language language = serviceLocator.lookupLanguageBean().getLanguage(sf.getLanguageId());
 		Problem problem = serviceLocator.lookupProblemBean().getProblem(sf.getProblemId());
 
+		Cookie languageCookie = new Cookie(LANGUAGE_COOKIE, sf.getLanguageId());
+		languageCookie.setMaxAge(COOKIE_EXPIRATION_TIME);
+		response.addCookie(languageCookie);
+		
 		// Проверяем право пользователя.
 		PermissionCheckerRemote pcb = ao.getPermissionChecker();
 		if (contest==null || problem==null || pcb==null ||
