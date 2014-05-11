@@ -125,6 +125,14 @@ public interface PermissionCheckerRemote {
 	boolean canDeleteContest(String principal, int contestId);
 
 	/**
+	 * Проверяет право посматривать список задач в соревновании.
+	 *
+	 * @param principal Имя пользователя, для которого проверяется право.
+	 * @param contestId Идентификатор соревнования.
+	 */
+	boolean canViewContestProblems(String principal, int contestId);
+	
+	/**
 	 * Проверяет право посмотреть задачу по ее идентификатору.
 	 *
 	 * @param principal Имя пользователя, для которого проверяется право.

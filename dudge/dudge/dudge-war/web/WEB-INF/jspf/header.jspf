@@ -146,19 +146,17 @@ on Libraries node in Projects view can be used to add the JSTL 1.1 library.
     <c:if test="${not empty menuContestProblems}">                        
                     <div class="well sidebar-nav">
                         <ul class="nav nav-list">                     
-                            <li class="nav-header"> <bean:message key="menu.contestProblems"/></li>
-        <c:forEach items="${menuContestProblems}" var="contestProblem">
-                            <li>
-            <c:choose>
-                <c:when test="${permissionCheckerRemote.canViewProblem(autentificationObject.username, contestProblem.problem.problemId)}">
-                                <a href="problems.do?contestId=${contestId}&reqCode=view&problemId=${contestProblem.problem.problemId}">${contestProblem.problemMark}. ${contestProblem.problem.title}</a>
-                </c:when>
-                <c:otherwise>
-                                <p>${contestProblem.problemMark}. ${contestProblem.problem.title}</p>
-                </c:otherwise>
-            </c:choose>
-                            </li>
-        </c:forEach>
+                            <li class="nav-header"> <h4> <bean:message key="menu.contestProblems"/> </h4> </li>
+        <c:choose>
+            <c:when test="${permissionCheckerRemote.canViewContestProblems(autentificationObject.username, contestId)}">
+                <c:forEach items="${menuContestProblems}" var="contestProblem">
+                            <li><a href="problems.do?contestId=${contestId}&reqCode=view&problemId=${contestProblem.problem.problemId}">${contestProblem.problemMark}. ${contestProblem.problem.title}</a></li>
+                </c:forEach>
+            </c:when>
+            <c:otherwise>
+                            <li><bean:message key="contest.problemsNotAvailable"/></li>
+            </c:otherwise>
+        </c:choose>
                         </ul>
     
                     </div>

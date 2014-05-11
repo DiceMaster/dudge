@@ -382,6 +382,46 @@ public class PermissionCheckerBean implements PermissionCheckerRemote {
 	}
 
 	/**
+	 * Нельзя просматривать задачи до начала соревнования и в закрытых 
+	 * соревнованиях, к которым пользователь не присоединился.
+	 *
+	 * @param principal Имя пользователя, для которого проверяется право.
+	 * @param contestId Идентификатор соревнования.
+	 */
+	@Override
+	public boolean canViewContestProblems(String principal, int contestId) {
+		Contest contest = contestBean.getContest(contestId);
+		if (contest == null) {
+			return false;
+		}
+		
+		if (contest.isOpen() && (contest.isInProgress() || contest.isFinished())) {
+			return true;
+		}
+		
+		User princ = userBean.getUser(principal);
+		if (princ == null) {
+			return false;
+		}
+		if (princ.isAdmin()) {
+			return true;
+		}
+		
+		if (userBean.isInRole(principal, contestId, RoleType.ADMINISTRATOR)) {
+			return true;
+		}
+		
+		if ((userBean.isInRole(principal, contestId, RoleType.USER)
+			|| userBean.isInRole(principal, contestId, RoleType.OBSERVER))
+			&& (contest.isInProgress() || contest.isFinished())) {
+			
+			return true;
+		}
+		
+		return false;
+	}
+	
+	/**
 	 * В общем случае выбор зависит от того, скрытая или нет задача.
 	 *
 	 * @param principal Имя пользователя, для которого проверяется право.
