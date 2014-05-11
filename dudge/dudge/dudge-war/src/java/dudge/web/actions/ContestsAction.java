@@ -815,21 +815,12 @@ public class ContestsAction extends DispatchAction {
 		Collection<Role> roles = serviceLocator.lookupContestBean().getContest(contestId).getRoles();
 
 		JSONArray ja = new JSONArray();
-		JSONObject jo = new JSONObject();
 
-		try {
-			jo.put("rolesTotalCount", roles.size());
-
-			for (Iterator<Role> iter = roles.iterator(); iter.hasNext();) {
-				ja.put(this.getRoleJsonView(iter.next()));
-			}
-
-			jo.put("roles", ja);
-		} catch (JSONException e) {
-			logger.log(Level.SEVERE, "exception caught", e);
+		for (Role role : roles) {
+			ja.put(this.getRoleJsonView(role));
 		}
 
-		return jo.toString();
+		return ja.toString();
 	}
 
 	/**
@@ -843,21 +834,12 @@ public class ContestsAction extends DispatchAction {
 		List<Application> applications = (List<Application>) serviceLocator.lookupContestBean().getContest(contestId).getApplications();
 
 		JSONArray ja = new JSONArray();
-		JSONObject jo = new JSONObject();
 
-		try {
-			jo.put("applicationsTotalCount", applications.size());
-
-			for (Iterator<Application> iter = applications.iterator(); iter.hasNext();) {
-				ja.put(this.getApplicationJsonView(iter.next()));
-			}
-
-			jo.put("applications", ja);
-		} catch (JSONException e) {
-			logger.log(Level.SEVERE, "exception caught", e);
+		for (Application application : applications) {
+			ja.put(this.getApplicationJsonView(application));
 		}
 
-		return jo.toString();
+		return ja.toString();
 	}
 
 	/**
@@ -872,62 +854,39 @@ public class ContestsAction extends DispatchAction {
 		List<Language> languages = serviceLocator.lookupLanguageBean().getLanguages();
 
 		JSONArray ja = new JSONArray();
-		JSONObject jo = new JSONObject();
 
 		// Если вызывается для нового контеста.
 		if (contestId == 0) {
-			try {
-				jo.put("languagesTotalCount", languages.size());
-
-				for (Language language : languages) {
-					JSONObject languageView = new JSONObject();
-
-					languageView.put("enabled", false);
-					languageView.put("id", language.getLanguageId());
-					languageView.put("title", language.getName());
-					languageView.put("description", language.getDescription());
-
-					ja.put(languageView);
-				}
-
-				jo.put("languages", ja);
-			} catch (JSONException e) {
-				logger.log(Level.SEVERE, "exception caught", e);
-			}
-
-			return jo.toString();
-		}
-
-
-		// Иначе:
-		// Просматриваем все языки, и для выяснения их допустимости провереем,
-		// есть ли данный язык в списке языков данноого контеста.
-		try {
-			jo.put("languagesTotalCount", languages.size());
-
 			for (Language language : languages) {
-				JSONObject languageView = new JSONObject();
-				ContestLanguage conLanguage = new ContestLanguage(contestBean.getContest(contestId), language);
+				JSONArray languageView = new JSONArray();
 
-				if (contestBean.getContest(contestId).getContestLanguages().contains(conLanguage)) {
-					languageView.put("enabled", true);
-				} else {
-					languageView.put("enabled", false);
-				}
-
-				languageView.put("id", language.getLanguageId());
-				languageView.put("title", language.getName());
-				languageView.put("description", language.getDescription());
+				languageView.put(false);
+				languageView.put(language.getLanguageId());
+				languageView.put(language.getName());
+				languageView.put(language.getDescription());
 
 				ja.put(languageView);
 			}
 
-			jo.put("languages", ja);
-		} catch (JSONException e) {
-			logger.log(Level.SEVERE, "exception caught", e);
+			return ja.toString();
 		}
 
-		return jo.toString();
+		// Иначе:
+		// Просматриваем все языки, и для выяснения их допустимости провереем,
+		// есть ли данный язык в списке языков данноого контеста.
+		for (Language language : languages) {
+			JSONArray languageView = new JSONArray();
+			ContestLanguage conLanguage = new ContestLanguage(contestBean.getContest(contestId), language);
+
+			languageView.put(contestBean.getContest(contestId).getContestLanguages().contains(conLanguage));
+			languageView.put(language.getLanguageId());
+			languageView.put(language.getName());
+			languageView.put(language.getDescription());
+
+			ja.put(languageView);
+		}
+
+		return ja.toString();
 	}
 
 	/**
@@ -940,21 +899,12 @@ public class ContestsAction extends DispatchAction {
 		List<ContestProblem> problems = (List<ContestProblem>) serviceLocator.lookupContestBean().getContest(contestId).getContestProblems();
 
 		JSONArray ja = new JSONArray();
-		JSONObject jo = new JSONObject();
 
-		try {
-			jo.put("problemsTotalCount", problems.size());
-
-			for (Iterator<ContestProblem> iter = problems.iterator(); iter.hasNext();) {
-				ja.put(this.getContestProblemJsonView(iter.next()));
-			}
-
-			jo.put("problems", ja);
-		} catch (JSONException e) {
-			logger.log(Level.SEVERE, "exception caught", e);
+		for (ContestProblem contestProblem : problems) {
+			ja.put(this.getContestProblemJsonView(contestProblem));
 		}
 
-		return jo.toString();
+		return ja.toString();
 	}
 
 	/**
@@ -963,17 +913,11 @@ public class ContestsAction extends DispatchAction {
 	 * @param role
 	 * @return
 	 */
-	private JSONObject getRoleJsonView(Role role) {
-		JSONObject json = new JSONObject();
+	private JSONArray getRoleJsonView(Role role) {
+		JSONArray json = new JSONArray();
 
-		// Заполняем данными пользователя созданный объект JSON.
-		try {
-			json.put("login", role.getUser().getLogin());
-			json.put("role", role.getRoleType().toString());
-
-		} catch (JSONException e) {
-			logger.log(Level.SEVERE, "Failed creation of JSON view of Role object.", e);
-		}
+		json.put(role.getUser().getLogin());
+		json.put(role.getRoleType().toString());
 
 		return json;
 	}
@@ -984,19 +928,13 @@ public class ContestsAction extends DispatchAction {
 	 * @param app
 	 * @return
 	 */
-	private JSONObject getApplicationJsonView(Application app) {
-		JSONObject json = new JSONObject();
+	private JSONArray getApplicationJsonView(Application app) {
+		JSONArray json = new JSONArray();
 
-		// Заполняем данными пользователя созданный объект JSON.
-		try {
-			json.put("login", app.getOwner().getLogin());
-			json.put("filing_time", new SimpleDateFormat("yyyy.MM.dd HH:mm").format(app.getFilingTime()));
-			json.put("message", app.getMessage());
-			json.put("status", app.getStatus());
-
-		} catch (JSONException e) {
-			logger.log(Level.SEVERE, "Failed creation of JSON view of Application object.", e);
-		}
+		json.put(app.getOwner().getLogin());
+		json.put(app.getFilingTime().getTime());
+		json.put(app.getMessage());
+		json.put(app.getStatus());
 
 		return json;
 	}
@@ -1007,18 +945,13 @@ public class ContestsAction extends DispatchAction {
 	 * @param problem
 	 * @return
 	 */
-	private JSONObject getContestProblemJsonView(ContestProblem problem) {
-		JSONObject json = new JSONObject();
+	private JSONArray getContestProblemJsonView(ContestProblem problem) {
+		JSONArray json = new JSONArray();
 
-		// Заполняем данными пользователя созданный объект JSON.
-		try {
-			json.put("problemId", problem.getProblem().getProblemId());
-			json.put("order", problem.getProblemOrder());
-			json.put("mark", problem.getProblemMark());
-			json.put("cost", problem.getProblemCost());
-		} catch (JSONException e) {
-			logger.log(Level.SEVERE, "Failed creation of JSON view of ContestProblem object.", e);
-		}
+		json.put(problem.getProblem().getProblemId());
+		json.put(problem.getProblemOrder());
+		json.put(problem.getProblemMark());
+		json.put(problem.getProblemCost());
 
 		return json;
 	}

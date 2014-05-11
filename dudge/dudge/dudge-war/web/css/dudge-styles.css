@@ -150,3 +150,7 @@ table.table thead .sorting_desc_disabled:after {
 .table-hover>tbody>.selectedRow:hover>td, .table-hover>tbody>.selectedRow:hover>th {
     background-color: #e7f1f6;
 }
+
+.nav-tabs {
+    margin-bottom: 15px;
+}

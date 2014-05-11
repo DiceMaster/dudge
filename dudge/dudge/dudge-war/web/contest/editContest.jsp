@@ -1,5 +1,10 @@
 <jsp:useBean id="contestsForm" class="dudge.web.forms.ContestsForm" scope="session" />
 
+<link rel="stylesheet" type="text/css" href="css/dudge-styles.css" /> 
+
+<script src="scripts/jquery.dataTables.min.js"></script>
+<script src="scripts/dudge-tables.js"></script>
+
 <script src="ckeditor/ckeditor.js"></script>
 <script>
 /*  
@@ -515,6 +520,82 @@
 */
 </script>
 
+<script type="text/javascript">
+    $(document).ready(function() {
+        var languagesDataSet = ${contestsForm.encodedContestLanguages};
+        $('#languagesGrid').dataTable( {
+            "aaData": languagesDataSet,
+            'sDom': 'rt',
+            'bSort' : false,
+            'oLanguage': {
+                'sUrl': 'l18n/<bean:message key="locale.currentTag"/>.txt'
+            },
+            "aoColumnDefs": [
+                { "bVisible": false, "aTargets": [ 1 ] }
+            ],
+            fnCreatedRow: function( nRow, aData ) {
+                $('td:eq(0)', nRow).html( '<input type="checkbox" id="language_' + aData[1] + '"' + (aData[0] ? " checked" : "") +'>' );
+                $('td:eq(1)', nRow).html( '<a href="languages.do?reqCode=view&languageId=' + aData[1] + '">' + aData[2] +'</a>' );
+            }
+        } );
+        
+        var problemsDataSet = ${contestsForm.encodedContestProblems};
+        $('#problemsGrid').dataTable( {
+            "aaData": problemsDataSet,
+            'sDom': 'rt',
+            'bSort' : false,
+            'oLanguage': {
+                'sUrl': 'l18n/<bean:message key="locale.currentTag"/>.txt'
+            },
+            fnCreatedRow: function( nRow, aData ) {
+                $('td:eq(0)', nRow).html( '<input class="form-control" type="text" value="' + aData[0] + '">' );
+                $('td:eq(1)', nRow).html( '<input class="form-control" type="text" value="' + aData[1] + '">' );
+                $('td:eq(2)', nRow).html( '<input class="form-control" type="text" value="' + aData[2] + '">' );
+                $('td:eq(3)', nRow).html( '<input class="form-control" type="text" value="' + aData[3] + '">' );
+            }
+        } );
+        var usersDataSet = ${contestsForm.encodedRoles};
+        $('#usersGrid').dataTable( {
+            "aaData": usersDataSet,
+            'sDom': 'rt',
+            'bSort' : false,
+            'oLanguage': {
+                'sUrl': 'l18n/<bean:message key="locale.currentTag"/>.txt'
+            },
+            fnCreatedRow: function( nRow, aData ) {
+                $('td:eq(0)', nRow).html( '<a href="users.do?reqCode=view&login=' + aData[0] + '">' + aData[0] +'</a>' );
+                var role = '';
+                switch (aData[1]) {
+                    case 'ADMINISTRATOR': role = '<bean:message key="contest.users.admin"/>'; break;
+                    case 'OBSERVER': role = '<bean:message key="contest.users.observer"/>'; break;
+                    case 'USER': role = '<bean:message key="contest.users.user"/>'; break;
+                }
+                $('td:eq(1)', nRow).text( role );
+            }
+        } );
+        var applicationsDataSet = ${contestsForm.encodedApplications};
+        $('#applicationsGrid').dataTable( {
+            "aaData": applicationsDataSet,
+            'sDom': 'rt',
+            'bSort' : false,
+            'oLanguage': {
+                'sUrl': 'l18n/<bean:message key="locale.currentTag"/>.txt'
+            },
+            fnCreatedRow: function( nRow, aData ) {
+                $('td:eq(0)', nRow).html( '<a href="users.do?reqCode=view&login=' + aData[0] + '">' + aData[0] +'</a>' );
+                $('td:eq(1)', nRow).text( (new Date(aData[1])).toLocaleString() );
+                var status = '';
+                switch (aData[3]) {
+                    case 'NEW': status = '<bean:message key="contest.applications.new"/>'; break;
+                    case 'ACCEPTED': status = '<bean:message key="contest.applications.accepted"/>'; break;
+                    case 'DECLINED': status = '<bean:message key="contest.applications.declined"/>'; break;
+                }
+                $('td:eq(3)', nRow).text( status );
+            }
+        } );
+    } );
+</script>
+
 <form action="contests.do" onsubmit="saveCollectionsValues()">
     <c:choose>
         <c:when test="${contestsForm.newContest}">
@@ -597,7 +678,18 @@
         </div>
 
         <div id="problemsTab" class="tab-pane">
-            <div id="problemsTable"></div>
+            <table class="table" id="problemsGrid">
+                <thead>
+                    <tr>
+                        <th><bean:message key="contest.problems.problemId"/></th>
+                        <th><bean:message key="contest.problems.order"/></th>
+                        <th><bean:message key="contest.problems.mark"/></th>
+                        <th><bean:message key="contest.problems.cost"/></th>
+                    </tr>
+                </thead>
+                <tbody>
+                </tbody>
+            </table>
         </div>
 
         <div id="rulesTab" class="tab-pane">
@@ -608,17 +700,47 @@
         </div>
 
         <div id="usersTab" class="tab-pane">
-            <div id="usersTable"></div>							
+            <table class="table" id="usersGrid">
+                <thead>
+                    <tr>
+                        <th><bean:message key="contest.users.login"/></th>
+                        <th><bean:message key="contest.users.role"/></th>
+                    </tr>
+                </thead>
+                <tbody>
+                </tbody>
+            </table>
         </div>
 
         <div id="applicationsTab" class="tab-pane">
-            <div id="applicationsTable"></div>
+            <table class="table" id="applicationsGrid">
+                <thead>
+                    <tr>
+                        <th><bean:message key="contest.applications.login"/></th>
+                        <th><bean:message key="contest.applications.filingTime"/></th>
+                        <th><bean:message key="contest.applications.message"/></th>
+                        <th><bean:message key="contest.applications.status"/></th>
+                    </tr>
+                </thead>
+                <tbody>
+                </tbody>
+            </table>
         </div>
 
         <div id="languagesTab" class="tab-pane">
-            <div id="languagesTable"></div>
+            <table class="table" id="languagesGrid">
+                <thead>
+                    <tr>
+                        <th><bean:message key="contest.languages.enabled"/></th>
+                        <th><bean:message key="contest.languages.id"/></th>
+                        <th><bean:message key="contest.languages.title"/></th>
+                        <th><bean:message key="contest.languages.description"/></th>
+                    </tr>
+                </thead>
+                <tbody>
+                </tbody>
+            </table>
         </div>
-
     </div>
 
     <input type="hidden" name="encodedRoles" />
