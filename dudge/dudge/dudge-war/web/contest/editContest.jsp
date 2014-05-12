@@ -1,11 +1,17 @@
 <jsp:useBean id="contestsForm" class="dudge.web.forms.ContestsForm" scope="session" />
 
 <link rel="stylesheet" type="text/css" href="css/dudge-styles.css" /> 
+<link rel="stylesheet" type="text/css" href="select2/select2.css" />
+<link rel="stylesheet" type="text/css" href="select2/select2-bootstrap.css" />
 
 <script src="scripts/jquery.dataTables.min.js"></script>
 <script src="scripts/dudge-tables.js"></script>
-
 <script src="ckeditor/ckeditor.js"></script>
+
+<script src="select2/select2.min.js"></script>
+<c:if test="${sessionScope['org.apache.struts.action.LOCALE'].language != 'en'}">
+<script src="select2/select2_locale_${sessionScope['org.apache.struts.action.LOCALE'].language}.js"></script>
+</c:if>
 <script>
 /*  
     // Defining data stores for using in callback-function, set hidden-fields in contestsForm.
@@ -547,11 +553,13 @@
             'oLanguage': {
                 'sUrl': 'l18n/<bean:message key="locale.currentTag"/>.txt'
             },
-            fnCreatedRow: function( nRow, aData ) {
-                $('td:eq(0)', nRow).html( '<input class="form-control" type="text" value="' + aData[0] + '">' );
-                $('td:eq(1)', nRow).html( '<input class="form-control" type="text" value="' + aData[1] + '">' );
-                $('td:eq(2)', nRow).html( '<input class="form-control" type="text" value="' + aData[2] + '">' );
-                $('td:eq(3)', nRow).html( '<input class="form-control" type="text" value="' + aData[3] + '">' );
+            fnCreatedRow: function( nRow, aData, index ) {
+                $('td:eq(0)', nRow).html( '<input class="form-control" type="text" id="problem_order_row' + index + '" value="' + aData[0] + '">' );
+                $('td:eq(1)', nRow).html( '<input class="form-control" type="text" id="problem_mark_row' + index + '" value="' + aData[1] + '">' );
+                var select = $('<select class="form-control"><option></option><option value="1">1 - A + B</option></select>');
+                $('td:eq(2)', nRow).empty().append(select);
+                select.select2({placeholder: '<bean:message key="contest.problems.selectProblem"/>'});
+                $('td:eq(3)', nRow).html( '<input class="form-control" type="text" id="problem_cost_row' + index + '" value="' + aData[3] + '">' );
             }
         } );
         var usersDataSet = ${contestsForm.encodedRoles};
@@ -596,7 +604,7 @@
     } );
 </script>
 
-<form action="contests.do" onsubmit="saveCollectionsValues()">
+<form class="form" action="contests.do" method="POST" onsubmit="saveCollectionsValues()">
     <c:choose>
         <c:when test="${contestsForm.newContest}">
             <input type="hidden" name="reqCode" value="submitCreate">
@@ -681,9 +689,9 @@
             <table class="table" id="problemsGrid">
                 <thead>
                     <tr>
-                        <th><bean:message key="contest.problems.problemId"/></th>
                         <th><bean:message key="contest.problems.order"/></th>
                         <th><bean:message key="contest.problems.mark"/></th>
+                        <th><bean:message key="contest.problems.problem"/></th>
                         <th><bean:message key="contest.problems.cost"/></th>
                     </tr>
                 </thead>
