@@ -4,6 +4,10 @@
   top: 20px;
 }
 
+.dudge-table-vertical-center {
+  margin-top: 8px;
+}
+
 .dudge-pagination a {
     min-width: 42px;
     text-align: center;

@@ -160,7 +160,7 @@ public class ProblemsAction extends DispatchAction {
 			descending
 		);
 		
-				// Проверяем право пользователя.
+		// Проверяем право пользователя.
 		AuthenticationObject ao = AuthenticationObject.extract(request);
 		PermissionCheckerRemote pcb = ao.getPermissionChecker();
 
@@ -194,7 +194,12 @@ public class ProblemsAction extends DispatchAction {
 			iDisplayLength = filteredProblems.size() - iDisplayStart;
 		}
 
-		List<Problem> selectedProblems = filteredProblems.subList(iDisplayStart, iDisplayStart + iDisplayLength);
+		List<Problem> selectedProblems;
+		if (iDisplayStart >= 0 && iDisplayLength > 0) {
+			selectedProblems = filteredProblems.subList(iDisplayStart, iDisplayStart + iDisplayLength);
+		} else {
+			selectedProblems = filteredProblems;
+		}
 		
 		JSONArray ja = new JSONArray();
 		JSONObject jo = new JSONObject();
@@ -228,6 +233,41 @@ public class ProblemsAction extends DispatchAction {
 			logger.log(Level.SEVERE, "exception caught", e);
 		}
 
+	}
+	
+	/**
+	 *
+	 * @param mapping
+	 * @param af
+	 * @param request
+	 * @param response
+	 */
+	public void getProblem(ActionMapping mapping, ActionForm af, HttpServletRequest request, HttpServletResponse response) {		
+		String problemIdString = (String) request.getParameter("problemId");
+		int problemId = problemIdString == null ? -1 : Integer.parseInt(problemIdString);
+
+		Problem problem = serviceLocator.lookupProblemBean().getProblem(problemId);
+		if (problem == null) {
+			return;
+		}
+		
+		// Проверяем право пользователя.
+		AuthenticationObject ao = AuthenticationObject.extract(request);
+		PermissionCheckerRemote pcb = ao.getPermissionChecker();
+
+		if (!pcb.canViewProblem(ao.getUsername(), problem.getProblemId())) {
+			return;
+		}
+		
+		JSONArray ja = this.getProblemJSONView(problem, ao);
+
+		// Устанавливаем тип контента
+		response.setContentType("application/x-json");
+		try {
+			response.getWriter().print(ja);
+		} catch (IOException e) {
+			logger.log(Level.SEVERE, "exception caught", e);
+		}
 	}
 
 	/**
