@@ -948,9 +948,10 @@ public class ContestsAction extends DispatchAction {
 	private JSONArray getContestProblemJsonView(ContestProblem problem) {
 		JSONArray json = new JSONArray();
 
-		json.put(problem.getProblemOrder());
 		json.put(problem.getProblemMark());
+		json.put(problem.getProblemOrder());
 		json.put(problem.getProblem().getProblemId());
+		json.put(problem.getProblem().getTitle());
 		json.put(problem.getProblemCost());
 
 		return json;

@@ -12,6 +12,7 @@
             'sServerMethod': 'POST',
             'sAjaxSource': 'languages.do?reqCode=getLanguagesList',
             'sDom': 'rt',
+            'bPaginate': false,
             "aoColumnDefs": [
                 { "bVisible": false, "aTargets": [ 3, 4 ] }
             ],
