@@ -4,6 +4,7 @@
 <link rel="stylesheet" type="text/css" href="select2/select2.css" />
 <link rel="stylesheet" type="text/css" href="select2/select2-bootstrap.css" />
 
+<script src="scripts/jquery.scrollintoview.min.js"></script>
 <script src="scripts/jquery.dataTables.min.js"></script>
 <script src="scripts/dudge-tables.js"></script>
 <script src="ckeditor/ckeditor.js"></script>
@@ -68,7 +69,6 @@
                     problemsDataSet[index + 1][1] = index + 1;
                     problemsGrid.fnClearTable();
                     problemsGrid.fnAddData(problemsDataSet);
-                    problemsGrid.fnDraw();
                 });
                 var buttonUp = $('<button type="button" class="btn btn-default"><span class="glyphicon glyphicon-chevron-up text-muted"></span></button>');
                 if (index === 0) {
@@ -84,11 +84,14 @@
                     problemsDataSet[index - 1][1] = index + 1;
                     problemsGrid.fnClearTable();
                     problemsGrid.fnAddData(problemsDataSet);
-                    problemsGrid.fnDraw();
                 });
-                var buttonGroup = $('<div class="btn-group"></div>');
-                buttonGroup.append(buttonDown).append(buttonUp);
-                $('td:eq(1)', nRow).empty().append(buttonGroup);
+                if (index > 0 && index < problemsDataSet.length - 1) {
+                    var buttonGroup = $('<div class="btn-group"></div>');
+                    buttonGroup.append(buttonDown).append(buttonUp);
+                    $('td:eq(1)', nRow).empty().append(buttonGroup);
+                } else {
+                    $('td:eq(1)', nRow).empty().append(buttonDown).append(buttonUp);
+                }
                 var problemDisplayName = isNaN(aData[2]) ? "" : aData[2] + ' - ' + aData[3];
                 var select = $('<input type="hidden" class="form-control" id="problem_id_row' + index + '" value="' + problemDisplayName + '">');
                 $('td:eq(2)', nRow).empty().append(select);
@@ -149,7 +152,6 @@
                     }
                     problemsGrid.fnClearTable();
                     problemsGrid.fnAddData(problemsDataSet);
-                    problemsGrid.fnDraw();
                 });
                 $('td:eq(4)', nRow).empty().append(deleteButton);
             }
@@ -165,10 +167,9 @@
             ]);
             problemsGrid.fnClearTable();
             problemsGrid.fnAddData(problemsDataSet);
-            problemsGrid.fnDraw();
         });
         var usersDataSet = ${contestsForm.encodedRoles};
-        $('#usersGrid').dataTable( {
+        var usersGrid = $('#usersGrid').dataTable( {
             "aaData": usersDataSet,
             'sDom': 'rt',
             'bSort' : false,
@@ -188,7 +189,11 @@
             }
         } );
         var applicationsDataSet = ${contestsForm.encodedApplications};
-        $('#applicationsGrid').dataTable( {
+        for (var iApplication = 0; iApplication < applicationsDataSet.length; iApplication++) {
+            applicationsDataSet[iApplication].push("");
+            applicationsDataSet[iApplication].push("");
+        }
+        var applicationsGrid = $('#applicationsGrid').dataTable( {
             "aaData": applicationsDataSet,
             'sDom': 'rt',
             'bPaginate': false,
@@ -196,7 +201,7 @@
             'oLanguage': {
                 'sUrl': 'l18n/<bean:message key="locale.currentTag"/>.txt'
             },
-            fnCreatedRow: function( nRow, aData ) {
+            fnCreatedRow: function( nRow, aData, index ) {
                 $('td:eq(0)', nRow).html( '<a href="users.do?reqCode=view&login=' + aData[0] + '">' + aData[0] +'</a>' );
                 $('td:eq(1)', nRow).text( (new Date(aData[1])).toLocaleString() );
                 var status = '';
@@ -206,26 +211,99 @@
                     case 'DECLINED': status = '<bean:message key="contest.applications.declined"/>'; break;
                 }
                 $('td:eq(3)', nRow).text( status );
+                var declineButton = $('<button type="button" class="btn btn-default"><span class="glyphicon glyphicon-remove text-danger"></span></button>');
+                declineButton.click( function () {
+                    applicationsDataSet[index][3] = 'DECLINED';
+                    applicationsGrid.fnClearTable();
+                    applicationsGrid.fnAddData(applicationsDataSet);
+                    for (var iUser = 0; iUser < usersDataSet.length; iUser++) {
+                        if (usersDataSet[iUser][0] === applicationsDataSet[index][0]) {
+                            break;
+                        }
+                    }
+                    if (iUser === usersDataSet.length) {
+                        return;
+                    }
+                    usersDataSet.splice(iUser, 1);    
+                    usersGrid.fnClearTable();
+                    usersGrid.fnAddData(usersDataSet);
+                });
+                $('td:eq(4)', nRow).empty().append(declineButton);
+                var acceptButton = $('<button type="button" class="btn btn-default"><span class="glyphicon glyphicon-ok text-success"></span></button>');
+                acceptButton.click( function () {
+                    applicationsDataSet[index][3] = 'ACCEPTED';
+                    applicationsGrid.fnClearTable();
+                    applicationsGrid.fnAddData(applicationsDataSet);
+                    var user = [ applicationsDataSet[index][0], 'USER'];
+                    for (var iUser = 0; iUser < usersDataSet.length; iUser++) {
+                        if (usersDataSet[iUser][0] === user[0]) {
+                            return;
+                        }
+                    }
+                    usersDataSet.push(user);
+                    usersGrid.fnClearTable();
+                    usersGrid.fnAddData(usersDataSet);
+                });
+                $('td:eq(5)', nRow).empty().append(acceptButton);
             }
         } );
         
-        $('#contestForm').on('submit', function() {
+        $('#contestForm').submit(function(event) {
+            $('.has-error').removeClass('has-error');
+            var hasError = false;
+            var firstTabWithError = null;
+            var firstElementWithError = null;
+
             var languages = [];
             for (var iLanguage = 0; iLanguage < languagesDataSet.length; iLanguage++) {
                 languages[iLanguage] = {};
                 languages[iLanguage].id = languagesDataSet[iLanguage][1];
                 languages[iLanguage].enabled = languagesDataSet[iLanguage][0];
             }
-            $('#encodedContestLanguages').val(JSON.stringify(languages));
+            
             var problems = [];
             for (var iProblem = 0; iProblem < problemsDataSet.length; iProblem++) {
                 problems[iProblem] = {};
                 problems[iProblem].problemId = problemsDataSet[iProblem][2];
+                if (isNaN(problems[iProblem].problemId)) {
+                    hasError = true;
+                    if (firstTabWithError === null) {
+                        firstTabWithError = $('#contestTabs a[href="#problemsTab"]');
+                        firstElementWithError = $('#problem_id_row' + iProblem);
+                    }
+                    $('#problem_id_row' + iProblem).addClass('has-error');
+                }
                 problems[iProblem].order = problemsDataSet[iProblem][1];
                 problems[iProblem].mark = problemsDataSet[iProblem][0];
                 problems[iProblem].cost = problemsDataSet[iProblem][4];
             }
+            
+            var roles = [];
+            for (var iRole = 0; iRole < usersDataSet.length; iRole++) {
+                roles[iRole] = {};
+                roles[iRole].login = usersDataSet[iRole][0];
+                roles[iRole].role = usersDataSet[iRole][1];
+            }
+
+            var applications = [];
+            for (var iApplication = 0; iApplication < applicationsDataSet.length; iApplication++) {
+                applications[iApplication] = {};
+                applications[iApplication].login = applicationsDataSet[iApplication][0];
+                applications[iApplication].filing_time = applicationsDataSet[iApplication][1];
+                applications[iApplication].message = applicationsDataSet[iApplication][2];
+                applications[iApplication].status = applicationsDataSet[iApplication][3];
+            }
+            
+            if (hasError) {
+                event.preventDefault();
+                firstTabWithError.tab('show');
+                firstElementWithError.scrollintoview();
+                return;
+            }
+            $('#encodedContestLanguages').val(JSON.stringify(languages));
             $('#encodedContestProblems').val(JSON.stringify(problems));
+            $('#encodedRoles').val(JSON.stringify(roles));
+            $('#encodedApplications').val(JSON.stringify(applications));
         });
     } );
 </script>
@@ -243,7 +321,7 @@
         </c:otherwise>    
     </c:choose>
 
-    <ul class="nav nav-tabs">
+    <ul class="nav nav-tabs" id="contestTabs">
         <li class="active"><a href="#descriptionTab" data-toggle="tab"><bean:message key="contest.description" /></a></li>
         <li><a href="#parametersTab" data-toggle="tab"><bean:message key="contest.parameters" /></a></li>
         <li><a href="#problemsTab" data-toggle="tab"><bean:message key="contest.problems" /></a></li>
@@ -357,6 +435,8 @@
                         <th><bean:message key="contest.applications.filingTime"/></th>
                         <th><bean:message key="contest.applications.message"/></th>
                         <th><bean:message key="contest.applications.status"/></th>
+                        <th><bean:message key="contest.applications.decline"/></th>
+                        <th><bean:message key="contest.applications.accept"/></th>
                     </tr>
                 </thead>
                 <tbody>

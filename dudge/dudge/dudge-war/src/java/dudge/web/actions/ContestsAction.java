@@ -511,6 +511,13 @@ public class ContestsAction extends DispatchAction {
 		modifiedContest.setRoles(allRoles);
 
 		List<Application> allApplications = (List<Application>) this.decodeApplicationsFromJSON(cf.getEncodedApplications(), modifiedContest);
+		List<Application> applicationsToRemove = new ArrayList<Application>();
+		for (Application application : allApplications) {
+			if (!application.getStatus().equals(ApplicationStatus.NEW.toString())) {
+				applicationsToRemove.add(application);
+			}
+		}
+		allApplications.removeAll(applicationsToRemove);
 		modifiedContest.setApplications(allApplications);
 
 		contestBean.modifyContest(modifiedContest);
@@ -718,8 +725,7 @@ public class ContestsAction extends DispatchAction {
 				if (user != null) {
 					Application currentApplication = new Application(contest, user);
 					currentApplication.setStatus(jsonApplications.getJSONObject(i).getString("status"));
-					currentApplication.setFilingTime(
-							new SimpleDateFormat("yyyy.MM.dd HH:mm").parse(jsonApplications.getJSONObject(i).getString("filing_time")));
+					currentApplication.setFilingTime(new Date(jsonApplications.getJSONObject(i).getLong("filing_time")));
 					currentApplication.setMessage(jsonApplications.getJSONObject(i).getString("message"));
 					applications.add(currentApplication);
 				}
