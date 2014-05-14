@@ -282,7 +282,7 @@
         <div id="importTab" class="tab-pane">
             <div class="form-group">
                 <p><bean:message key="problem.importHint" /></p>
-                <a href="#"><bean:message key="problem.importLink" /></a>
+                <a href="dist/problemc.zip"><bean:message key="problem.importLink" /></a>
             </div>
             <div class="form-group">
                 <label><bean:message key="problem.selectFile" /></label>
