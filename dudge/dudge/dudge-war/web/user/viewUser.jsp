@@ -7,13 +7,14 @@
 </script>
 
 <c:choose>
-    <c:when test="${permissionCheckerRemote.canModifyUser(autentificationObject.username, requestScope.login)}">
+    <c:when test="${permissionCheckerRemote.canModifyUser(autentificationObject.username, usersForm.login)}">
 <form action="users.do" method="GET">
     <input type="hidden" name="reqCode" value="edit">
     <input type="hidden" name="login" value="${usersForm.login}">
     <h1 class="pull-left"><bean:message key="user.user" /> ${usersForm.login}</h1>
     <div class="pull-right">
         <div class="btn-group dudge-btn-group">
+        <c:if test="${permissionCheckerRemote.canDeleteUser(autentificationObject.username)}">
             <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#deleteUser"><bean:message key="users.delete"/></button>
             <!-- Modal -->
             <div class="modal" id="deleteUser" tabindex="-1" role="dialog" aria-hidden="true">
@@ -33,7 +34,7 @@
                 </div><!-- /.modal-content -->
               </div><!-- /.modal-dialog -->
             </div><!-- /.modal -->
-            
+        </c:if>    
             <button type="submit" class="btn btn-primary"><bean:message key="user.editProperties"/></button>
         </div>
     </div>
@@ -58,6 +59,18 @@
     <dt><bean:message key="user.organization" /></dt>
     <dd>${usersForm.organization}</dd>
 </c:if>
+<c:if test="${not empty usersForm.faculty}">
+    <dt><bean:message key="user.faculty" /></dt>
+    <dd>${usersForm.faculty}</dd>
+</c:if>
+<c:if test="${not empty usersForm.course}">
+    <dt><bean:message key="user.course" /></dt>
+    <dd>${usersForm.course}</dd>
+</c:if>
+<c:if test="${not empty usersForm.group}">
+    <dt><bean:message key="user.group" /></dt>
+    <dd>${usersForm.group}</dd>
+</c:if>    
 <c:if test="${not empty usersForm.age}">
     <dt><bean:message key="user.age" /></dt>
     <dd>${usersForm.age}</dd>

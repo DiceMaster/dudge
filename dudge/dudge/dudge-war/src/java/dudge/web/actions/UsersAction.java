@@ -159,6 +159,11 @@ public class UsersAction extends DispatchAction {
 		uf.setRealName(user.getRealName());
 		uf.setEmail(user.getEmail());
 		uf.setOrganization(user.getOrganization());
+		uf.setFaculty(user.getFaculty());
+		if (user.getCourse() != null) {
+			uf.setCourse(String.valueOf(user.getCourse()));
+		}
+		uf.setGroup(user.getGroup());
 		if (user.getAge() != null) {
 			uf.setAge(String.valueOf(user.getAge()));
 		}

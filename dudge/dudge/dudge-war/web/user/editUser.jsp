@@ -145,51 +145,52 @@
         <fieldset>
             <legend><bean:message key="registration.requiredInfo" /></legend>
 
-            <c:if test="${usersForm.newUser}">
-                <div class="form-group" id="loginGroup">
-                    <label for="login" class="col-lg-3 control-label"><bean:message key="user.login" /></label>
-                    <div class="col-lg-7">
-                        <input type="text" id="login" name="login" class="form-control">
-                    </div>
-                    
-                    <c:choose>
-                        <c:when test="${usersForm.hasLoginError}">
-                            <span class="help-block col-lg-offset-3 col-lg-7" id="loginFieldError"><bean:message key="${usersForm.errorMessageKey}" /></span>
-                        </c:when>
-                        <c:otherwise>
-                            <span class="help-block col-lg-offset-3 col-lg-7 hide" id="loginFieldError"></span>
-                        </c:otherwise>
-                    </c:choose>
+<c:if test="${usersForm.newUser}">
+            <div class="form-group" id="loginGroup">
+                <label for="login" class="col-lg-3 control-label"><bean:message key="user.login" /></label>
+                <div class="col-lg-7">
+                    <input type="text" id="login" name="login" class="form-control">
                 </div>
-                <div class="form-group" id="realNameGroup">
-                    <label for="realName" class="col-lg-3 control-label"><bean:message key="user.realName" /></label>
-                    <div class="col-lg-7">
-                        <input type="text" id="realName" name="realName" class="form-control">
-                    </div>
-                    <span class="help-block col-lg-offset-3 col-lg-7 hide" id="realNameFieldError"></span>
-                </div>
-                <div class="form-group" id="passwordGroup">
-                    <label for="password" class="col-lg-3 control-label"><bean:message key="user.password" /></label>
-                    <div class="col-lg-7">
-                        <input type="password" id="password" name="password" class="form-control">
-                    </div>
-                    <c:choose>
-                        <c:when test="${usersForm.hasPasswordError}">
-                            <span class="help-block col-lg-offset-3 col-lg-7" id="passwordFieldError"><bean:message key="${usersForm.errorMessageKey}" /></span>
-                        </c:when>
-                        <c:otherwise>
-                            <span class="help-block col-lg-offset-3 col-lg-7 hide" id="passwordFieldError"></span>
-                        </c:otherwise>
-                    </c:choose>
-                </div>
-                <div class="form-group">
-                    <label for="passwordConfirm" class="col-lg-3 control-label"><bean:message key="user.repPassword" /></label>
-                    <div class="col-lg-7">
-                        <input type="password" id="passwordConfirm" name="passwordConfirm" class="form-control">
-                    </div>
-                </div>    
-            </c:if>
 
+                <c:choose>
+                    <c:when test="${usersForm.hasLoginError}">
+                        <span class="help-block col-lg-offset-3 col-lg-7" id="loginFieldError"><bean:message key="${usersForm.errorMessageKey}" /></span>
+                    </c:when>
+                    <c:otherwise>
+                        <span class="help-block col-lg-offset-3 col-lg-7 hide" id="loginFieldError"></span>
+                    </c:otherwise>
+                </c:choose>
+            </div>
+</c:if>
+            <div class="form-group" id="realNameGroup">
+                <label for="realName" class="col-lg-3 control-label"><bean:message key="user.realName" /></label>
+                <div class="col-lg-7">
+                    <input type="text" id="realName" name="realName" class="form-control" value="${usersForm.realName}">
+                </div>
+                <span class="help-block col-lg-offset-3 col-lg-7 hide" id="realNameFieldError"></span>
+            </div>
+<c:if test="${usersForm.newUser}">
+            <div class="form-group" id="passwordGroup">
+                <label for="password" class="col-lg-3 control-label"><bean:message key="user.password" /></label>
+                <div class="col-lg-7">
+                    <input type="password" id="password" name="password" class="form-control">
+                </div>
+                <c:choose>
+                    <c:when test="${usersForm.hasPasswordError}">
+                        <span class="help-block col-lg-offset-3 col-lg-7" id="passwordFieldError"><bean:message key="${usersForm.errorMessageKey}" /></span>
+                    </c:when>
+                    <c:otherwise>
+                        <span class="help-block col-lg-offset-3 col-lg-7 hide" id="passwordFieldError"></span>
+                    </c:otherwise>
+                </c:choose>
+            </div>
+            <div class="form-group" id="passwordConfirmGroup">
+                <label for="passwordConfirm" class="col-lg-3 control-label"><bean:message key="user.repPassword" /></label>
+                <div class="col-lg-7">
+                    <input type="password" id="passwordConfirm" name="passwordConfirm" class="form-control">
+                </div>
+            </div>    
+</c:if>
             <div class="form-group" id="emailGroup">
                 <label for="email" class="col-lg-3 control-label"><bean:message key="user.email"/></label>
                 <div class="col-lg-7">
@@ -231,16 +232,16 @@
                     <input type="text" id="age" name="age" class="form-control" value="${usersForm.age}">
                 </div>
             </div>
-            <div class="form-group">
+            <div class="form-group hidden">
                 <label for="jabberId" class="col-lg-3 control-label"><bean:message key="user.jabberId" /></label>
                 <div class="col-lg-7">
-                    <input type="text" id="jabberId" name="jabberId" class="form-control" value="${usersForm.jabberId}">
+                    <input type="hidden" id="jabberId" name="jabberId" class="form-control" value="${usersForm.jabberId}">
                 </div>
             </div>
-            <div class="form-group" class="col-lg-3 control-label">
+            <div class="form-group hidden" class="col-lg-3 control-label">
                 <label for="icqNumber" class="col-lg-3 control-label"><bean:message key="user.icqNumber" /></label>
                 <div class="col-lg-7">
-                    <input type="text" id="icqNumber" name="icqNumber" class="form-control" value="${usersForm.icqNumber}">
+                    <input type="hidden" id="icqNumber" name="icqNumber" class="form-control" value="${usersForm.icqNumber}">
                 </div>
             </div>
         </fieldset>
