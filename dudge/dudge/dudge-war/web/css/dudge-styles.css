@@ -158,3 +158,11 @@ table.table thead .sorting_desc_disabled:after {
 .nav-tabs {
     margin-bottom: 15px;
 }
+
+.dudge-jumbotron {
+    font-size: 18px;
+}
+
+.dudge-jumbotron h1 {
+    font-size: 42px;
+}

@@ -14,7 +14,7 @@
 </c:if>
 
 <c:if test="${not empty announceForm.highlightedContest}">
-<div class="jumbotron">
+<div class="jumbotron dudge-jumbotron">
     <h1>${announceForm.highlightedContest.caption}</h1>
     <div>${announceForm.highlightedContest.description}</div>
     <p><a class="btn btn-primary btn-lg" href="contests.do?reqCode=view&contestId=${announceForm.highlightedContest.contestId}"><bean:message key="announce.details"/></a></p>
