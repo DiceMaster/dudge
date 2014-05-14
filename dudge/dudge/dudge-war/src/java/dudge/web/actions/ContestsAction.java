@@ -110,38 +110,38 @@ public class ContestsAction extends DispatchAction {
 	 * @param response
 	 */
 	public void getContestList(ActionMapping mapping, ActionForm af, HttpServletRequest request, HttpServletResponse response) {
-                //  Получаем из запроса, какие данные требуются клиенту.
-                String iDisplayStartString = (String) request.getParameter("iDisplayStart");
-                String iDisplayLengthString = (String) request.getParameter("iDisplayLength");
-                int iDisplayStart = iDisplayStartString == null ? -1 : Integer.parseInt(iDisplayStartString);
-                int iDisplayLength = iDisplayLengthString == null ? -1 : Integer.parseInt(iDisplayLengthString);
+		//  Получаем из запроса, какие данные требуются клиенту.
+		String iDisplayStartString = (String) request.getParameter("iDisplayStart");
+		String iDisplayLengthString = (String) request.getParameter("iDisplayLength");
+		int iDisplayStart = iDisplayStartString == null ? -1 : Integer.parseInt(iDisplayStartString);
+		int iDisplayLength = iDisplayLengthString == null ? -1 : Integer.parseInt(iDisplayLengthString);
 
-                String searchString = (String) request.getParameter("sSearch");
-                if (searchString != null && searchString.isEmpty()) {
-                   searchString = null;
-                }
-                
-                String order = null;
-                boolean descending = false;
-                if (request.getParameter("iSortCol_0") != null)
-                {
-                    int iColumn = Integer.parseInt(request.getParameter("iSortCol_0"));
-                    if (request.getParameter("bSortable_" + iColumn).equals("true"))
-                    {
-                            order = columns[iColumn];
-                            descending = request.getParameter("sSortDir_0").equals("desc");
-                    }
-                }
+		String searchString = (String) request.getParameter("sSearch");
+		if (searchString != null && searchString.isEmpty()) {
+		   searchString = null;
+		}
 
-                ContestLocal.FilteredContests contests = serviceLocator.lookupContestBean().getContests(
-                    searchString,
-                    order,
-                    descending,
-                    iDisplayStart,
-                    iDisplayLength
-                );
-                
-                long totalContestsCount = serviceLocator.lookupContestBean().getContestsCount();
+		String order = null;
+		boolean descending = false;
+		if (request.getParameter("iSortCol_0") != null)
+		{
+			int iColumn = Integer.parseInt(request.getParameter("iSortCol_0"));
+			if (request.getParameter("bSortable_" + iColumn).equals("true"))
+			{
+					order = columns[iColumn];
+					descending = request.getParameter("sSortDir_0").equals("desc");
+			}
+		}
+
+		ContestLocal.FilteredContests contests = serviceLocator.lookupContestBean().getContests(
+			searchString,
+			order,
+			descending,
+			iDisplayStart,
+			iDisplayLength
+		);
+
+		long totalContestsCount = serviceLocator.lookupContestBean().getContestsCount();
                 
 		JSONArray ja = new JSONArray();
 		JSONObject jo = new JSONObject();

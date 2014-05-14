@@ -174,18 +174,18 @@ public class ProblemsAction extends DispatchAction {
 
 		int totalCount = visibleProblems.size();
 
-		List<Problem> filteredProblems = new ArrayList<>();
+		List<Problem> filteredProblems = visibleProblems;
 		
 		if (searchString != null) {
+			filteredProblems = new ArrayList<>();
 			for (Problem problem : visibleProblems) {
-				if (problem.getTitle().toLowerCase().contains(searchString.toLowerCase()) ||
+				if (Integer.toString(problem.getProblemId()).contains(searchString) ||
+					problem.getTitle().toLowerCase().contains(searchString.toLowerCase()) ||
 					problem.getAuthor().toLowerCase().contains(searchString.toLowerCase())) {
 					
 					filteredProblems.add(problem);
 				}
 			}
-		} else {
-			filteredProblems = visibleProblems;
 		}
 		
 		int filteredCount = filteredProblems.size();
