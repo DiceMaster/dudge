@@ -21,7 +21,7 @@ import javax.persistence.*;
 	@NamedQuery(name = "Run.findByTestId", query = "SELECT r FROM Run r WHERE r.test.testId = :testId")
 })
 @IdClass(dudge.db.RunPK.class)
-public class Run implements Serializable, Comparable {
+public class Run implements Serializable, Comparable<Run> {
 
 	public static final long serialVersionUID = 1L;
 	@Id
@@ -75,17 +75,12 @@ public class Run implements Serializable, Comparable {
 	}
 
 	@Override
-	public int compareTo(Object o) {
-		if (!(o instanceof Run)) {
-			throw new IllegalArgumentException("o is not instance of db.Run");
-		}
-		Run other = (Run) o;
-
-		if (this.getRunNumber() == other.getRunNumber()) {
+	public int compareTo(Run t) {
+		if (this.getRunNumber() == t.getRunNumber()) {
 			return 0;
 		}
 
-		return (this.getRunNumber() < other.getRunNumber()) ? -1 : 1;
+		return (this.getRunNumber() < t.getRunNumber()) ? -1 : 1;
 	}
 
 	/**
