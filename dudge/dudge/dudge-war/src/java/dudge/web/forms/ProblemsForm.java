@@ -41,6 +41,7 @@ public class ProblemsForm extends ActionForm {
 	private boolean isHidden = false;
 	private String owner;
 	private String author;
+	private String encodedTestList;
 	private String exampleInputTest = "&nbsp;";
 	private String exampleOutputTest = "&nbsp;";
 	private FormFile file;
@@ -65,6 +66,7 @@ public class ProblemsForm extends ActionForm {
 		isHidden = false;
 		exampleInputTest = "&nbsp;";
 		exampleOutputTest = "&nbsp;";
+		encodedTestList = "[]";
 		file = null;
 	}
 
@@ -346,5 +348,19 @@ public class ProblemsForm extends ActionForm {
 	 */
 	public void setAuthor(String author) {
 		this.author = author;
+	}
+
+	/**
+	 * @return JSON encoded test list
+	 */
+	public String getEncodedTestList() {
+		return encodedTestList;
+	}
+
+	/**
+	 * @param encodedTestList JSON encoded test list to set
+	 */
+	public void setEncodedTestList(String encodedTestList) {
+		this.encodedTestList = encodedTestList;
 	}
 }

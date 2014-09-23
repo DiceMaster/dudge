@@ -8,6 +8,14 @@
   margin-top: 8px;
 }
 
+.dudge-panel-vertical-center {
+  margin-top: 6px;
+}
+
+.dudge-no-top-margin {
+  margin-top: 0px;
+}
+
 .dudge-pagination a {
     min-width: 42px;
     text-align: center;
@@ -83,6 +91,7 @@ div.dataTables_filter label {
 
 .dataTables_processing {
     position: absolute;
+    display: block;
     top: 50%;
     left: 50%;
     width: 32px;
@@ -93,7 +102,6 @@ div.dataTables_filter label {
     text-align: center;
     color: #999;
     font-size: 14px;
-    background-color: white;
 }
 
 table.table thead .sorting,
@@ -165,4 +173,12 @@ table.table thead .sorting_desc_disabled:after {
 
 .dudge-jumbotron h1 {
     font-size: 42px;
+}
+
+.no-resize {
+    resize:none;
+}
+
+.dudge-monospace {
+    font-family: monospace;
 }

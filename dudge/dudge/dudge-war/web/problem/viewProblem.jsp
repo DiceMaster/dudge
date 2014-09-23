@@ -55,7 +55,15 @@
 <h2><bean:message key="problem.description" /></h2>
 <p class="problem_info">${problemsForm.description}</p>
 
-<h2><bean:message key="problem.example" /></h2>
+<h2 class="pull-left"><bean:message key="problem.example"/></h2>
+<div class="pull-right">
+<c:if test="${permissionCheckerRemote.canModifyProblem(autentificationObject.username, problemsForm.problemId)}">
+    <div class="btn-group dudge-btn-group">
+        <a class="btn btn-primary" href="problems.do?reqCode=editTests&problemId=${problemsForm.problemId}"><bean:message key="problem.editTests"/></a>
+    </div>
+</c:if>
+</div>
+<div class="clearfix"></div>
 <div class="col-lg-6">
     <h3><bean:message key="problem.input" /></h3>
     <pre>${problemsForm.exampleInputTest}</pre>

@@ -45,6 +45,7 @@
 		<forward name="viewSolution" path="/solution/viewSolution.jsp"/>
 		<forward name="mySolutions" path="/solution/mySolutions.jsp"/>
 		
+                <forward name="editTests" path="/problem/editTests.jsp"/>
 		<forward name="editProblem" path="/problem/editProblem.jsp"/>
 		<forward name="problems" path="/problem/problems.jsp"/>
 		<forward name="viewProblem" path="/problem/viewProblem.jsp"/>
@@ -105,6 +106,7 @@
 			 name="problemsForm"
 			 scope="session"
 			 parameter="reqCode">
+                        <forward name="redirectProblemsList" path="/problemss.do?reqCode=list" redirect="true"/>
 		</action>
 		
 		<action path="/monitor"
