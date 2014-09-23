@@ -717,6 +717,13 @@ public class ProblemsAction extends DispatchAction {
 		}
 
 		serviceLocator.lookupTestBean().addTest(test);
+		
+		response.setContentType("application/x-json");
+		try {
+			response.getWriter().print(getTestJSONView(test));
+		} catch (IOException e) {
+			logger.log(Level.SEVERE, "exception caught", e);
+		}
 	}
 
 	/**

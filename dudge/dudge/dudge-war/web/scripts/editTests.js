@@ -233,6 +233,40 @@ var initTests = function(testList, template, l10n) {
         });
     };
     
+    var addTest = function() {
+        $("#addError").addClass("hidden");
+        $("#throbberAdd").removeClass("hidden");
+        $("#addTest").prop("disabled", true);
+        $.getJSON(
+            "problems.do",
+            {
+                reqCode: "addTest"
+            },
+            function(json) {
+                var test = new Test();
+                test.index = tests.length;
+                test.identifier = json.testId;
+                tests.push(test);
+
+                var testView = new TestView(template.clone());
+                template.parent().append(testView.getView());        
+                testView.onExpand = onTestViewExpand;
+                testView.onEdit = onTestViewEdit;
+                testView.onSave = onSaveTest;
+                testView.onRemove = onRemoveTest;
+                testViews.push(testView);
+                updateView(testView, test);
+
+                $("#throbberAdd").addClass("hidden");
+                $("#addTest").prop("disabled", false);
+            }
+        ).fail(function() {
+            $("#throbberAdd").addClass("hidden");
+            $("#addTest").prop("disabled", false);
+            $("#addError").removeClass("hidden");
+        });
+    };
+    
     var onSaveTest = function(testView) {
         var iTest = testViews.indexOf(testView);
         if (iTest < 0) {
@@ -276,10 +310,11 @@ var initTests = function(testList, template, l10n) {
         test.state = Test.State.NotSaved;
         test.inputTest = testView.getInputText();
         test.outputTest = testView.getOutputText();
+        
         updateView(testView, test);
     };
     
-    for (var iTest = 0; iTest < testList.length - 1; iTest++) {
+    for (var iTest = 0; iTest < testList.length; iTest++) {
         var test = new Test();
         test.state = Test.State.NotLoaded;
         test.index = iTest;
@@ -295,4 +330,6 @@ var initTests = function(testList, template, l10n) {
         testViews.push(testView);
         updateView(testView, test);
     }
+    
+    $("#addTest").click(addTest);
 };

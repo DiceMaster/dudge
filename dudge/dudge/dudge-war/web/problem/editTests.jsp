@@ -54,8 +54,9 @@
     </div>
 </dic></div>
 <div class="row"><div class="col-md-12">
-    <button type="button" class="btn btn-default dudge-test-add" id="addTest">
-        <img class="dudge-test-add-throbber hidden" src="img/ajax-loader-small.gif" width="16" height="16"/>
-        &nbsp;<span class="dudge-test-add-text"><bean:message key="problem.tests.add"/></span>
+    <button type="button" class="btn btn-default" id="addTest">
+        <img id="throbberAdd" class="hidden" src="img/ajax-loader-small.gif" width="16" height="16"/>
+        &nbsp<bean:message key="problem.tests.add"/>
     </button>
-</dic></div>
+    <span id="addError" class="hidden"><bean:message key="problem.tests.cantAdd"/></span>
+</div></div>
