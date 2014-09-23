@@ -8,6 +8,7 @@ var TestView = function(element) {
     this.saveView = element.find(".dudge-test-save");
     this.saveTextView = element.find(".dudge-test-save-text");
     this.throbberView = element.find(".dudge-test-throbber");
+    this.removeThrobberView = element.find(".dudge-test-remove-throbber");
     this.removeView = element.find(".dudge-test-remove");
     this.inputTestView = element.find(".dudge-test-input");
     this.outputTestView = element.find(".dudge-test-output");
@@ -77,11 +78,17 @@ TestView.prototype = {
     setButtonText: function(text) {
         this.saveTextView.text(text);
     },
-    enableButton: function() {
+    enableSaveButton: function() {
         this.saveView.prop("disabled", false);
     },
-    disableButton: function() {
+    disableSaveButton: function() {
         this.saveView.prop("disabled", true);
+    },
+    enableRemoveButton: function() {
+        this.removeView.prop("disabled", false);
+    },
+    disableRemoveButton: function() {
+        this.removeView.prop("disabled", true);
     },
     setTitle: function(title) {
         this.testNameView.text(title);
@@ -91,6 +98,12 @@ TestView.prototype = {
     },
     hideThrobber: function() {
         this.throbberView.addClass("hidden");
+    },
+    showRemoveThrobber: function() {
+        this.removeThrobberView.removeClass("hidden");
+    },
+    hideRemoveThrobber: function() {
+        this.removeThrobberView.addClass("hidden");
     },
     getInputText: function() {
         return this.inputTestView.val();
@@ -116,6 +129,7 @@ Test.prototype = {
     index: 0,
     identifier: 0,
     state: Test.State.Saved,
+    isRemoving: false,
     isError: false,
     inputTest: null,
     outputTest: null
@@ -124,6 +138,7 @@ Test.prototype = {
 var initTests = function(testList, template, l10n) {
     var tests = [];
     var testViews = [];
+    var selectedTestIndex = -1;
     
     var updateView = function(testView, test) {
         testView.setTitle(l10n.testText + " " + (test.index + 1));
@@ -134,33 +149,49 @@ var initTests = function(testList, template, l10n) {
                 testView.enableEditing();
                 testView.hideThrobber();
                 testView.setButtonText(l10n.savedText);
-                testView.disableButton();
+                testView.disableSaveButton();
+                if (test.isRemoving) {
+                    testView.disableRemoveButton();
+                } else {
+                    testView.enableRemoveButton();
+                }
                 break;
             case Test.State.NotSaved:
                 testView.hideError();
                 testView.enableEditing();
                 testView.hideThrobber();
                 testView.setButtonText(l10n.saveText);
-                testView.enableButton();
+                testView.enableSaveButton();
+                if (test.isRemoving) {
+                    testView.disableRemoveButton();
+                } else {
+                    testView.enableRemoveButton();
+                }
                 break;
             case Test.State.Saving:
                 testView.hideError();
                 testView.disableEditing();
                 testView.showThrobber();
                 testView.setButtonText(l10n.savingText);
-                testView.disableButton();
+                testView.disableSaveButton();
+                testView.disableRemoveButton();
                 break;
             case Test.State.NotLoaded:
                 testView.disableEditing();
                 testView.hideThrobber();
+                if (test.isRemoving) {
+                    testView.disableRemoveButton();
+                } else {
+                    testView.enableRemoveButton();
+                }
                 if (test.isError) {
                     testView.showError(l10n.loadingErrorText);
                     testView.setButtonText(l10n.tryAgainText);
-                    testView.enableButton();
+                    testView.enableSaveButton();
                 } else {
                     testView.hideError();
                     testView.setButtonText(l10n.savedText);
-                    testView.disableButton();
+                    testView.disableSaveButton();
                 }
                 break;
             case Test.State.Loading:
@@ -168,8 +199,14 @@ var initTests = function(testList, template, l10n) {
                 testView.showThrobber();
                 testView.hideError();
                 testView.setButtonText(l10n.savedText);
-                testView.disableButton();
+                testView.disableSaveButton();
+                testView.disableRemoveButton();
                 break;
+        }
+        if (test.isRemoving) {
+            testView.showRemoveThrobber();
+        } else {
+            testView.hideRemoveThrobber();
         }
     };
     
@@ -267,6 +304,36 @@ var initTests = function(testList, template, l10n) {
         });
     };
     
+    var removeTest = function() {
+        var test = tests[selectedTestIndex];
+        var testView = testViews[selectedTestIndex];        
+        test.isRemoving = true;        
+        updateView(testView, test);
+        
+        $.post(
+            "problems.do",
+            {
+                reqCode: "deleteTest",
+                testId: test.identifier
+            },
+            function() {
+                testView.getView().remove();
+                tests.splice(selectedTestIndex, 1);
+                testViews.splice(selectedTestIndex, 1);
+                for (var iTest = selectedTestIndex; iTest < tests.length; iTest++) {
+                    var shiftedTest = tests[iTest];
+                    var shiftedTestView = testViews[iTest];
+                    shiftedTest.index--;
+                    updateView(shiftedTestView, shiftedTest);
+                }
+            }
+        ).fail(function() {
+            test.isError = true;
+            test.isRemoving = false;
+            updateView(testView, test);
+        });
+    };
+
     var onSaveTest = function(testView) {
         var iTest = testViews.indexOf(testView);
         if (iTest < 0) {
@@ -288,6 +355,9 @@ var initTests = function(testList, template, l10n) {
         if (iTest < 0) {
             return;
         }
+        selectedTestIndex = iTest;
+        $("#testIndex").text(selectedTestIndex + 1);
+        $("#removeDialog").modal("show");
     };
     
     var onTestViewExpand = function(testView) {
@@ -332,4 +402,5 @@ var initTests = function(testList, template, l10n) {
     }
     
     $("#addTest").click(addTest);
+    $("#removeTest").click(removeTest);
 };
