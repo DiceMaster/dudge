@@ -1,6 +1,8 @@
 package dudge;
 
 import dudge.db.Solution;
+import dudge.solution.SolutionDescription;
+import dudge.solution.SolutionMessageSource;
 import java.util.List;
 import javax.ejb.Local;
 
@@ -20,6 +22,15 @@ public interface SolutionLocal {
 	Solution getSolution(int solutionId);
 
 	/**
+	 * Возвращает список решений, отправленных определенным пользователем в конкретное соревнование.
+	 *
+	 * @param login имя пользователя-автора решений.
+	 * @param contestId идентификатор соревнования, куда решения были отправлены.
+	 * @return отсортированный по давности (т.е. сначала новые) список решений.
+	 */
+	List<SolutionDescription> getSolutionDescriptions(String login, int contestId, SolutionMessageSource messageSource);
+	
+	/**
 	 * Возвращает список решений задачи, отправленных определенным пользователем в конкретное соревнование. При формировании списка учитывается время отправки
 	 * решений, время начала соревнования, а также его длительность - так, что решения, отправленные после окончания или до начала соревнования, не попадут в
 	 * результат.
@@ -38,6 +49,22 @@ public interface SolutionLocal {
 	 */
 	List<Solution> getPendingSolutions();
 
+	/**
+	 * Возвращает список решений.
+	 *
+	 * @param start номер первого возвращяемого решения.
+	 * @param count сколько решений возвращать.
+	 * @return отсортированный по возрастанию давности список решений.
+	 */
+	List<Solution> getSolutions(int start, int count);
+	
+	/**
+	 * Возвращает количество решений, отправленных в систему.
+	 *
+	 * @return Количество решений, отправленных в систему.
+	 */
+	long getSolutionsCount();
+	
 	/**
 	 * Возвращает список последних поступивших в систему решений.
 	 *

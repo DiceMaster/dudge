@@ -71,6 +71,31 @@ public class PermissionCheckerBean implements PermissionCheckerRemote {
 		return true;
 	}
 
+        /**
+	 * true, если пользователь - администратор, иначе false.
+	 *
+	 * @param principal Имя пользователя, для которого проверяется право.
+	 * @param user Пользователь, данные которого запрашиваются.
+	 */
+        @Override
+	public boolean canViewUsersList(String principal) {
+		if (principal == null) {
+			return false;
+		}
+		User princ = userBean.getUser(principal);
+		if (princ == null) {
+			logger.log(Level.WARNING, "Nonexistent user {0}", principal);
+			return false;
+		}
+
+		// Проверяем, является ли пользователь Администратором Системы
+		if (princ.isAdmin()) {
+			return true;
+		}
+
+		return false;
+	}
+
 	/**
 	 * true, если пользователь пытается редактировать свой профиль или является администратором системы, иначе false.
 	 *
@@ -357,6 +382,46 @@ public class PermissionCheckerBean implements PermissionCheckerRemote {
 	}
 
 	/**
+	 * Нельзя просматривать задачи до начала соревнования и в закрытых 
+	 * соревнованиях, к которым пользователь не присоединился.
+	 *
+	 * @param principal Имя пользователя, для которого проверяется право.
+	 * @param contestId Идентификатор соревнования.
+	 */
+	@Override
+	public boolean canViewContestProblems(String principal, int contestId) {
+		Contest contest = contestBean.getContest(contestId);
+		if (contest == null) {
+			return false;
+		}
+		
+		if (contest.isOpen() && (contest.isInProgress() || contest.isFinished())) {
+			return true;
+		}
+		
+		User princ = userBean.getUser(principal);
+		if (princ == null) {
+			return false;
+		}
+		if (princ.isAdmin()) {
+			return true;
+		}
+		
+		if (userBean.isInRole(principal, contestId, RoleType.ADMINISTRATOR)) {
+			return true;
+		}
+		
+		if ((userBean.isInRole(principal, contestId, RoleType.USER)
+			|| userBean.isInRole(principal, contestId, RoleType.OBSERVER))
+			&& (contest.isInProgress() || contest.isFinished())) {
+			
+			return true;
+		}
+		
+		return false;
+	}
+	
+	/**
 	 * В общем случае выбор зависит от того, скрытая или нет задача.
 	 *
 	 * @param principal Имя пользователя, для которого проверяется право.
@@ -596,8 +661,8 @@ public class PermissionCheckerBean implements PermissionCheckerRemote {
 		}
 
 		// Если соревнование открытое  и в настоящее время идет.
-		//if(contest.isOpen() && contest.isInProgress())
-		//return true;
+		if(contest.isOpen() && contest.isInProgress())
+			return true;
 
 		return false;
 	}
@@ -758,6 +823,9 @@ public class PermissionCheckerBean implements PermissionCheckerRemote {
 	 */
 	@Override
 	public boolean canSendApplication(String principal, int contestId) {
+		if (contestBean.getContest(contestId).isOpen()) {
+			return false;
+		}
 		if (principal == null) {
 			return false;
 		}
@@ -785,5 +853,49 @@ public class PermissionCheckerBean implements PermissionCheckerRemote {
 	public boolean canViewNews(String principal, int newsId) {
 		return (java.lang.Boolean) em.createNativeQuery("SELECT can_view_news(:principal, :news_id)", java.lang.Boolean.class)
 				.setParameter("principal", principal).setParameter("newsId", newsId).getSingleResult();
+	}
+	
+	/* Проверяет наличие каких-либо прав на управление объектами системы.
+	 * @principal пользователь, для которого проверяются права;
+	 * @return true если пользователь может чем-то управлять.
+	 */
+	@Override
+	public boolean canAdmin(String principal)
+	{
+		if (principal == null) {
+			return false;
+		}
+		User princ = userBean.getUser(principal);
+		if (princ == null) {
+			logger.log(Level.WARNING, "Nonexistent user {0}", principal);
+			return false;
+		}
+		//Если пользователь является Администратором системы
+		if (princ.isAdmin()) {
+			return true;
+		}
+		return false;
+	}
+	
+	/* Проверяет наличие прав на редактирование глобальной страницы с правилами.
+	 * @principal пользователь, для которого проверяются права;
+	 * @return true если пользователь может редактировать глобальные правила.
+	 */
+	@Override
+	public boolean canEditRules(String principal)
+	{
+		if (principal == null) {
+			return false;
+		}
+		User princ = userBean.getUser(principal);
+		if (princ == null) {
+			logger.log(Level.WARNING, "Nonexistent user {0}", principal);
+			return false;
+		}
+		//Если пользователь является Администратором системы
+		if (princ.isAdmin()) {
+			return true;
+		}
+		return false;
 	}
 }

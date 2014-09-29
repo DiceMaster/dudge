@@ -80,6 +80,7 @@ public class DudgeBean implements DudgeLocal {
 	public void joinAllOpenContests(String login) {
 		User user = userBean.getUser(login);
 
+		boolean shouldFlush = false;
 		for (Contest contest : contestBean.getContests()) {
 			if (!contest.isOpen()) {
 				continue;
@@ -87,9 +88,12 @@ public class DudgeBean implements DudgeLocal {
 
 			if (userBean.haveNoRoles(login, contest.getContestId())) {
 				Role role = new Role(contest, user, RoleType.USER);
-				em.merge(role);
-				em.flush();
+				contest.getRoles().add(role);
+				shouldFlush = true;
 			}
+		}
+		if (shouldFlush) {
+			em.flush();
 		}
 	}
 
@@ -325,5 +329,38 @@ public class DudgeBean implements DudgeLocal {
 				connection.close();
 			}
 		}
+	}
+	
+	/**
+	 * Позволяет получить текст глобальных правил системы.
+	 *
+	 * @return текст глобальных правил.
+	 */
+	@Override
+	public String getRules() {
+		Param rulesParam = em.find(Param.class, "global_rules");
+
+		if (rulesParam == null) {
+			return null;
+		}
+		
+		return rulesParam.getValue();
+	}
+	
+	/**
+	 * Позволяет задать текст глобальных правил системы.
+	 *
+	 * @param rules текст глобальных правил.
+	 */
+	public void setRules(String rules) {
+		Param rulesParam = em.find(Param.class, "global_rules");
+
+		if (rulesParam != null) {
+			rulesParam.setValue(rules);
+		} else {
+			rulesParam = new Param("global_rules", rules);
+		}
+		
+		em.merge(rulesParam);
 	}
 }

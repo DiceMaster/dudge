@@ -1,92 +1,120 @@
 <jsp:useBean id="solutionsForm" class="dudge.web.forms.SolutionsForm" scope="session" />
 
-<script type="text/javascript">
-    Ext.onReady(function() {
+<style type="text/css">
+pre.prettyprint {
+    border: 1px solid #ccc;
+    margin-bottom: 0;
+    padding: 9.5px;
+}
+li.L0, li.L1, li.L2, li.L3,
+li.L5, li.L6, li.L7, li.L8 {
+    list-style-type: decimal !important
+}
+</style>
 
-        var responseFunction = function(response) {
-            var status = Ext.util.JSON.decode(response.responseText);
-            var statusMessageBlock = Ext.get('statusMessageBlock');
-            var throbber = Ext.get('throbber');
-            statusMessageBlock.setVisibilityMode(Ext.Element.DISPLAY);
+<script type="text/javascript" src="prettify/run_prettify.js"></script>
+<script type="text/javascript">
+    $( document ).ready(function() {
+        var submitTime = new Date(${solutionsForm.submitTime});
+        $('#submitTime').text(submitTime.toLocaleString());
+
+        var responseFunction = function(status) {
+            var statusBlock = $("#statusBlock");
+            var statusMessageBlock = $('#statusMessageBlock');
+            var throbber = $('#throbber');
             statusMessageBlock.hide();
-            throbber.setVisibilityMode(Ext.Element.DISPLAY);
             throbber.hide();
+            statusBlock.removeClass();
  
             switch (status.status) {
                 case 'NEW':
                     throbber.show();
-                    Ext.get('statusElement').update('<b><bean:message key="solution.status.NEW" /></b>');
+                    statusBlock.addClass('alert alert-info');
+                    $('#statusElement').text('<bean:message key="solution.status.NEW" />');
                     break;
                 case 'INTERNAL_ERROR':
-                    Ext.get('statusElement').update(
-                        '<b><bean:message key="solution.status.INTERNAL_ERROR" /> ' +
-                        '<bean:message key="solution.onTest"/> ' + status.currentTestNumber + '</b>'
+                    statusBlock.addClass('alert alert-danger');
+                    $('#statusElement').text(
+                        '<bean:message key="solution.status.INTERNAL_ERROR" /> ' +
+                        '<bean:message key="solution.onTest"/> ' + status.currentTestNumber
                     );
                     statusMessageBlock.show();
-                    Ext.get('statusMessageTitle').update('<bean:message key="solution.stackTrace" /><br>');
-                    Ext.get('statusMessageText').update(status.statusMessage);
+                    $('#statusMessageTitle').text('<bean:message key="solution.stackTrace" />');
+                    $('#statusMessageText').text(status.statusMessage);
                     break;
                 case 'DISQUALIFIED':
-                    Ext.get('statusElement').update('<b><bean:message key="solution.status.DISQUALIFIED" /></b>');
+                    statusBlock.addClass('alert alert-danger');
+                    $('#statusElement').text('<bean:message key="solution.status.DISQUALIFIED" />');
                     break;
                 case 'COMPILING':
                     throbber.show();
-                    Ext.get('statusElement').update('<b><bean:message key="solution.status.COMPILING" /></b>');
+                    statusBlock.addClass('alert alert-info');
+                    $('#statusElement').text('<bean:message key="solution.status.COMPILING" />');
                     break;
                 case 'COMPILATION_ERROR':
-                    Ext.get('statusElement').update('<b><bean:message key="solution.status.COMPILATION_ERROR" /></b>');
+                    statusBlock.addClass('alert alert-danger');
+                    $('#statusElement').text('<bean:message key="solution.status.COMPILATION_ERROR" />');
                     statusMessageBlock.show();
-                    Ext.get('statusMessageTitle').update('<bean:message key="solution.compilerOutput" /><br>');
-                    Ext.get('statusMessageText').update(status.statusMessage);
+                    $('#statusMessageTitle').text('<bean:message key="solution.compilerOutput" />');
+                    $('#statusMessageText').text(status.statusMessage);
                     break;
                 case 'RUNNING':
                     throbber.show();
-                    Ext.get('statusElement').update(
-                        '<b><bean:message key="solution.status.RUNNING" /> ' +
-                        '<bean:message key="solution.onTest"/> ' + status.currentTestNumber + '</b>'
+                    statusBlock.addClass('alert alert-info');
+                    $('#statusElement').text(
+                        '<bean:message key="solution.status.RUNNING" /> ' +
+                        '<bean:message key="solution.onTest"/> ' + status.currentTestNumber
                     );
                     break;
                 case 'RUNTIME_ERROR':
-                    Ext.get('statusElement').update(
-                        '<b><bean:message key="solution.status.RUNTIME_ERROR" /> ' +
-                        '<bean:message key="solution.onTest"/> ' + status.currentTestNumber + '</b>'
+                    statusBlock.addClass('alert alert-warning');
+                    $('#statusElement').text(
+                        '<bean:message key="solution.status.RUNTIME_ERROR" /> ' +
+                        '<bean:message key="solution.onTest"/> ' + status.currentTestNumber
                     );
                     break;  
                 case 'MEMORY_LIMIT':
-                    Ext.get('statusElement').update(
-                        '<b><bean:message key="solution.status.MEMORY_LIMIT" /> ' +
-                        '<bean:message key="solution.onTest"/> ' + status.currentTestNumber + '</b>'
+                    statusBlock.addClass('alert alert-warning');
+                    $('#statusElement').text(
+                        '<bean:message key="solution.status.MEMORY_LIMIT" /> ' +
+                        '<bean:message key="solution.onTest"/> ' + status.currentTestNumber
                     );
                     break;
                 case 'TIME_LIMIT':
-                    Ext.get('statusElement').update(
-                        '<b><bean:message key="solution.status.TIME_LIMIT" /> ' +
-                        '<bean:message key="solution.onTest"/> ' + status.currentTestNumber + '</b>'
+                    statusBlock.addClass('alert alert-warning');
+                    $('#statusElement').text(
+                        '<bean:message key="solution.status.TIME_LIMIT" /> ' +
+                        '<bean:message key="solution.onTest"/> ' + status.currentTestNumber
                     );
                     break;    
                 case 'OUTPUT_LIMIT':
-                    Ext.get('statusElement').update(
-                        '<b><bean:message key="solution.status.OUTPUT_LIMIT" /> ' +
-                        '<bean:message key="solution.onTest"/> ' + status.currentTestNumber + '</b>'
+                    statusBlock.addClass('alert alert-warning');
+                    $('#statusElement').text(
+                        '<bean:message key="solution.status.OUTPUT_LIMIT" /> ' +
+                        '<bean:message key="solution.onTest"/> ' + status.currentTestNumber
                     );
                     break;
                 case 'PRESENTATION_ERROR':
-                    Ext.get('statusElement').update(
-                        '<b><bean:message key="solution.status.PRESENTATION_ERROR" /> ' +
-                        '<bean:message key="solution.onTest"/> ' + status.currentTestNumber + '</b>'
+                    statusBlock.addClass('alert alert-warning');
+                    $('#statusElement').text(
+                        '<bean:message key="solution.status.PRESENTATION_ERROR" /> ' +
+                        '<bean:message key="solution.onTest"/> ' + status.currentTestNumber
                     );
                     break;
                 case 'WRONG_ANSWER':
-                    Ext.get('statusElement').update(
-                        '<b><bean:message key="solution.status.WRONG_ANSWER" /> ' +
-                        '<bean:message key="solution.onTest"/> ' + status.currentTestNumber + '</b>'
+                    statusBlock.addClass('alert alert-warning');
+                    $('#statusElement').text(
+                        '<bean:message key="solution.status.WRONG_ANSWER" /> ' +
+                        '<bean:message key="solution.onTest"/> ' + status.currentTestNumber
                     );
                     break;
                 case 'SECURITY_VIOLATION':
-                    Ext.get('statusElement').update('<b><bean:message key="solution.status.SECURITY_VIOLATION" /> </b>');
+                    statusBlock.addClass('alert alert-danger');
+                    $('#statusElement').text('<bean:message key="solution.status.SECURITY_VIOLATION" />');
                     break;
                 case 'SUCCESS':
-                    Ext.get('statusElement').update('<b><bean:message key="solution.status.SUCCESS" /></b>');
+                    statusBlock.addClass('alert alert-success');
+                    $('#statusElement').text('<bean:message key="solution.status.SUCCESS" />');
                     break;
             }
 
@@ -95,42 +123,44 @@
                 status.status === 'RUNNING') {
                 setTimeout(requestFunction, 2000);
             }
-        }
+        };      
         
-        var request = {
-            url: 'solutions.do',
-            params: {
+        var requestFunction = function() {
+            $.getJSON(
+                "solutions.do",
+                {
                 reqCode: 'getSolutionStatus',
                 solutionId: ${solutionsForm.solutionId}
             },
-            success: responseFunction
-        }
+                responseFunction
+            );
+        };
         
-        var requestFunction = function() {
-            Ext.Ajax.request(request);
-        }
-        
-        responseFunction({responseText: '{ status: \'${solutionsForm.status}\', currentTestNumber: \'${solutionsForm.currentTestNumber}\', statusMessage: \'${solutionsForm.statusMessage}\' }'});
+        // FIXME: choise 1 or 2
+        // case 1
+        //responseFunction(${solutionsForm.StatusToJSONText()});
+	// case 2
+        var initialStatusMessage = $('#initialStatusMessageText').text();
+        responseFunction({ status: '${solutionsForm.status}', currentTestNumber: '${solutionsForm.currentTestNumber}', statusMessage: initialStatusMessage });
     });
 
 </script>
 
 <a href="solutions.do?reqCode=submit&contestId=${contestId}"><bean:message key="solution.submitAnother"/></a>
-<p><br>
-
-<div id="solutionContent">
-
-    <h3><bean:message key="solution.solution" /> ${solutionsForm.solutionId}</h3>
-    <p>
-        <bean:message key="solution.status" />:
-        <img id="throbber" src="img/ajax-loader.gif" />
-        <span id="statusElement"></span>
-    </p>
-    <div id="statusMessageBlock">    
-        <p id="statusMessageTitle" />
-        <textarea id="statusMessageText" class="x-form-text" readonly="true" style="width:100%;height:250px"></textarea>
-    </div>
-
-    <p><br><br></p>
-    <textarea readonly wrap="off" style="border: 1; width: 50%; height: 80%; position: absolute;">${solutionsForm.sourceCode}</textarea>
+<h1><bean:message key="solution.solution" /> ${solutionsForm.solutionId}</h1>
+<p><strong><bean:message key="problem.problem" /></strong>: <a href="problems.do?reqCode=view&contestId=${solutionsForm.contestId}&problemId=${solutionsForm.problemId}">${solutionsForm.problemMark} - ${solutionsForm.problemName}</a></p>
+<p><strong><bean:message key="contest.contest" /></strong>: <a href="contests.do?reqCode=view&contestId=${solutionsForm.contestId}">${solutionsForm.contestName}</a></p>
+<p><strong><bean:message key="solution.author" /></strong>: <a href="users.do?reqCode=view&login=${solutionsForm.userId}">${solutionsForm.userId}</a></p>
+<p><strong><bean:message key="solution.time" /></strong>: <span id="submitTime"></span></p>
+<div id="statusBlock" class="alert alert-info">
+    <strong><bean:message key="solution.status" />:</strong>
+    <img id="throbber" src="img/ajax-loader.gif" />
+    <span id="statusElement"></span>
 </div>
+<div id="statusMessageBlock">    
+    <h2 id="statusMessageTitle"></h2>
+    <pre id="statusMessageText"></pre>
+    <div hidden="true" id="initialStatusMessageText"><c:out value="${solutionsForm.statusMessage}" escapeXml="true"/></div>
+</div>
+<h2><bean:message key="solution.source" /></h2>
+<pre class="prettyprint linenums"><c:out value="${solutionsForm.sourceCode}" escapeXml="true"/></pre>

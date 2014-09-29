@@ -8,11 +8,14 @@ package dudge.web.actions;
 import dudge.PermissionCheckerRemote;
 import dudge.UserLocal;
 import dudge.db.User;
+import dudge.web.AuthenticationCookies;
 import dudge.web.AuthenticationObject;
 import dudge.web.ServiceLocator;
 import dudge.web.forms.UsersForm;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.logging.Level;
@@ -39,6 +42,13 @@ public class UsersAction extends DispatchAction {
 
 	private static final Logger logger = Logger.getLogger(UsersAction.class.toString());
 	private ServiceLocator serviceLocator = ServiceLocator.getInstance();
+                
+        private static final String[] columns = {
+          "login",
+          "regDate",
+          "realName",
+          "organization"
+        };
 
 	/**
 	 * Creates a new instance of RegistrationAction
@@ -55,6 +65,14 @@ public class UsersAction extends DispatchAction {
 	 * @return
 	 */
 	public ActionForward list(ActionMapping mapping, ActionForm af, HttpServletRequest request, HttpServletResponse response) {
+		AuthenticationObject ao = AuthenticationObject.extract(request);
+		PermissionCheckerRemote pcb = ao.getPermissionChecker();
+
+		// Проверяем право пользователя.
+		if (!pcb.canViewUsersList(ao.getUsername())) {
+			return mapping.findForward("accessDenied");
+		}
+            
 		return mapping.findForward("users");
 	}
 
@@ -141,6 +159,11 @@ public class UsersAction extends DispatchAction {
 		uf.setRealName(user.getRealName());
 		uf.setEmail(user.getEmail());
 		uf.setOrganization(user.getOrganization());
+		uf.setFaculty(user.getFaculty());
+		if (user.getCourse() != null) {
+			uf.setCourse(String.valueOf(user.getCourse()));
+		}
+		uf.setGroup(user.getGroup());
 		if (user.getAge() != null) {
 			uf.setAge(String.valueOf(user.getAge()));
 		}
@@ -294,6 +317,9 @@ public class UsersAction extends DispatchAction {
 		}
 
 		userBean.modifyUser(user);
+		
+		AuthenticationCookies.setCookies(user.getLogin(), response);
+		
 		return mapping.findForward("registrationSuccess");
 	}
 
@@ -370,33 +396,55 @@ public class UsersAction extends DispatchAction {
 	 * Возвращает AJAX-клиенту очередную порцию из списка пользователей.
 	 */
 	public void getUserList(ActionMapping mapping, ActionForm af, HttpServletRequest request, HttpServletResponse response) {
-
 		//  Получаем из запроса, какие данные требуются клиенту.
-		int start = Integer.parseInt((String) request.getParameter("start"));
-		int limit = Integer.parseInt((String) request.getParameter("limit"));
+		String iDisplayStartString = (String) request.getParameter("iDisplayStart");
+		String iDisplayLengthString = (String) request.getParameter("iDisplayLength");
+		int iDisplayStart = iDisplayStartString == null ? -1 : Integer.parseInt(iDisplayStartString);
+		int iDisplayLength = iDisplayLengthString == null ? -1 : Integer.parseInt(iDisplayLengthString);
 
-		List<User> users = serviceLocator.lookupUserBean().getUsers();
-		List<User> selectedUsers;
-		try {
-			selectedUsers = users.subList(start, start + limit);
-		} catch (IndexOutOfBoundsException e) {
-			selectedUsers = users.subList(start, users.size());
+		String searchString = (String) request.getParameter("sSearch");
+		if (searchString != null && searchString.isEmpty()) {
+		   searchString = null;
 		}
+
+		String order = null;
+		boolean descending = false;
+		if (request.getParameter("iSortCol_0") != null)
+		{
+			int iColumn = Integer.parseInt(request.getParameter("iSortCol_0"));
+			if (request.getParameter("bSortable_" + iColumn).equals("true"))
+			{
+					order = columns[iColumn];
+					descending = request.getParameter("sSortDir_0").equals("desc");
+			}
+		}
+
+		UserLocal.FilteredUsers users = serviceLocator.lookupUserBean().getUsers(
+			searchString,
+			order,
+			descending,
+			iDisplayStart,
+			iDisplayLength
+		);
+
 		JSONArray ja = new JSONArray();
 		JSONObject jo = new JSONObject();
 
+		long totalUsersCount = serviceLocator.lookupUserBean().getUsersCount();
 		try {
-			jo.put("totalCount", users.size());
+			jo.put("sEcho", request.getParameter("sEcho"));
+			jo.put("iTotalRecords", totalUsersCount);
+			jo.put("iTotalDisplayRecords", users.getFilteredTotal());
 		} catch (JSONException e) {
 			logger.log(Level.SEVERE, "exception caught", e);
 			return;
 		}
 
-		for (Iterator<User> iter = selectedUsers.iterator(); iter.hasNext();) {
+		for (Iterator<User> iter = users.getFilteredUsers().iterator(); iter.hasNext();) {
 			ja.put(this.getUserJSONView(iter.next()));
 		}
 		try {
-			jo.put("users", ja);
+			jo.put("aaData", ja);
 		} catch (JSONException e) {
 			logger.log(Level.SEVERE, "exception caught", e);
 			return;
@@ -426,28 +474,25 @@ public class UsersAction extends DispatchAction {
 		String deletedUser = (String) request.getParameter("login");
 		serviceLocator.lookupUserBean().deleteUser(deletedUser);
 
-		return mapping.findForward("users");
+		return mapping.findForward("redirectUsersList");
 	}
 
 	/**
-	 * Метод возвращает представления объекта в формата JSON - это нужно для его отображение на стороне клиента через JavaScript/AJAX.
+	 * Метод возвращает представления объекта в формата JSON массива - это нужно для его отображение на стороне клиента через JavaScript/AJAX.
 	 */
-	public JSONObject getUserJSONView(User user) {
+	public JSONArray getUserJSONView(User user) {
 
-		JSONObject json = new JSONObject();
+		JSONArray json = new JSONArray();
 
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyy.MM.dd");
 
-		// Заполняем данными пользователя созданный объект JSON.
-		try {
-			json.put("login", user.getLogin());
-			json.put("realname", user.getRealName());
-			json.put("regdate", sdf.format(user.getRegDate()));
-			json.put("organization", user.getOrganization());
-		} catch (JSONException e) {
-			logger.log(Level.SEVERE, "Trouble while creating JSON view of User object", e);
-		}
-		return json;
+		// Заполняем данными пользователя созданный JSON массив.
+                json.put(user.getLogin());
+                json.put(sdf.format(user.getRegDate()));
+                json.put(user.getRealName());                
+                json.put(user.getOrganization());
+                
+                return json;
 	}
 
 	/**

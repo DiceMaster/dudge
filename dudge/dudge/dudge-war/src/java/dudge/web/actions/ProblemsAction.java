@@ -47,6 +47,14 @@ public class ProblemsAction extends DispatchAction {
 	private static final Logger logger = Logger.getLogger(ProblemsAction.class.toString());
 	private ServiceLocator serviceLocator = ServiceLocator.getInstance();
 
+	private static final String[] columns = {
+		"problemId",
+		"title",
+		"author",
+		"createTime",
+		"healthy"
+	};
+	
 	/**
 	 * Creates a new instance of ProblemsAction
 	 */
@@ -85,7 +93,7 @@ public class ProblemsAction extends DispatchAction {
 
 		ProblemsForm pf = (ProblemsForm) af;
 
-		int problemId = Integer.parseInt((String) request.getParameter("problemId"));
+		int problemId = Integer.parseInt(request.getParameter("problemId"));
 		Problem problem = serviceLocator.lookupProblemBean().getProblem(problemId);
 
 		AuthenticationObject ao = AuthenticationObject.extract(request);
@@ -123,54 +131,95 @@ public class ProblemsAction extends DispatchAction {
 	 * @param request
 	 * @param response
 	 */
-	public void getProblemList(ActionMapping mapping, ActionForm af, HttpServletRequest request, HttpServletResponse response) {
-
+	public void getProblemList(ActionMapping mapping, ActionForm af, HttpServletRequest request, HttpServletResponse response) {		
 		//  Получаем из запроса, какие данные требуются клиенту.
-		int start = Integer.parseInt((String) request.getParameter("start"));
-		int limit = Integer.parseInt((String) request.getParameter("limit"));
+		String iDisplayStartString = (String) request.getParameter("iDisplayStart");
+		String iDisplayLengthString = (String) request.getParameter("iDisplayLength");
+		int iDisplayStart = iDisplayStartString == null ? -1 : Integer.parseInt(iDisplayStartString);
+		int iDisplayLength = iDisplayLengthString == null ? -1 : Integer.parseInt(iDisplayLengthString);
 
-		List<Problem> problems = serviceLocator.lookupProblemBean().getProblems();
-		AuthenticationObject ao = AuthenticationObject.extract(request);
+		String searchString = (String) request.getParameter("sSearch");
+		if (searchString != null && searchString.isEmpty()) {
+		   searchString = null;
+		}
 
-		// Проверяем право пользователя.
-		PermissionCheckerRemote pcb = ao.getPermissionChecker();
-
-		// Отсеиваем из списка задач те, которые пользователь видеть в общем списке задач не должен.
-		List<Problem> selectedProblems = new ArrayList<>();
-		for (Problem problem : problems) {
-			if (pcb.canViewProblem(ao.getUsername(), problem.getProblemId())) {
-				selectedProblems.add(problem);
+		String order = null;
+		boolean descending = false;
+		if (request.getParameter("iSortCol_0") != null)
+		{
+			int iColumn = Integer.parseInt(request.getParameter("iSortCol_0"));
+			if (request.getParameter("bSortable_" + iColumn).equals("true"))
+			{
+					order = columns[iColumn];
+					descending = request.getParameter("sSortDir_0").equals("desc");
 			}
 		}
 
-		int totalCount = selectedProblems.size();
+		List<Problem> problems = serviceLocator.lookupProblemBean().getProblems(
+			order,
+			descending
+		);
+		
+		// Проверяем право пользователя.
+		AuthenticationObject ao = AuthenticationObject.extract(request);
+		PermissionCheckerRemote pcb = ao.getPermissionChecker();
 
-		if (start + limit > selectedProblems.size()) {
-			limit = selectedProblems.size() - start;
+		// Отсеиваем из списка задач те, которые пользователь видеть в общем списке задач не должен.
+		List<Problem> visibleProblems = new ArrayList<>();
+		for (Problem problem : problems) {
+			if (pcb.canViewProblem(ao.getUsername(), problem.getProblemId())) {
+				visibleProblems.add(problem);
+			}
 		}
 
-		if (start < 0 || limit < 0) {
-			return;
+		int totalCount = visibleProblems.size();
+
+		List<Problem> filteredProblems = visibleProblems;
+		
+		if (searchString != null) {
+			filteredProblems = new ArrayList<>();
+			for (Problem problem : visibleProblems) {
+				if (Integer.toString(problem.getProblemId()).contains(searchString) ||
+					problem.getTitle().toLowerCase().contains(searchString.toLowerCase()) ||
+					problem.getAuthor().toLowerCase().contains(searchString.toLowerCase())) {
+					
+					filteredProblems.add(problem);
+				}
+			}
+		}
+		
+		int filteredCount = filteredProblems.size();
+		
+		if (iDisplayStart + iDisplayLength > filteredProblems.size()) {
+			iDisplayLength = filteredProblems.size() - iDisplayStart;
 		}
 
-		selectedProblems = selectedProblems.subList(start, start + limit);
-
+		List<Problem> selectedProblems;
+		if (iDisplayStart >= 0 && iDisplayLength > 0) {
+			selectedProblems = filteredProblems.subList(iDisplayStart, iDisplayStart + iDisplayLength);
+		} else {
+			selectedProblems = filteredProblems;
+		}
+		
 		JSONArray ja = new JSONArray();
 		JSONObject jo = new JSONObject();
-
+		
+		long totalProblemsCount = serviceLocator.lookupProblemBean().getProblemsCount();
 		try {
-			jo.put("totalCount", totalCount);
+			jo.put("sEcho", request.getParameter("sEcho"));
+			jo.put("iTotalRecords", totalCount);
+			jo.put("iTotalDisplayRecords", filteredCount);
 		} catch (JSONException e) {
 			logger.log(Level.SEVERE, "exception caught", e);
 			return;
 		}
 
-		Iterator<Problem> iter = selectedProblems.iterator();
-		while (iter.hasNext()) {
-			ja.put(this.getProblemJSONView(iter.next(), ao));
+		for (Problem problem : selectedProblems) {
+			ja.put(this.getProblemJSONView(problem, ao));
 		}
+		
 		try {
-			jo.put("problems", ja);
+			jo.put("aaData", ja);
 		} catch (JSONException e) {
 			logger.log(Level.SEVERE, "exception caught", e);
 			return;
@@ -184,6 +233,41 @@ public class ProblemsAction extends DispatchAction {
 			logger.log(Level.SEVERE, "exception caught", e);
 		}
 
+	}
+	
+	/**
+	 *
+	 * @param mapping
+	 * @param af
+	 * @param request
+	 * @param response
+	 */
+	public void getProblem(ActionMapping mapping, ActionForm af, HttpServletRequest request, HttpServletResponse response) {		
+		String problemIdString = (String) request.getParameter("problemId");
+		int problemId = problemIdString == null ? -1 : Integer.parseInt(problemIdString);
+
+		Problem problem = serviceLocator.lookupProblemBean().getProblem(problemId);
+		if (problem == null) {
+			return;
+		}
+		
+		// Проверяем право пользователя.
+		AuthenticationObject ao = AuthenticationObject.extract(request);
+		PermissionCheckerRemote pcb = ao.getPermissionChecker();
+
+		if (!pcb.canViewProblem(ao.getUsername(), problem.getProblemId())) {
+			return;
+		}
+		
+		JSONArray ja = this.getProblemJSONView(problem, ao);
+
+		// Устанавливаем тип контента
+		response.setContentType("application/x-json");
+		try {
+			response.getWriter().print(ja);
+		} catch (IOException e) {
+			logger.log(Level.SEVERE, "exception caught", e);
+		}
 	}
 
 	/**
@@ -220,9 +304,45 @@ public class ProblemsAction extends DispatchAction {
 		pf.setOwner(problem.getOwner().getLogin());
 		pf.setCreateTime(problem.getCreateTime());
 		pf.setHidden(problem.isHidden());
-
+		
 		pf.setNewProblem(false);
 		return mapping.findForward("editProblem");
+	}
+	
+	/**
+	 *
+	 * @param mapping
+	 * @param af
+	 * @param request
+	 * @param response
+	 * @return
+	 */
+	public ActionForward editTests(ActionMapping mapping, ActionForm af, HttpServletRequest request, HttpServletResponse response) {
+		ProblemsForm pf = (ProblemsForm) af;
+
+		Problem problem = serviceLocator.lookupProblemBean().getProblem(Integer.parseInt(request.getParameter("problemId")));
+
+		AuthenticationObject ao = AuthenticationObject.extract(request);
+
+		// Проверяем право пользователя.
+		PermissionCheckerRemote pcb = ao.getPermissionChecker();
+		if (!pcb.canModifyProblem(ao.getUsername(), problem.getProblemId())) {
+			return mapping.findForward("accessDenied");
+		}
+
+		pf.reset(mapping, request);
+
+		// Выставляем значения соотв. полей информации пользователя.
+		pf.setTitle(problem.getTitle());
+
+		pf.setOwner(problem.getOwner().getLogin());
+		pf.setCreateTime(problem.getCreateTime());
+		pf.setHidden(problem.isHidden());
+		
+		pf.setEncodedTestList(encodeProblemTestsToJSON(problem.getProblemId()));
+
+		pf.setNewProblem(false);
+		return mapping.findForward("editTests");
 	}
 
 	/**
@@ -524,57 +644,30 @@ public class ProblemsAction extends DispatchAction {
 			testBean.addTest(test);
 		}
 	}
-
+	
 	/**
+	 * Метод возвращает список тестов задачи, закодированный как JSON-String.
 	 *
-	 * @param mapping
-	 * @param af
-	 * @param request
-	 * @param response
+	 * @param problemId - идентификатор задачи.
+	 * @return
 	 */
-	@SuppressWarnings("unchecked")
-	public void getTestList(ActionMapping mapping, ActionForm af, HttpServletRequest request, HttpServletResponse response) {
-		ProblemsForm pf = (ProblemsForm) af;
-
-		AuthenticationObject ao = AuthenticationObject.extract(request);
-
-		// Проверяем право пользователя.
-		PermissionCheckerRemote pcb = ao.getPermissionChecker();
-		if (!pcb.canModifyProblem(ao.getUsername(), pf.getProblemId())) {
-			return;
+	private String encodeProblemTestsToJSON(int problemId) {
+		ProblemLocal problemBean = serviceLocator.lookupProblemBean();
+		Problem problem = problemBean.getProblem(problemId);
+		if (problem == null) {
+			return "[]";
 		}
-
-		List<Test> tests = new LinkedList<>(serviceLocator.lookupProblemBean().getProblem(pf.getProblemId()).getTests());
+		List<Test> tests = new LinkedList<>(problem.getTests());
 		Collections.sort(tests);
 
 		JSONArray ja = new JSONArray();
-		JSONObject jo = new JSONObject();
-
-		try {
-			jo.put("totalCount", tests.size());
-		} catch (JSONException e) {
-			logger.log(Level.SEVERE, "exception caught", e);
-			return;
-		}
 
 		Iterator<Test> iter = tests.iterator();
 		while (iter.hasNext()) {
 			ja.put(this.getTestJSONView(iter.next()));
 		}
-		try {
-			jo.put("tests", ja);
-		} catch (JSONException e) {
-			logger.log(Level.SEVERE, "exception caught", e);
-			return;
-		}
 
-		// Устанавливаем тип контента
-		response.setContentType("application/x-json");
-		try {
-			response.getWriter().print(jo);
-		} catch (IOException e) {
-			logger.log(Level.SEVERE, "exception caught", e);
-		}
+		return ja.toString();
 	}
 
 	/**
@@ -624,6 +717,13 @@ public class ProblemsAction extends DispatchAction {
 		}
 
 		serviceLocator.lookupTestBean().addTest(test);
+		
+		response.setContentType("application/x-json");
+		try {
+			response.getWriter().print(getTestJSONView(test));
+		} catch (IOException e) {
+			logger.log(Level.SEVERE, "exception caught", e);
+		}
 	}
 
 	/**
@@ -646,42 +746,13 @@ public class ProblemsAction extends DispatchAction {
 			return;
 		}
 
-		JSONArray ja = new JSONArray();
 		JSONObject jo = new JSONObject();
-		try {
-			jo.put("totalCount", 1);
-		} catch (JSONException e) {
-			logger.log(Level.SEVERE, "exception caught", e);
-			return;
-		}
-
-		// 0 соотв. входному тесту, 1 - выходному.
-		int testType = Integer.parseInt((String) request.getParameter("testType"));
-
-		if ((testType % 2) == 0) {
-			try {
-				JSONObject js = new JSONObject();
-				js.put("data", test.getInputData());
-				ja.put(js);
-			} catch (JSONException e) {
-				logger.log(Level.SEVERE, "exception caught", e);
-			}
-		}
-		if ((testType % 2) == 1) {
-			try {
-				JSONObject js = new JSONObject();
-				js.put("data", test.getOutputData());
-				ja.put(js);
-			} catch (JSONException e) {
-				logger.log(Level.SEVERE, "exception caught", e);
-			}
-		}
 
 		try {
-			jo.put("testData", ja);
+			jo.put("inputData", test.getInputData());
+			jo.put("outputData", test.getOutputData());
 		} catch (JSONException e) {
 			logger.log(Level.SEVERE, "exception caught", e);
-			return;
 		}
 
 		// Устанавливаем тип контента
@@ -703,8 +774,8 @@ public class ProblemsAction extends DispatchAction {
 	public void commitTest(ActionMapping mapping, ActionForm af, HttpServletRequest request, HttpServletResponse response) {
 
 		int testId = Integer.parseInt((String) request.getParameter("testId"));
-		int testType = Integer.parseInt((String) request.getParameter("testType"));
-		String data = (String) request.getParameter("data");
+		String inputData = (String) request.getParameter("inputData");
+		String outputData = (String) request.getParameter("outputData");
 		TestLocal testBean = serviceLocator.lookupTestBean();
 
 		Test test = testBean.getTest(testId);
@@ -717,12 +788,8 @@ public class ProblemsAction extends DispatchAction {
 			return;
 		}
 
-		if (testType % 2 == 0) {
-			test.setInputData(data);
-		}
-		if (testType % 2 == 1) {
-			test.setOutputData(data);
-		}
+		test.setInputData(inputData);
+		test.setOutputData(outputData);
 
 		testBean.modifyTest(test);
 	}
@@ -734,30 +801,15 @@ public class ProblemsAction extends DispatchAction {
 	 * @param ao
 	 * @return
 	 */
-	private JSONObject getProblemJSONView(Problem problem, AuthenticationObject ao) {
+	private JSONArray getProblemJSONView(Problem problem, AuthenticationObject ao) {
+		JSONArray json = new JSONArray();
 
-		JSONObject json = new JSONObject();
+		json.put(problem.getProblemId());
+		json.put(problem.getTitle());
+		json.put(problem.getAuthor());
+		json.put(problem.getCreateTime().getTime());
+		json.put(problem.isHealthy());
 
-		SimpleDateFormat sdf = new SimpleDateFormat("yyyy.MM.dd");
-
-		PermissionCheckerRemote pcb = ao.getPermissionChecker();
-
-		// Заполняем данными задачи созданный объект JSON.
-		try {
-			json.put("id", problem.getProblemId());
-			json.put("title", problem.getTitle());
-			json.put("owner", problem.getOwner().getLogin());
-			json.put("create_time", sdf.format(problem.getCreateTime()));
-			json.put("is_healthy", problem.isHealthy());
-
-			if (pcb.canDeleteProblem(ao.getUsername(), problem.getProblemId())) {
-				json.put("deletable", true);
-			} else {
-				json.put("deletable", false);
-			}
-		} catch (JSONException e) {
-			logger.log(Level.SEVERE, "Trouble while creating JSON view of Problem object.", e);
-		}
 		return json;
 	}
 
@@ -789,7 +841,7 @@ public class ProblemsAction extends DispatchAction {
 	 * @param request
 	 * @param response
 	 */
-	public void delete(ActionMapping mapping, ActionForm af, HttpServletRequest request, HttpServletResponse response) {
+	public ActionForward delete(ActionMapping mapping, ActionForm af, HttpServletRequest request, HttpServletResponse response) {
 		AuthenticationObject ao = AuthenticationObject.extract(request);
 		ProblemLocal problemBean = serviceLocator.lookupProblemBean();
 		int problemId = Integer.parseInt((String) request.getParameter("problemId"));
@@ -798,17 +850,23 @@ public class ProblemsAction extends DispatchAction {
 		// Проверяем право пользователя на удаление задачи из системы.
 		PermissionCheckerRemote pcb = ao.getPermissionChecker();
 		if (!pcb.canDeleteProblem(ao.getUsername(), problemId)) {
-			return;
+			return mapping.findForward("accessDenied");
 		}
 
 		// Задача не будет удалена, если она есть хотя бы в одном из соревнований, существующих в системе.
 		List<Contest> contests = serviceLocator.lookupContestBean().getContests();
 		for (Contest contest : contests) {
 			if (contest.getContestProblems().contains(new ContestProblem(contest, problem))) {
-				return;
+				ActionForward forward = new ActionForward();
+				forward.setPath("problems.do?reqCode=view&problemId=" + problem.getProblemId());
+				forward.setRedirect(true);
+				return forward;			
 			}
 		}
 
 		problemBean.deleteProblem(problemId);
-	}
+		
+		return mapping.findForward("redirectProblemsList");
+	}	
+
 }

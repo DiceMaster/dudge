@@ -4,7 +4,6 @@ import dudge.ContestLocal;
 import dudge.db.Contest;
 import dudge.web.ServiceLocator;
 import dudge.web.forms.AnnounceForm;
-import java.util.Collections;
 import java.util.List;
 import java.util.logging.Logger;
 import javax.servlet.http.HttpServletRequest;
@@ -41,15 +40,28 @@ public class AnnounceAction extends DispatchAction {
 		anf.setContestBean(contestBean);
 
 		List<Contest> activeContests = contestBean.getActiveContests();
-		Collections.sort(activeContests);
-		anf.setActiveContests(activeContests);
 		List<Contest> pendingContests = contestBean.getPendingContests();
-		Collections.sort(pendingContests);
-		anf.setPendingContests(pendingContests);
-		List<Contest> recentlyFinishedContests = contestBean.getRecentlyFinishedContests();
-		Collections.sort(recentlyFinishedContests);
-		anf.setRecentlyFinishedContests(recentlyFinishedContests);
+		List<Contest> finishedContests = contestBean.getRecentlyFinishedContests();
 
+		anf.setNoContests(activeContests.isEmpty() &&
+		                  pendingContests.isEmpty() &&
+		                  finishedContests.isEmpty());
+		
+		if (activeContests.size() > 0) {
+			anf.setHighlightedContest(activeContests.get(0));
+		} else if (pendingContests.size() > 0) {
+			anf.setHighlightedContest(pendingContests.get(0));
+		} else if (finishedContests.size() > 0) {
+			anf.setHighlightedContest(finishedContests.get(0));
+		} else {
+			anf.setHighlightedContest(null);
+		}
+		
+		anf.setActiveContests(activeContests);
+		anf.setPendingContests(pendingContests);
+		anf.setRecentlyFinishedContests(finishedContests);
+		anf.setGlobalContests(contestBean.getGlobalContests());
+		
 		return mapping.findForward("announce");
 	}
 }

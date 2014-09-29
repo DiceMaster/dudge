@@ -11,6 +11,11 @@ import java.util.logging.Logger;
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
+import javax.persistence.Query;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Predicate;
+import javax.persistence.criteria.Root;
 
 /**
  *
@@ -18,7 +23,7 @@ import javax.persistence.PersistenceContext;
  */
 @Stateless
 public class UserBean implements UserLocal {
-
+    
 	private static final Logger logger = Logger.getLogger(UserBean.class.toString());
 	@PersistenceContext(unitName = "dudge-ejbPU")
 	private EntityManager em;
@@ -177,12 +182,75 @@ public class UserBean implements UserLocal {
 		em.remove((User) em.find(User.class, login.toLowerCase(Locale.ENGLISH)));
 	}
 
+        /**
+	 * Возвращает количество пользователей, зарегестрированных в системе.
+	 *
+	 * @return Количество пользователей системы.
+	 */
+        @Override
+	public long getUsersCount()
+        {
+            return (Long) em.createQuery("SELECT COUNT(u) FROM User u").getSingleResult();
+        }
+        
 	/**
 	 *
 	 * @return
 	 */
 	@Override
 	public List<User> getUsers() {
-		return (List<User>) em.createNamedQuery("User.getUsers").getResultList();
+            return (List<User>) em.createNamedQuery("User.getUsers").getResultList();
+	}
+        
+	@Override
+	public FilteredUsers getUsers(String searchCriteria, String orderBy, boolean descending, int start, int length) {
+		CriteriaBuilder builder = em.getCriteriaBuilder();
+		CriteriaQuery usersCriteriaQuery = builder.createQuery();
+		Root usersRoot = usersCriteriaQuery.from(User.class);
+
+		CriteriaQuery<Long> countCriteriaQuery = builder.createQuery(Long.class);
+		Root countRoot = countCriteriaQuery.from(User.class);
+		countCriteriaQuery.select(builder.count(countRoot));
+
+		if (searchCriteria != null) {
+			usersCriteriaQuery.where(builder.or(
+					builder.like(usersRoot.get("login"), "%" + searchCriteria + "%"),                        
+					builder.like(usersRoot.get("organization"), "%" + searchCriteria + "%"),
+					builder.like(usersRoot.get("realName"), "%" + searchCriteria + "%")
+				));
+			countCriteriaQuery.where(builder.or(
+					builder.like(countRoot.get("login"), "%" + searchCriteria + "%"),                        
+					builder.like(countRoot.get("organization"), "%" + searchCriteria + "%"),
+					builder.like(countRoot.get("realName"), "%" + searchCriteria + "%")
+				));
+		}
+
+		final long count = em.createQuery(countCriteriaQuery).getSingleResult();
+
+		if (orderBy != null) {
+			usersCriteriaQuery.orderBy(descending ? builder.desc(usersRoot.get(orderBy)) : builder.asc(usersRoot.get(orderBy)));
+		}
+
+		Query usersQuery = em.createQuery(usersCriteriaQuery);
+		if (start >= 0) {
+			usersQuery = usersQuery.setFirstResult(start);
+		}
+		if (length > 0) {
+			usersQuery = usersQuery.setMaxResults(length);
+		}
+		final List<User> filteredUsers = (List<User>) usersQuery.getResultList();
+
+		return new FilteredUsers() {
+
+			@Override
+			public long getFilteredTotal() {
+				return count;
+			}
+
+			@Override
+			public List<User> getFilteredUsers() {
+				return filteredUsers;
+			}
+		};
 	}
 }

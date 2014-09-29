@@ -1,143 +1,113 @@
-<script type="text/javascript">
-var ds = null;
-var solutionCount = 20;
-Ext.onReady(function(){
-// create the Data Store
-ds = new Ext.data.Store({
-	// load using script tags for cross domain, if the data in on the same domain as
-	// this page, an HttpProxy would be better
-	proxy: new Ext.data.HttpProxy({
-		url: 'solutions.do?reqCode=getLastSolutions'
-	}),
-
-	reader: new Ext.data.JsonReader({
-		root: 'solutions',
-		totalProperty: 'totalCount',
-		id: 'solutionId'
-		}, [
-			{name: 'solutionId', mapping: 'solutionId'},
-			{name: 'submitTime', mapping: 'submitTime'},
-			{name: 'user', mapping: 'user'},
-			{name: 'contestId', mapping: 'contestId'},
-			{name: 'problemId', mapping: 'problemId'},
-			{name: 'languageId', mapping: 'languageId'},
-			{name: 'status', mapping: 'status'}
-		   ]
-		),
-
-	// turn on remote sorting
-	remoteSort: false
-	});
-
-function renderLogin(value, metadata, record, row, col, ds)
-{
-	return '<a href="users.do?reqCode=view&login='
-		+ record.get('user') + '">' + record.get('user') + '</a>';
-}
-
-function renderSolution(value, metadata, record, row, col, ds)
-{
-	return '<a href="solutions.do?reqCode=view&solutionId='
-		+ record.get('solutionId') + '">' + record.get('solutionId') + '</a>';
-}
-
-function renderContest(value, metadata, record, row, col, ds)
-{
-	return '<a href="contests.do?reqCode=view&contestId='
-		+ record.get('contestId') + '">' + record.get('contestId') + '</a>';
-}
-
-function renderProblem(value, metadata, record, row, col, ds)
-{
-	return '<a href="problems.do?reqCode=view&problemId='
-		+ record.get('problemId') + '">' + record.get('problemId') + '</a>';
-}
-
-function renderLanguage(value, metadata, record, row, col, ds)
-{
-	return '<a href="languages.do?reqCode=view&languageId='
-		+ record.get('languageId') + '">' + record.get('languageId') + '</a>';
-}
-
-// the column model has information about grid columns
-// dataIndex maps the column to the specific data field in
-// the data store
-var cm = new Ext.grid.ColumnModel([
-	{
-	   header: '<bean:message key="solution.id"/>',
-	   dataIndex: 'solutionId',
-	   renderer: renderSolution,
-	   width: 25
-	},
-	{
-	   header: '<bean:message key="solution.time" />',
-	   dataIndex: 'submitTime',
-	   width: 110
-	},
-	{
-	   header: '<bean:message key="user.user" />',
-	   dataIndex: 'user',
-	   renderer: renderLogin,
-	   width: 80
-	},
-	{
-		header: '<bean:message key="contest.contest" />',
-		dataIndex: 'contestId',
-		renderer: renderContest,
-		width: 60
-	},
-	{
-		header: '<bean:message key="problem.problem" />',
-		dataIndex: 'problemId',
-		renderer: renderProblem,
-		width: 60
-	},
-	{
-		header: '<bean:message key="language.language" />',
-		dataIndex: 'languageId',
-		renderer: renderLanguage,
-		width: 60
-	},
-	{
-		header: '<bean:message key="solution.status" />',
-		dataIndex: 'status',
-		width: 150
-	}
-	]);
-
-var statusToolbar = new Ext.Toolbar();
-
-var grid = new Ext.grid.GridPanel({
-	applyTo: 'statusGrid',
-	title: '<bean:message key="status.status" />',
-	ds: ds,
-	cm: cm,
-	autoHeight: true,
-	selModel: new Ext.grid.RowSelectionModel({ singleSelect:true }),
-	tbar: statusToolbar,
-	viewConfig: {
-		forceFit: true
-	}
-
-});
-
-statusToolbar.addButton({
-	text: '<bean:message key="status.update" />',
-	handler: function(){
-		ds.load({params:{limit: solutionCount}});
-		grid.getView().refresh(false);
-		}
-	});
-
-statusToolbar.doLayout();
-
-}); //Ext.onReady()
-</script>
+<link rel="stylesheet" type="text/css" href="css/dudge-styles.css" /> 
+<script src="scripts/jquery.dataTables.min.js"></script>
+<script src="scripts/dudge-tables.js"></script>
 
 <script type="text/javascript">
-Ext.onReady(function(){
-	ds.load({params:{limit: solutionCount}});
-});
+    $(document).ready(function() {
+        $("#navbarStatus").addClass("active");
+        
+        var table = $('#statusGrid').dataTable( {
+            "bProcessing": true,
+            "bServerSide": true,
+            "sServerMethod": "POST",
+            "bSort" : false,
+            "bStateSave": true,
+            "iDisplayLength": 25,
+            "sAjaxSource": "solutions.do?reqCode=getLastSolutions",
+            "sPaginationType": "bootstrap",
+            "sDom": '<"row"p>rt<"row"<"col-lg-8"p><"col-lg-4"i>>',
+            "oLanguage": {
+                "sUrl": "l18n/${pageContext.response.locale}.txt"
+            },
+            "aoColumnDefs": [
+                { "bVisible": false, "aTargets": [ 3, 5, 9 ] }
+            ],
+            "fnCreatedRow": function( nRow, aData ) {
+                $('td:eq(0)', nRow).html( '<a href="solutions.do?reqCode=view&solutionId=' + aData[0] + '">' + aData[0] +'</a>' );
+                $('td:eq(1)', nRow).html( new Date(aData[1]).toLocaleString() );
+                $('td:eq(2)', nRow).html( '<a href="users.do?reqCode=view&login=' + aData[2] + '">' + aData[2] +'</a>' );
+                $('td:eq(3)', nRow).html( '<a href="contests.do?reqCode=view&contestId=' + aData[3] + '">' + aData[4] +'</a>' );
+                $('td:eq(4)', nRow).html( '<a href="problems.do?reqCode=view&contestId=' + aData[3] + '&problemId=' + aData[5] + '">' + aData[6] +'</a>' );
+                
+                var status;
+                switch (aData[8]) {
+                    case "NEW":
+                        status = '<bean:message key="solution.status.NEW"/>';
+                        break;
+                    case "INTERNAL_ERROR":
+                        status = '<bean:message key="solution.status.INTERNAL_ERROR"/> ' +
+                                 '<bean:message key="solution.onTest"/> ' + aData[9];
+                        break;
+                    case "DISQUALIFIED":
+                        status = '<bean:message key="solution.status.DISQUALIFIED"/>';
+                        break;
+                    case "COMPILING":
+                        status = '<bean:message key="solution.status.COMPILING"/>';
+                        break;
+                    case "COMPILATION_ERROR":
+                        status = '<bean:message key="solution.status.COMPILATION_ERROR"/>';
+                        break;
+                    case "RUNNING":
+                        status = '<bean:message key="solution.status.RUNNING"/> ' +
+                                 '<bean:message key="solution.onTest"/> ' + aData[9];
+                        break;
+                    case "RUNTIME_ERROR":
+                        status = '<bean:message key="solution.status.RUNTIME_ERROR"/> ' +
+                                 '<bean:message key="solution.onTest"/> ' + aData[9];
+                        break;
+                    case "MEMORY_LIMIT":
+                        status = '<bean:message key="solution.status.MEMORY_LIMIT"/> ' +
+                                 '<bean:message key="solution.onTest"/> ' + aData[9];
+                        break;
+                    case "TIME_LIMIT":
+                        status = '<bean:message key="solution.status.TIME_LIMIT"/> ' +
+                                 '<bean:message key="solution.onTest"/> ' + aData[9];
+                        break;
+                    case "OUTPUT_LIMIT":
+                        status = '<bean:message key="solution.status.OUTPUT_LIMIT"/> ' +
+                                 '<bean:message key="solution.onTest"/> ' + aData[9];
+                        break;
+                    case "PRESENTATION_ERROR":
+                        status = '<bean:message key="solution.status.PRESENTATION_ERROR"/> ' +
+                                 '<bean:message key="solution.onTest"/> ' + aData[9];
+                        break;
+                    case "WRONG_ANSWER":
+                        status = '<bean:message key="solution.status.WRONG_ANSWER"/> ' +
+                                 '<bean:message key="solution.onTest"/> ' + aData[9];
+                        break;
+                    case "SECURITY_VIOLATION":
+                        status = '<bean:message key="solution.status.SECURITY_VIOLATION"/>';
+                        break;
+                    case "SUCCESS":
+                        status = '<bean:message key="solution.status.SUCCESS"/>';
+                        break;
+                    default:
+                        status = "";
+                }
+                $('td:eq(6)', nRow).html( status );
+            }
+        });
+    });
 </script>
 
-<div id="statusGrid"></div>
+<h1><bean:message key="status.status" /></h1>
+
+<table class="table" id="statusGrid">
+    <thead>
+        <tr>
+            <th><bean:message key="solution.id"/></th>
+            <th><bean:message key="solution.time"/></th>
+            <th><bean:message key="user.user" /></th>
+            <th>Contest ID</th>
+            <th><bean:message key="contest.contest" /></th>
+            <th>Problem ID</th>
+            <th><bean:message key="problem.problem" /></th>
+            <th><bean:message key="language.language" /></th>
+            <th><bean:message key="solution.status" /></th>
+            <th>On test</th>
+        </tr>
+    </thead>
+    <tbody>       
+    </tbody>
+</table>
+

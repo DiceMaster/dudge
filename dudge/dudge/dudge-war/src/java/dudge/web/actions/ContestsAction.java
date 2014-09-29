@@ -22,6 +22,7 @@ import dudge.db.User;
 import dudge.web.AuthenticationObject;
 import dudge.web.ServiceLocator;
 import dudge.web.forms.ContestsForm;
+import dudge.web.forms.ContestsForm.ContestRole;
 import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -47,6 +48,14 @@ public class ContestsAction extends DispatchAction {
 	private static final Logger logger = Logger.getLogger(ContestsAction.class.toString());
 	private ServiceLocator serviceLocator = ServiceLocator.getInstance();
 
+        private static final String[] columns = {
+          "contestId",
+          "caption",
+          "type",
+          "open",
+          "startTime"
+        };
+        
 	/**
 	 * Creates a new instance of ContestsAction
 	 */
@@ -101,25 +110,57 @@ public class ContestsAction extends DispatchAction {
 	 * @param response
 	 */
 	public void getContestList(ActionMapping mapping, ActionForm af, HttpServletRequest request, HttpServletResponse response) {
+		//  Получаем из запроса, какие данные требуются клиенту.
+		String iDisplayStartString = (String) request.getParameter("iDisplayStart");
+		String iDisplayLengthString = (String) request.getParameter("iDisplayLength");
+		int iDisplayStart = iDisplayStartString == null ? -1 : Integer.parseInt(iDisplayStartString);
+		int iDisplayLength = iDisplayLengthString == null ? -1 : Integer.parseInt(iDisplayLengthString);
 
-		List<Contest> contests = serviceLocator.lookupContestBean().getContests();
+		String searchString = (String) request.getParameter("sSearch");
+		if (searchString != null && searchString.isEmpty()) {
+		   searchString = null;
+		}
 
+		String order = null;
+		boolean descending = false;
+		if (request.getParameter("iSortCol_0") != null)
+		{
+			int iColumn = Integer.parseInt(request.getParameter("iSortCol_0"));
+			if (request.getParameter("bSortable_" + iColumn).equals("true"))
+			{
+					order = columns[iColumn];
+					descending = request.getParameter("sSortDir_0").equals("desc");
+			}
+		}
+
+		ContestLocal.FilteredContests contests = serviceLocator.lookupContestBean().getContests(
+			searchString,
+			order,
+			descending,
+			iDisplayStart,
+			iDisplayLength
+		);
+
+		long totalContestsCount = serviceLocator.lookupContestBean().getContestsCount();
+                
 		JSONArray ja = new JSONArray();
 		JSONObject jo = new JSONObject();
 
 		try {
-			jo.put("totalCount", contests.size());
+                    jo.put("sEcho", request.getParameter("sEcho"));
+                    jo.put("iTotalRecords", totalContestsCount);
+                    jo.put("iTotalDisplayRecords", contests.getFilteredTotal());
 		} catch (JSONException e) {
-			logger.log(Level.SEVERE, "exception caught", e);
-			return;
+                    logger.log(Level.SEVERE, "exception caught", e);
+                    return;
 		}
 
 		AuthenticationObject ao = AuthenticationObject.extract(request);
-		for (Iterator<Contest> iter = contests.iterator(); iter.hasNext();) {
-			ja.put(this.getContestJSONView(iter.next(), ao));
+		for (Iterator<Contest> iter = contests.getFilteredContests().iterator(); iter.hasNext();) {
+                    ja.put(this.getContestJSONView(iter.next(), ao));
 		}
 		try {
-			jo.put("contests", ja);
+			jo.put("aaData", ja);
 		} catch (JSONException e) {
 			logger.log(Level.SEVERE, "exception caught", e);
 			return;
@@ -141,30 +182,24 @@ public class ContestsAction extends DispatchAction {
 	 * @param ao
 	 * @return
 	 */
-	private JSONObject getContestJSONView(Contest contest, AuthenticationObject ao) {
+	private JSONArray getContestJSONView(Contest contest, AuthenticationObject ao) {
 
-		JSONObject json = new JSONObject();
+		JSONArray json = new JSONArray();
 
 		PermissionCheckerRemote pcb = ao.getPermissionChecker();
 
 		// Заполняем данными задачи созданный объект JSON.
-		try {
-			json.put("id", contest.getContestId());
-			json.put("caption", contest.getCaption());
-			json.put("starts", new SimpleDateFormat("yyyy.MM.dd HH:mm").format(contest.getStartTime()));
-			json.put("duration", contest.getDuration());
-			json.put("type", contest.getType().toString());
-			json.put("is_open", contest.isOpen());
+		json.put(contest.getContestId());
 
-			json.put("joinable", pcb.canJoinContest(ao.getUsername(), contest.getContestId()));
+		json.put(contest.getCaption());
+		json.put(contest.getType().toString());
+		json.put(contest.isOpen());
+		json.put(new SimpleDateFormat("yyyy.MM.dd HH:mm").format(contest.getStartTime()));
 
-			json.put("editable", pcb.canModifyContest(ao.getUsername(), contest.getContestId()));
-
-			json.put("deletable", pcb.canDeleteContest(ao.getUsername(), contest.getContestId()));
-
-		} catch (JSONException e) {
-			logger.log(Level.SEVERE, "Failed creation of JSON view of Contest object.", e);
-		}
+		json.put(contest.getDuration());
+		json.put(pcb.canJoinContest(ao.getUsername(), contest.getContestId()));
+		json.put(pcb.canModifyContest(ao.getUsername(), contest.getContestId()));
+		json.put(pcb.canDeleteContest(ao.getUsername(), contest.getContestId()));
 		return json;
 	}
 
@@ -476,6 +511,13 @@ public class ContestsAction extends DispatchAction {
 		modifiedContest.setRoles(allRoles);
 
 		List<Application> allApplications = (List<Application>) this.decodeApplicationsFromJSON(cf.getEncodedApplications(), modifiedContest);
+		List<Application> applicationsToRemove = new ArrayList<Application>();
+		for (Application application : allApplications) {
+			if (!application.getStatus().equals(ApplicationStatus.NEW.toString())) {
+				applicationsToRemove.add(application);
+			}
+		}
+		allApplications.removeAll(applicationsToRemove);
 		modifiedContest.setApplications(allApplications);
 
 		contestBean.modifyContest(modifiedContest);
@@ -516,6 +558,10 @@ public class ContestsAction extends DispatchAction {
 		cf.reset(mapping, request);
 		cf.getContestTypes().addAll(Arrays.asList(ContestType.values()));
 		cf.getRoleTypes().addAll(Arrays.asList(RoleType.values()));
+                
+                for (Role role : contest.getRoles()) {
+                    cf.getRoles().add(cf.new ContestRole(role.getUser().getLogin(), role.getUser().getRealName(), role.getRoleType()));
+                }
 
 		// Выставляем значения для полей, соотв. текущим значениям редактируемого контеста.
 		cf.setContestId(String.valueOf(contestId));
@@ -679,8 +725,7 @@ public class ContestsAction extends DispatchAction {
 				if (user != null) {
 					Application currentApplication = new Application(contest, user);
 					currentApplication.setStatus(jsonApplications.getJSONObject(i).getString("status"));
-					currentApplication.setFilingTime(
-							new SimpleDateFormat("yyyy.MM.dd HH:mm").parse(jsonApplications.getJSONObject(i).getString("filing_time")));
+					currentApplication.setFilingTime(new Date(jsonApplications.getJSONObject(i).getLong("filing_time")));
 					currentApplication.setMessage(jsonApplications.getJSONObject(i).getString("message"));
 					applications.add(currentApplication);
 				}
@@ -776,21 +821,12 @@ public class ContestsAction extends DispatchAction {
 		Collection<Role> roles = serviceLocator.lookupContestBean().getContest(contestId).getRoles();
 
 		JSONArray ja = new JSONArray();
-		JSONObject jo = new JSONObject();
 
-		try {
-			jo.put("rolesTotalCount", roles.size());
-
-			for (Iterator<Role> iter = roles.iterator(); iter.hasNext();) {
-				ja.put(this.getRoleJsonView(iter.next()));
-			}
-
-			jo.put("roles", ja);
-		} catch (JSONException e) {
-			logger.log(Level.SEVERE, "exception caught", e);
+		for (Role role : roles) {
+			ja.put(this.getRoleJsonView(role));
 		}
 
-		return jo.toString();
+		return ja.toString();
 	}
 
 	/**
@@ -804,21 +840,12 @@ public class ContestsAction extends DispatchAction {
 		List<Application> applications = (List<Application>) serviceLocator.lookupContestBean().getContest(contestId).getApplications();
 
 		JSONArray ja = new JSONArray();
-		JSONObject jo = new JSONObject();
 
-		try {
-			jo.put("applicationsTotalCount", applications.size());
-
-			for (Iterator<Application> iter = applications.iterator(); iter.hasNext();) {
-				ja.put(this.getApplicationJsonView(iter.next()));
-			}
-
-			jo.put("applications", ja);
-		} catch (JSONException e) {
-			logger.log(Level.SEVERE, "exception caught", e);
+		for (Application application : applications) {
+			ja.put(this.getApplicationJsonView(application));
 		}
 
-		return jo.toString();
+		return ja.toString();
 	}
 
 	/**
@@ -833,62 +860,39 @@ public class ContestsAction extends DispatchAction {
 		List<Language> languages = serviceLocator.lookupLanguageBean().getLanguages();
 
 		JSONArray ja = new JSONArray();
-		JSONObject jo = new JSONObject();
 
 		// Если вызывается для нового контеста.
 		if (contestId == 0) {
-			try {
-				jo.put("languagesTotalCount", languages.size());
-
-				for (Language language : languages) {
-					JSONObject languageView = new JSONObject();
-
-					languageView.put("enabled", false);
-					languageView.put("id", language.getLanguageId());
-					languageView.put("title", language.getName());
-					languageView.put("description", language.getDescription());
-
-					ja.put(languageView);
-				}
-
-				jo.put("languages", ja);
-			} catch (JSONException e) {
-				logger.log(Level.SEVERE, "exception caught", e);
-			}
-
-			return jo.toString();
-		}
-
-
-		// Иначе:
-		// Просматриваем все языки, и для выяснения их допустимости провереем,
-		// есть ли данный язык в списке языков данноого контеста.
-		try {
-			jo.put("languagesTotalCount", languages.size());
-
 			for (Language language : languages) {
-				JSONObject languageView = new JSONObject();
-				ContestLanguage conLanguage = new ContestLanguage(contestBean.getContest(contestId), language);
+				JSONArray languageView = new JSONArray();
 
-				if (contestBean.getContest(contestId).getContestLanguages().contains(conLanguage)) {
-					languageView.put("enabled", true);
-				} else {
-					languageView.put("enabled", false);
-				}
-
-				languageView.put("id", language.getLanguageId());
-				languageView.put("title", language.getName());
-				languageView.put("description", language.getDescription());
+				languageView.put(false);
+				languageView.put(language.getLanguageId());
+				languageView.put(language.getName());
+				languageView.put(language.getDescription());
 
 				ja.put(languageView);
 			}
 
-			jo.put("languages", ja);
-		} catch (JSONException e) {
-			logger.log(Level.SEVERE, "exception caught", e);
+			return ja.toString();
 		}
 
-		return jo.toString();
+		// Иначе:
+		// Просматриваем все языки, и для выяснения их допустимости провереем,
+		// есть ли данный язык в списке языков данноого контеста.
+		for (Language language : languages) {
+			JSONArray languageView = new JSONArray();
+			ContestLanguage conLanguage = new ContestLanguage(contestBean.getContest(contestId), language);
+
+			languageView.put(contestBean.getContest(contestId).getContestLanguages().contains(conLanguage));
+			languageView.put(language.getLanguageId());
+			languageView.put(language.getName());
+			languageView.put(language.getDescription());
+
+			ja.put(languageView);
+		}
+
+		return ja.toString();
 	}
 
 	/**
@@ -901,21 +905,12 @@ public class ContestsAction extends DispatchAction {
 		List<ContestProblem> problems = (List<ContestProblem>) serviceLocator.lookupContestBean().getContest(contestId).getContestProblems();
 
 		JSONArray ja = new JSONArray();
-		JSONObject jo = new JSONObject();
 
-		try {
-			jo.put("problemsTotalCount", problems.size());
-
-			for (Iterator<ContestProblem> iter = problems.iterator(); iter.hasNext();) {
-				ja.put(this.getContestProblemJsonView(iter.next()));
-			}
-
-			jo.put("problems", ja);
-		} catch (JSONException e) {
-			logger.log(Level.SEVERE, "exception caught", e);
+		for (ContestProblem contestProblem : problems) {
+			ja.put(this.getContestProblemJsonView(contestProblem));
 		}
 
-		return jo.toString();
+		return ja.toString();
 	}
 
 	/**
@@ -924,17 +919,11 @@ public class ContestsAction extends DispatchAction {
 	 * @param role
 	 * @return
 	 */
-	private JSONObject getRoleJsonView(Role role) {
-		JSONObject json = new JSONObject();
+	private JSONArray getRoleJsonView(Role role) {
+		JSONArray json = new JSONArray();
 
-		// Заполняем данными пользователя созданный объект JSON.
-		try {
-			json.put("login", role.getUser().getLogin());
-			json.put("role", role.getRoleType().toString());
-
-		} catch (JSONException e) {
-			logger.log(Level.SEVERE, "Failed creation of JSON view of Role object.", e);
-		}
+		json.put(role.getUser().getLogin());
+		json.put(role.getRoleType().toString());
 
 		return json;
 	}
@@ -945,19 +934,13 @@ public class ContestsAction extends DispatchAction {
 	 * @param app
 	 * @return
 	 */
-	private JSONObject getApplicationJsonView(Application app) {
-		JSONObject json = new JSONObject();
+	private JSONArray getApplicationJsonView(Application app) {
+		JSONArray json = new JSONArray();
 
-		// Заполняем данными пользователя созданный объект JSON.
-		try {
-			json.put("login", app.getOwner().getLogin());
-			json.put("filing_time", new SimpleDateFormat("yyyy.MM.dd HH:mm").format(app.getFilingTime()));
-			json.put("message", app.getMessage());
-			json.put("status", app.getStatus());
-
-		} catch (JSONException e) {
-			logger.log(Level.SEVERE, "Failed creation of JSON view of Application object.", e);
-		}
+		json.put(app.getOwner().getLogin());
+		json.put(app.getFilingTime().getTime());
+		json.put(app.getMessage());
+		json.put(app.getStatus());
 
 		return json;
 	}
@@ -968,18 +951,14 @@ public class ContestsAction extends DispatchAction {
 	 * @param problem
 	 * @return
 	 */
-	private JSONObject getContestProblemJsonView(ContestProblem problem) {
-		JSONObject json = new JSONObject();
+	private JSONArray getContestProblemJsonView(ContestProblem problem) {
+		JSONArray json = new JSONArray();
 
-		// Заполняем данными пользователя созданный объект JSON.
-		try {
-			json.put("problemId", problem.getProblem().getProblemId());
-			json.put("order", problem.getProblemOrder());
-			json.put("mark", problem.getProblemMark());
-			json.put("cost", problem.getProblemCost());
-		} catch (JSONException e) {
-			logger.log(Level.SEVERE, "Failed creation of JSON view of ContestProblem object.", e);
-		}
+		json.put(problem.getProblemMark());
+		json.put(problem.getProblemOrder());
+		json.put(problem.getProblem().getProblemId());
+		json.put(problem.getProblem().getTitle());
+		json.put(problem.getProblemCost());
 
 		return json;
 	}

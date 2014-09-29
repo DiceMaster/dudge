@@ -7,7 +7,7 @@
 
 <struts-config>
 	<form-beans>
-        <form-bean name="announceForm" type="dudge.web.forms.AnnounceForm"/>
+		<form-bean name="announceForm" type="dudge.web.forms.AnnounceForm"/>
 		<form-bean name="usersForm" type="dudge.web.forms.UsersForm"/>
 		<form-bean name="loginForm" type="dudge.web.forms.LoginForm"/>
 		<form-bean name="contestsForm" type="dudge.web.forms.ContestsForm"/>	
@@ -15,6 +15,8 @@
 		<form-bean name="solutionsForm" type="dudge.web.forms.SolutionsForm"/>
 		<form-bean name="languagesForm" type="dudge.web.forms.LanguagesForm"/>
 		<form-bean name="reportsForm" type="dudge.web.forms.ReportsForm"/>
+                <form-bean name="monitorForm" type="dudge.web.forms.MonitorForm"/>
+                <form-bean name="rulesForm" type="dudge.web.forms.RulesForm"/>
 	</form-beans>
 	
 	<global-exceptions>
@@ -37,11 +39,13 @@
 		<forward name="editContest" path="/contest/editContest.jsp"/>
 		<forward name="viewContest" path="/contest/viewContest.jsp"/>
 		<forward name="contestProblems" path="/contest/contestProblems.jsp"/>
-		<forward name="contestRules" path="/contest/rules.jsp"/>
+		<forward name="contestRules" path="/contest/contestRules.jsp"/>
 		
 		<forward name="submitSolution" path="/solution/submitSolution.jsp"/>
 		<forward name="viewSolution" path="/solution/viewSolution.jsp"/>
+		<forward name="mySolutions" path="/solution/mySolutions.jsp"/>
 		
+                <forward name="editTests" path="/problem/editTests.jsp"/>
 		<forward name="editProblem" path="/problem/editProblem.jsp"/>
 		<forward name="problems" path="/problem/problems.jsp"/>
 		<forward name="viewProblem" path="/problem/viewProblem.jsp"/>
@@ -54,7 +58,10 @@
 		<forward name="monitorGLOBAL" path="/monitor/monitorGLOBAL.jsp"/>
 		<forward name="monitorACM" path="/monitor/monitorACM.jsp"/>
 		<forward name="monitorLAB" path="/monitor/monitorLAB.jsp"/>
-		
+                
+		<forward name="viewRules" path="/rules/viewRules.jsp"/>
+		<forward name="editRules" path="/rules/editRules.jsp"/>
+                
 		<forward name="loginRequired" path="/loginRequired.jsp"/>
 		<forward name="accessDenied" path="/accessDenied.jsp"/>
 		<forward name="importError" path="/importError.jsp"/>
@@ -99,10 +106,13 @@
 			 name="problemsForm"
 			 scope="session"
 			 parameter="reqCode">
+                        <forward name="redirectProblemsList" path="/problemss.do?reqCode=list" redirect="true"/>
 		</action>
 		
 		<action path="/monitor"
 			 type="dudge.web.actions.MonitorAction"
+			 name="monitorForm"
+			 scope="session"
 			 parameter="reqCode">
 		</action>
 		
@@ -111,6 +121,7 @@
 			 name="usersForm"
 			 parameter="reqCode">
 			<forward name="registrationSuccess" path="/registrationSuccess.jsp" redirect="true"/>
+                        <forward name="redirectUsersList" path="/users.do?reqCode=list" redirect="true"/>
 		</action>
 		
 		<action path="/languages" 
@@ -123,6 +134,12 @@
 		<action path="/locale" 
 			parameter="reqCode"
 			type="dudge.web.actions.LocalesAction">
+		</action>
+                
+                <action path="/rules"
+			 type="dudge.web.actions.RulesAction"
+			 name="rulesForm"
+			 parameter="reqCode">
 		</action>
 
 		<action path="/search"

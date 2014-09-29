@@ -1,0 +1,209 @@
+#!/usr/bin/perl -s
+
+use lib '/usr/lib/perl5/vendor_perl/5.10.0/i386-linux-thread-multi';
+
+use locale; 
+use encoding 'UTF-8';
+
+use Encode;
+use DBI;
+
+open(LOG,">>/var/tmp/dudge_verificator.log");
+sub putLOG {
+ print LOG (scalar localtime),": ",@_,"\n";
+ return undef;
+}
+sub dieLOG($$) {
+  my ($line,$msg)=@_;
+  putLOG("DIE at ",$line,": ",$msg);
+  return undef;
+}
+
+sub connect_mssql($) {
+ my ($db)=@_;
+ $dbh=DBI->connect('DBI:Sybase:server='.$db->{dbhost}.';database='.$db->{dbname},$db->{dbuser},$db->{dbpasswd});
+ $errstr=DBI->errstr unless $dbh;
+ return ($dbh,$errstr);
+}
+
+sub connect_mysql($) {
+ my ($db)=@_;
+ $dbh=DBI->connect('DBI:mysql:host='.$db->{dbhost}.':database='.$db->{dbname},$db->{dbuser},$db->{dbpasswd});
+ $errstr=DBI->errstr unless $dbh;
+ if($dbh) { $dbh->do("set character set 'utf8'") or dieLOG(__LINE__,DBI->errstr) or die; }
+
+ return ($dbh,$errstr);
+}
+
+sub connect_postgresql($) {
+ my ($db)=@_;
+ $dbh=DBI->connect('DBI:Pg:host='.$db->{dbhost}.';dbname='.$db->{dbname},$db->{dbuser},$db->{dbpasswd});
+ $errstr=DBI->errstr unless $dbh;
+ return ($dbh,$errstr);
+ }
+
+
+sub compare($$) {
+ my ($tst,$ok)=@_;
+ my ($err,$a1,$a2,$ret,$doit);
+
+ if($tst->{NUM_OF_FIELDS}!=$ok->{NUM_OF_FIELDS}) 
+      { $ret=0; $err="разное число полей"; $doit=0; }
+ else { $ret=1; $err=''; $doit=1; }
+
+ while($doit) {
+  @rT=$tst->fetchrow_array();
+  @rO=$ok->fetchrow_array();
+  #print "@rT =R= @rO\n";
+  if(@rT==undef and @rO==undef) { $doit=0; }
+  elsif(@rT!=undef and @rO!=undef) {
+    $doit2=1;
+    while($doit and $aT=shift @rT) {
+      $aO=shift @rO;
+      #print "$aT =F= $aO\n";
+      if($aT!=$aO) { $doit2=0; $doit=0; $ret=0; $err="разные значения полей"; }
+      }
+    } 
+  else { $doit=0; $ret=0; $err="разное число записей"; }
+  }
+
+ $err="Результат выполнения запроса не совпадает с эталоном: $err" if($ret==0);
+ return ($ret,$err); 
+}
+
+
+sub check_syntax($$$) {
+  my ($dbms,$sql,$problemid)=@_;
+  my $err=undef;
+  my ($test,$tst,$ret,$dblist);
+
+  if($dbms eq "MYSQL")    { ($test,$err,$dblist)=connect_mysql($problemid); }
+  elsif($dbms eq "PGSQL") { ($test,$err,$dblist)=connect_postgresql($problemid); }
+  elsif($dbms eq "MSSQL") { ($test,$err,$dblist)=connect_mssql($problemid); }
+  else                    { ($test,$err)=(undef,"Invalid DBMS code"); }
+
+  unless($err) {
+    $tst=$test->prepare($sql);
+    $err=DBI->errstr unless $tst;
+
+    unless($err) {
+      $ret=$tst->execute();
+      $err=DBI->errstr unless $ret;
+      }
+    }
+
+  return $err;
+}
+
+sub check_normal($$$$) {
+  my ($dbms,$sql,$success,$db)=@_;
+  my ($err,$ret)=(undef,0);
+  my ($test,$tst,$ok,$dblist);
+
+  if($dbms eq "MYSQL")    { ($test,$err)=connect_mysql($db); }
+  elsif($dbms eq "PGSQL") { ($test,$err)=connect_postgresql($db); }
+  elsif($dbms eq "MSSQL") { ($test,$err)=connect_mssql($db); }
+  else                    { ($test,$err)=(undef,"Invalid DBMS code"); }
+
+  unless($err) {
+    $tst=$test->prepare($sql);
+    $err=DBI->errstr unless $tst;
+
+    unless($err) {
+      $ret=$tst->execute();
+      $err=DBI->errstr unless $ret;
+      }
+
+    unless($err) {
+      $ok=$test->prepare($success) or dieLOG(__LINE__,DBI->errstr) or die;
+      $ok->execute() or dieLOG(__LINE__,DBI->errstr) or die;
+      ($ret,$err)=compare($tst,$ok);
+      }
+
+    $tst=undef;
+    $ok=undef;
+    $test->disconnect();
+    }
+  return ($err,$ret);
+}
+
+# проверяет совместимость диалекта SQL эталонного запроса с текущей СУБД
+sub is_compatible($$) {
+ my ($etalon,$dbms)=@_;
+ my $ret=(($etalon eq "SQL") or ($etalon eq $dbms));
+
+ putLOG("Check compatible [$etalon] vs [$dbms] result=".(($ret) ? "process":"skip"));
+ return $ret;
+}
+
+
+sub main() {
+
+putLOG("************************** problemid=$problemid argv=$#ARGV");
+
+foreach $k (@ARGV) { putLOG("argv=[$k]"); }
+
+my ($err,$mark,$db);
+if($#ARGV==0 and $ARGV[0] eq "VERIFY") { # first stage: VERIFY SOLUTION SYNTAX
+  foreach $db (@$dbstruct_empty) {
+    putLOG("VERIFY dbms=".$db->{dbms}." db=".$db->{dbname}." sql=[$sql]");
+    $err=check_syntax($db->{dbms},$sql,$db);
+    $mark=1 if $err;
+    putLOG("Err=".$err) if $err;
+    }
+  exit 1 if $mark;
+  }
+else { # second stage: CHECK SOLUTION
+  my $success_dbms=<STDIN>;
+  $success_dbms=$1 if $success_dbms=~/\s*((?:\S.*\S)|(?:\S)|(?:))\s*/; # убираем пробелы
+  putLOG("First test HACK, it's must be empty. SKIP") if $success_dbms eq "";
+  exit 0 if $success_dbms eq ""; # HACK - первый тест должен быть пустым
+
+  my $success="";
+  while(<STDIN>) { $success.=$_; }
+  putLOG("Etalon solution dbms=$success_dbms, sql=[$success]");
+  foreach $db (@$dbstruct) {
+     putLOG("TEST at dbms=".$db->{dbms}." db=".$db->{dbname});
+     if(is_compatible($success_dbms,$db->{dbms})) {
+       ($err,$mark)=check_normal($db->{dbms},$sql,$success,$db);
+       putLOG("Solution FAILED err=".$err) if $err;
+       return 1 if $err;
+       }
+     }
+  print "OK";
+  putLOG("Solution OK");
+  }
+
+exit 0;
+}
+
+
+#my $x;
+#my @data,@row;
+
+$DBG=1;
+
+$sql="
+SQL_SOLUTION_TEXT
+";
+
+$dbstruct=
+SQL_NORMAL_DB_LIST
+;
+
+$dbstruct_empty=
+SQL_EMPTY_DB_LIST
+;
+
+$dbms="
+SQL_SOLUTION_DBMS
+";
+$dbms=$1 if $dbms=~/\s*((?:\S.*\S)|(?:\S))\s*/; # убираем пробелы
+
+$problemid="
+SQL_PROBLEM_ID
+";
+$problemid=$1 if $problemid=~/\s*((?:\S.*\S)|(?:\S))\s*/; # убираем пробелы
+
+main();
+# EOF

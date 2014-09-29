@@ -11,6 +11,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import javax.servlet.http.HttpServletRequest;
+import json.JSONException;
+import json.JSONObject;
 import org.apache.struts.action.ActionForm;
 import org.apache.struts.action.ActionMapping;
 
@@ -29,13 +31,37 @@ public class SolutionsForm extends ActionForm {
 	private String languageId;
 	// Идентификатор задачи решения.
 	private int problemId;
+	// Идентификатор соревнования.
+	private int contestId;
 	// Исходник решения.
 	private String sourceCode;
 	// Статус решения.
 	private String status;
 	// Сообщение к статусу решения.
 	private String statusMessage;
+	// Номер текущего теста.
 	private int currentTestNumber;
+	// Время отправки решения.
+	private long submitTime;
+	// Автор решения.
+	private String userId;
+	// Название задачи.
+	private String problemName;
+	// Метка задачи.
+	private String problemMark;
+	// Название соревнования.
+	private String contestName;
+
+	public SolutionsForm(int solutionId, String languageId, int problemId, String sourceCode, String status, String statusMessage, int currentTestNumber, long submitTime) {
+		this.solutionId = solutionId;
+		this.languageId = languageId;
+		this.problemId = problemId;
+		this.sourceCode = sourceCode;
+		this.status = status;
+		this.statusMessage = statusMessage;
+		this.currentTestNumber = currentTestNumber;
+		this.submitTime = submitTime;
+	}
 
 	/**
 	 * Creates a new instance of SolutionsForm
@@ -52,11 +78,13 @@ public class SolutionsForm extends ActionForm {
 	public void reset(ActionMapping mapping, HttpServletRequest request) {
 		contestLanguages.clear();
 		contestProblems.clear();
-		solutionId = 0;
+		setSolutionId(0);
 		languageId = "";
 		sourceCode = "";
 		status = null;
 		statusMessage = "";
+		submitTime = 0L;
+		userId = null;
 	}
 
 	public String getLanguageId() {
@@ -67,12 +95,12 @@ public class SolutionsForm extends ActionForm {
 		this.languageId = languageId;
 	}
 
-	public String getProblemId() {
-		return Integer.toString(problemId);
+	public int getProblemId() {
+		return problemId;
 	}
 
-	public void setProblemId(String problemId) {
-		this.problemId = Integer.parseInt(problemId);
+	public void setProblemId(int problemId) {
+		this.problemId = problemId;
 	}
 
 	public String getSourceCode() {
@@ -95,8 +123,8 @@ public class SolutionsForm extends ActionForm {
 		return solutionId;
 	}
 
-	public void setSolutionId(String solutionId) {
-		this.solutionId = Integer.parseInt(solutionId);
+	public void setSolutionId(int solutionId) {
+		this.solutionId = solutionId;
 	}
 
 	public String getStatus() {
@@ -122,4 +150,67 @@ public class SolutionsForm extends ActionForm {
 	public void setCurrentTestNumber(int currentTestNumber) {
 		this.currentTestNumber = currentTestNumber;
 	}
+        
+        public String StatusToJSONText() {
+            JSONObject jo= new JSONObject();
+            String ret;
+            
+            try {
+                jo.put("status", status);
+                jo.put("currentTestNumber", currentTestNumber);
+                jo.put("statusMessage", statusMessage);
+                ret=jo.toString();
+            } catch (JSONException e) {
+                ret="{'status':'INTERNAL_ERROR','currentTestNumber':'-1','statusMessage':'Exception detected'}";
+		}
+            return ret;
+        }
+
+	public long getSubmitTime() {
+		return submitTime;
+	}
+
+	public void setSubmitTime(long submitTime) {
+		this.submitTime = submitTime;
+	}
+
+	public String getUserId() {
+		return userId;
+	}
+
+	public void setUserId(String userId) {
+		this.userId = userId;
+	}
+
+	public String getProblemName() {
+		return problemName;
+	}
+
+	public void setProblemName(String problemName) {
+		this.problemName = problemName;
+	}
+
+	public int getContestId() {
+		return contestId;
+	}
+
+	public void setContestId(int contestId) {
+		this.contestId = contestId;
+	}
+
+	public String getProblemMark() {
+		return problemMark;
+	}
+
+	public void setProblemMark(String problemMark) {
+		this.problemMark = problemMark;
+	}
+
+	public String getContestName() {
+		return contestName;
+	}
+
+	public void setContestName(String contestName) {
+		this.contestName = contestName;
+        }
 }

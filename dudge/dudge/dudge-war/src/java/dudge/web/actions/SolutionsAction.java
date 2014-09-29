@@ -8,6 +8,7 @@ package dudge.web.actions;
 import dudge.ContestLocal;
 import dudge.PermissionCheckerRemote;
 import dudge.db.Contest;
+import dudge.db.ContestProblem;
 import dudge.db.Language;
 import dudge.db.Problem;
 import dudge.db.Solution;
@@ -23,6 +24,7 @@ import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import json.JSONArray;
@@ -42,7 +44,10 @@ public class SolutionsAction extends DispatchAction {
 
 	private static final Logger logger = Logger.getLogger(SolutionsAction.class.toString());
 	private ServiceLocator serviceLocator = ServiceLocator.getInstance();
-
+	
+	private static final String LANGUAGE_COOKIE = "SelectedLanguage";
+	private static final int COOKIE_EXPIRATION_TIME = 6 * 60 * 60;
+	
 	/**
 	 * Creates a new instance of SolutionsAction
 	 */
@@ -59,7 +64,6 @@ public class SolutionsAction extends DispatchAction {
 	 */
 	@SuppressWarnings("unchecked")
 	public ActionForward view(ActionMapping mapping, ActionForm af, HttpServletRequest request, HttpServletResponse response) {
-
 		SolutionsForm sf = (SolutionsForm) af;
 
 		AuthenticationObject ao = AuthenticationObject.extract(request);
@@ -83,7 +87,21 @@ public class SolutionsAction extends DispatchAction {
 		// TODO: нельзя доверять тому, что солюшен с таким id существует
 		Solution solution = serviceLocator.lookupSolutionBean().getSolution(solutionId);
 
-		sf.setSolutionId(Integer.toString(solution.getSolutionId()));
+		sf.setSolutionId(solution.getSolutionId());
+		sf.setContestId(solution.getContest().getContestId());
+		sf.setContestName(solution.getContest().getCaption());
+		sf.setProblemId(solution.getProblem().getProblemId());
+		sf.setProblemName(solution.getProblem().getTitle());
+		String mark = null;
+		for (ContestProblem cp : solution.getContest().getContestProblems()) {
+			if (cp.getProblem().getProblemId() == solution.getProblem().getProblemId()) {
+				mark = cp.getProblemMark();
+				break;
+			}
+		}
+		sf.setProblemMark(mark);
+		sf.setUserId(solution.getUser().getLogin());
+		sf.setSubmitTime(solution.getSubmitTime().getTime());
 
 		if (solution.getStatus() != SolutionStatus.PROCESSED || solution.getContest().getTraits().isRunAllTests() || solution.getLastRunResult() == null) {
 			sf.setStatus(solution.getStatus().toString());
@@ -102,6 +120,29 @@ public class SolutionsAction extends DispatchAction {
 
 		return mapping.findForward("viewSolution");
 	}
+	
+	/**
+	 *
+	 * @param mapping
+	 * @param af
+	 * @param request
+	 * @param response
+	 * @return
+	 */
+	public ActionForward mySolutions(ActionMapping mapping, ActionForm af, HttpServletRequest request, HttpServletResponse response) {
+
+		AuthenticationObject ao = AuthenticationObject.extract(request);
+		if (ao.getUsername() == null) {
+			return mapping.findForward("loginRequired");
+		}
+
+		SolutionsForm sf = (SolutionsForm) af;
+		ContestLocal contestBean = serviceLocator.lookupContestBean();
+		Contest contest = contestBean.getContest(sf.getContestId());
+		sf.setContestName(contest.getCaption());
+		
+		return mapping.findForward("mySolutions");
+	}
 
 	/**
 	 *
@@ -114,20 +155,11 @@ public class SolutionsAction extends DispatchAction {
 	public ActionForward submit(ActionMapping mapping, ActionForm af, HttpServletRequest request, HttpServletResponse response) {
 
 		SolutionsForm sf = (SolutionsForm) af;
+		int contestId = sf.getContestId();
+		int problemId = sf.getProblemId();
 		sf.reset(mapping, request);
 		ContestLocal contestBean = serviceLocator.lookupContestBean();
 		AuthenticationObject ao = AuthenticationObject.extract(request);
-
-		int contestId;
-		// Получаем идентификатор соревнования.
-		String param = request.getParameter("contestId");
-		if (param != null) {
-			contestId = Integer.parseInt(param);
-		} else // Если нам не послали идентификатор, то используем идентификатор
-		// текущего соревнования.
-		{
-			contestId = contestBean.getDefaultContest().getContestId();
-		}
 
 		Contest contest = contestBean.getContest(contestId);
 
@@ -140,6 +172,16 @@ public class SolutionsAction extends DispatchAction {
 		// Установление свойств, нужных для корректного отображение параметров языка соревнования.
 		sf.getContestLanguages().addAll(contest.getContestLanguages());
 		sf.getContestProblems().addAll(contest.getContestProblems());
+		sf.setContestId(contestId);
+		sf.setProblemId(problemId);
+		
+		Cookie[] cookies = request.getCookies();
+		for (Cookie cookie : cookies) {
+			if (cookie.getName().equals(LANGUAGE_COOKIE)) {
+				sf.setLanguageId(cookie.getValue());
+				break;
+			}
+		}
 
 		return mapping.findForward("submitSolution");
 	}
@@ -176,11 +218,16 @@ public class SolutionsAction extends DispatchAction {
 		User user = serviceLocator.lookupUserBean().getUser(ao.getUsername());
 		Contest contest = contestBean.getContest(contestId);
 		Language language = serviceLocator.lookupLanguageBean().getLanguage(sf.getLanguageId());
-		Problem problem = serviceLocator.lookupProblemBean().getProblem(Integer.parseInt(sf.getProblemId()));
+		Problem problem = serviceLocator.lookupProblemBean().getProblem(sf.getProblemId());
 
+		Cookie languageCookie = new Cookie(LANGUAGE_COOKIE, sf.getLanguageId());
+		languageCookie.setMaxAge(COOKIE_EXPIRATION_TIME);
+		response.addCookie(languageCookie);
+		
 		// Проверяем право пользователя.
 		PermissionCheckerRemote pcb = ao.getPermissionChecker();
-		if (!pcb.canSubmitSolution(ao.getUsername(), contest.getContestId(), problem.getProblemId())) {
+		if (contest==null || problem==null || pcb==null ||
+                    !pcb.canSubmitSolution(ao.getUsername(), contest.getContestId(), problem.getProblemId())) {
 			return mapping.findForward("accessDenied");
 		}
 
@@ -192,7 +239,7 @@ public class SolutionsAction extends DispatchAction {
 		solution.setSourceCode(sf.getSourceCode());
 
 		solution = serviceLocator.lookupDudgeBean().submitSolution(solution);
-		sf.setSolutionId(Integer.toString(solution.getSolutionId()));
+		sf.setSolutionId(solution.getSolutionId());
 
 		ActionForward viewRedirect = new ActionForward();
 		viewRedirect.setPath("solutions.do?reqCode=view&solutionId=" + sf.getSolutionId());
@@ -251,7 +298,7 @@ public class SolutionsAction extends DispatchAction {
 	}
 
 	/**
-	 * Метод для получения через AJAX списка из последних N отправленных в систему решений, где n задачется параметром limit.
+	 * Метод для получения через AJAX списка отправленных в систему решений.
 	 *
 	 * @param mapping
 	 * @param af
@@ -259,50 +306,71 @@ public class SolutionsAction extends DispatchAction {
 	 * @param response
 	 */
 	public void getLastSolutions(ActionMapping mapping, ActionForm af, HttpServletRequest request, HttpServletResponse response) {
-		//  Получаем из запроса, какие данные требуются клиенту.
-		int limit = Integer.parseInt((String) request.getParameter("limit"));
-		if (limit > 20) {
-			limit = 20;
-		}
+		String iDisplayStartString = (String) request.getParameter("iDisplayStart");
+		String iDisplayLengthString = (String) request.getParameter("iDisplayLength");
+		int iDisplayStart = iDisplayStartString == null ? -1 : Integer.parseInt(iDisplayStartString);
+		int iDisplayLength = iDisplayLengthString == null ? -1 : Integer.parseInt(iDisplayLengthString);
 
-		List<Solution> solutions = serviceLocator.lookupSolutionBean().getLastSolutions(limit);
+
+		List<Solution> solutions = serviceLocator.lookupSolutionBean().getSolutions(iDisplayStart, iDisplayLength);
+		long solutionsCount = serviceLocator.lookupSolutionBean().getSolutionsCount();
 
 		JSONArray ja = new JSONArray();
 		JSONObject jo = new JSONObject();
 
 		try {
-			jo.put("totalCount", solutions.size());
+			jo.put("sEcho", request.getParameter("sEcho"));
+			jo.put("iTotalRecords", solutionsCount);
+			jo.put("iTotalDisplayRecords", solutionsCount);
 		} catch (JSONException e) {
 			logger.log(Level.SEVERE, "exception caught", e);
 			return;
 		}
 
-		SimpleDateFormat sdf = new SimpleDateFormat("HH:mm yyyy.MM.dd");
 		for (Solution sol : solutions) {
-			JSONObject json = new JSONObject();
+			JSONArray json = new JSONArray();
 
 			// Заполняем данными пользователя созданный объект JSON.
-			try {
-				json.put("solutionId", sol.getSolutionId());
-				json.put("submitTime", sdf.format(sol.getSubmitTime()));
-				json.put("user", sol.getUser().getLogin());
-				json.put("contestId", sol.getContest().getContestId());
-				json.put("problemId", sol.getProblem().getProblemId());
-				json.put("languageId", sol.getLanguage().getLanguageId());
-				if (sol.getStatus() != SolutionStatus.PROCESSED || sol.getLastRunResult() == null) {
-					json.put("status", sol.getStatus().toString());
-				} else {
-					json.put("status", sol.getLastRunResult().toString());
+			json.put(sol.getSolutionId());
+			json.put(sol.getSubmitTime().getTime());
+			json.put(sol.getUser().getLogin());
+			json.put(sol.getContest().getContestId());
+			json.put(sol.getContest().getCaption());
+			
+			String mark = null;
+			for (ContestProblem cp : sol.getContest().getContestProblems()) {
+				if (cp.getProblem().getProblemId() == sol.getProblem().getProblemId()) {
+					mark = cp.getProblemMark();
+					break;
 				}
-			} catch (JSONException e) {
-				logger.log(Level.SEVERE, "Creating JSON view of Solution object failed.", e);
-				return;
 			}
+			json.put(sol.getProblem().getProblemId());
+			if (mark != null) {
+				json.put(mark + " - " + sol.getProblem().getTitle());
+			} else {
+				json.put(sol.getProblem().getTitle());
+			}
+
+			json.put(sol.getLanguage().getLanguageId());
+			if (sol.getStatus() != SolutionStatus.PROCESSED || sol.getLastRunResult() == null) {
+				json.put(sol.getStatus().toString());
+			} else {
+				json.put(sol.getLastRunResult().toString());
+			}
+			
+			int testNumber;
+			try {
+				testNumber = Collections.max(sol.getRuns()).getRunNumber();
+			} catch (NoSuchElementException e) {
+				testNumber = 0;
+			}
+			json.put(testNumber);
 
 			ja.put(json);
 		}
+		
 		try {
-			jo.put("solutions", ja);
+			jo.put("aaData", ja);
 		} catch (JSONException e) {
 			logger.log(Level.SEVERE, "Exception occured.", e);
 			return;

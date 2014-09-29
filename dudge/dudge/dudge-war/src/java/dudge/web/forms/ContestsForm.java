@@ -20,10 +20,46 @@ import org.apache.struts.action.ActionMapping;
  * @author Vladimir Shabanov
  */
 public class ContestsForm extends ActionForm {
+        public class ContestRole {
+            private String user;
+            private String realName;
+            private RoleType roleType;
 
+            public String getUser() {
+                return user;
+            }
+
+            public void setUser(String user) {
+                this.user = user;
+            }
+
+            public String getRealName() {
+                return realName;
+            }
+
+            public void setRealName(String realName) {
+                this.realName = realName;
+            }
+            
+            public ContestRole(String user, String realName, RoleType roleType) {
+                this.user = user;
+                this.realName = realName;
+                this.roleType = roleType;
+            }
+
+            public RoleType getRoleType() {
+                return roleType;
+            }
+
+            public void setRoleType(RoleType roleType) {
+                this.roleType = roleType;
+            }
+        }
+    
 	public static final long serialVersionUID = 1L;
 	private List<ContestType> contestTypes = Collections.synchronizedList(new ArrayList<ContestType>());
 	private List<RoleType> roleTypes = Collections.synchronizedList(new ArrayList<RoleType>());
+        private List<ContestRole> roles = new ArrayList<ContestRole>();
 	//  Действие над текущим соревнованием.
 	private boolean newContest = false;
 	// Текущее редактируемое / создаваемое соревнование.
@@ -76,6 +112,7 @@ public class ContestsForm extends ActionForm {
 		freezeTime = "0";
 		contestTypes.clear();
 		roleTypes.clear();
+                roles.clear();
 		encodedContestLanguages = "";
 		encodedContestProblems = "";
 		encodedRoles = "";
@@ -164,6 +201,14 @@ public class ContestsForm extends ActionForm {
 	public void setRules(String rules) {
 		this.rules = rules;
 	}
+
+        public List<ContestRole> getRoles() {
+            return roles;
+        }
+
+        public void setRoles(List<ContestRole> roles) {
+            this.roles = roles;
+        }
 
 	public List<RoleType> getRoleTypes() {
 		return roleTypes;

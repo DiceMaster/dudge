@@ -1,664 +1,476 @@
-<%@page import="java.text.SimpleDateFormat" %>
 <jsp:useBean id="contestsForm" class="dudge.web.forms.ContestsForm" scope="session" />
 
-<script type="text/javascript" src="/dudge/ext/examples/ux/CheckColumn.js"></script>
+<link rel="stylesheet" type="text/css" href="css/dudge-styles.css" /> 
+<link rel="stylesheet" type="text/css" href="select2/select2.css" />
+<link rel="stylesheet" type="text/css" href="select2/select2-bootstrap.css" />
+
+<script src="scripts/jquery.scrollintoview.min.js"></script>
+<script src="scripts/jquery.dataTables.min.js"></script>
+<script src="scripts/dudge-tables.js"></script>
+<script src="ckeditor/ckeditor.js"></script>
+
+<script src="select2/select2.min.js"></script>
+<c:if test="${sessionScope['org.apache.struts.action.LOCALE'].language != 'en'}">
+<script src="select2/select2_locale_${sessionScope['org.apache.struts.action.LOCALE'].language}.js"></script>
+</c:if>
+
 <script type="text/javascript">
-    // Defining data stores for using in callback-function, set hidden-fields in contestsForm.
-    var userDs;
-    var problemDs;
-    var languageDs;
-    var applicationDs;
-
-    Ext.onReady(function(){
-        var userToolbar = new Ext.Toolbar({ height: 'auto' });
-        var applicationToolbar = new Ext.Toolbar({ height: 'auto' });
-        var problemToolbar = new Ext.Toolbar({ height: 'auto' });
-
-        var contestTabs = new Ext.TabPanel({
-            renderTo: 'contestTabs',
-            activeTab: 0,
-            defaults: {autoHeight: true},
-            items: [
-                {
-                    contentEl: 'descriptionTab',
-                    title: '<bean:message key="contest.description" />',
-                    layout: 'form'
-                },
-                {
-                    contentEl: 'parametersTab',
-                    title: '<bean:message key="contest.parameters" />',
-                    layout: 'form'
-                },
-                {
-                    contentEl: 'problemsTab',
-                    title: '<bean:message key="contest.problems" />',
-                    tbar: problemToolbar,
-                    layout: 'fit'
-                },
-                {
-                    contentEl: 'rulesTab',
-                    title: '<bean:message key="contest.rules" />',
-                    layout: 'fit'
-                },
-                {
-                    contentEl: 'usersTab',
-                    title: '<bean:message key="contest.users" />',
-                    tbar: userToolbar,
-                    layout: 'fit'
-                },
-                {
-                    contentEl: 'applicationsTab',
-                    title: '<bean:message key="contest.applications" />',
-                    tbar: applicationToolbar,
-                    layout: 'fit'
-                },
-                {
-                    contentEl: 'languagesTab',
-                    title: '<bean:message key="contest.languages"/>',
-                    layout: 'fit'
-                }
-            ]
-        });
-
-        Ext.QuickTips.init();
-
-        /*	var descriptionEditor = new Ext.form.HtmlEditor({applyTo: 'description'});
-
-        var rulesEditor = new Ext.form.HtmlEditor({applyTo: 'rules'});*/
-
-        //////////////////////////////
-        // CONTEST ROLES
-        /////////////////////////////
-
-
-        var userGridColumns = new Ext.grid.ColumnModel([{
-                header: '<bean:message key="contest.users.login" />',
-                dataIndex: 'login',
-                width: 70,
-                editor: new Ext.form.TextField({
-                    allowBlank: false,
-                    vtype:'alphanum'
-                })
-            },{
-                header: "<bean:message key="contest.users.role" />",
-                dataIndex: 'role',
-                width: 120,
-                renderer: renderRole,
-                editor: new Ext.form.ComboBox({
-                    typeAhead: true,
-                    triggerAction : 'all',
-                    transform: 'role',
-                    lazyRender: true
-                })
-            }
-        ]);
-  
-        function renderRole(value, metadata, record, row, col, ds) {
-            if(record.get('role') == 'ADMINISTRATOR') return '<bean:message key="contest.users.admin"/>';
-            if(record.get('role') == 'OBSERVER') return '<bean:message key="contest.users.observer"/>';
-            if(record.get('role') == 'USER') return '<bean:message key="contest.users.user"/>';
-        }
-	
-        userGridColumns.defaultSortable = true;
-        var user = Ext.data.Record.create([
-            {name: 'login', type: 'string'},
-            {name: 'role'}
-        ]);
-	
-        userDs = new Ext.data.Store({
-            // The data obtained from property encodedRoles of Struts form - contestsForm.  
-            proxy: new Ext.data.MemoryProxy(${contestsForm.encodedRoles}),
-			 
-            // the return will be JSON, so lets set up a reader
-            reader: new Ext.data.JsonReader({
-                root: 'roles',
-                totalProperty: 'rolesTotalCount'
-            }, [
-                {name: 'login' , mapping: 'login'},
-                {name: 'role', mapping: 'role'}          
-            ]),
-		 
-            // turn on remote sorting
-            remoteSort: false
-        });	
-        userDs.load();
-	 
-        var userGrid = new Ext.grid.EditorGridPanel({
-            applyTo: 'usersTable',
-            width: 'auto',
-            autoHeight: true,
-            ds: userDs,
-            cm: userGridColumns,
-            sm: new Ext.grid.RowSelectionModel()
-        });
-	 
-        var userCounter = 0;
-        userToolbar.addButton({
-            text: '<bean:message key="contest.users.add" />',
-            handler : function(){
-                userCounter++;
-                var u = new user({
-                    login: '',
-                    role: 'USER',
-                    id : userCounter
+    $(document).ready(function() {
+        var languagesDataSet = ${contestsForm.encodedContestLanguages};
+        var languagesGrid = $('#languagesGrid').dataTable( {
+            "aaData": languagesDataSet,
+            'sDom': 'rt',
+            'bPaginate': false,
+            'bSort' : false,
+            'oLanguage': {
+                'sUrl': 'l18n/<bean:message key="locale.currentTag"/>.txt'
+            },
+            "aoColumnDefs": [
+                { "bVisible": false, "aTargets": [ 1 ] }
+            ],
+            fnCreatedRow: function( nRow, aData, index ) {
+                var checkbox = $('<input type="checkbox" id="language_' + aData[1] + '"' + (aData[0] ? " checked" : "") +'>');
+                checkbox.change(function() {
+                    languagesDataSet[index][0] = $(this).is(':checked');
                 });
-                userGrid.stopEditing();
-                userDs.insert(0, u);
-                userGrid.startEditing(0, 0);
+                $('td:eq(0)', nRow).empty().append(checkbox);
+                $('td:eq(1)', nRow).html( '<a href="languages.do?reqCode=view&languageId=' + aData[1] + '">' + aData[2] +'</a>' );
             }
-        });
-        userToolbar.addButton({
-            text: '<bean:message key="contest.users.remove" />',
-            handler: function()
-            {
-                var roles = userGrid.getSelectionModel().getSelections();
-                for(var i = 0; i < roles.length; i++) {
-                    userDs.remove( roles[i] );
+        } );
+        
+        var problemsDataSet = ${contestsForm.encodedContestProblems};
+        for (var iRow = 0; iRow < problemsDataSet.length; iRow++) {
+            problemsDataSet[iRow].push("");
+        }
+        var problemsGrid = $('#problemsGrid').dataTable( {
+            "aaData": problemsDataSet,
+            'sDom': 'rt',
+            'bPaginate': false,
+            'aoColumnDefs': [
+                { 'bVisible': false, 'aTargets': [ 3 ] }
+            ],
+            'bSort' : false,
+            'oLanguage': {
+                'sUrl': 'l18n/<bean:message key="locale.currentTag"/>.txt'
+            },
+            fnCreatedRow: function( nRow, aData, index ) {
+                $('td:eq(0)', nRow).html( '<div class="dudge-table-vertical-center">' + aData[0] + '</div>' );
+                var buttonDown = $('<button type="button" class="btn btn-default"><span class="glyphicon glyphicon-chevron-down text-muted"></span></button>');
+                if (index === problemsDataSet.length - 1) {
+                    buttonDown.addClass('invisible');
                 }
-                userGrid.getView().refresh(false);
-            }
-        });
-        userToolbar.addButton({
-            text: '<bean:message key="contest.users.clear" />',
-            handler : function(){
-                userDs.removeAll();     
-            }
-        });
-		
-        //////////////////////////////
-        // CONTEST APPLICATIONS
-        /////////////////////////////
-		
-		
-        var applicationGridColumns = new Ext.grid.ColumnModel([{
-                header: '<bean:message key="contest.applications.login" />',
-                dataIndex: 'login',
-                renderer: renderLogin,
-                width: 70
-            },{
-                header: "<bean:message key="contest.applications.filingTime" />",
-                dataIndex: 'filing_time',
-                width: 150
-            },{
-                header: "<bean:message key="contest.applications.message" />",
-                dataIndex: 'message',
-                width: 500
-            },{
-                header: "<bean:message key="contest.applications.status" />",
-                dataIndex: 'status',
-                width: 70,
-                renderer: renderApplicationStatus
-            } 
-        ]);
-  
-        function renderLogin(value, metadata, record, row, col, ds)
-        {
-            return '<a href="javascript:openUser(\''
-                + value + '\')\">' + value + '</a>';
-        }
-	 
-        function renderApplicationStatus(value, metadata, record, row, col, ds) {
-            if(record.get('status') == 'NEW') return '<bean:message key="contest.applications.new"/>';
-            if(record.get('status') == 'ACCEPTED') return '<bean:message key="contest.applications.accepted"/>';
-            if(record.get('status') == 'DECLINED') return '<bean:message key="contest.applications.declined"/>';
-        }
-	
-        applicationGridColumns.defaultSortable = true;
-		
-        applicationDs = new Ext.data.Store({
-		
-            // The data obtained from property encodedRoles of Struts form - contestsForm.  
-            proxy: new Ext.data.MemoryProxy(${contestsForm.encodedApplications}),
-			 
-            // the return will be JSON, so lets set up a reader
-            reader: new Ext.data.JsonReader({
-                root: 'applications',
-                totalProperty: 'applicationsTotalCount'
-            }, [
-                {name: 'login' , mapping: 'login'},
-                {name: 'filing_time', mapping: 'filing_time'},
-                {name: 'message', mapping: 'message'},
-                {name: 'status', mapping: 'status'}
-            ]),
-		 
-            // turn on remote sorting
-            remoteSort: false
-        });	
-        applicationDs.load();
-	 
-        var applicationGrid = new Ext.grid.GridPanel({
-            applyTo: 'applicationsTable',
-            width: 'auto',
-            height: 'auto',
-            ds: applicationDs,
-            cm: applicationGridColumns,
-            sm: new Ext.grid.RowSelectionModel()
-        });
-	 
-        // Endorse applications -- a user to add a selected list of participants
-        // and set the status of the application as ACCEPTED.
-        applicationToolbar.addButton({
-            text: '<bean:message key="contest.applications.accept" />',
-            handler : function(){
-			  
-                var applications = applicationGrid.getSelectionModel().getSelections();
-                for(var i = 0; i < applications.length; i++) {
-				    
-                    applications[i].set('status' , 'ACCEPTED'); 
-					 
-                    // Check if this this already include in this contest --- don't include in this case.
-                    var isExist = false;
-                    for(var j = 0; j < userDs.getCount(); j++) {
-                        if(userDs.getAt(j).get('login') == applications[i].get('login')) isExist = true;
+                buttonDown.click(function() {
+                    var swap = problemsDataSet[index];
+                    problemsDataSet[index] = problemsDataSet[index + 1];
+                    problemsDataSet[index + 1] = swap;
+                    problemsDataSet[index][0] = String.fromCharCode("A".charCodeAt() + index);
+                    problemsDataSet[index + 1][0] = String.fromCharCode("A".charCodeAt() + index + 1);
+                    problemsDataSet[index][1] = index;
+                    problemsDataSet[index + 1][1] = index + 1;
+                    problemsGrid.fnClearTable();
+                    problemsGrid.fnAddData(problemsDataSet);
+                });
+                var buttonUp = $('<button type="button" class="btn btn-default"><span class="glyphicon glyphicon-chevron-up text-muted"></span></button>');
+                if (index === 0) {
+                    buttonUp.addClass('invisible');
+                }
+                buttonUp.click(function() {
+                    var swap = problemsDataSet[index];
+                    problemsDataSet[index] = problemsDataSet[index - 1];
+                    problemsDataSet[index - 1] = swap;
+                    problemsDataSet[index][0] = String.fromCharCode("A".charCodeAt() + index);
+                    problemsDataSet[index - 1][0] = String.fromCharCode("A".charCodeAt() + index - 1);
+                    problemsDataSet[index][1] = index;
+                    problemsDataSet[index - 1][1] = index + 1;
+                    problemsGrid.fnClearTable();
+                    problemsGrid.fnAddData(problemsDataSet);
+                });
+                if (index > 0 && index < problemsDataSet.length - 1) {
+                    var buttonGroup = $('<div class="btn-group"></div>');
+                    buttonGroup.append(buttonDown).append(buttonUp);
+                    $('td:eq(1)', nRow).empty().append(buttonGroup);
+                } else {
+                    $('td:eq(1)', nRow).empty().append(buttonDown).append(buttonUp);
+                }
+                var problemDisplayName = isNaN(aData[2]) ? "" : aData[2] + ' - ' + aData[3];
+                var select = $('<input type="hidden" class="form-control" id="problem_id_row' + index + '" value="' + problemDisplayName + '">');
+                $('td:eq(2)', nRow).empty().append(select);
+                select.select2({
+                    placeholder: '<bean:message key="contest.problems.selectProblem"/>',
+                    minimumInputLength: 1,
+                    ajax: {
+                        url: 'problems.do',
+                        data: function(term, page) {
+                            return {
+                                reqCode: 'getProblemList',
+                                sSearch: term,
+                                iSortCol_0: 0,
+                                bSortable_0: true,
+                                sSortDir_0: 'desc'
+                            };
+                        },
+                        results: function(data, page) {
+                            return {results: data.aaData};
+                        }
+                    },
+                    initSelection: function(element, callback) {
+                        var value = $(element).val();
+                        if (value) {
+                            callback(value.split(' - '));
+                        }
+                    },
+                    formatResult: function ( problem ) {
+                        return problem[0] + ' - ' + problem[1];
+                    },
+                    formatSelection: function ( problem ) {
+                        return problem[0] + ' - ' + problem[1];
+                    },
+                    id: function( problem ) {
+                        return problem[0];
                     }
-                    if(isExist) continue;
-					 
-                    userCounter++;
-                    var u = new user({
-                        login: applications[i].get('login'),
-                        role: 'USER',
-                        id : userCounter
-                    });
-                    userGrid.stopEditing();
-                    userDs.insert(0, u);
-                    userGrid.startEditing(0, 0);
-					
-                }		  		   
-            }
-        });
-	   
-		
-        applicationToolbar.addButton({
-            text: '<bean:message key="contest.applications.decline" />',
-            handler: function()
-            {
-                var applications = applicationGrid.getSelectionModel().getSelections();
-                for(var i = 0; i < applications.length; i++) {
-                    applications[i].set('status' , 'DECLINED'); 
-                }		  		   
-            }
-        });
-	   
-        //////////////////////////////
-        // CONTEST PROBLEMS
-        /////////////////////////////
-		
-        var problemGridColumns = new Ext.grid.ColumnModel([{
-                header: '<bean:message key="contest.problems.problemId" />',
-                dataIndex: 'problemId',
-                width: 70,
-                editor: new Ext.form.TextField({
-                    allowBlank: false,
-                    vtype:'alphanum'
-                })
-            },{
-                header: "<bean:message key="contest.problems.order" />",
-                dataIndex: 'order',
-                width: 70,
-                editor: new Ext.form.TextField({
-                    allowBlank: false,
-                    vtype:'alphanum'
-                })
-            },{
-                header: "<bean:message key="contest.problems.mark" />",
-                dataIndex: 'mark',
-                width: 70,
-                editor: new Ext.form.TextField({
-                    allowBlank: false,
-                    vtype:'alphanum'
-                })
-            },{
-                header: "<bean:message key="contest.problems.cost" />",
-                dataIndex: 'cost',
-                width: 70,
-                editor: new Ext.form.TextField({
-                    allowBlank: false,
-                    vtype:'alphanum'
-                })
-            }
-        ]);
-
-        problemGridColumns.defaultSortable = true;
-        var problem = Ext.data.Record.create([
-            {name: 'problemId', type: 'string'},
-            {name: 'order', type: 'string'},
-            {name: 'mark', type: 'string'},
-            {name: 'cost', type: 'string'}
-        ]);
-
-        problemDs = new Ext.data.Store({
-	
-            // The data obtained from property encodedContestProblems of Struts form - contestsForm.  
-            proxy: new Ext.data.MemoryProxy(${contestsForm.encodedContestProblems}),
-		 
-            // the return will be JSON, so lets set up a reader
-            reader: new Ext.data.JsonReader({
-                root: 'problems',
-                totalProperty: 'problemsTotalCount'
-            }, [
-                {name: 'problemId' , mapping: 'problemId'},
-                {name: 'order', mapping: 'order'},
-                {name: 'mark', mapping: 'mark'},
-                {name: 'cost', mapping: 'cost'}
-            ]),
-	 
-            // turn on remote sorting
-            remoteSort: false
-        });	
- 
-        problemDs.load();
- 
-        var problemGrid = new Ext.grid.EditorGridPanel({
-            applyTo: 'problemsTable',
-            width: 'auto',
-            autoHeight: true,
-            ds: problemDs,
-            cm: problemGridColumns,
-            sm: new Ext.grid.RowSelectionModel()
-        });
- 
-        var problemCounter = 0;
- 
-        problemToolbar.addButton({
-            text: '<bean:message key="contest.problems.add" />',
-            handler : function(){
-                problemCounter++;
-                var p = new problem({
-                    problemId: '0',
-                    order: '1',
-                    mark: 'A',
-                    cost: '1',
-                    id : problemCounter
                 });
-                problemGrid.stopEditing();
-                problemDs.insert(0, p);
-                problemGrid.startEditing(0, 0);
+                select.change(function ( e ) {
+                    var iRow = $(this).attr("id").replace("problem_id_row", "");
+                    problemsDataSet[iRow][2] = e.added[0];
+                    problemsDataSet[iRow][3] = e.added[1];
+                });
+                var problem_cost = $( '<input class="form-control" type="text" id="problem_cost_row' + index + '" value="' + aData[4] + '">' );
+                problem_cost.change(function() {
+                    var iRow = $(this).attr("id").replace("problem_cost_row", "");
+                    problemsDataSet[iRow][4] = parseInt($(this).val());
+                    if (problemsDataSet[iRow][4] === NaN) {
+                        problemsDataSet[iRow][4] = 1;
+                    }
+                });
+                $('td:eq(3)', nRow).html( problem_cost );
+                var deleteButton = $('<button type="button" class="btn btn-default"><span class="glyphicon glyphicon-remove text-muted"></span></button>');
+                deleteButton.click( function () {
+                    problemsDataSet.splice(index, 1);
+                    for (var iRow = index; iRow < problemsDataSet.length; iRow++) {
+                        problemsDataSet[iRow][0] = String.fromCharCode("A".charCodeAt() + iRow);
+                        problemsDataSet[iRow][1] = iRow;
+                    }
+                    problemsGrid.fnClearTable();
+                    problemsGrid.fnAddData(problemsDataSet);
+                });
+                $('td:eq(4)', nRow).empty().append(deleteButton);
             }
+        } );
+        $('#addProblem').click(function(){
+            problemsDataSet.push([
+                String.fromCharCode("A".charCodeAt() + problemsDataSet.length),
+                problemsDataSet.length,
+                NaN,
+                "",
+                1,
+                ""
+            ]);
+            problemsGrid.fnClearTable();
+            problemsGrid.fnAddData(problemsDataSet);
         });
-        problemToolbar.addButton({
-            text: '<bean:message key="contest.problems.remove" />',
-            handler: function()
-            {
-                var problems = problemGrid.getSelectionModel().getSelections();
-                for(var i = 0; i < problems.length; i++) {
-                    problemDs.remove( problems[i] );
+        var usersDataSet = ${contestsForm.encodedRoles};
+        var usersGrid = $('#usersGrid').dataTable( {
+            "aaData": usersDataSet,
+            'sDom': 'rt',
+            'bSort' : false,
+            'bPaginate': false,
+            'oLanguage': {
+                'sUrl': 'l18n/<bean:message key="locale.currentTag"/>.txt'
+            },
+            fnCreatedRow: function( nRow, aData ) {
+                $('td:eq(0)', nRow).html( '<a href="users.do?reqCode=view&login=' + aData[0] + '">' + aData[0] +'</a>' );
+                var role = '';
+                switch (aData[1]) {
+                    case 'ADMINISTRATOR': role = '<bean:message key="contest.users.admin"/>'; break;
+                    case 'OBSERVER': role = '<bean:message key="contest.users.observer"/>'; break;
+                    case 'USER': role = '<bean:message key="contest.users.user"/>'; break;
                 }
-                problemGrid.getView().refresh(false);
+                $('td:eq(1)', nRow).text( role );
             }
-        });
-        problemToolbar.addButton({
-            text: '<bean:message key="contest.problems.clear" />',
-            handler : function(){
-                problemDs.removeAll();     
+        } );
+        var applicationsDataSet = ${contestsForm.encodedApplications};
+        for (var iApplication = 0; iApplication < applicationsDataSet.length; iApplication++) {
+            applicationsDataSet[iApplication].push("");
+            applicationsDataSet[iApplication].push("");
+        }
+        var applicationsGrid = $('#applicationsGrid').dataTable( {
+            "aaData": applicationsDataSet,
+            'sDom': 'rt',
+            'bPaginate': false,
+            'bSort' : false,
+            'oLanguage': {
+                'sUrl': 'l18n/<bean:message key="locale.currentTag"/>.txt'
+            },
+            fnCreatedRow: function( nRow, aData, index ) {
+                $('td:eq(0)', nRow).html( '<a href="users.do?reqCode=view&login=' + aData[0] + '">' + aData[0] +'</a>' );
+                $('td:eq(1)', nRow).text( (new Date(aData[1])).toLocaleString() );
+                var status = '';
+                switch (aData[3]) {
+                    case 'NEW': status = '<bean:message key="contest.applications.new"/>'; break;
+                    case 'ACCEPTED': status = '<bean:message key="contest.applications.accepted"/>'; break;
+                    case 'DECLINED': status = '<bean:message key="contest.applications.declined"/>'; break;
+                }
+                $('td:eq(3)', nRow).text( status );
+                var declineButton = $('<button type="button" class="btn btn-default"><span class="glyphicon glyphicon-remove text-danger"></span></button>');
+                declineButton.click( function () {
+                    applicationsDataSet[index][3] = 'DECLINED';
+                    applicationsGrid.fnClearTable();
+                    applicationsGrid.fnAddData(applicationsDataSet);
+                    for (var iUser = 0; iUser < usersDataSet.length; iUser++) {
+                        if (usersDataSet[iUser][0] === applicationsDataSet[index][0]) {
+                            break;
+                        }
+                    }
+                    if (iUser === usersDataSet.length) {
+                        return;
+                    }
+                    usersDataSet.splice(iUser, 1);    
+                    usersGrid.fnClearTable();
+                    usersGrid.fnAddData(usersDataSet);
+                });
+                $('td:eq(4)', nRow).empty().append(declineButton);
+                var acceptButton = $('<button type="button" class="btn btn-default"><span class="glyphicon glyphicon-ok text-success"></span></button>');
+                acceptButton.click( function () {
+                    applicationsDataSet[index][3] = 'ACCEPTED';
+                    applicationsGrid.fnClearTable();
+                    applicationsGrid.fnAddData(applicationsDataSet);
+                    var user = [ applicationsDataSet[index][0], 'USER'];
+                    for (var iUser = 0; iUser < usersDataSet.length; iUser++) {
+                        if (usersDataSet[iUser][0] === user[0]) {
+                            return;
+                        }
+                    }
+                    usersDataSet.push(user);
+                    usersGrid.fnClearTable();
+                    usersGrid.fnAddData(usersDataSet);
+                });
+                $('td:eq(5)', nRow).empty().append(acceptButton);
             }
-        });
-        //problemGrid.show();
- 
-        //////////////////////////////
-        // CONTEST LANGUAGES
-        /////////////////////////////	
- 
-        function formatBoolean(value){
-            return value ? 'Yes' : 'No'; 
-        };
- 
-        var languageGridColumns = new Ext.grid.ColumnModel([{
-                xtype: 'checkcolumn',
-                header: '<bean:message key="contest.languages.enabled" />',
-                dataIndex: 'enabled',
-                width: 70
-            },{
-                header: "<bean:message key="contest.languages.id" />",
-                dataIndex: 'id',
-                width: 70
-            },{
-                header: "<bean:message key="contest.languages.title" />",
-                dataIndex: 'title',
-                width: 120
-            },{
-                header: "<bean:message key="contest.languages.description" />",
-                dataIndex: 'description',
-                width: 250
+        } );
+        
+        $('#contestForm').submit(function(event) {
+            $('.has-error').removeClass('has-error');
+            var hasError = false;
+            var firstTabWithError = null;
+            var firstElementWithError = null;
+
+            var languages = [];
+            for (var iLanguage = 0; iLanguage < languagesDataSet.length; iLanguage++) {
+                languages[iLanguage] = {};
+                languages[iLanguage].id = languagesDataSet[iLanguage][1];
+                languages[iLanguage].enabled = languagesDataSet[iLanguage][0];
             }
-        ]);
+            
+            var problems = [];
+            for (var iProblem = 0; iProblem < problemsDataSet.length; iProblem++) {
+                problems[iProblem] = {};
+                problems[iProblem].problemId = problemsDataSet[iProblem][2];
+                if (isNaN(problems[iProblem].problemId)) {
+                    hasError = true;
+                    if (firstTabWithError === null) {
+                        firstTabWithError = $('#contestTabs a[href="#problemsTab"]');
+                        firstElementWithError = $('#problem_id_row' + iProblem);
+                    }
+                    $('#problem_id_row' + iProblem).addClass('has-error');
+                }
+                problems[iProblem].order = problemsDataSet[iProblem][1];
+                problems[iProblem].mark = problemsDataSet[iProblem][0];
+                problems[iProblem].cost = problemsDataSet[iProblem][4];
+            }
+            
+            var roles = [];
+            for (var iRole = 0; iRole < usersDataSet.length; iRole++) {
+                roles[iRole] = {};
+                roles[iRole].login = usersDataSet[iRole][0];
+                roles[iRole].role = usersDataSet[iRole][1];
+            }
 
-        languageDs = new Ext.data.Store({
-	
-            // The data obtained from property encodedContestLanguages of Struts form - contestsForm.  
-            proxy: new Ext.data.MemoryProxy(${contestsForm.encodedContestLanguages}),
-		 
-            // the return will be JSON, so lets set up a reader
-            reader: new Ext.data.JsonReader({
-                root: 'languages',
-                totalProperty: 'languagesTotalCount'
-            }, [
-                {name: 'enabled' , mapping: 'enabled', type: 'bool'},
-                {name: 'id', mapping: 'id'},
-                {name: 'title', mapping: 'title'},
-                {name: 'description', mapping: 'description'},
-            ]),
-	 
-            // turn on remote sorting
-            remoteSort: false
-        });	
- 
-        languageDs.load();
- 
-        var languageGrid = new Ext.grid.EditorGridPanel({
-            applyTo: 'languagesTable',
-            width: 'auto',
-            height: 'auto',
-            ds: languageDs,
-            cm: languageGridColumns,
-            sm: new Ext.grid.RowSelectionModel()
+            var applications = [];
+            for (var iApplication = 0; iApplication < applicationsDataSet.length; iApplication++) {
+                applications[iApplication] = {};
+                applications[iApplication].login = applicationsDataSet[iApplication][0];
+                applications[iApplication].filing_time = applicationsDataSet[iApplication][1];
+                applications[iApplication].message = applicationsDataSet[iApplication][2];
+                applications[iApplication].status = applicationsDataSet[iApplication][3];
+            }
+            
+            if (hasError) {
+                event.preventDefault();
+                firstTabWithError.tab('show');
+                firstElementWithError.scrollintoview();
+                return;
+            }
+            $('#encodedContestLanguages').val(JSON.stringify(languages));
+            $('#encodedContestProblems').val(JSON.stringify(problems));
+            $('#encodedRoles').val(JSON.stringify(roles));
+            $('#encodedApplications').val(JSON.stringify(applications));
         });
-        //languageGrid.show();
-
-        languageGrid.doLayout();
-    }); //Ext.onReady()
-
-    // Function, handles the form-submit event. 
-    function saveCollectionsValues() {
-	
-        // commit languages
-	
-        languageDs.commitChanges(); 
-        var languages = new Array();
-        for (var i = 0; i < languageDs.getCount(); i++) {
-            var x = languageDs.getAt(i);
-            languages[i] = new Object();
-            languages[i].enabled = x.get('enabled');
-            languages[i].id = x.get('id');		    		    
-        }
-        var jsonEncodedLanguages = Ext.util.JSON.encode(languages);
-        document.getElementById('encodedContestLanguages').value = jsonEncodedLanguages;
-	
-        // commit problems
-        problemDs.commitChanges(); 
-        var problems = new Array();
-        for (var i = 0; i < problemDs.getCount(); i++) {
-            var x = problemDs.getAt(i);
-            problems[i] = new Object();
-            problems[i].problemId = x.get('problemId');
-            problems[i].order = x.get('order');
-            problems[i].mark = x.get('mark');
-            problems[i].cost = x.get('cost');
-        }
-        var jsonEncodedProblems = Ext.util.JSON.encode(problems);
-        document.getElementById('encodedContestProblems').value = jsonEncodedProblems;
-	
-	
-        // commit roles
-        userDs.commitChanges(); 
-        var roles = new Array();
-        for (var i = 0; i < userDs.getCount(); i++) {
-            var a = userDs.getAt(i);
-            roles[i] = new Object();
-            roles[i].login = a.get('login');
-            roles[i].role = a.get('role');                 
-        }
-        var jsonEncodedRoles = Ext.util.JSON.encode(roles);
-        document.getElementById('encodedRoles').value = jsonEncodedRoles;
-	 
-        // commit applications
-        applicationDs.commitChanges(); 
-        var applications = new Array();
-        for (var i = 0; i < applicationDs.getCount(); i++) {
-            var a = applicationDs.getAt(i);
-            applications[i] = new Object();
-            applications[i].login = a.get('login');
-            applications[i].filing_time = a.get('filing_time');
-            applications[i].message = a.get('message');
-            applications[i].status = a.get('status');
-		 
-        }
-        var jsonEncodedApplications = Ext.util.JSON.encode(applications);
-        document.getElementById('encodedApplications').value = jsonEncodedApplications;
-	  
-    }
+    } );
 </script>
 
-<html:form styleId="contestsForm" styleClass="x-form" action="contests.do"
-           onsubmit="saveCollectionsValues()">
-    <div class="x-box-tl"><div class="x-box-tr"><div class="x-box-tc"></div></div></div>
-    <div class="x-box-ml"><div class="x-box-mr"><div class="x-box-mc">
+<form class="form" id="contestForm" action="contests.do" method="POST">
+    <c:choose>
+        <c:when test="${contestsForm.newContest}">
+            <input type="hidden" name="reqCode" value="submitCreate">
+            <h3><bean:message key="contest.newContest" /></h3>
+        </c:when>
+        <c:otherwise>
+            <input type="hidden" name="reqCode" value="submitEdit">
+            <input type="hidden" name="contestId" value="${sessionScope.contestId}">
+            <h3>${contestsForm.caption}</h3>
+        </c:otherwise>    
+    </c:choose>
 
-                <div class="x-form-bd" id="container">
-                    <input type="hidden" name="contestId" value="${sessionScope.contestId}"/>
+    <ul class="nav nav-tabs" id="contestTabs">
+        <li class="active"><a href="#descriptionTab" data-toggle="tab"><bean:message key="contest.description" /></a></li>
+        <li><a href="#parametersTab" data-toggle="tab"><bean:message key="contest.parameters" /></a></li>
+        <li><a href="#problemsTab" data-toggle="tab"><bean:message key="contest.problems" /></a></li>
+        <li><a href="#rulesTab" data-toggle="tab"><bean:message key="contest.rules" /></a></li>
+        <li><a href="#usersTab" data-toggle="tab"><bean:message key="contest.users" /></a></li>
+        <li><a href="#applicationsTab" data-toggle="tab"><bean:message key="contest.applications" /></a></li>
+        <li><a href="#languagesTab" data-toggle="tab"><bean:message key="contest.languages"/></a></li>
+    </ul>        
+    <div class="tab-content">
+        <fieldset id="descriptionTab" class="tab-pane active">
+            <div class="form-group">
+                <label><bean:message key="contest.caption" /></label>
+                <input type="text" class="form-control" name="caption" value="${contestsForm.caption}">
+            </div>
 
-                    <c:choose>
-                        <c:when test="${contestsForm.newContest}">
-                            <html:hidden property="reqCode" value="submitCreate" />
-                            <h3 style="margin-bottom:5px;"><bean:message key="contest.newContest" /></h3>
-                        </c:when>
-                        <c:otherwise>
-                            <html:hidden property="reqCode" value="submitEdit" />
-                            <h3 style="margin-bottom:5px;">${contestsForm.caption}</h3>
-                        </c:otherwise>    
-                    </c:choose>
+            <div class="form-group">
+                <label><bean:message key="contest.description" /></label>
+                <textarea class="ckeditor" name="description">${contestsForm.description}</textarea>
+            </div>
+        </fieldset>
 
-                    <div id="contestTabs">
-                        <div id="descriptionTab" class="x-hide-display">
-                            <div class="x-form-item">
-                                <label><bean:message key="contest.caption" /></label>
-                                <div class="x-form-element">
-                                    <html:text property="caption" />
-                                </div>
-                            </div>
+        <div id="parametersTab" class="tab-pane">
+            <div class="form-group">
+                <label><bean:message key="contest.type" /></label>                       
+                <select class="form-control" name="contestType">
+                    <c:forEach items="${contestsForm.contestTypes}" var="type">
+                    <option value="${type}" <c:if test="${contestsForm.contestType eq type}">selected</c:if> >${type}</option>
+                    </c:forEach>
+                </select>							
+            </div>
 
-                            <div class="x-form-item">
-                                <label><bean:message key="contest.description" /></label>
-                                <div class="x-form-element">
-                                    <html:textarea property="description" cols="80" rows="25"/>
-                                </div>
-                            </div>
-                        </div>
+            <div class="checkbox">
+                <label>
+                    <input type="checkbox" name="open" <c:if test="${contestsForm.open}">checked</c:if> >
+                    <bean:message key="contest.isOpen" />
+                </label>
+            </div>
 
-                        <div id="parametersTab" class="x-hide-display">
-                            <div class="x-form-item">
-                                <label><bean:message key="contest.type" /></label>                       
-                                <div class="x-form-element">
-                                    <html:select  property="contestType" styleId="contestType">
-                                        <html:options property="contestTypes"/>
-                                    </html:select>							
-                                </div>                 
-                            </div>
+            <div class="form-group">
+                <label><bean:message key="contest.startDate" /></label>  
+                <input type="text" class="form-control" name="startDate" size="8" value="${contestsForm.startDate}">
+            </div>
 
-                            <div class="x-form-item">
-                                <label><bean:message key="contest.isOpen" /></label>
-                                <div class="x-form-element">
-                                    <html:checkbox property="open">
-                                    </html:checkbox>
-                                </div>
-                            </div>
-
-                            <div class="x-form-item">
-                                <label><bean:message key="contest.startDate" /></label>  
-                                <div class="x-form-element">
-                                    <% SimpleDateFormat sdf = new SimpleDateFormat("yyyy/MM/dd");%>
-                                    <html:text property="startDate" styleId="startDate" size="8" />
-                                </div>
-                            </div>
-
-                            <div class="x-form-item">
-                                <label><bean:message key="contest.startTime" /></label>
-                                <div class="x-form-element">
-                                    <html:text property="startHour" styleId="startHour" size="2"  />
-                                    <b>:</b>
-                                    <html:text property="startMinute" styleId="startMinute" size="2" />
-                                </div>
-                            </div>
-
-                            <div class="x-form-item">
-                                <label><bean:message key="contest.duration" /></label>
-                                <div class="x-form-element">
-                                    <html:text property="durationHours" styleId="durationHours" size="2"  />
-                                    <b>:</b>
-                                    <html:text property="durationMinutes" styleId="durationMinutes" size="2" />
-                                </div>
-                            </div>
-
-                            <div class="x-form-item">
-                                <label><bean:message key="contest.freezeTime" /></label>
-                                <div class="x-form-element">
-                                    <html:text property="freezeTime" size="20" />
-                                </div>
-                            </div>
-                        </div>
-
-                        <div id="problemsTab" class="x-hide-display">
-                            <div id="problemsTable"></div>
-                        </div>
-
-                        <div id="rulesTab" class="x-hide-display">
-                            <div class="x-form-item">
-                                <label><bean:message key="contest.rules" /></label>
-                                <div class="x-form-element">
-                                    <html:textarea property="rules" cols="80" rows="25"/>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="x-hide-display">
-                            <!-- you must define the select box here, as the custom editor for the 'role' column will require it -->
-                            <select name="role" id="role" style="display: none;">
-                                <option value="ADMINISTRATOR"><bean:message key="contest.users.admin" /></option>
-                                <option value="USER"><bean:message key="contest.users.user" /></option>
-                                <option value="OBSERVER"><bean:message key="contest.users.observer" /></option>
-                            </select>
-                        </div>
-
-                        <div id="usersTab" class="x-hide-display">
-                            <div id="usersTable"></div>							
-                        </div>
-
-                        <div id="applicationsTab" class="x-hide-display">
-                            <div id="applicationsTable"></div>
-                        </div>
-
-                        <div id="languagesTab" class="x-hide-display">
-                            <div id="languagesTable"></div>
-                        </div>
-
-                    </div>
-
-                    <html:hidden property="encodedRoles" styleId="encodedRoles" />
-                    <html:hidden property="encodedContestProblems" styleId="encodedContestProblems" />
-                    <html:hidden property="encodedContestLanguages" styleId="encodedContestLanguages" />
-                    <html:hidden property="encodedApplications" styleId="encodedApplications" />
-
-                    <html:submit>
-                        <c:choose>
-                            <c:when test="${contestsForm.newContest}">
-                                <bean:message key="contest.addContest" /> 
-                            </c:when>
-                            <c:otherwise>
-                                <bean:message key="contest.applyChanges" />
-                            </c:otherwise>
-                        </c:choose>
-                    </html:submit>
-
+            <div class="form-group">
+                <label><bean:message key="contest.startTime" /></label>
+                <div class="x-form-element">
+                    <input type="text" name="startHour" size="2" value="${contestsForm.startHour}">
+                    :
+                    <input type="text" name="startMinute" size="2" value="${contestsForm.startMinute}">
                 </div>
-            </div></div></div>
-    <div class="x-box-bl"><div class="x-box-br"><div class="x-box-bc"></div></div></div>
-</html:form>
+            </div>
+
+            <div class="form-group">
+                <label><bean:message key="contest.duration" /></label>
+                <div class="x-form-element">
+                    <input type="text" name="durationHours" styleId="durationHours" size="2" value="${contestsForm.durationHours}">
+                    :
+                    <input type="text" name="durationMinutes" styleId="durationMinutes" size="2" value="${contestsForm.durationMinutes}">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label><bean:message key="contest.freezeTime" /></label>
+                <input type="text" class="form-control" name="freezeTime" size="20" value="${contestsForm.freezeTime}">
+            </div>
+        </div>
+
+        <div id="problemsTab" class="tab-pane">
+            <button type="button" id="addProblem" class="btn btn-default"><bean:message key="contest.problems.add"/></button>
+            <table class="table" id="problemsGrid">
+                <thead>
+                    <tr>
+                        <th class="col-sm-1"><bean:message key="contest.problems.mark"/></th>
+                        <th class="col-sm-2"><bean:message key="contest.problems.order"/></th>                        
+                        <th class="col-sm-7"><bean:message key="contest.problems.problem"/></th>
+                        <th></th>
+                        <th class="col-sm-1"><bean:message key="contest.problems.cost"/></th>
+                        <th class="col-sm-1"><bean:message key="contest.problems.remove"/></th>
+                    </tr>
+                </thead>
+                <tbody>
+                </tbody>
+            </table>
+        </div>
+
+        <div id="rulesTab" class="tab-pane">
+            <div class="form-group">
+                <label><bean:message key="contest.rules" /></label>
+                <textarea class="ckeditor" name="rules">${contestsForm.rules}</textarea>
+            </div>
+        </div>
+
+        <div id="usersTab" class="tab-pane">
+            <table class="table" id="usersGrid">
+                <thead>
+                    <tr>
+                        <th><bean:message key="contest.users.login"/></th>
+                        <th><bean:message key="contest.users.role"/></th>
+                    </tr>
+                </thead>
+                <tbody>
+                </tbody>
+            </table>
+        </div>
+
+        <div id="applicationsTab" class="tab-pane">
+            <table class="table" id="applicationsGrid">
+                <thead>
+                    <tr>
+                        <th><bean:message key="contest.applications.login"/></th>
+                        <th><bean:message key="contest.applications.filingTime"/></th>
+                        <th><bean:message key="contest.applications.message"/></th>
+                        <th><bean:message key="contest.applications.status"/></th>
+                        <th><bean:message key="contest.applications.decline"/></th>
+                        <th><bean:message key="contest.applications.accept"/></th>
+                    </tr>
+                </thead>
+                <tbody>
+                </tbody>
+            </table>
+        </div>
+
+        <div id="languagesTab" class="tab-pane">
+            <table class="table" id="languagesGrid">
+                <thead>
+                    <tr>
+                        <th><bean:message key="contest.languages.enabled"/></th>
+                        <th><bean:message key="contest.languages.id"/></th>
+                        <th><bean:message key="contest.languages.title"/></th>
+                        <th><bean:message key="contest.languages.description"/></th>
+                    </tr>
+                </thead>
+                <tbody>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <input type="hidden" id="encodedRoles" name="encodedRoles" />
+    <input type="hidden" id="encodedContestProblems" name="encodedContestProblems" />
+    <input type="hidden" id="encodedContestLanguages" name="encodedContestLanguages" />
+    <input type="hidden" id="encodedApplications" name="encodedApplications" />
+
+    <c:choose>
+        <c:when test="${contestsForm.newContest}">
+            <input type="submit" value="<bean:message key="contest.addContest" />">
+        </c:when>
+        <c:otherwise>
+            <input type="submit" value="<bean:message key="contest.applyChanges" />">
+        </c:otherwise>
+    </c:choose>
+</form>

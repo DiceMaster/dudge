@@ -20,4 +20,6 @@
 /dudge/dudgeSolver/build/
 /dudge/dudgeSolver/dist/
 dudge/dudge/dudge-war/web/WEB-INF/sun-web.xml
-
+/dudge/problemc/nbproject/private/
+/dudge/problemc/build/
+/dudge/problemc/dist/

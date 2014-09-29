@@ -22,9 +22,10 @@ import javax.persistence.*;
 @Table(name = "contests")
 @NamedQueries({
 	@NamedQuery(name = "Contest.getContests", query = "SELECT c FROM Contest c"),
-	@NamedQuery(name = "Contest.getActiveContests", query = "SELECT c FROM Contest c WHERE c.duration = 0 OR c.startTime < current_timestamp"),
-	@NamedQuery(name = "Contest.getPendingContests", query = "SELECT c FROM Contest c WHERE c.type = 'GLOBAL' OR c.startTime > current_timestamp"),
-	@NamedQuery(name = "Contest.getRecentlyFinishedContests", query = "SELECT c FROM Contest c WHERE c.duration <> 0 AND c.startTime < current_timestamp"),
+	@NamedQuery(name = "Contest.getActiveContests", query = "SELECT c FROM Contest c WHERE c.type <> 'GLOBAL' AND (c.duration = 0 OR c.startTime < current_timestamp)"),
+	@NamedQuery(name = "Contest.getPendingContests", query = "SELECT c FROM Contest c WHERE c.type <> 'GLOBAL' AND c.startTime > current_timestamp"),
+	@NamedQuery(name = "Contest.getRecentlyFinishedContests", query = "SELECT c FROM Contest c WHERE c.type <> 'GLOBAL' AND c.duration <> 0 AND c.startTime < current_timestamp"),
+	@NamedQuery(name = "Contest.getGlobalContests", query = "SELECT c FROM Contest c WHERE c.type = 'GLOBAL'"),
 	@NamedQuery(name = "Contest.findByContestId", query = "SELECT c FROM Contest c WHERE c.contestId = :contestId"),
 	@NamedQuery(name = "Contest.findByType", query = "SELECT c FROM Contest c WHERE c.type = :type"),
 	@NamedQuery(name = "Contest.findByStartTime", query = "SELECT c FROM Contest c WHERE c.startTime = :startTime"),

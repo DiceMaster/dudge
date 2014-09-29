@@ -26,7 +26,7 @@ import javax.persistence.*;
 	@NamedQuery(name = "Test.findByNumber", query = "SELECT t FROM Test t WHERE t.testNumber = :testNumber"),
 	@NamedQuery(name = "Test.findByNumberAndProblemId", query = "SELECT t FROM Test t WHERE t.testNumber = :testNumber AND t.problem.problemId = :problemId")
 })
-public class Test implements Serializable, Comparable {
+public class Test implements Serializable, Comparable<Test> {
 
 	public static final long serialVersionUID = 1L;
 	private static final Logger logger = Logger.getLogger(Test.class.toString());
@@ -156,20 +156,6 @@ public class Test implements Serializable, Comparable {
 		return "dudgedb.Test[testsPK=" + testId + "]";
 	}
 
-	@Override
-	public int compareTo(Object o) {
-		if (!(o instanceof Test)) {
-			throw new IllegalArgumentException("o is not instance of db.Test");
-		}
-		Test other = (Test) o;
-
-		if (this.getTestId() != other.getTestId()) {
-			return Integer.valueOf(this.getTestId()).compareTo(Integer.valueOf(other.getTestId()));
-		}
-
-		return Integer.valueOf(this.getTestNumber()).compareTo(Integer.valueOf(other.getTestNumber()));
-	}
-
 	public int getTestId() {
 		return testId;
 	}
@@ -184,5 +170,14 @@ public class Test implements Serializable, Comparable {
 
 	public void setTestNumber(Integer testNumber) {
 		this.testNumber = testNumber;
+	}
+
+	@Override
+	public int compareTo(Test other) {
+		if (this.getTestId() != other.getTestId()) {
+			return Integer.valueOf(this.getTestId()).compareTo(Integer.valueOf(other.getTestId()));
+		}
+
+		return Integer.valueOf(this.getTestNumber()).compareTo(Integer.valueOf(other.getTestNumber()));
 	}
 }

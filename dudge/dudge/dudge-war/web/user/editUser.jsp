@@ -3,274 +3,301 @@
 <jsp:useBean id="usersForm" class="dudge.web.forms.UsersForm" scope="session" />
 <jsp:useBean id="usersAction" class="dudge.web.actions.UsersAction" scope="session"/>
 
-<link rel="stylesheet" type="text/css" href="/dudge/css/editUser.css" />
+<script type="text/javascript" src="scripts/jquery.scrollintoview.min.js"></script>
 <script type="text/javascript">
-    function checkform() {
+    function validate() {
     
-        document.getElementById("loginFieldError").style.visibility = "hidden";
-        document.getElementById("realNameFieldError").style.visibility = "hidden";
-        document.getElementById("passwordFieldError").style.visibility = "hidden";
-        document.getElementById("emailFieldError").style.visibility = "hidden";
+        $("#loginFieldError").addClass("hide");
+        $("#loginGroup").removeClass("has-error");
+        $("#realNameFieldError").addClass("hide");
+        $("#realNameGroup").removeClass("has-error");
+        $("#passwordFieldError").addClass("hide");
+        $("#passwordGroup").removeClass("has-error");
+        $("#emailFieldError").addClass("hide");
+        $("#emailGroup").removeClass("has-error");
     
+        var failed = false;
+        
         // Login validation
         var loginExp = /^[a-zA-Z0-9-_]+$/;
-        if (document.getElementById("login").value.length < 3)
+        if (!loginExp.test($("#login").val()))
         {
-            document.getElementById("loginFieldError").style.visibility = "visible";
-            document.getElementById("loginFieldError").innerHTML = '<bean:message key="register.loginTooShort" />';
-            return false;
+            $("#loginGroup").addClass("has-error");
+            $("#loginFieldError").removeClass("hide");
+            $("#loginFieldError").html('<bean:message key="register.loginWrongSymbols" />');
+            if (!failed) {
+                $("#loginGroup").scrollintoview();
+                failed = true;
+            }
         }
-        if (document.getElementById("login").value.length > 20)
+        if ($("#login").val().length < 3)
         {
-            document.getElementById("loginFieldError").style.visibility = "visible";
-            document.getElementById("loginFieldError").innerHTML = '<bean:message key="register.loginTooLong" />';
-            return false;
+            $("#loginGroup").addClass("has-error");
+            $("#loginFieldError").removeClass("hide");
+            $("#loginFieldError").html('<bean:message key="register.loginTooShort" />');
+            if (!failed) {
+                $("#loginGroup").scrollintoview();
+                failed = true;
+            }
         }
-        if (!loginExp.test(document.getElementById("login").value))
+        if ($("#login").val().length > 20)
         {
-            document.getElementById("loginFieldError").style.visibility = "visible";
-            document.getElementById("loginFieldError").innerHTML = '<bean:message key="register.loginWrongSymbols" />';
-            return false;
+            $("#loginGroup").addClass("has-error");
+            $("#loginFieldError").removeClass("hide");
+            $("#loginFieldError").html('<bean:message key="register.loginTooLong" />');
+            if (!failed) {
+                $("#loginGroup").scrollintoview();
+                failed = true;
+            }
         }
     
         // Realname validation
-        if (document.getElementById("realName").value.length < 3)
+        if ($("#realName").val().length < 3)
         {
-            document.getElementById("realNameFieldError").style.visibility = "visible";
-            document.getElementById("realNameFieldError").innerHTML = '<bean:message key="register.realNameTooShort" />';
-            return false;
+            $("#realNameGroup").addClass("has-error");
+            $("#realNameFieldError").removeClass("hide");
+            $("#realNameFieldError").html('<bean:message key="register.realNameTooShort" />');
+            if (!failed) {
+                $("#realNameGroup").scrollintoview();
+                failed = true;
+            }
         }
-        if (document.getElementById("realName").value.length > 100)
+        if ($("#realName").val().length > 100)
         {
-            document.getElementById("realNameFieldError").style.visibility = "visible";
-            document.getElementById("realNameFieldError").innerHTML = '<bean:message key="register.realNameTooLong" />';
-            return false;
+            $("#realNameGroup").addClass("has-error");
+            $("#realNameFieldError").removeClass("hide");
+            $("#realNameFieldError").html('<bean:message key="register.realNameTooLong" />');
+            if (!failed) {
+                $("#realNameGroup").scrollintoview();
+                failed = true;
+            }
         }
         
-        /*
         // Password validation
-        var password = document.getElementById("password").value;
-        var confirmPassword = document.getElementById("passwordConfirm").value;
-        var passwordFieldError = document.getElementById("passwordFieldError");
+        var password = $("#password").val();
+        var confirmPassword = $("#passwordConfirm").val();
+        if (password != confirmPassword)
+        {
+            $("#passwordGroup").addClass("has-error");
+            $("#passwordFieldError").removeClass("hide");
+            $("#passwordFieldError").html('<bean:message key="register.passwordWrongConfirm" />');
+            if (!failed) {
+                $("#passwordGroup").scrollintoview();
+                failed = true;
+            }
+        }
         if (password.length < 3)
         {
-            passwordFieldError.style.visibility = "visible";
-            passwordFieldError.innerHTML = '<bean:message key="register.passwordTooShort" />';
-            return false;
+            $("#passwordGroup").addClass("has-error");
+            $("#passwordFieldError").removeClass("hide");
+            $("#passwordFieldError").html('<bean:message key="register.passwordTooShort" />');
+            if (!failed) {
+                $("#passwordGroup").scrollintoview();
+                failed = true;
+            }
         }
         if (password.length > 20)
         {
-            passwordFieldError.style.visibility = "visible";
-            passwordFieldError.innerHTML = '<bean:message key="register.passwordTooLong" />';
-            return false;
+            $("#passwordGroup").addClass("has-error");
+            $("#passwordFieldError").removeClass("hide");
+            $("#passwordFieldError").html('<bean:message key="register.passwordTooLong" />');
+            if (!failed) {
+                $("#passwordGroup").scrollintoview();
+                failed = true;
+            }
         }
-        if (password != confirmPassword)
-        {
-            passwordFieldError.style.visibility = "visible";
-            passwordFieldError.innerHTML = '<bean:message key="register.passwordWrongConfirm" />';
-            return false;
-        }
-         */
         
         // Email validation
         var emailExp = /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
-        if (!emailExp.test(document.getElementById("email").value))
+        if (!emailExp.test($("#email").val()))
         {
-            document.getElementById("emailFieldError").style.visibility = "visible";
-            document.getElementById("emailFieldError").innerHTML = '<bean:message key="register.emailMalformed" />';
-            return false;
+            $("#emailGroup").addClass("has-error");
+            $("#emailFieldError").removeClass("hide");
+            $("#emailFieldError").html('<bean:message key="register.emailMalformed" />');
+            if (!failed) {
+                $("#emailGroup").scrollintoview();
+                failed = true;
+            }
         }
     
+        if (failed) {
+            return false;
+        }
+        
         return true;
     }
 </script>
 
-<html:form styleId="userForm" action="users" styleClass="x-form" onsubmit="return checkform()">
-    <div class="x-box-tl"><div class="x-box-tr"><div class="x-box-tc"></div></div></div>
-    <div class="x-box-ml"><div class="x-box-mr"><div class="x-box-mc">
-                <div class="x-form-bd" id="container">
+<form class="form-horizontal" action="users.do" method="post" onsubmit="return validate()">
+    <fieldset>
+        <c:choose>
+            <c:when test="${usersForm.newUser}">
+                <input type="hidden" name="reqCode" value="submitRegister">
+                <h1><bean:message key="registration.registration" /></h3>
+            </c:when>
+            <c:otherwise>
+                <input type="hidden" name="reqCode" value="submitEdit">
+                <input type="hidden" name="login" value="${usersForm.login}">
+                <h1><bean:message key="user.user" /> ${usersForm.login}</h3>
+            </c:otherwise>
+        </c:choose>
 
+        <fieldset>
+            <legend><bean:message key="registration.requiredInfo" /></legend>
+
+<c:if test="${usersForm.newUser}">
+            <div class="form-group" id="loginGroup">
+                <label for="login" class="col-lg-3 control-label"><bean:message key="user.login" /></label>
+                <div class="col-lg-7">
+                    <input type="text" id="login" name="login" class="form-control">
+                </div>
+
+                <c:choose>
+                    <c:when test="${usersForm.hasLoginError}">
+                        <span class="help-block col-lg-offset-3 col-lg-7" id="loginFieldError"><bean:message key="${usersForm.errorMessageKey}" /></span>
+                    </c:when>
+                    <c:otherwise>
+                        <span class="help-block col-lg-offset-3 col-lg-7 hide" id="loginFieldError"></span>
+                    </c:otherwise>
+                </c:choose>
+            </div>
+</c:if>
+            <div class="form-group" id="realNameGroup">
+                <label for="realName" class="col-lg-3 control-label"><bean:message key="user.realName" /></label>
+                <div class="col-lg-7">
+                    <input type="text" id="realName" name="realName" class="form-control" value="${usersForm.realName}">
+                </div>
+                <span class="help-block col-lg-offset-3 col-lg-7 hide" id="realNameFieldError"></span>
+            </div>
+<c:if test="${usersForm.newUser}">
+            <div class="form-group" id="passwordGroup">
+                <label for="password" class="col-lg-3 control-label"><bean:message key="user.password" /></label>
+                <div class="col-lg-7">
+                    <input type="password" id="password" name="password" class="form-control">
+                </div>
+                <c:choose>
+                    <c:when test="${usersForm.hasPasswordError}">
+                        <span class="help-block col-lg-offset-3 col-lg-7" id="passwordFieldError"><bean:message key="${usersForm.errorMessageKey}" /></span>
+                    </c:when>
+                    <c:otherwise>
+                        <span class="help-block col-lg-offset-3 col-lg-7 hide" id="passwordFieldError"></span>
+                    </c:otherwise>
+                </c:choose>
+            </div>
+            <div class="form-group" id="passwordConfirmGroup">
+                <label for="passwordConfirm" class="col-lg-3 control-label"><bean:message key="user.repPassword" /></label>
+                <div class="col-lg-7">
+                    <input type="password" id="passwordConfirm" name="passwordConfirm" class="form-control">
+                </div>
+            </div>    
+</c:if>
+            <div class="form-group" id="emailGroup">
+                <label for="email" class="col-lg-3 control-label"><bean:message key="user.email"/></label>
+                <div class="col-lg-7">
+                    <input type="text" id="email" name="email" class="form-control" value="${usersForm.email}">
+                </div>
+                <span class="help-block col-lg-offset-3 col-lg-7 hide" id="emailFieldError"></span>
+            </div>
+        </fieldset>
+
+        <fieldset>
+            <legend><bean:message key="registration.additionalInfo" /></legend>
+            <div class="form-group">
+                <label for="organization" class="col-lg-3 control-label"><bean:message key="user.organization" /></label>
+                <div class="col-lg-7">
+                    <input type="text" id="organization" name="organization" class="form-control" value="${usersForm.organization}">
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="faculty" class="col-lg-3 control-label"><bean:message key="user.faculty" /></label>
+                <div class="col-lg-7">
+                    <input type="text" id="faculty" name="faculty" class="form-control" value="${usersForm.faculty}">
+                </div>
+            </div>    
+            <div class="form-group">
+                <label for="course" class="col-lg-3 control-label"><bean:message key="user.course" /></label>
+                <div class="col-lg-7">
+                    <input type="text" id="course" name="course" class="form-control" value="${usersForm.course}">
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="group" class="col-lg-3 control-label"><bean:message key="user.group" /></label>
+                <div class="col-lg-7">
+                    <input type="text" id="group" name="group" class="form-control" value="${usersForm.group}">
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="age" class="col-lg-3 control-label"><bean:message key="user.age" /></label>
+                <div class="col-lg-7">
+                    <input type="text" id="age" name="age" class="form-control" value="${usersForm.age}">
+                </div>
+            </div>
+            <div class="form-group hidden">
+                <label for="jabberId" class="col-lg-3 control-label"><bean:message key="user.jabberId" /></label>
+                <div class="col-lg-7">
+                    <input type="hidden" id="jabberId" name="jabberId" class="form-control" value="${usersForm.jabberId}">
+                </div>
+            </div>
+            <div class="form-group hidden" class="col-lg-3 control-label">
+                <label for="icqNumber" class="col-lg-3 control-label"><bean:message key="user.icqNumber" /></label>
+                <div class="col-lg-7">
+                    <input type="hidden" id="icqNumber" name="icqNumber" class="form-control" value="${usersForm.icqNumber}">
+                </div>
+            </div>
+        </fieldset>
+
+        <c:if test="${permissionCheckerRemote.canDeepModifyUser(autentificationObject.username, usersForm.login)}">
+            <fieldset>
+                <legend><bean:message key="user.permissions" /></legend>
+
+                <div class="form-group">
+                    <div class="col-lg-offset-3 col-lg-7">
+                        <div class="checkbox">
+                            <label>
+                                <input type="checkbox" name="admin" <c:if test="${usersForm.admin}">checked</c:if> >
+                                <bean:message key="user.administrator" />
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <div class="col-lg-offset-3 col-lg-7">
+                        <div class="checkbox">
+                            <label>
+                                <input type="checkbox" name="contestCreator" <c:if test="${usersForm.contestCreator}">checked</c:if> >
+                                <bean:message key="user.contestCreator" />
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <div class="col-lg-offset-3 col-lg-7">
+                        <div class="checkbox">
+                            <label>
+                                <input type="checkbox" name="problemCreator" <c:if test="${usersForm.problemCreator}">checked</c:if> >
+                                <bean:message key="user.problemCreator" />
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </fieldset>
+        </c:if>
+
+        <div class="form-group">
+            <div class="col-lg-offset-3 col-lg-7">
+                <button type="submit" class="btn btn-primary">
                     <c:choose>
                         <c:when test="${usersForm.newUser}">
-                            <html:hidden property="reqCode" value="submitRegister" />
-                            <h3 style="margin-bottom:5px;"><bean:message key="registration.registration" /></h3>
+                            <bean:message key="registration.register" />
                         </c:when>
                         <c:otherwise>
-                            <html:hidden property="reqCode" value="submitEdit" />
-                            <html:hidden property="login" />
-                            <h3 style="margin-bottom:5px;"><bean:message key="user.user" /> ${usersForm.login}</h3>
+                            <bean:message key="user.applyChanges" />
                         </c:otherwise>
                     </c:choose>
-
-                    <fieldset>
-                        <legend><bean:message key="registration.requiredInfo" /></legend>
-
-                        <c:if test="${usersForm.newUser}">
-                            <div class="tableRow">
-                                <div class="tableCell">
-                                    <label for="login"><bean:message key="user.login" /></label>
-                                </div>
-                                <div class="tableCell">
-                                    <html:text  property="login" styleId="login" size="20" styleClass="x-form-text x-form-field"/>
-                                </div>
-                                <c:choose>
-                                    <c:when test="${usersForm.hasLoginError}">
-                                        <div class="validationError" id="loginFieldError" style="visibility: visible">
-                                            <bean:message key="${usersForm.errorMessageKey}" />
-                                        </div>
-                                    </c:when>
-                                    <c:otherwise>
-                                        <div class="validationError" id="loginFieldError"></div>
-                                    </c:otherwise>
-                                </c:choose>
-                            </div>
-                            <div class="tableRow">
-                                <div class="tableCell">
-                                    <label for="realName"><bean:message key="user.realName" /></label>
-                                </div>
-                                <div class="tableCell">
-                                    <html:text property="realName" styleId="realName" size="20" styleClass="x-form-text x-form-field"/>
-                                </div>
-                                <div class="validationError" id="realNameFieldError"></div>
-                            </div>
-                            <div class="tableRow">
-                                <div class="tableCell">
-                                    <label for="password"><bean:message key="user.password" /></label>
-                                </div>
-                                <div class="tableCell">
-                                    <html:password property="password" styleId="password" size="20" styleClass="x-form-text x-form-field"/>
-                                </div>
-                                <c:choose>
-                                    <c:when test="${usersForm.hasPasswordError}">
-                                        <div class="validationError" id="passwordFieldError" style="visibility: visible">
-                                            <bean:message key="${usersForm.errorMessageKey}" />
-                                        </div>
-                                    </c:when>
-                                    <c:otherwise>
-                                        <div class="validationError" id="passwordFieldError"></div>
-                                    </c:otherwise>
-                                </c:choose>
-                            </div>
-                            <div class="tableRow">
-                                <div class="tableCell">
-                                    <label for="passwordConfirm"><bean:message key="user.repPassword" /></label>
-                                </div>
-                                <div class="tableCell">
-                                    <html:password property="passwordConfirm" styleId="passwordConfirm" size="20" styleClass="x-form-text x-form-field"/>
-                                </div>
-                            </div>    
-                        </c:if>
-
-                        <div class="tableRow">
-                            <div class="tableCell">
-                                <label for="email"><bean:message key="user.email"/></label>
-                            </div>
-                            <div class="tableCell">
-                                <html:text property="email" styleId="email" size="20" styleClass="x-form-text x-form-field"/>
-                            </div>
-                            <div class="validationError" id="emailFieldError"></div>
-                        </div>
-
-                    </fieldset>
-
-                    <fieldset>
-                        <legend><bean:message key="registration.additionalInfo" /></legend>
-                        <div class="tableRow">
-                            <div class="tableCell">
-                                <label for="organization"><bean:message key="user.organization" /></label>
-                            </div>
-                            <div class="tableCell">
-                                <html:text property="organization" styleId="organization" size="20" styleClass="x-form-text x-form-field"/>
-                            </div>
-                        </div>
-                        <div class="tableRow">
-                            <div class="tableCell">
-                                <label for="faculty"><bean:message key="user.faculty" /></label>
-                            </div>
-                            <div class="tableCell">
-                                <html:text property="faculty" styleId="faculty" size="20" styleClass="x-form-text x-form-field"/>
-                            </div>
-                        </div>    
-                        <div class="tableRow">
-                            <div class="tableCell">
-                                <label for="course"><bean:message key="user.course" /></label>
-                            </div>
-                            <div class="tableCell">
-                                <html:text property="course" styleId="course" size="20" styleClass="x-form-text x-form-field"/>
-                            </div>
-                        </div>
-                        <div class="tableRow">
-                            <div class="tableCell">
-                                <label for="group"><bean:message key="user.group" /></label>
-                            </div>
-                            <div class="tableCell">
-                                <html:text property="group" styleId="group" size="20" styleClass="x-form-text x-form-field"/>
-                            </div>
-                        </div>
-                        <div class="tableRow">
-                            <div class="tableCell">
-                                <label for="age"><bean:message key="user.age" /></label>
-                            </div>
-                            <div class="tableCell">
-                                <html:text property="age" styleId="age" size="20" styleClass="x-form-text x-form-field"/>
-                            </div>
-                        </div>
-                        <div class="tableRow">
-                            <div class="tableCell">
-                                <label for="jabberId"><bean:message key="user.jabberId" /></label>
-                            </div>
-                            <div class="tableCell">
-                                <html:text property="jabberId" styleId="jabberId" size="20" styleClass="x-form-text x-form-field"/>
-                            </div>
-                        </div>
-                        <div class="tableRow">
-                            <div class="tableCell">
-                                <label for="icqNumber"><bean:message key="user.icqNumber" /></label>
-                            </div>
-                            <div class="tableCell">
-                                <html:text property="icqNumber" styleId="icqNumber" size="20" styleClass="x-form-text x-form-field"/>
-                            </div>
-                        </div>
-                    </fieldset>
-
-                    <c:if test="${permissionCheckerRemote.canDeepModifyUser(autentificationObject.username, usersForm.login)}">
-                        <fieldset>
-                            <legend><bean:message key="user.permissions" /></legend>
-
-                            <div class="tableRow">
-                                <label>
-                                    <html:checkbox property="admin" />
-                                    <bean:message key="user.administrator" />
-                                </label>
-                            </div>
-
-                            <div class="tableRow">	    
-                                <label>
-                                    <html:checkbox property="contestCreator" />
-                                    <bean:message key="user.contestCreator" />
-                                </label>
-                            </div>
-
-                            <div class="tableRow">
-                                <label>
-                                    <html:checkbox property="problemCreator" />
-                                    <bean:message key="user.problemCreator" />
-                                </label>
-                            </div>
-                        </fieldset>
-                    </c:if>
-
-                    <html:submit>
-                        <c:choose>
-                            <c:when test="${usersForm.newUser}">
-                                <bean:message key="registration.register" />     
-                            </c:when>
-                            <c:otherwise>
-                                <bean:message key="user.applyChanges" />
-                            </c:otherwise>
-                        </c:choose>
-                    </html:submit>        
-                </div>
-            </div></div></div>
-    <div class="x-box-bl"><div class="x-box-br"><div class="x-box-bc"></div></div></div>
-</html:form>
+                </button>
+            </div>
+        </div>
+    </fieldset>
+</form>

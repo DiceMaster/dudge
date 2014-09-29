@@ -22,6 +22,8 @@ import javax.persistence.*;
 	@NamedQuery(name = "Solution.getPendingSolutions", query = "SELECT s FROM Solution s WHERE s.status = 'NEW'"),
 	@NamedQuery(name = "Solution.findByContestId", query = "SELECT s FROM Solution s WHERE s.contest.contestId = :contestId"),
 	@NamedQuery(name = "Solution.getLastSolutions", query = "SELECT s FROM Solution s ORDER BY s.submitTime DESC"),
+	@NamedQuery(name = "Solution.findByUserContest",
+			query = "SELECT s FROM Solution s WHERE s.user.login = :login AND s.contest.contestId = :contestId ORDER BY s.submitTime DESC"),
 	@NamedQuery(name = "Solution.findByUserContestProblem",
 			query = "SELECT s FROM Solution s WHERE s.user.login = :login AND s.contest.contestId = :contestId AND s.problem.problemId = :problemId"
 			+ " ORDER BY s.submitTime")

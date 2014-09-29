@@ -15,6 +15,7 @@ import java.io.Serializable;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 public class AcmMonitorRecord implements Comparable, Serializable {
 
@@ -160,6 +161,14 @@ public class AcmMonitorRecord implements Comparable, Serializable {
 		return problemsTries.get(problemMark);
 	}
 
+	/**
+	 * Возвращает метки всех задач в строке.
+	 *
+	 * @return множество меток задач.
+	 */
+        public Set<String> getProblemsMarks() {
+            return problemsSolved.keySet();
+        }
 	/**
 	 * Возвращает место этой записи в общей таблице соревнования.
 	 *

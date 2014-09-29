@@ -23,7 +23,15 @@ public interface PermissionCheckerRemote {
 	 */
 	boolean canGetUser(String principal, User user);
 
-	/**
+         /**
+	 * true, если пользователь - администратор, иначе false.
+	 *
+	 * @param principal Имя пользователя, для которого проверяется право.
+	 * @param user Пользователь, данные которого запрашиваются.
+	 */
+	boolean canViewUsersList(String principal);
+
+        /**
 	 * Проверяет право модификации данных определенного пользователя.
 	 *
 	 * @param principal Имя пользователя, для которого проверяется право.
@@ -116,6 +124,14 @@ public interface PermissionCheckerRemote {
 	 */
 	boolean canDeleteContest(String principal, int contestId);
 
+	/**
+	 * Проверяет право посматривать список задач в соревновании.
+	 *
+	 * @param principal Имя пользователя, для которого проверяется право.
+	 * @param contestId Идентификатор соревнования.
+	 */
+	boolean canViewContestProblems(String principal, int contestId);
+	
 	/**
 	 * Проверяет право посмотреть задачу по ее идентификатору.
 	 *
@@ -246,4 +262,16 @@ public interface PermissionCheckerRemote {
 	 * @return true если пользователь может просматривать данную новость.
 	 */
 	public boolean canViewNews(String principal, int newsId);
+	
+	/* Проверяет наличие каких-либо прав на управление объектами системы.
+	 * @principal пользователь, для которого проверяются права;
+	 * @return true если пользователь может чем-то управлять.
+	 */
+	public boolean canAdmin(String principal);
+	
+	/* Проверяет наличие прав на редактирование глобальной страницы с правилами.
+	 * @principal пользователь, для которого проверяются права;
+	 * @return true если пользователь может редактировать глобальные правила.
+	 */
+	public boolean canEditRules(String principal);
 }

@@ -1,0 +1,152 @@
+#!/usr/bin/perl
+
+my $pidmap;
+my $dbconn;
+my $dbnormal;
+my $dbempty;
+
+sub readConfigFile {
+ my($self, $file,$options) = @_;
+
+ if (! -f $file) {
+     die ("No such config file: $file");
+     }
+ putLOG("config: use $file");
+
+ my $copts = do $file;
+ if ($@) {
+    die("Error while processing config file $file: $@");
+    }
+
+ if (!$copts || ref($copts) ne 'HASH') {
+    die("Config file $file did not return a hash ref.");
+    }
+
+ # Override current configuration with config file options.
+ while (my($var, $val) = each %$copts) {
+    $self->{$var} = $val;
+    }
+}
+
+
+sub putLOG {
+ print LOG (scalar localtime),": ",@_,"\n";
+ return undef;
+}
+
+sub pid2key($) {
+ my ($pid)=@_;
+ my $key;
+
+ foreach $key (keys %$pidmap) {
+   foreach $id (@{$pidmap->{$key}}) {
+     return $key if $id==$pid;
+     }
+   }
+
+ die "Unknown ProblemID detected";
+}
+
+sub normal_db_list($$) {
+ my ($dbms,$pid)=@_;
+ my $ret;
+
+ my $key=pid2key($pid);
+ my $defs;
+
+ if($dbms eq "SQL") { $defs=$dbconn; }
+ else               { $defs={$dbms=>$dbconn->{$dbms}}; }
+
+ $ret="[\n";
+ foreach $k (keys %$defs) {
+   my $def=$defs->{$k};
+   my ($host,$user,$passwd)=($def->{host},$def->{user},$def->{passwd});
+   foreach $db (@{$dbnormal->{$key}}) {
+     $ret.="  {'dbms'=>'$k','dbhost'=>'$host','dbname'=>'$db','dbuser'=>'$user','dbpasswd'=>'$passwd'},\n";
+     }
+   }
+ $ret.="]";
+
+ return $ret;
+}
+
+sub empty_db_list($$) {
+ my ($dbms,$pid)=@_;
+ my $ret;
+
+ my $key=pid2key($pid);
+ my $defs;
+
+ if($dbms eq "SQL") { $defs=$dbconn; }
+ else               { $defs={$dbms=>$dbconn->{$dbms}}; }
+
+ $ret="[\n";
+ foreach $k (keys %$defs) {
+   my $def=$defs->{$k};
+   my ($host,$user,$passwd,$db)=($def->{host},$def->{user},$def->{passwd},$dbempty->{$key});
+   $ret.="  {'dbms'=>'$k','dbhost'=>'$host','dbname'=>'$db','dbuser'=>'$user','dbpasswd'=>'$passwd'},\n";
+   }
+ $ret.="]";
+
+ return $ret;
+}
+
+sub main() {
+die "Usage: sql_creator dbms solution_sql verificator problem_id\n" if $#ARGV!=3;
+
+open(LOG,">>/var/tmp/dudge_sql_creator.log");
+
+my ($dbms,$sqlfile,$outfile,$problemid)=@ARGV;
+
+putLOG("dbms=$dbms sql=$sqlfile output=$outfile problem=$problemid");
+
+my $sql='';
+
+open(SRC,$sqlfile);
+while(<SRC>) { $sql.=$_; }
+close SRC;
+$sql =~ s/\"/\\\"/g;
+$sql =~ s/\'/\\\'/g;
+
+putLOG("--------------- SQL begin");
+putLOG($sql);
+putLOG("--------------- SQL end");
+
+
+open(SRC,"/usr/local/share/dudge/verificator_stub");
+open(DST,">$outfile");
+
+while(<SRC>) {
+  if(/SQL_SOLUTION_TEXT/)	{ print DST $sql;  }
+  elsif(/SQL_SOLUTION_DBMS/)	{ print DST $dbms; }
+  elsif(/SQL_PROBLEM_ID/)	{ print DST $problemid; } # for debug only
+  elsif(/SQL_NORMAL_DB_LIST/)	{ print DST normal_db_list($dbms,$problemid); }
+  elsif(/SQL_EMPTY_DB_LIST/)	{ print DST empty_db_list($dbms,$problemid);  }
+  else 				{ print DST $_;    }
+  }
+close SRC;
+close DST;
+
+# try to check only syntax of SQL-solution
+$retval=system("/usr/bin/perl $outfile VERIFY");
+return $retval ? 1:0;
+}
+
+my $cfg={};
+readConfigFile($cfg,"/usr/local/etc/dudge_sql_creator.conf");
+$pidmap=$cfg->{pidmap};
+$dbconn=$cfg->{dbconn};
+$dbnormal=$cfg->{dbnormal};
+$dbempty=$cfg->{dbempty};
+
+# ==0 - OK
+# !=0 - FAIL
+$retval=main();
+exit $retval;
+
+#print "key=".pid2key(77)."\n";
+#print normal_db_list("SQL",77);
+#print "\n";
+#print empty_db_list("SQL",77);
+#print "\n";
+

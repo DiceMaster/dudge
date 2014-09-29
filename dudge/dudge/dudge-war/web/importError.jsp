@@ -1,4 +1,6 @@
-<p><bean:message key="problem.importError"/><p>
+<div class="alert alert-danger">
+    <bean:message key="problem.importError"/>
+</div>
 
 <pre>
 <%

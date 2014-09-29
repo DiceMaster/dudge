@@ -90,4 +90,18 @@ public interface DudgeLocal {
 	 * @return путь, который хранится в параметре bug_tracking_path таблицы params базы данных или путь по умолчанию, если такого параметра нет.
 	 */
 	public URI getBugTrackingPath();
+	
+	/**
+	 * Позволяет получить текст глобальных правил системы.
+	 *
+	 * @return текст глобальных правил.
+	 */
+	public String getRules();
+	
+	/**
+	 * Позволяет задать текст глобальных правил системы.
+	 *
+	 * @param rules текст глобальных правил.
+	 */
+	public void setRules(String rules);
 }

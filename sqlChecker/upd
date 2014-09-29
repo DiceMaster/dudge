@@ -1,0 +1,5 @@
+#!/bin/bash
+
+cp -fuv verificator_stub            /usr/local/share/dudge/verificator_stub
+cp -fuv dudge_sql_creator           /usr/local/bin/dudge_sql_creator
+cp -fuv dudge_sql_creator.conf.real /usr/local/etc/dudge_sql_creator.conf
