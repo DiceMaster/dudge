@@ -45,7 +45,7 @@
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-default" data-dismiss="modal"><bean:message key="problem.tests.cancel"/></button>
-                <button type="button" id="removeTest" class="btn btn-default" data-dismiss="modal"><bean:message key="problem.tests.returnConfirm"/></button>
+                <a role="button" href="problems.do?reqCode=view&problemId=${problemsForm.problemId}" class="btn btn-default"><bean:message key="problem.tests.returnConfirm"/></a>
             </div>
         </div>
     </div>

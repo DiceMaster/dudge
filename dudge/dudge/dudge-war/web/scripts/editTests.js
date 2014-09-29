@@ -158,10 +158,10 @@ var initTests = function(testList, template, l10n) {
     var updateView = function(testView, test) {
         testView.setTitle(l10n.testText + " " + (test.index + 1));
         testView.setEditableText(test.inputTest, test.outputTest);
-        testView.toggleEditing((test.state === Test.State.Saved || test.state === Test.State.NotSaved) &&
+        testView.toggleEditing((test.saveLoadState === Test.State.Saved || test.saveLoadState === Test.State.NotSaved) &&
                                 test.removeState !== Test.RemoveState.Removing);
-        testView.toggleSaveThrobber(test.state === Test.State.Saving);
-        testView.toggleLoadThrobber(test.state === Test.State.Loading);
+        testView.toggleSaveThrobber(test.saveLoadState === Test.State.Saving);
+        testView.toggleLoadThrobber(test.saveLoadState === Test.State.Loading);
         testView.toggleRemoveThrobber(test.removeState === Test.RemoveState.Removing);
         switch (test.error) {
             case Test.Error.LoadError:
@@ -177,12 +177,12 @@ var initTests = function(testList, template, l10n) {
                 testView.hideError();
                 break;
         }
-        testView.toggleRemoveButton(test.state !== Test.State.Saving &&
-                                    test.state !== Test.State.Loading &&
+        testView.toggleRemoveButton(test.saveLoadState !== Test.State.Saving &&
+                                    test.saveLoadState !== Test.State.Loading &&
                                     test.removeState !== Test.RemoveState.Removing);
-        testView.toggleSaveLoadButton(test.state === Test.State.NotSaved ||
+        testView.toggleSaveLoadButton(test.saveLoadState === Test.State.NotSaved ||
                                       test.error === Test.Error.LoadError);
-        switch (test.state) {
+        switch (test.saveLoadState) {
             case Test.State.Saved:
                 testView.setSaveLoadButtonText(l10n.savedText);
                 break;
@@ -208,10 +208,10 @@ var initTests = function(testList, template, l10n) {
     var loadTest = function(iTest) {
         var test = tests[iTest];
         var testView = testViews[iTest];
-        if (test.state !== Test.State.NotLoaded) {
+        if (test.saveLoadState !== Test.State.NotLoaded) {
             return;
         }
-        test.state = Test.State.Loading;
+        test.saveLoadState = Test.State.Loading;
         test.error = Test.Error.NoError;
         updateView(testView, test);
         
@@ -225,13 +225,13 @@ var initTests = function(testList, template, l10n) {
                 test.inputTest = json.inputData;
                 test.outputTest = json.outputData;
                 test.error = Test.Error.NoError;
-                test.state = Test.State.Saved;
+                test.saveLoadState = Test.State.Saved;
                 updateView(testView, test);
                 testView.expand();
             }
         ).fail(function() {
             test.error = Test.Error.LoadError;
-            test.state = Test.State.NotLoaded;
+            test.saveLoadState = Test.State.NotLoaded;
             updateView(testView, test);
         });
     };
@@ -239,10 +239,10 @@ var initTests = function(testList, template, l10n) {
     var saveTest = function(iTest) {
         var test = tests[iTest];
         var testView = testViews[iTest];
-        if (test.state !== Test.State.NotSaved) {
+        if (test.saveLoadState !== Test.State.NotSaved) {
             return;
         }
-        test.state = Test.State.Saving;
+        test.saveLoadState = Test.State.Saving;
         test.error = Test.Error.NoError;
         updateView(testView, test);
         
@@ -256,12 +256,12 @@ var initTests = function(testList, template, l10n) {
             },
             function() {
                 test.error = Test.Error.NoError;
-                test.state = Test.State.Saved;
+                test.saveLoadState = Test.State.Saved;
                 updateView(testView, test);
             }
         ).fail(function() {
             test.error = Test.Error.SaveError;
-            test.state = Test.State.NotSaved;
+            test.saveLoadState = Test.State.NotSaved;
             updateView(testView, test);
         });
     };
@@ -289,6 +289,7 @@ var initTests = function(testList, template, l10n) {
                 testView.onRemove = onRemoveTest;
                 testViews.push(testView);
                 updateView(testView, test);
+                testView.expand();
 
                 $("#throbberAdd").addClass("hidden");
                 $("#addTest").prop("disabled", false);
@@ -337,7 +338,7 @@ var initTests = function(testList, template, l10n) {
             return;
         }
         var test = tests[iTest];
-        switch (test.state) {
+        switch (test.saveLoadState) {
             case Test.State.NotSaved:
                 saveTest(iTest);
                 break;
@@ -362,7 +363,7 @@ var initTests = function(testList, template, l10n) {
         if (iTest < 0) {
             return;
         }
-        if (tests[iTest].state !== Test.State.NotLoaded) {
+        if (tests[iTest].saveLoadState !== Test.State.NotLoaded) {
             return;
         }
         loadTest(iTest);
@@ -374,7 +375,7 @@ var initTests = function(testList, template, l10n) {
             return;
         }
         var test = tests[iTest];
-        test.state = Test.State.NotSaved;
+        test.saveLoadState = Test.State.NotSaved;
         test.inputTest = testView.getInputText();
         test.outputTest = testView.getOutputText();
         
@@ -385,8 +386,8 @@ var initTests = function(testList, template, l10n) {
         var isNotSaved = false;
         for (var iTest = 0; iTest < tests.length; iTest++) {
             var test = tests[iTest];
-            if (test.state === Test.State.NotSaved ||
-                test.state === Test.State.Saving) {
+            if (test.saveLoadState === Test.State.NotSaved ||
+                test.saveLoadState === Test.State.Saving) {
                 isNotSaved = true;
                 break;
             }
@@ -399,7 +400,7 @@ var initTests = function(testList, template, l10n) {
     
     for (var iTest = 0; iTest < testList.length; iTest++) {
         var test = new Test();
-        test.state = Test.State.NotLoaded;
+        test.saveLoadState = Test.State.NotLoaded;
         test.index = iTest;
         test.identifier = testList[iTest].testId;
         tests.push(test);
