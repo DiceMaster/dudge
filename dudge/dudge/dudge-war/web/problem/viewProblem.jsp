@@ -2,20 +2,19 @@
 
 <h1 class="pull-left"><bean:message key="problem.problem" /> ${problemsForm.problemId}: ${problemsForm.title}</h1>
 <div class="pull-right">
+<c:if test="${permissionCheckerRemote.canModifyProblem(autentificationObject.username, problemsForm.problemId)}">    
     <div class="btn-group dudge-btn-group">
         <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown">
             <bean:message key="problem.editMenu"/>
             <span class="caret"></span>
         </button>
         <ul class="dropdown-menu" role="menu">
-<c:if test="${permissionCheckerRemote.canModifyProblem(autentificationObject.username, problemsForm.problemId)}">            
             <li><a href="problems.do?reqCode=edit&problemId=${problemsForm.problemId}"><bean:message key="problem.edit"/></a></li>
             <li><a href="problems.do?reqCode=editTests&problemId=${problemsForm.problemId}"><bean:message key="problem.editTests"/></a></li>
-</c:if>            
-<c:if test="${permissionCheckerRemote.canDeleteProblem(autentificationObject.username, problemsForm.problemId)}">
+    <c:if test="${permissionCheckerRemote.canDeleteProblem(autentificationObject.username, problemsForm.problemId)}">
             <li class="divider"></li>
             <li><a href="#" data-toggle="modal" data-target="#deleteProblem"><bean:message key="problem.delete"/></a></li>
-</c:if>            
+    </c:if>            
         </ul>
     </div>
     <div class="modal" id="deleteProblem" tabindex="-1" role="dialog" aria-hidden="true">
@@ -35,6 +34,7 @@
           </div><!-- /.modal-content -->
         </div><!-- /.modal-dialog -->
     </div><!-- /.modal -->
+</c:if>    
 </div>
 <div class="clearfix"></div>
 <c:if test="${permissionCheckerRemote.canSubmitSolution(autentificationObject.username, contestId, problemsForm.problemId)}">            
