@@ -182,3 +182,7 @@ table.table thead .sorting_desc_disabled:after {
 .dudge-monospace {
     font-family: monospace;
 }
+
+.dudge-top-margin-12 {
+    margin-top: 12px;
+}

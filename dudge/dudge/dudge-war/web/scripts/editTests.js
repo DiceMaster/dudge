@@ -5,9 +5,10 @@ var TestView = function(element) {
     this.collapseContentView = element.find(".panel-collapse");
     this.caretView = element.find(".caret");
     this.errorView = element.find(".dudge-test-error");
-    this.saveView = element.find(".dudge-test-save");
-    this.saveTextView = element.find(".dudge-test-save-text");
-    this.throbberView = element.find(".dudge-test-throbber");
+    this.saveLoadView = element.find(".dudge-test-save");
+    this.saveLoadTextView = element.find(".dudge-test-save-text");
+    this.loadThrobberView = element.find(".dudge-test-load-throbber");
+    this.saveThrobberView = element.find(".dudge-test-throbber");
     this.removeThrobberView = element.find(".dudge-test-remove-throbber");
     this.removeView = element.find(".dudge-test-remove");
     this.inputTestView = element.find(".dudge-test-input");
@@ -25,7 +26,7 @@ var TestView = function(element) {
             this.onExpand(this);
         }
     }).bind(this));
-    this.saveView.click((function(){
+    this.saveLoadView.click((function(){
         if (typeof(this.onSave) === "function") {
             this.onSave(this);
         }
@@ -52,13 +53,12 @@ TestView.prototype = {
     getView: function() {
         return this.panelView;
     },
-    disableEditing: function() {
-        this.inputTestView.prop("disabled", true);
-        this.outputTestView.prop("disabled", true);
+    expand: function() {
+        this.collapseContentView.collapse("show");
     },
-    enableEditing: function() {
-        this.inputTestView.prop("disabled", false);
-        this.outputTestView.prop("disabled", false);
+    toggleEditing: function(isEnabled) {
+        this.inputTestView.prop("disabled", !isEnabled);
+        this.outputTestView.prop("disabled", !isEnabled);
     },
     showError: function(error) {
         this.errorView.text(error);
@@ -66,6 +66,12 @@ TestView.prototype = {
     },
     hideError: function() {
         this.errorView.addClass("hidden");
+    },
+    getInputText: function() {
+        return this.inputTestView.val();
+    },
+    getOutputText: function() {
+        return this.outputTestView.val();
     },
     setEditableText: function(inputText, outputText) {
         if (this.inputTestView.val() !== inputText) {
@@ -75,41 +81,38 @@ TestView.prototype = {
             this.outputTestView.val(outputText);
         }
     },
-    setButtonText: function(text) {
-        this.saveTextView.text(text);
+    setSaveLoadButtonText: function(text) {
+        this.saveLoadTextView.text(text);
     },
-    enableSaveButton: function() {
-        this.saveView.prop("disabled", false);
+    toggleSaveLoadButton: function(isEnabled) {
+        this.saveLoadView.prop("disabled", !isEnabled);
     },
-    disableSaveButton: function() {
-        this.saveView.prop("disabled", true);
-    },
-    enableRemoveButton: function() {
-        this.removeView.prop("disabled", false);
-    },
-    disableRemoveButton: function() {
-        this.removeView.prop("disabled", true);
+    toggleRemoveButton: function(isEnabled) {
+        this.removeView.prop("disabled", !isEnabled);
     },
     setTitle: function(title) {
         this.testNameView.text(title);
     },
-    showThrobber: function() {
-        this.throbberView.removeClass("hidden");
+    toggleSaveThrobber: function(isVisible) {
+        if (isVisible) {
+            this.saveThrobberView.removeClass("hidden");
+        } else {
+            this.saveThrobberView.addClass("hidden");
+        }
     },
-    hideThrobber: function() {
-        this.throbberView.addClass("hidden");
+    toggleLoadThrobber: function(isVisible) {
+        if (isVisible) {
+            this.loadThrobberView.removeClass("hidden");
+        } else {
+            this.loadThrobberView.addClass("hidden");
+        }
     },
-    showRemoveThrobber: function() {
-        this.removeThrobberView.removeClass("hidden");
-    },
-    hideRemoveThrobber: function() {
-        this.removeThrobberView.addClass("hidden");
-    },
-    getInputText: function() {
-        return this.inputTestView.val();
-    },
-    getOutputText: function() {
-        return this.outputTestView.val();
+    toggleRemoveThrobber: function(isVisible) {
+        if (isVisible) {
+            this.removeThrobberView.removeClass("hidden");
+        } else {
+            this.removeThrobberView.addClass("hidden");            
+        }
     }
 };
 
@@ -125,12 +128,24 @@ Test.State = {
     Loading: 4
 };
 
+Test.RemoveState = {
+    NotRemoving: 0,
+    Removing: 1
+};
+
+Test.Error = {
+    NoError: 0,
+    LoadError: 1,
+    SaveError: 2,
+    RemoveError: 3
+};
+
 Test.prototype = {
     index: 0,
     identifier: 0,
-    state: Test.State.Saved,
-    isRemoving: false,
-    isError: false,
+    saveLoadState: Test.State.Saved,
+    removeState: Test.RemoveState.NotRemoving,
+    error: Test.Error.NoError,
     inputTest: null,
     outputTest: null
 };
@@ -143,70 +158,50 @@ var initTests = function(testList, template, l10n) {
     var updateView = function(testView, test) {
         testView.setTitle(l10n.testText + " " + (test.index + 1));
         testView.setEditableText(test.inputTest, test.outputTest);
+        testView.toggleEditing((test.state === Test.State.Saved || test.state === Test.State.NotSaved) &&
+                                test.removeState !== Test.RemoveState.Removing);
+        testView.toggleSaveThrobber(test.state === Test.State.Saving);
+        testView.toggleLoadThrobber(test.state === Test.State.Loading);
+        testView.toggleRemoveThrobber(test.removeState === Test.RemoveState.Removing);
+        switch (test.error) {
+            case Test.Error.LoadError:
+                testView.showError(l10n.loadErrorText);
+                break;
+            case Test.Error.SaveError:
+                testView.showError(l10n.saveErrorText);
+                break;
+            case Test.Error.RemoveError:
+                testView.showError(l10n.removeErrorText);
+                break;                    
+            default:
+                testView.hideError();
+                break;
+        }
+        testView.toggleRemoveButton(test.state !== Test.State.Saving &&
+                                    test.state !== Test.State.Loading &&
+                                    test.removeState !== Test.RemoveState.Removing);
+        testView.toggleSaveLoadButton(test.state === Test.State.NotSaved ||
+                                      test.error === Test.Error.LoadError);
         switch (test.state) {
             case Test.State.Saved:
-                testView.hideError();
-                testView.enableEditing();
-                testView.hideThrobber();
-                testView.setButtonText(l10n.savedText);
-                testView.disableSaveButton();
-                if (test.isRemoving) {
-                    testView.disableRemoveButton();
-                } else {
-                    testView.enableRemoveButton();
-                }
+                testView.setSaveLoadButtonText(l10n.savedText);
                 break;
             case Test.State.NotSaved:
-                testView.hideError();
-                testView.enableEditing();
-                testView.hideThrobber();
-                testView.setButtonText(l10n.saveText);
-                testView.enableSaveButton();
-                if (test.isRemoving) {
-                    testView.disableRemoveButton();
-                } else {
-                    testView.enableRemoveButton();
-                }
+                testView.setSaveLoadButtonText(l10n.saveText);
                 break;
             case Test.State.Saving:
-                testView.hideError();
-                testView.disableEditing();
-                testView.showThrobber();
-                testView.setButtonText(l10n.savingText);
-                testView.disableSaveButton();
-                testView.disableRemoveButton();
+                testView.setSaveLoadButtonText(l10n.savingText);
                 break;
             case Test.State.NotLoaded:
-                testView.disableEditing();
-                testView.hideThrobber();
-                if (test.isRemoving) {
-                    testView.disableRemoveButton();
+                if (test.error === Test.Error.LoadError) {
+                    testView.setSaveLoadButtonText(l10n.tryAgainText);
                 } else {
-                    testView.enableRemoveButton();
-                }
-                if (test.isError) {
-                    testView.showError(l10n.loadingErrorText);
-                    testView.setButtonText(l10n.tryAgainText);
-                    testView.enableSaveButton();
-                } else {
-                    testView.hideError();
-                    testView.setButtonText(l10n.savedText);
-                    testView.disableSaveButton();
+                    testView.setSaveLoadButtonText(l10n.savedText);
                 }
                 break;
             case Test.State.Loading:
-                testView.disableEditing();
-                testView.showThrobber();
-                testView.hideError();
-                testView.setButtonText(l10n.savedText);
-                testView.disableSaveButton();
-                testView.disableRemoveButton();
+                testView.setSaveLoadButtonText(l10n.savedText);
                 break;
-        }
-        if (test.isRemoving) {
-            testView.showRemoveThrobber();
-        } else {
-            testView.hideRemoveThrobber();
         }
     };
     
@@ -217,7 +212,7 @@ var initTests = function(testList, template, l10n) {
             return;
         }
         test.state = Test.State.Loading;
-        test.isError = false;
+        test.error = Test.Error.NoError;
         updateView(testView, test);
         
         $.getJSON(
@@ -229,12 +224,13 @@ var initTests = function(testList, template, l10n) {
             function(json) {
                 test.inputTest = json.inputData;
                 test.outputTest = json.outputData;
-                test.isError = false;
+                test.error = Test.Error.NoError;
                 test.state = Test.State.Saved;
                 updateView(testView, test);
+                testView.expand();
             }
         ).fail(function() {
-            test.isError = true;
+            test.error = Test.Error.LoadError;
             test.state = Test.State.NotLoaded;
             updateView(testView, test);
         });
@@ -247,7 +243,7 @@ var initTests = function(testList, template, l10n) {
             return;
         }
         test.state = Test.State.Saving;
-        test.isError = false;
+        test.error = Test.Error.NoError;
         updateView(testView, test);
         
         $.post(
@@ -259,12 +255,12 @@ var initTests = function(testList, template, l10n) {
                 outputData: test.outputTest
             },
             function() {
-                test.isError = false;
+                test.error = Test.Error.NoError;
                 test.state = Test.State.Saved;
                 updateView(testView, test);
             }
         ).fail(function() {
-            test.isError = true;
+            test.error = Test.Error.SaveError;
             test.state = Test.State.NotSaved;
             updateView(testView, test);
         });
@@ -306,8 +302,9 @@ var initTests = function(testList, template, l10n) {
     
     var removeTest = function() {
         var test = tests[selectedTestIndex];
-        var testView = testViews[selectedTestIndex];        
-        test.isRemoving = true;        
+        var testView = testViews[selectedTestIndex];
+        test.error = Test.Error.NoError;
+        test.removeState = Test.RemoveState.Removing;
         updateView(testView, test);
         
         $.post(
@@ -328,8 +325,8 @@ var initTests = function(testList, template, l10n) {
                 }
             }
         ).fail(function() {
-            test.isError = true;
-            test.isRemoving = false;
+            test.error = Test.Error.RemoveError;
+            test.removeState = Test.RemoveState.CantRemove;
             updateView(testView, test);
         });
     };
@@ -384,6 +381,22 @@ var initTests = function(testList, template, l10n) {
         updateView(testView, test);
     };
     
+    var onReturn = function(e) {
+        var isNotSaved = false;
+        for (var iTest = 0; iTest < tests.length; iTest++) {
+            var test = tests[iTest];
+            if (test.state === Test.State.NotSaved ||
+                test.state === Test.State.Saving) {
+                isNotSaved = true;
+                break;
+            }
+        }
+        if (isNotSaved) {
+            $("#confirmReturn").modal("show");
+            e.preventDefault();
+        }
+    };
+    
     for (var iTest = 0; iTest < testList.length; iTest++) {
         var test = new Test();
         test.state = Test.State.NotLoaded;
@@ -403,4 +416,5 @@ var initTests = function(testList, template, l10n) {
     
     $("#addTest").click(addTest);
     $("#removeTest").click(removeTest);
+    $(".dudge-tests-return").click(onReturn);
 };
