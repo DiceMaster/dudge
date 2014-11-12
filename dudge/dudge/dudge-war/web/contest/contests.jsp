@@ -37,7 +37,11 @@
 </script>
 
 <h1><bean:message key="contests.contests"/></h1>
-
+<c:if test="${permissionCheckerRemote.canAddContest(autentificationObject.username)}">
+<div class="btn-group">
+    <a class="btn btn-default" href="contests.do?reqCode=create"><bean:message key="contest.newContest" /></a>
+</div>
+</c:if>
 <table class="table" id="contestGrid">
     <thead>
         <tr>
