@@ -7,6 +7,8 @@ package dudge.web.actions;
 
 import dudge.ContestLocal;
 import dudge.PermissionCheckerRemote;
+import dudge.ProblemLocal;
+import dudge.SolutionLocal;
 import dudge.db.Contest;
 import dudge.db.ContestProblem;
 import dudge.db.Language;
@@ -14,6 +16,7 @@ import dudge.db.Problem;
 import dudge.db.Solution;
 import dudge.db.SolutionStatus;
 import dudge.db.User;
+import dudge.solution.SolutionDescription;
 import dudge.web.AuthenticationObject;
 import dudge.web.ServiceLocator;
 import dudge.web.forms.SolutionsForm;
@@ -62,7 +65,6 @@ public class SolutionsAction extends DispatchAction {
 	 * @param response
 	 * @return
 	 */
-	@SuppressWarnings("unchecked")
 	public ActionForward view(ActionMapping mapping, ActionForm af, HttpServletRequest request, HttpServletResponse response) {
 		SolutionsForm sf = (SolutionsForm) af;
 
@@ -142,6 +144,45 @@ public class SolutionsAction extends DispatchAction {
 		sf.setContestName(contest.getCaption());
 		
 		return mapping.findForward("mySolutions");
+	}
+	
+	/**
+	 *
+	 * @param mapping
+	 * @param af
+	 * @param request
+	 * @param response
+	 * @return
+	 */
+	public ActionForward problemSolutions(ActionMapping mapping, ActionForm af, HttpServletRequest request, HttpServletResponse response) {
+		
+		AuthenticationObject ao = AuthenticationObject.extract(request);
+		PermissionCheckerRemote pcb = ao.getPermissionChecker();
+		if (!pcb.canAdmin(ao.getUsername())) {
+			return mapping.findForward("accessDenied");
+		}
+
+		SolutionsForm sf = (SolutionsForm) af;
+		
+		int problemId;
+		if (request.getParameter("problemId") != null) {
+			problemId = Integer.parseInt(request.getParameter("problemId"));
+		} else {
+			problemId = sf.getProblemId();
+		}
+		int contestId;
+		if (request.getParameter("contestId") != null) {
+			contestId = Integer.parseInt(request.getParameter("contestId"));
+		} else {
+			contestId = sf.getContestId();
+		}
+		
+		Problem problem = serviceLocator.lookupProblemBean().getProblem(problemId);
+		sf.setProblemId(problemId);
+		sf.setProblemName(problem.getTitle());
+		sf.setContestId(contestId);
+		
+		return mapping.findForward("problemSolutions");
 	}
 
 	/**

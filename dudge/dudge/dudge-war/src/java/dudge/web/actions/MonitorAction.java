@@ -48,6 +48,12 @@ public class MonitorAction extends DispatchAction {
 	 * @return
 	 */
 	public ActionForward showStatus(ActionMapping mapping, ActionForm af, HttpServletRequest request, HttpServletResponse response) {
+
+		AuthenticationObject ao = AuthenticationObject.extract(request);
+		PermissionCheckerRemote pcb = ao.getPermissionChecker();
+		if (!pcb.canAdmin(ao.getUsername())) {
+			return mapping.findForward("accessDenied");
+		}
 		return mapping.findForward("status");
 	}
 

@@ -37,6 +37,9 @@
 </c:if>    
 </div>
 <div class="clearfix"></div>
+<c:if test="${permissionCheckerRemote.canAdmin(autentificationObject.username)}">
+    <div><p><a href="solutions.do?reqCode=problemSolutions&contestId=${contestId}&problemId=${problemsForm.problemId}"><bean:message key="problem.problemSolutions"/></a></p></div>
+</c:if>
 <c:if test="${permissionCheckerRemote.canSubmitSolution(autentificationObject.username, contestId, problemsForm.problemId)}">            
 <a class="btn btn-default" href="solutions.do?reqCode=submit&contestId=${contestId}&problemId=${problemsForm.problemId}"><bean:message key="problem.submitSolution"/></a>
 </c:if>

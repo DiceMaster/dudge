@@ -13,6 +13,7 @@ import java.util.logging.Logger;
 import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
+import javax.persistence.Query;
 
 /**
  *
@@ -66,6 +67,25 @@ public class SolutionBean implements SolutionLocal, SolutionRemote {
 		List<Solution> solutions = (List<Solution>) em.createNamedQuery("Solution.findByUserContest")
 				.setParameter("login", login.toLowerCase(Locale.ENGLISH))
 				.setParameter("contestId", contestId)
+				.getResultList();
+		
+		ArrayList<SolutionDescription> solutionDescriptions = new ArrayList<>();
+		for (Solution solution : solutions) {
+			solutionDescriptions.add(new SolutionDescription(solution, messageSource));
+		}
+		return solutionDescriptions;
+	}
+	
+		/**
+	 * Возвращает список решений задачи.
+	 *
+	 * @param problemId идентификатор задачи.
+	 * @return список решений задачи.
+	 */
+	@Override
+	public List<SolutionDescription> getProblemSolutions(int problemId, SolutionMessageSource messageSource) {
+		List<Solution> solutions = (List<Solution>) em.createNamedQuery("Solution.findByProblem")
+				.setParameter("problemId", problemId)
 				.getResultList();
 		
 		ArrayList<SolutionDescription> solutionDescriptions = new ArrayList<>();

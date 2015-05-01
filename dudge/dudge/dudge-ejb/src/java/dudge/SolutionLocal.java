@@ -26,9 +26,17 @@ public interface SolutionLocal {
 	 *
 	 * @param login имя пользователя-автора решений.
 	 * @param contestId идентификатор соревнования, куда решения были отправлены.
-	 * @return отсортированный по давности (т.е. сначала новые) список решений.
+	 * @return список решений, отсортированный по давности (т.е. сначала новые).
 	 */
 	List<SolutionDescription> getSolutionDescriptions(String login, int contestId, SolutionMessageSource messageSource);
+	
+	/**
+	 * Возвращает список решений задачи.
+	 *
+	 * @param problemId идентификатор задачи.
+	 * @return список решений задачи, отсортированный по давности.
+	 */
+	List<SolutionDescription> getProblemSolutions(int problemId, SolutionMessageSource messageSource);
 	
 	/**
 	 * Возвращает список решений задачи, отправленных определенным пользователем в конкретное соревнование. При формировании списка учитывается время отправки

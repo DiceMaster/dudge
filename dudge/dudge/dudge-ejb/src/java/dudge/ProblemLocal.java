@@ -24,7 +24,7 @@ public interface ProblemLocal {
 	 *
 	 * @param orderBy сортируемая колонка.
 	 * @param descending обратный порядок сортировки.
-	 * @return список адач.
+	 * @return список задач.
 	 */
 	List<Problem> getProblems(String orderBy, boolean descending);
 	
