@@ -94,6 +94,8 @@ public class SolutionsAction extends DispatchAction {
 		sf.setContestName(solution.getContest().getCaption());
 		sf.setProblemId(solution.getProblem().getProblemId());
 		sf.setProblemName(solution.getProblem().getTitle());
+		sf.setLanguageId(solution.getLanguage().getLanguageId());
+		sf.setLanguageName(solution.getLanguage().getName());
 		String mark = null;
 		for (ContestProblem cp : solution.getContest().getContestProblems()) {
 			if (cp.getProblem().getProblemId() == solution.getProblem().getProblemId()) {
@@ -392,7 +394,7 @@ public class SolutionsAction extends DispatchAction {
 				json.put(sol.getProblem().getTitle());
 			}
 
-			json.put(sol.getLanguage().getLanguageId());
+			json.put(sol.getLanguage().getName());
 			if (sol.getStatus() != SolutionStatus.PROCESSED || sol.getLastRunResult() == null) {
 				json.put(sol.getStatus().toString());
 			} else {

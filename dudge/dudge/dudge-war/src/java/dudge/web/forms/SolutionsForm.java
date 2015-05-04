@@ -29,6 +29,8 @@ public class SolutionsForm extends ActionForm {
 	private int solutionId;
 	// Идентификатор языка решения.
 	private String languageId;
+	// Название языка.
+	private String languageName;
 	// Идентификатор задачи решения.
 	private int problemId;
 	// Идентификатор соревнования.
@@ -78,8 +80,16 @@ public class SolutionsForm extends ActionForm {
 	public void reset(ActionMapping mapping, HttpServletRequest request) {
 		contestLanguages.clear();
 		contestProblems.clear();
-		setSolutionId(0);
+		solutionId = 0;
+		problemId = 0;
+		problemName = "";
+		problemMark = "";
+		contestId = 0;
+		contestName = "";
+		userId = "";
 		languageId = "";
+		languageName = "";
+		languageName = "";
 		sourceCode = "";
 		status = null;
 		statusMessage = "";
@@ -151,20 +161,20 @@ public class SolutionsForm extends ActionForm {
 		this.currentTestNumber = currentTestNumber;
 	}
         
-        public String StatusToJSONText() {
-            JSONObject jo= new JSONObject();
-            String ret;
-            
-            try {
-                jo.put("status", status);
-                jo.put("currentTestNumber", currentTestNumber);
-                jo.put("statusMessage", statusMessage);
-                ret=jo.toString();
-            } catch (JSONException e) {
-                ret="{'status':'INTERNAL_ERROR','currentTestNumber':'-1','statusMessage':'Exception detected'}";
+	public String StatusToJSONText() {
+		JSONObject jo= new JSONObject();
+		String ret;
+
+		try {
+			jo.put("status", status);
+			jo.put("currentTestNumber", currentTestNumber);
+			jo.put("statusMessage", statusMessage);
+			ret=jo.toString();
+		} catch (JSONException e) {
+			ret="{'status':'INTERNAL_ERROR','currentTestNumber':'-1','statusMessage':'Exception detected'}";
 		}
-            return ret;
-        }
+		return ret;
+	}
 
 	public long getSubmitTime() {
 		return submitTime;
@@ -213,4 +223,12 @@ public class SolutionsForm extends ActionForm {
 	public void setContestName(String contestName) {
 		this.contestName = contestName;
         }
+
+	public String getLanguageName() {
+		return languageName;
+	}
+
+	public void setLanguageName(String languageName) {
+		this.languageName = languageName;
+	}
 }
