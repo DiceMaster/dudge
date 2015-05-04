@@ -141,6 +141,7 @@ public class UsersForm extends ActionForm {
 		setEmail("");
 		setRealName("");
 		setOrganization("");
+		setFaculty("");
 		setCourse("");
 		setGroup("");
 		setAge("");
