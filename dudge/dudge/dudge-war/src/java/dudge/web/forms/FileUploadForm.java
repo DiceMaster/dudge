@@ -52,19 +52,6 @@ public class FileUploadForm extends ActionForm {
 	       return errors;
 	    }
  
-//	    //only allow textfile to upload
-//	    if(!"text/plain".equals(getUpload().getContentType())){
-//	        errors.add("common.file.err.ext", new ActionMessage("error.common.file.textfile.only"));
-//	        return errors;
-//	    }
- 
-//        //file size cant larger than 10kb
-//	    System.out.println(getUpload().getFileSize());
-//	    if(getUpload().getFileSize() > 10240){ //10kb
-//	       errors.add("common.file.err.size", new ActionMessage("error.common.file.size.limit", 10240));
-//	       return errors;
-//	    }
- 
 	    return errors;
 	}
 }

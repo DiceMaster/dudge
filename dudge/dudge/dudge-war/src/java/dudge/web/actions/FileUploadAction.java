@@ -52,9 +52,7 @@ public class FileUploadAction extends Action {
  
 	    String fileName = file.getFileName();
  
-	    if(!("").equals(fileName)){  
- 
-	        System.out.println("Server path:" +filePath);
+	    if(!("").equals(fileName)){
 	        File newFile = new File(filePath, fileName);
  
 	        if(!newFile.exists()){

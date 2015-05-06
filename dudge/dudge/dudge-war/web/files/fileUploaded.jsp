@@ -1,5 +1,5 @@
-<jsp:useBean id="filesForm" class="dudge.web.forms.FilesForm" scope="session" />
+<jsp:useBean id="fileUploadForm" class="dudge.web.forms.FileUploadForm" scope="session" />
 
 <script type='text/javascript'>
-    window.parent.CKEDITOR.tools.callFunction(${filesForm.CKEditorFuncNum}, '/upload/${filesForm.upload.fileName}', '');
+    window.parent.CKEDITOR.tools.callFunction(${fileUploadForm.CKEditorFuncNum}, 'upload/${fileUploadForm.upload.fileName}', '');
 </script>
