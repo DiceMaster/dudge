@@ -3,6 +3,14 @@
 <link rel="stylesheet" type="text/css" href="css/dudge-styles.css" /> 
 
 <script src="ckeditor/ckeditor.js"></script>
+<script type="text/javascript">
+    $(document).ready(function() {
+        CKEDITOR.replace('ckeditor',
+        {
+            filebrowserUploadUrl : 'fileUpload.do'
+        });
+    });
+</script>
 
 <form class="form" action="problems.do" method="POST" enctype="multipart/form-data">
     <c:choose>
@@ -34,7 +42,7 @@
             </div>
             <div class="form-group">
                 <label><bean:message key="problem.description" /></label>
-                <textarea class="ckeditor" name="description">${problemsForm.description}</textarea> 
+                <textarea id="ckeditor" name="description">${problemsForm.description}</textarea> 
             </div>
         </div>
 

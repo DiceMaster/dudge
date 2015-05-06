@@ -898,4 +898,24 @@ public class PermissionCheckerBean implements PermissionCheckerRemote {
 		}
 		return false;
 	}
+	
+	/* Проверяет наличие прав на заливку фалов.
+	 * @principal пользователь, для которого проверяются права;
+	 * @return true если пользователь может заливать файлы.
+	 */
+	@Override
+	public boolean canUploadFiles(String principal) {
+		if (principal == null) {
+			return false;
+		}
+		User user = userBean.getUser(principal);
+		if (user == null) {
+			logger.log(Level.WARNING, "Nonexistent user {0}", principal);
+			return false;
+		}
+		if (user.isAdmin()) {
+			return true;
+		}
+		return false;
+	}
 }

@@ -274,4 +274,10 @@ public interface PermissionCheckerRemote {
 	 * @return true если пользователь может редактировать глобальные правила.
 	 */
 	public boolean canEditRules(String principal);
+	
+	/* Проверяет наличие прав на заливку фалов.
+	 * @principal пользователь, для которого проверяются права;
+	 * @return true если пользователь может заливать файлы.
+	 */
+	public boolean canUploadFiles(String principal);
 }

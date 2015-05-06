@@ -17,6 +17,7 @@
 		<form-bean name="reportsForm" type="dudge.web.forms.ReportsForm"/>
                 <form-bean name="monitorForm" type="dudge.web.forms.MonitorForm"/>
                 <form-bean name="rulesForm" type="dudge.web.forms.RulesForm"/>
+                <form-bean name="fileUploadForm" type="dudge.web.forms.FileUploadForm"/>
 	</form-beans>
 	
 	<global-exceptions>
@@ -150,8 +151,15 @@
                
 		<action path="/reports"
 			parameter="reqCode"
-            name="reportsForm"
+			name="reportsForm"
 			type="dudge.web.actions.ReportsAction">
+		</action>
+                
+                <action path="/fileUpload"
+			name="fileUploadForm"
+                        validate="true"
+			type="dudge.web.actions.FileUploadAction">
+                        <forward name="fileUploaded" path="/files/fileUploaded.jsp"/>
 		</action>
                 
 	</action-mappings>
