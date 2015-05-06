@@ -26,49 +26,49 @@
 	
 	<global-forwards>
 
-		<forward name="announce" path="/announce.jsp"/>
+		<forward name="announce" path="/pages/announce.jsp"/>
 
-		<forward name="news" path="/news.jsp"/>
+		<forward name="news" path="/pages/news.jsp"/>
 		
-		<forward name="register" path="/user/editUser.jsp"/>
-		<forward name="users" path="/user/users.jsp"/>
-		<forward name="editUser" path="/user/editUser.jsp"/>
-		<forward name="viewUser" path="/user/viewUser.jsp"/>
+		<forward name="register" path="/pages/user/editUser.jsp"/>
+		<forward name="users" path="/pages/user/users.jsp"/>
+		<forward name="editUser" path="/pages/user/editUser.jsp"/>
+		<forward name="viewUser" path="/pages/user/viewUser.jsp"/>
 		
-		<forward name="contests" path="/contest/contests.jsp"/>
-		<forward name="createContest" path="/contest/editContest.jsp"/>
-		<forward name="editContest" path="/contest/editContest.jsp"/>
-		<forward name="viewContest" path="/contest/viewContest.jsp"/>
-		<forward name="contestProblems" path="/contest/contestProblems.jsp"/>
-		<forward name="contestRules" path="/contest/contestRules.jsp"/>
+		<forward name="contests" path="/pages/contest/contests.jsp"/>
+		<forward name="createContest" path="/pages/contest/editContest.jsp"/>
+		<forward name="editContest" path="/pages/contest/editContest.jsp"/>
+		<forward name="viewContest" path="/pages/contest/viewContest.jsp"/>
+		<forward name="contestProblems" path="/pages/contest/contestProblems.jsp"/>
+		<forward name="contestRules" path="/pages/contest/contestRules.jsp"/>
 		
-		<forward name="submitSolution" path="/solution/submitSolution.jsp"/>
-		<forward name="viewSolution" path="/solution/viewSolution.jsp"/>
-		<forward name="mySolutions" path="/solution/mySolutions.jsp"/>
-                <forward name="problemSolutions" path="/solution/problemSolutions.jsp"/>
+		<forward name="submitSolution" path="/pages/solution/submitSolution.jsp"/>
+		<forward name="viewSolution" path="/pages/solution/viewSolution.jsp"/>
+		<forward name="mySolutions" path="/pages/solution/mySolutions.jsp"/>
+                <forward name="problemSolutions" path="/pages/solution/problemSolutions.jsp"/>
 		
-                <forward name="editTests" path="/problem/editTests.jsp"/>
-		<forward name="editProblem" path="/problem/editProblem.jsp"/>
-		<forward name="problems" path="/problem/problems.jsp"/>
-		<forward name="viewProblem" path="/problem/viewProblem.jsp"/>
+                <forward name="editTests" path="/pages/problem/editTests.jsp"/>
+		<forward name="editProblem" path="/pages/problem/editProblem.jsp"/>
+		<forward name="problems" path="/pages/problem/problems.jsp"/>
+		<forward name="viewProblem" path="/pages/problem/viewProblem.jsp"/>
 		
-		<forward name="languages" path="/language/languages.jsp"/>
-		<forward name="viewLanguage" path="/language/viewLanguage.jsp"/>
-		<forward name="editLanguage" path="/language/editLanguage.jsp"/>
+		<forward name="languages" path="/pages/language/languages.jsp"/>
+		<forward name="viewLanguage" path="/pages/language/viewLanguage.jsp"/>
+		<forward name="editLanguage" path="/pages/language/editLanguage.jsp"/>
 		
-		<forward name="status" path="/monitor/status.jsp"/>
-		<forward name="monitorGLOBAL" path="/monitor/monitorGLOBAL.jsp"/>
-		<forward name="monitorACM" path="/monitor/monitorACM.jsp"/>
-		<forward name="monitorLAB" path="/monitor/monitorLAB.jsp"/>
+		<forward name="status" path="/pages/monitor/status.jsp"/>
+		<forward name="monitorGLOBAL" path="/pages/monitor/monitorGLOBAL.jsp"/>
+		<forward name="monitorACM" path="/pages/monitor/monitorACM.jsp"/>
+		<forward name="monitorLAB" path="/pages/monitor/monitorLAB.jsp"/>
                 
-		<forward name="viewRules" path="/rules/viewRules.jsp"/>
-		<forward name="editRules" path="/rules/editRules.jsp"/>
+		<forward name="viewRules" path="/pages/rules/viewRules.jsp"/>
+		<forward name="editRules" path="/pages/rules/editRules.jsp"/>
                 
-		<forward name="loginRequired" path="/loginRequired.jsp"/>
-		<forward name="accessDenied" path="/accessDenied.jsp"/>
-		<forward name="importError" path="/importError.jsp"/>
+		<forward name="loginRequired" path="/pages/loginRequired.jsp"/>
+		<forward name="accessDenied" path="/pages/accessDenied.jsp"/>
+		<forward name="importError" path="/pages/importError.jsp"/>
 		
-		<forward name="reports" path="/report/reports.jsp"/>
+		<forward name="reports" path="/pages/report/reports.jsp"/>
 		
 	</global-forwards>
 	
@@ -80,14 +80,14 @@
 			name="announceForm" 
 			scope="session"
 			parameter="reqCode">
-			<forward name="toAnnounce" path="/announce.jsp" redirect="true"/>  
+			<forward name="toAnnounce" path="/pages/announce.jsp" redirect="true"/>  
 		</action>  
                 
 		<action path="/login"
 			 type="dudge.web.actions.LoginAction"
 			 name="loginForm"
 			 parameter="reqCode">
-			<forward name="fail" path="/loginFailed.jsp" redirect="true"/>
+			<forward name="fail" path="/pages/loginFailed.jsp" redirect="true"/>
 		</action>
 		
 		<action path="/solutions"
@@ -122,7 +122,7 @@
 			 type="dudge.web.actions.UsersAction"
 			 name="usersForm"
 			 parameter="reqCode">
-			<forward name="registrationSuccess" path="/registrationSuccess.jsp" redirect="true"/>
+			<forward name="registrationSuccess" path="/pages/registrationSuccess.jsp" redirect="true"/>
                         <forward name="redirectUsersList" path="/users.do?reqCode=list" redirect="true"/>
 		</action>
 		
